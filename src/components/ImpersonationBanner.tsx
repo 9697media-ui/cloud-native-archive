@@ -32,7 +32,7 @@ export default function ImpersonationBanner() {
   };
 
   return (
-    <div className="sticky top-0 z-[60] w-full bg-yellow-500/95 text-yellow-950 backdrop-blur supports-[backdrop-filter]:bg-yellow-500/85">
+    <div className="sticky top-0 z-[60] w-full bg-destructive text-destructive-foreground">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 lg:px-8">
         <div className="flex items-center gap-2 text-sm font-medium">
           <ShieldAlert className="h-4 w-4 shrink-0" />
@@ -41,10 +41,10 @@ export default function ImpersonationBanner() {
           </span>
         </div>
         <Button
-          variant="outline"
+          variant="secondary"
           size="sm"
           onClick={handleExit}
-          className="gap-1.5 border-yellow-900/40 bg-yellow-100 text-yellow-950 hover:bg-yellow-200"
+          className="gap-1.5"
         >
           <LogOut className="h-3.5 w-3.5" />
           Sair da impersonação
