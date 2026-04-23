@@ -35,6 +35,7 @@ export default function CalendarPage() {
   const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
   const { isAuthenticated } = useAuth();
   const { canEdit } = useUserRole();
+  const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<View>('month');
   const [filterUnit, setFilterUnit] = useState<string>('all');
