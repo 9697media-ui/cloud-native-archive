@@ -344,8 +344,8 @@ export default function CalendarPage() {
       {/* Week view */}
       {view === 'week' && (
         <Card>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-7 gap-3">
+          <CardContent className="p-2 sm:p-4">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-7 sm:gap-3">
               {weekDays.map(day => {
                 const dayEvents = getEventsForDay(day);
                 const isToday = isSameDay(day, new Date());
@@ -357,23 +357,52 @@ export default function CalendarPage() {
                     onDragOver={(e) => handleDragOver(e, dateStr)}
                     onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, day)}
-                    className={`rounded-lg border border-border p-3 transition-colors ${isToday ? 'bg-primary/5 border-primary/30' : ''} ${isDragOver ? 'bg-accent/50 border-primary/50' : ''}`}
+                    className={cn(
+                      "rounded-lg border border-border transition-colors",
+                      isToday ? 'bg-primary/5 border-primary/20' : '',
+                      isDragOver ? 'bg-accent/50 border-primary/50' : '',
+                      isMobile ? 'p-2' : 'p-3'
+                    )}
                   >
-                    <p className="mb-2 text-center text-xs font-semibold text-muted-foreground">
-                      {format(day, 'EEE', { locale: ptBR })}
-                    </p>
-                    <p className={`mb-3 text-center text-lg font-bold ${isToday ? 'text-primary' : 'text-foreground'}`}>
-                      {format(day, 'd')}
-                    </p>
-                    <div className="space-y-2">
-                      {dayEvents.map(e => (
-                        <button
-                          key={e.id}
-                          draggable
-                          onDragStart={(ev) => handleDragStart(ev, e)}
-                          onClick={() => handleEventClick(e)}
-                          className="w-full rounded-md border border-border p-2 text-left cursor-grab active:cursor-grabbing hover:bg-accent"
-                        >
+                    <div className="flex items-center justify-between mb-2 sm:flex-col sm:mb-3">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider sm:text-xs sm:mb-2 text-center w-full">
+                        {format(day, isMobile ? 'EEEE' : 'EEE', { locale: ptBR })}
+                      </p>
+                      <p className={cn(
+                        "text-lg font-bold sm:text-xl text-center w-full",
+                        isToday ? 'text-primary' : 'text-foreground'
+                      )}>
+                        {format(day, 'd')}
+                      </p>
+                    </div>
+                    <div className="space-y-1.5 sm:space-y-2">
+                      {dayEvents.length === 0 ? (
+                        <p className="text-[10px] text-muted-foreground text-center py-2 sm:hidden">Sem eventos</p>
+                      ) : (
+                        dayEvents.map(e => (
+                          <button
+                            key={e.id}
+                            draggable
+                            onDragStart={(ev) => handleDragStart(ev, e)}
+                            onClick={() => handleEventClick(e)}
+                            className="w-full rounded-md border border-border p-2 text-left cursor-grab active:cursor-grabbing hover:bg-accent bg-card"
+                          >
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className={`h-1.5 w-1.5 rounded-full ${unitDotColors[e.unit]}`} />
+                              <span className="truncate text-[10px] font-medium text-foreground sm:text-xs">{e.title}</span>
+                            </div>
+                            <p className="text-[9px] text-muted-foreground sm:text-[10px]">
+                              {format(new Date(e.start_datetime), 'HH:mm')} - {format(new Date(e.end_datetime), 'HH:mm')}
+                            </p>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
                           <div className="flex items-center gap-1.5">
                             <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]}`} />
                             <span className="truncate text-xs font-medium text-foreground">{e.title}</span>
