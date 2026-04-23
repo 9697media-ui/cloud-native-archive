@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole, useAccessRequests } from '@/hooks/useUserRole';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useDbUsers } from '@/hooks/useDbUsers';
 import { AppUser, UNITS, PERMISSION_LEVELS } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
