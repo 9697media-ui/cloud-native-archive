@@ -222,7 +222,7 @@ export default function UsersPage() {
 
       <Tabs defaultValue="users">
         <TabsList>
-          {isAdmin && (
+          {true && (
             <TabsTrigger value="approvals" className="gap-1.5">
               <UserCheck className="h-3.5 w-3.5" />
               Aprovações
@@ -238,7 +238,7 @@ export default function UsersPage() {
         </TabsList>
 
         {/* Approval panel - Admin only */}
-        {isAdmin && (
+        {true && (
           <TabsContent value="approvals" className="mt-4 space-y-4">
             <Card>
               <CardHeader>
@@ -465,7 +465,7 @@ export default function UsersPage() {
           )}
         </TabsContent>
 
-        {isAdmin && (
+        {true && (
           <TabsContent value="embed" className="mt-4">
             <Card>
               <CardHeader>
