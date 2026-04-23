@@ -62,7 +62,7 @@ export function useUserRole() {
     fetchRole();
   }, [user, isAuthenticated]);
 
-  const canEdit = role === 'admin' || role === 'editor';
+  const canEdit = role === 'admin';
   const isAdmin = role === 'admin';
   const canView = role !== null;
 
