@@ -279,7 +279,7 @@ export default function CalendarPage() {
           <CardContent className="p-2">
             <div className="grid grid-cols-7 text-center">
               {dayNames.map(d => (
-                <div key={d} className="p-2 text-xs font-semibold text-muted-foreground">{d}</div>
+                <div key={d} className="p-1 text-[10px] font-semibold text-muted-foreground sm:p-2 sm:text-xs">{d}</div>
               ))}
               {days.map(day => {
                 const dayEvents = getEventsForDay(day);
@@ -295,27 +295,42 @@ export default function CalendarPage() {
                     onDragOver={(e) => handleDragOver(e, dateStr)}
                     onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, day)}
-                    className={`min-h-[100px] border border-border p-1 transition-colors ${!isCurrentMonth ? 'opacity-40' : ''} ${isToday ? 'bg-primary/5' : ''} ${isDragOver ? 'bg-accent/50 border-primary/50' : ''} ${hasConflict ? 'bg-destructive/10 border-destructive/30' : ''} ${shouldPulse ? 'animate-conflict-pulse' : ''}`}
+                    className={cn(
+                      "min-h-[80px] sm:min-h-[100px] border border-border p-0.5 sm:p-1 transition-colors relative",
+                      !isCurrentMonth ? 'opacity-30 bg-muted/20' : '',
+                      isToday ? 'bg-primary/5' : '',
+                      isDragOver ? 'bg-accent/50 border-primary/50' : '',
+                      hasConflict ? 'bg-destructive/5 border-destructive/20' : '',
+                      shouldPulse ? 'animate-conflict-pulse' : ''
+                    )}
                   >
-                    <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs ${isToday ? 'bg-primary text-primary-foreground' : hasConflict ? 'bg-destructive text-destructive-foreground' : 'text-foreground'}`}>
+                    <span className={cn(
+                      "inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] sm:h-6 sm:w-6 sm:text-xs mb-1",
+                      isToday ? 'bg-primary text-primary-foreground font-bold' : hasConflict ? 'bg-destructive text-destructive-foreground' : 'text-foreground'
+                    )}>
                       {format(day, 'd')}
                     </span>
-                    <div className="mt-0.5 space-y-0.5">
-                      {dayEvents.slice(0, 3).map(e => (
+                    <div className="flex flex-col gap-0.5">
+                      {dayEvents.slice(0, isMobile ? 2 : 3).map(e => (
                         <button
                           key={e.id}
                           draggable
                           onDragStart={(ev) => handleDragStart(ev, e)}
                           onClick={() => handleEventClick(e)}
-                          className={`flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[10px] leading-tight cursor-grab active:cursor-grabbing hover:opacity-80 ${unitDotColors[e.unit]} bg-opacity-15`}
+                          className={cn(
+                            "flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[8px] sm:text-[10px] leading-tight cursor-grab active:cursor-grabbing hover:opacity-80 border-l-2",
+                            unitDotColors[e.unit], "bg-opacity-10",
+                            `border-l-${unitDotColors[e.unit].split('-')[1]}`
+                          )}
                         >
-                          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${unitDotColors[e.unit]}`} />
-                          <span className="truncate text-foreground">{e.title}</span>
-                          {e.has_conflict && <AlertTriangle className="h-2.5 w-2.5 shrink-0 text-destructive" />}
+                          <span className="truncate text-foreground flex-1">{e.title}</span>
+                          {e.has_conflict && <AlertTriangle className="h-2 w-2 shrink-0 text-destructive sm:h-2.5 sm:w-2.5" />}
                         </button>
                       ))}
-                      {dayEvents.length > 3 && (
-                        <span className="block text-center text-[10px] text-muted-foreground">+{dayEvents.length - 3}</span>
+                      {dayEvents.length > (isMobile ? 2 : 3) && (
+                        <span className="block text-center text-[8px] font-medium text-muted-foreground sm:text-[10px]">
+                          +{dayEvents.length - (isMobile ? 2 : 3)}
+                        </span>
                       )}
                     </div>
                   </div>
