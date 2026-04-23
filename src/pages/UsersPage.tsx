@@ -261,43 +261,45 @@ export default function UsersPage() {
                 ) : (
                   <div className="space-y-3">
                     {requests.map(req => (
-                      <div key={req.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-border p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                            {req.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                      <div key={req.id} className="flex flex-col gap-4 rounded-lg border border-border p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                              {req.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-foreground truncate">{req.name}</p>
+                              <p className="text-xs text-muted-foreground truncate">{req.email}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">{req.name}</p>
-                            <p className="text-xs text-muted-foreground">{req.email}</p>
-                          </div>
+                          <Badge variant="secondary" className="text-[10px] sm:text-xs shrink-0">
+                            {new Date(req.requested_at).toLocaleDateString('pt-BR')}
+                          </Badge>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="gap-1">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <Badge variant="outline" className="gap-1 w-fit">
                             {ROLE_ICONS[req.requested_role]}
                             {ROLE_LABELS[req.requested_role] || req.requested_role}
                           </Badge>
-                          <Badge variant="secondary" className="text-xs">
-                            {new Date(req.requested_at).toLocaleDateString('pt-BR')}
-                          </Badge>
-                          <div className="flex gap-1.5 ml-2">
+                          <div className="flex gap-2">
                             <Button
                               size="sm"
                               variant="default"
-                              className="gap-1"
+                              className="flex-1 gap-1.5"
                               disabled={processingId === req.id}
                               onClick={() => handleApprove(req)}
                             >
-                              <UserCheck className="h-3.5 w-3.5" />
+                              <UserCheck className="h-4 w-4" />
                               Aprovar
                             </Button>
                             <Button
                               size="sm"
                               variant="destructive"
-                              className="gap-1"
+                              className="flex-1 gap-1.5"
                               disabled={processingId === req.id}
                               onClick={() => handleReject(req)}
                             >
-                              <UserX className="h-3.5 w-3.5" />
+                              <UserX className="h-4 w-4" />
                               Rejeitar
                             </Button>
                           </div>
