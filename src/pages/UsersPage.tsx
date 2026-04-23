@@ -222,7 +222,7 @@ export default function UsersPage() {
 
       <Tabs defaultValue="users">
         <TabsList>
-          {true && (
+          {isAdmin && (
             <TabsTrigger value="approvals" className="gap-1.5">
               <UserCheck className="h-3.5 w-3.5" />
               Aprovações
