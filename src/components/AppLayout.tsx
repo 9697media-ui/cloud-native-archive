@@ -1,10 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, LogIn, LogOut } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useIsEmbedded } from '@/hooks/useIsEmbedded';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import ImpersonationBanner from '@/components/ImpersonationBanner';
 
 const navItems = [
