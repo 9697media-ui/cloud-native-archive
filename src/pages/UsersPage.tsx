@@ -214,6 +214,20 @@ export default function UsersPage() {
 
   const permLabel = (level: string) => PERMISSION_LEVELS.find(p => p.value === level)?.label || level;
 
+  if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
+
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <Shield className="h-12 w-12 text-muted-foreground/30 mb-4" />
+        <h2 className="text-xl font-semibold">Acesso Restrito</h2>
+        <p className="text-muted-foreground max-w-sm mx-auto">
+          Apenas administradores podem acessar a gestão de usuários e realizar ações como redefinir senhas ou entrar como outro usuário.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -222,7 +236,7 @@ export default function UsersPage() {
 
       <Tabs defaultValue="users">
         <TabsList>
-          {true && (
+          {isAdmin && (
             <TabsTrigger value="approvals" className="gap-1.5">
               <UserCheck className="h-3.5 w-3.5" />
               Aprovações
@@ -238,7 +252,7 @@ export default function UsersPage() {
         </TabsList>
 
         {/* Approval panel - Admin only */}
-        {true && (
+        {isAdmin && (
           <TabsContent value="approvals" className="mt-4 space-y-4">
             <Card>
               <CardHeader>
@@ -319,7 +333,7 @@ export default function UsersPage() {
             <Input placeholder="Buscar usuário..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
           </div>
 
-          {true && (
+          {isAdmin && (
             <BulkActionBar
               type="users"
               count={selectedUsers.size}
@@ -334,7 +348,7 @@ export default function UsersPage() {
                 <CardContent className="flex flex-col gap-4 p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      {true && (
+                      {isAdmin && (
                         <Checkbox
                           checked={selectedUsers.has(user.id)}
                           onCheckedChange={() => toggleUserSelection(user.id)}
@@ -349,7 +363,7 @@ export default function UsersPage() {
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
                     </div>
-                    {true && (
+                    {isAdmin && (
                       <div className="flex items-center gap-1">
                         <Button 
                           variant="ghost" 

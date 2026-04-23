@@ -12,7 +12,7 @@ import ImpersonationBanner from '@/components/ImpersonationBanner';
 const navItems = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
-  { to: '/usuarios', label: 'Usuários', icon: Users, requiresAdmin: false },
+  { to: '/usuarios', label: 'Usuários', icon: Users, requiresAdmin: true },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
