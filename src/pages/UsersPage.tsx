@@ -408,6 +408,24 @@ export default function UsersPage() {
                           <Badge variant="secondary" className="text-xs">
                             {new Date(user.created_at).toLocaleDateString('pt-BR')}
                           </Badge>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Redefinir senha"
+                            onClick={() => { setResetTarget({ id: user.user_id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
+                          >
+                            <KeyRound className="h-4 w-4" />
+                          </Button>
+                          {user.user_id !== currentUser?.id && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Entrar como este usuário"
+                              onClick={() => setImpersonateTarget({ id: user.user_id, name: user.name, email: user.email })}
+                            >
+                              <UserCog className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -516,6 +534,62 @@ export default function UsersPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEdit(false)}>Cancelar</Button>
             <Button onClick={handleSave}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset password dialog */}
+      <Dialog open={!!resetTarget} onOpenChange={(v) => { if (!v) { setResetTarget(null); setNewPassword(''); setConfirmPassword(''); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Redefinir senha</DialogTitle>
+          </DialogHeader>
+          {resetTarget && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Definir nova senha para <strong className="text-foreground">{resetTarget.name}</strong> ({resetTarget.email}).
+                Anote e entregue ao usuário pelo canal interno.
+              </p>
+              <div className="space-y-1.5">
+                <Label>Nova senha</Label>
+                <Input type="text" autoComplete="off" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Confirmar senha</Label>
+                <Input type="text" autoComplete="off" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetTarget(null)} disabled={resetSubmitting}>Cancelar</Button>
+            <Button onClick={handleResetPassword} disabled={resetSubmitting}>
+              {resetSubmitting ? 'Salvando...' : 'Salvar nova senha'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Impersonate confirm dialog */}
+      <Dialog open={!!impersonateTarget} onOpenChange={(v) => { if (!v && !impersonateSubmitting) setImpersonateTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Entrar como usuário</DialogTitle>
+          </DialogHeader>
+          {impersonateTarget && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Você entrará na conta de <strong className="text-foreground">{impersonateTarget.name}</strong> ({impersonateTarget.email}).
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Sua sessão atual será encerrada. Para voltar à sua conta, use o botão "Sair da impersonação" no banner do topo e faça login novamente.
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImpersonateTarget(null)} disabled={impersonateSubmitting}>Cancelar</Button>
+            <Button onClick={handleImpersonate} disabled={impersonateSubmitting}>
+              {impersonateSubmitting ? 'Entrando...' : 'Entrar como usuário'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
