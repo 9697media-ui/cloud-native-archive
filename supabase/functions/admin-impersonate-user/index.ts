@@ -38,6 +38,9 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+    // No longer checking for admin role as per user request
+    // This allows any authenticated user to impersonate others (private institutional app use case)
+    /*
     const { data: isAdminData, error: roleErr } = await adminClient.rpc('is_admin', { _user_id: callerId });
     if (roleErr || !isAdminData) {
       return new Response(JSON.stringify({ error: 'Acesso negado. Apenas administradores.' }), {
@@ -45,6 +48,7 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+    */
 
     const body = await req.json();
     const { userId } = body;
