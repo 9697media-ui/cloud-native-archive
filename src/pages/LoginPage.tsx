@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, LogIn, UserPlus, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Calendar, LogIn, UserPlus, Clock, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction,
@@ -14,21 +14,68 @@ import {
 
 export default function LoginPage() {
   const { signIn, signUp, resetPassword } = useAuth();
-  const [mode, setMode] = useState<'login' | 'signup' | 'request_sent' | 'forgot'>('login');
+  const [mode, setMode] = useState<'login' | 'signup' | 'request_sent' | 'forgot' | 'reset_emergency'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [requestedRole, setRequestedRole] = useState<string>('viewer');
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState<{ title: string; message: string; type: 'error' | 'success' } | null>(null);
+  // TODO: remover após configurar domínio de e-mail
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
+
+    // TODO: remover após configurar domínio de e-mail
+    // Bypass emergencial: email == senha abre tela de redefinição
+    if (email.trim().toLowerCase() === password.trim().toLowerCase()) {
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setMode('reset_emergency');
+      return;
+    }
+
     setLoading(true);
     const { error } = await signIn(email, password);
     if (error) {
       setPopup({ title: 'Erro', message: error.message, type: 'error' });
+    }
+    setLoading(false);
+  };
+
+  // TODO: remover após configurar domínio de e-mail
+  const handleEmergencyReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      setPopup({ title: 'Erro', message: 'A senha deve ter no mínimo 6 caracteres.', type: 'error' });
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPopup({ title: 'Erro', message: 'As senhas não coincidem.', type: 'error' });
+      return;
+    }
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke('emergency-password-reset', {
+      body: { email, newPassword },
+    });
+    if (error || (data as any)?.error) {
+      setPopup({
+        title: 'Erro',
+        message: (data as any)?.error || error?.message || 'Não foi possível redefinir a senha.',
+        type: 'error',
+      });
+      setLoading(false);
+      return;
+    }
+    // Login automático com a nova senha
+    const { error: signInErr } = await signIn(email, newPassword);
+    if (signInErr) {
+      setPopup({ title: 'Senha alterada', message: 'Senha redefinida, mas falha ao entrar. Faça login manualmente.', type: 'success' });
+      setMode('login');
+      setPassword('');
     }
     setLoading(false);
   };
@@ -59,8 +106,6 @@ export default function LoginPage() {
       return;
     }
 
-    // After signup, create access request (the profile is auto-created by trigger)
-    // We need to wait a moment for the auth to complete
     const { data: { user: authUser } } = await supabase.auth.getUser();
     if (authUser) {
       await (supabase.from('access_requests') as any).insert({
@@ -95,6 +140,66 @@ export default function LoginPage() {
           </CardContent>
         </Card>
       </div>
+    );
+  }
+
+  // TODO: remover após configurar domínio de e-mail
+  if (mode === 'reset_emergency') {
+    return (
+      <>
+        <AlertDialog open={!!popup} onOpenChange={(open) => { if (!open) setPopup(null); }}>
+          <AlertDialogContent className="max-w-sm">
+            <AlertDialogHeader>
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full" style={{ background: popup?.type === 'error' ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--primary) / 0.1)' }}>
+                {popup?.type === 'error' ? <AlertCircle className="h-6 w-6 text-destructive" /> : <CheckCircle2 className="h-6 w-6 text-primary" />}
+              </div>
+              <AlertDialogTitle className="text-center">{popup?.title}</AlertDialogTitle>
+              <AlertDialogDescription className="text-center">{popup?.message}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="sm:justify-center">
+              <AlertDialogAction onClick={() => setPopup(null)}>OK</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <div className="flex min-h-screen items-center justify-center bg-background p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
+                <KeyRound className="h-7 w-7 text-primary-foreground" />
+              </div>
+              <CardTitle className="text-2xl">Definir nova senha</CardTitle>
+              <CardDescription>
+                Para <span className="font-medium text-foreground">{email}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleEmergencyReset} className="space-y-4">
+                <div>
+                  <Label htmlFor="emergency-email">E-mail</Label>
+                  <Input id="emergency-email" type="email" value={email} readOnly disabled />
+                </div>
+                <div>
+                  <Label htmlFor="emergency-new">Nova senha</Label>
+                  <Input id="emergency-new" type="password" placeholder="••••••••" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={6} />
+                </div>
+                <div>
+                  <Label htmlFor="emergency-confirm">Confirmar nova senha</Label>
+                  <Input id="emergency-confirm" type="password" placeholder="••••••••" value={confirmNewPassword} onChange={e => setConfirmNewPassword(e.target.value)} required minLength={6} />
+                </div>
+                <Button type="submit" className="w-full gap-2" disabled={loading}>
+                  <KeyRound className="h-4 w-4" />
+                  {loading ? 'Aguarde...' : 'Definir senha e entrar'}
+                </Button>
+              </form>
+              <div className="mt-4 text-center">
+                <button type="button" onClick={() => { setMode('login'); setPassword(''); }} className="text-sm text-muted-foreground hover:underline">
+                  Voltar ao login
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
@@ -168,9 +273,15 @@ export default function LoginPage() {
           </form>
           <div className="mt-4 text-center space-y-2">
             {mode === 'login' && (
-              <button type="button" onClick={() => setMode('forgot')} className="text-sm text-muted-foreground hover:underline block w-full">
-                Esqueceu a senha?
-              </button>
+              <>
+                <button type="button" onClick={() => setMode('forgot')} className="text-sm text-muted-foreground hover:underline block w-full">
+                  Esqueceu a senha?
+                </button>
+                {/* TODO: remover após configurar domínio de e-mail */}
+                <p className="text-xs text-muted-foreground/80 italic">
+                  Sem acesso ao e-mail? Digite seu e-mail nos dois campos.
+                </p>
+              </>
             )}
             <button
               type="button"
