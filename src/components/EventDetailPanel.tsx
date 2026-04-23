@@ -1,0 +1,169 @@
+import { AppEvent, PARTNER_TYPES, Unit } from '@/types';
+import { getStatusBadgeClass } from '@/lib/statusColors';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, Pencil, Trash2, Megaphone, Users, FileText } from 'lucide-react';
+
+const unitBadgeColors: Record<Unit, string> = {
+  'DIC': 'bg-unit-dic text-primary-foreground',
+  'Nilópolis': 'bg-unit-nilopolis text-primary-foreground',
+  'Santana': 'bg-unit-santana text-primary-foreground',
+  'Evento Geral do Grupo': 'bg-unit-geral text-primary-foreground',
+};
+
+interface Props {
+  event: AppEvent | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onEdit?: (event: AppEvent) => void;
+  onDelete?: (id: string) => void;
+}
+
+export default function EventDetailPanel({ event, open, onOpenChange, onEdit, onDelete }: Props) {
+  if (!event) return null;
+
+  const statusClass = getStatusBadgeClass(event.status, event.has_conflict);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl">Detalhes do Evento</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-5">
+          {/* Badges */}
+          <div className="flex flex-wrap gap-2">
+            <Badge className={unitBadgeColors[event.unit]}>{event.unit}</Badge>
+            <Badge variant="outline" className={`capitalize ${statusClass}`}>{event.status}</Badge>
+            {event.has_conflict && (
+              <Badge variant="destructive" className="gap-1">
+                <AlertTriangle className="h-3 w-3" /> Conflito
+              </Badge>
+            )}
+          </div>
+
+          {/* Details */}
+          <div className="space-y-3">
+            <DetailRow label="Título" value={event.title} />
+            <DetailRow label="Tipo" value={event.event_type} capitalize />
+            <DetailRow label="Responsável" value={event.created_by} />
+            <DetailRow label="Local" value={event.location} />
+            <DetailRow
+              label="Início"
+              value={format(new Date(event.start_datetime), "dd MMM yyyy, HH:mm", { locale: ptBR })}
+            />
+            <DetailRow
+              label="Término"
+              value={format(new Date(event.end_datetime), "dd MMM yyyy, HH:mm", { locale: ptBR })}
+            />
+            {event.description && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground">Descrição</p>
+                <p className="text-sm text-muted-foreground">{event.description}</p>
+              </div>
+            )}
+            {event.notes && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground">Observações</p>
+                <p className="text-sm text-muted-foreground">{event.notes}</p>
+              </div>
+            )}
+            {event.marketing_request && (
+              <div className="flex items-center gap-2">
+                <Megaphone className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">Solicitação de Marketing</span>
+              </div>
+            )}
+            {event.partner_involved && (
+              <div className="rounded-lg border border-border p-3 space-y-1">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">Parceiros Envolvidos</span>
+                </div>
+                {(event.partners || []).filter(p => p.name).map((p, idx) => (
+                  <p key={idx} className="text-xs text-muted-foreground">
+                    {PARTNER_TYPES.find(pt => pt.value === p.type)?.label || p.type}: <span className="font-medium text-foreground">{p.name}</span>
+                  </p>
+                ))}
+                {/* Fallback for legacy single partner */}
+                {(!event.partners || event.partners.length === 0) && event.partner_name && (
+                  <p className="text-xs text-muted-foreground">
+                    {PARTNER_TYPES.find(pt => pt.value === event.partner_type)?.label || event.partner_type}: <span className="font-medium text-foreground">{event.partner_name}</span>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Unit collaboration */}
+            {event.has_unit_collaboration && (
+              <div className="rounded-lg border border-border p-3 space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground">Parceria com Unidades/Instituições</p>
+                {event.collaborating_units.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Unidades: <span className="font-medium text-foreground">{event.collaborating_units.join(', ')}</span>
+                  </p>
+                )}
+                {event.external_collaborators.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Instituições: <span className="font-medium text-foreground">{event.external_collaborators.filter(e => e).join(', ')}</span>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Attachments */}
+            {(event.attachments || []).length > 0 && (
+              <div className="rounded-lg border border-border p-3 space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground">Anexos</p>
+                {event.attachments.map((url, idx) => {
+                  const fileName = decodeURIComponent(url.split('/').pop() || 'arquivo');
+                  return (
+                    <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                      <FileText className="h-3.5 w-3.5" />
+                      {fileName}
+                    </a>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {(onEdit || onDelete) && (
+            <div className="flex gap-3">
+              {onEdit && (
+                <Button className="flex-1 gap-2" onClick={() => onEdit(event)}>
+                  <Pencil className="h-4 w-4" /> Editar
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => {
+                    onDelete(event.id);
+                    onOpenChange(false);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DetailRow({ label, value, capitalize: cap }: { label: string; value: string; capitalize?: boolean }) {
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground">{label}</p>
+      <p className={`text-sm font-medium text-foreground ${cap ? 'capitalize' : ''}`}>{value}</p>
+    </div>
+  );
+}
