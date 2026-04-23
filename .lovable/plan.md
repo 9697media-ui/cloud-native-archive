@@ -1,50 +1,51 @@
 
 
-## Reset emergencial de senha (sem e-mail)
+## Reset de senha pelo admin + Login como usuário (impersonação)
 
-Bypass temporário enquanto o domínio de e-mail não está configurado: se o usuário digitar **o mesmo valor no campo e-mail e no campo senha** na tela de login, o sistema abre um formulário para ele definir uma nova senha imediatamente.
+### O que vai existir na tela `/usuarios`
 
-### Como vai funcionar (UX)
+Na lista "Usuários Cadastrados na Plataforma" (visível só para admins), cada linha ganha **dois novos botões** ao lado do badge de role:
 
-1. Usuário vai em `/login`, digita `joao@email.com` no campo **E-mail** E também `joao@email.com` no campo **Senha**
-2. Ao clicar em **Entrar**, o sistema detecta que email == senha
-3. Em vez de tentar autenticar, abre uma nova tela: **"Definir nova senha para joao@email.com"** com 2 campos (nova senha + confirmar)
-4. Backend valida que o e-mail existe na tabela `profiles`, troca a senha via Edge Function (admin API) e faz login automático
-5. Usuário entra direto no app já com a senha nova
+- 🔑 **Redefinir senha** — abre modal, admin digita nova senha, sistema atualiza
+- 👤 **Entrar como** — admin loga na conta do usuário sem precisar de senha
 
-### Componentes necessários
+### Fluxo 1 — Redefinir senha
 
-**1. Edge Function `emergency-password-reset`** (nova)
-- Recebe `{ email, newPassword }`
-- Verifica se o e-mail existe em `auth.users` via service role
-- Atualiza a senha com `supabase.auth.admin.updateUserById(id, { password })`
-- Retorna sucesso/erro (sem expor se o e-mail existe ou não, por segurança básica)
+1. Admin clica em 🔑 ao lado do usuário
+2. Modal abre: *"Redefinir senha de {nome}"* com campo "Nova senha" + "Confirmar senha" + botão **Salvar**
+3. Sistema chama Edge Function `admin-reset-user-password` com `{ userId, newPassword }`
+4. Edge Function valida que o caller é admin (via `has_role`), depois usa `supabase.auth.admin.updateUserById(userId, { password })`
+5. Toast de sucesso. Admin entrega a senha ao funcionário pelo canal interno.
 
-**2. `LoginPage.tsx`** (modificar)
-- Em `handleLogin`, antes de chamar `signIn`, comparar `email === password`
-- Se igual → mudar para novo modo `reset_emergency` (não chama Supabase)
-- Novo modo renderiza formulário com: e-mail (readonly), nova senha, confirmar senha, botão "Definir senha e entrar"
-- Ao submeter: invoca a Edge Function, depois faz `signIn(email, novaSenha)` automaticamente
+### Fluxo 2 — Entrar como usuário (impersonação)
 
-**3. Aviso visual discreto na tela de login**
-- Pequeno texto cinza abaixo do "Esqueceu a senha?": *"Sem acesso ao e-mail? Digite seu e-mail nos dois campos."*
+1. Admin clica em 👤 ao lado do usuário
+2. Confirmação: *"Entrar como {nome}? Você será deslogado da sua conta atual."*
+3. Sistema chama Edge Function `admin-impersonate-user` com `{ userId }`
+4. Edge Function valida admin, gera magic link via `supabase.auth.admin.generateLink({ type: 'magiclink', email })`, extrai o token e retorna
+5. Frontend salva o ID do admin original em `sessionStorage` (`impersonator_id`), faz logout e usa o token para logar como o alvo
+6. **Banner fixo no topo** aparece em todas as páginas: *"Você está logado como {nome do alvo}. [Voltar para minha conta]"*
+7. Ao clicar **Voltar**, faz logout do alvo, limpa sessionStorage e redireciona para `/login` (admin loga manualmente de volta — limitação técnica, magic link de volta exigiria re-autenticação)
 
-### Considerações de segurança
-
-- Bypass é **temporário** — adicionar comentário `// TODO: remover após configurar domínio de e-mail` na Edge Function e no LoginPage
-- Função usa service role apenas no backend (nunca exposta ao frontend)
-- Qualquer pessoa que souber o e-mail de um usuário pode redefinir a senha dele — **isso é um risco aceito enquanto o domínio não está pronto**, conforme sua decisão
-- Vou registrar tentativas em `console.log` da Edge Function para você auditar nos logs
-
-### Arquivos afetados
+### Componentes / arquivos
 
 | Arquivo | Mudança |
 |---|---|
-| `supabase/functions/emergency-password-reset/index.ts` | Criar |
-| `supabase/config.toml` | Registrar função (verify_jwt = false) |
-| `src/pages/LoginPage.tsx` | Adicionar modo `reset_emergency` + detecção email==password |
+| `supabase/functions/admin-reset-user-password/index.ts` | Criar — valida admin via JWT + service role para trocar senha |
+| `supabase/functions/admin-impersonate-user/index.ts` | Criar — valida admin + gera magic link do alvo |
+| `supabase/config.toml` | Registrar 2 novas funções (`verify_jwt = false`, validação manual no código) |
+| `src/pages/UsersPage.tsx` | Adicionar botões + modais de reset e impersonação na lista `dbUsers` |
+| `src/components/ImpersonationBanner.tsx` | Criar — banner amarelo fixo no topo quando `sessionStorage.impersonator_id` existe |
+| `src/components/AppLayout.tsx` | Renderizar `<ImpersonationBanner />` no topo |
 
-### Após configurar o domínio
+### Segurança
 
-Quando o e-mail oficial estiver funcionando, basta remover a Edge Function e o bloco `if (email === password)` do LoginPage — sinalizado com TODO.
+- Ambas as Edge Functions **validam no início** se o caller é admin (`is_admin(auth.uid())`); se não for, retornam 403
+- Senha do admin nunca trafega
+- Service role usada só dentro das functions
+- Impersonação registrada em `console.log` da function para auditoria nos logs
+
+### Observação sobre impersonação
+
+A solução mais limpa (Supabase ainda não tem "session swap" nativo) usa magic link sob o capô. O admin precisa logar de novo manualmente ao sair da impersonação — esse é o trade-off técnico aceito para não complicar o fluxo. Se quiser uma solução mais sofisticada (manter sessão dupla), posso planejar à parte.
 
