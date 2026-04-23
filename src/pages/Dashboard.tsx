@@ -304,28 +304,30 @@ export default function Dashboard() {
             <Collapsible key={u.unit} open={openUnits[u.unit] || false} onOpenChange={() => toggleUnit(u.unit)}>
               <Card className={`border-l-4 ${unitBorderColors[u.unit]} transition-shadow hover:shadow-md`}>
                 <CollapsibleTrigger className="w-full text-left">
-                  <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className={`h-3 w-3 rounded-full ${unitDotColors[u.unit]}`} />
-                      <span className="font-semibold text-foreground">{u.unit}</span>
-                      <Badge className={`${unitDotColors[u.unit]} text-primary-foreground text-xs`}>
+                  <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+                    <div className="flex items-center justify-between sm:justify-start sm:gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[u.unit]} shrink-0 sm:h-3 sm:w-3`} />
+                        <span className="text-sm font-semibold text-foreground sm:text-base">{u.unit}</span>
+                      </div>
+                      <Badge className={cn("text-[10px] px-1.5 py-0 sm:text-xs sm:px-2 sm:py-0.5", unitDotColors[u.unit], "text-primary-foreground")}>
                         {u.total} eventos
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-5 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] sm:gap-5 sm:text-sm">
                       <span className="flex items-center gap-1.5">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        <span className="text-muted-foreground">{u.confirmed} confirmados</span>
+                        <CheckCircle2 className="h-3.5 w-3.5 text-success sm:h-4 sm:w-4" />
+                        <span className="text-muted-foreground">{u.confirmed} <span className="hidden sm:inline">confirmados</span></span>
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <Clock className="h-4 w-4 text-warning" />
-                        <span className="text-muted-foreground">{u.pending} pendentes</span>
+                        <Clock className="h-3.5 w-3.5 text-warning sm:h-4 sm:w-4" />
+                        <span className="text-muted-foreground">{u.pending} <span className="hidden sm:inline">pendentes</span></span>
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <AlertCircle className="h-4 w-4 text-destructive" />
-                        <span className="text-muted-foreground">{u.cancelled} cancelados</span>
+                        <AlertCircle className="h-3.5 w-3.5 text-destructive sm:h-4 sm:w-4" />
+                        <span className="text-muted-foreground">{u.cancelled} <span className="hidden sm:inline">cancelados</span></span>
                       </span>
-                      <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${openUnits[u.unit] ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={cn("ml-auto h-4 w-4 text-muted-foreground transition-transform duration-200 sm:h-5 sm:w-5", openUnits[u.unit] ? 'rotate-180' : '')} />
                     </div>
                   </CardContent>
                 </CollapsibleTrigger>
