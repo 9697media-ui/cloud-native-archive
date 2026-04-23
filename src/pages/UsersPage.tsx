@@ -331,33 +331,36 @@ export default function UsersPage() {
           <div className="space-y-2">
             {filtered.map(user => (
               <Card key={user.id}>
-                <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    {true && (
-                      <Checkbox
-                        checked={selectedUsers.has(user.id)}
-                        onCheckedChange={() => toggleUserSelection(user.id)}
-                      />
-                    )}
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                      {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                <CardContent className="flex flex-col gap-4 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {true && (
+                        <Checkbox
+                          checked={selectedUsers.has(user.id)}
+                          onCheckedChange={() => toggleUserSelection(user.id)}
+                          className="h-4 w-4"
+                        />
+                      )}
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                        {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">{user.name}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline">{user.unit}</Badge>
-                    <Badge variant="secondary">{permLabel(user.permission_level)}</Badge>
-                    <Badge variant={user.is_active ? 'default' : 'destructive'}>
-                      {user.is_active ? 'Ativo' : 'Inativo'}
-                    </Badge>
                     {true && (
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8">
                         <Edit2 className="h-4 w-4" />
                       </Button>
                     )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline" className="text-[10px]">{user.unit}</Badge>
+                    <Badge variant="secondary" className="text-[10px]">{permLabel(user.permission_level)}</Badge>
+                    <Badge variant={user.is_active ? 'default' : 'destructive'} className="text-[10px]">
+                      {user.is_active ? 'Ativo' : 'Inativo'}
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>
