@@ -270,50 +270,50 @@ export default function UsersPage() {
           <TabsTrigger value="embed" className="gap-1.5"><Code2 className="h-3.5 w-3.5" />Embed</TabsTrigger>
         </TabsList>
 
-        {/* Approval panel - Admin only */}
-        {isAdmin && (
-          <TabsContent value="approvals" className="mt-4 space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Clock className="h-5 w-5 text-primary" />
-                  Solicitações de Acesso Pendentes
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Novos usuários que solicitaram acesso ao sistema aguardam sua aprovação.
-                </p>
-              </CardHeader>
-              <CardContent>
-                {requestsLoading ? (
-                  <p className="text-sm text-muted-foreground">Carregando...</p>
-                ) : requests.length === 0 ? (
-                  <div className="text-center py-8">
-                    <UserCheck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">Nenhuma solicitação pendente</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {requests.map(req => (
-                      <div key={req.id} className="flex flex-col gap-4 rounded-lg border border-border p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                              {req.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-foreground truncate">{req.name}</p>
-                              <p className="text-xs text-muted-foreground truncate">{req.email}</p>
-                            </div>
+        {/* Approval panel */}
+        <TabsContent value="approvals" className="mt-4 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Clock className="h-5 w-5 text-primary" />
+                Solicitações de Acesso Pendentes
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Novos usuários que solicitaram acesso ao sistema aguardam sua aprovação.
+              </p>
+            </CardHeader>
+            <CardContent>
+              {requestsLoading ? (
+                <p className="text-sm text-muted-foreground">Carregando...</p>
+              ) : requests.length === 0 ? (
+                <div className="text-center py-8">
+                  <UserCheck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Nenhuma solicitação pendente</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {requests.map(req => (
+                    <div key={req.id} className="flex flex-col gap-4 rounded-lg border border-border p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                            {req.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                           </div>
-                          <Badge variant="secondary" className="text-[10px] sm:text-xs shrink-0">
-                            {new Date(req.requested_at).toLocaleDateString('pt-BR')}
-                          </Badge>
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground truncate">{req.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{req.email}</p>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <Badge variant="outline" className="gap-1 w-fit">
-                            {ROLE_ICONS[req.requested_role]}
-                            {ROLE_LABELS[req.requested_role] || req.requested_role}
-                          </Badge>
+                        <Badge variant="secondary" className="text-[10px] sm:text-xs shrink-0">
+                          {new Date(req.requested_at).toLocaleDateString('pt-BR')}
+                        </Badge>
+                      </div>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <Badge variant="outline" className="gap-1 w-fit">
+                          {ROLE_ICONS[req.requested_role]}
+                          {ROLE_LABELS[req.requested_role] || req.requested_role}
+                        </Badge>
+                        {isAdmin && (
                           <div className="flex gap-2">
                             <Button
                               size="sm"
@@ -336,15 +336,15 @@ export default function UsersPage() {
                               Rejeitar
                             </Button>
                           </div>
-                        </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="users" className="space-y-4 mt-4">
           <div className="relative max-w-md">
