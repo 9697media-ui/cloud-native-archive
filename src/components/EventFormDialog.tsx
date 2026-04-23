@@ -452,12 +452,20 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   setUploading(true);
                   const newUrls: string[] = [];
                   for (const file of Array.from(files)) {
-                    const userId = (await supabase.auth.getUser()).data.user?.id || 'anon';
-                    const filePath = `${userId}/${crypto.randomUUID()}/${file.name}`;
-                    const { error } = await supabase.storage.from('event-attachments').upload(filePath, file);
-                    if (!error) {
-                      const { data: urlData } = supabase.storage.from('event-attachments').getPublicUrl(filePath);
-                      newUrls.push(urlData.publicUrl);
+                    try {
+                      const { data, error } = await supabase.functions.invoke('r2-upload', {
+                        body: { fileName: file.name, contentType: file.type },
+                      });
+                      if (error || !data?.uploadUrl) throw error ?? new Error('Sem URL assinada');
+                      const putRes = await fetch(data.uploadUrl, {
+                        method: 'PUT',
+                        headers: file.type ? { 'Content-Type': file.type } : {},
+                        body: file,
+                      });
+                      if (!putRes.ok) throw new Error(`Upload R2 falhou: ${putRes.status}`);
+                      newUrls.push(data.publicUrl);
+                    } catch (err) {
+                      console.error('Erro upload R2:', err);
                     }
                   }
                   setForm(prev => ({ ...prev, attachments: [...(prev.attachments || []), ...newUrls] }));
