@@ -36,7 +36,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const NavContent = () => (
     <>
       {navItems.map(item => {
-        if (item.requiresAdmin && !isAdmin) return null;
         const active = location.pathname === item.to;
         return (
           <Link
