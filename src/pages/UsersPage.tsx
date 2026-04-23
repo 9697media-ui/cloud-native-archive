@@ -214,6 +214,20 @@ export default function UsersPage() {
 
   const permLabel = (level: string) => PERMISSION_LEVELS.find(p => p.value === level)?.label || level;
 
+  if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
+
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <Shield className="h-12 w-12 text-muted-foreground/30 mb-4" />
+        <h2 className="text-xl font-semibold">Acesso Restrito</h2>
+        <p className="text-muted-foreground max-w-sm mx-auto">
+          Apenas administradores podem acessar a gestão de usuários e realizar ações como redefinir senhas ou entrar como outro usuário.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
