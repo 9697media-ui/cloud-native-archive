@@ -217,24 +217,29 @@ export default function UsersPage() {
   // Admin restricted actions check
   const renderActions = (user: AppUser) => {
     if (!isAdmin) return null;
-    
+
+    // Resolve real auth UUID by email (user.id from mock data is sequential)
+    const dbMatch = dbUsers.find(d => d.email?.toLowerCase() === user.email.toLowerCase());
+    const authUserId = dbMatch?.user_id;
+
     return (
       <div className="flex items-center gap-1">
         <Button 
           variant="ghost" 
           size="icon" 
-          title="Redefinir senha"
-          onClick={() => { setResetTarget({ id: user.id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
+          title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
+          disabled={!authUserId}
+          onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
           className="h-8 w-8 text-muted-foreground hover:text-primary"
         >
           <KeyRound className="h-4 w-4" />
         </Button>
-        {user.id !== currentUser?.id && (
+        {authUserId && authUserId !== currentUser?.id && (
           <Button
             variant="ghost"
             size="icon"
             title="Entrar como este usuário"
-            onClick={() => setImpersonateTarget({ id: user.id, name: user.name, email: user.email })}
+            onClick={() => setImpersonateTarget({ id: authUserId, name: user.name, email: user.email })}
             className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
             <UserCog className="h-4 w-4" />
