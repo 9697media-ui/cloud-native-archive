@@ -6,3 +6,8 @@ verify_jwt = true
 [functions.emergency-password-reset]
 verify_jwt = false
 
+[functions.admin-reset-user-password]
+verify_jwt = false
+
+[functions.admin-impersonate-user]
+verify_jwt = false

@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useIsEmbedded } from '@/hooks/useIsEmbedded';
 import { Button } from '@/components/ui/button';
+import ImpersonationBanner from '@/components/ImpersonationBanner';
 
 const navItems = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
@@ -21,6 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (isEmbedded) {
     return (
       <div className="h-full flex flex-col bg-background">
+        <ImpersonationBanner />
         <main className="flex-1 overflow-auto p-4">
           {children}
         </main>
@@ -30,6 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      <ImpersonationBanner />
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4 lg:px-8">
           <Link to="/" className="flex items-center gap-2 shrink-0">
