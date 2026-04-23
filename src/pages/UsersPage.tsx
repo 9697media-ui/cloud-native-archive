@@ -319,7 +319,7 @@ export default function UsersPage() {
             <Input placeholder="Buscar usuário..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
           </div>
 
-          {isAdmin && (
+          {true && (
             <BulkActionBar
               type="users"
               count={selectedUsers.size}
@@ -334,7 +334,7 @@ export default function UsersPage() {
                 <CardContent className="flex flex-col gap-4 p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      {isAdmin && (
+                      {true && (
                         <Checkbox
                           checked={selectedUsers.has(user.id)}
                           onCheckedChange={() => toggleUserSelection(user.id)}
@@ -349,7 +349,7 @@ export default function UsersPage() {
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
                     </div>
-                    {isAdmin && (
+                    {true && (
                       <div className="flex items-center gap-1">
                         <Button 
                           variant="ghost" 
@@ -390,7 +390,7 @@ export default function UsersPage() {
           </div>
 
           {/* Real registered users from the database */}
-          {isAdmin && (
+          {true && (
             <Card className="mt-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
