@@ -160,16 +160,17 @@ export default function MappingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[40%]">Campo da Planilha (X)</TableHead>
-                <TableHead className="w-[30%]">Campo do Sistema (Y)</TableHead>
-                <TableHead className="w-[10%]">Ordem</TableHead>
-                <TableHead className="w-[15%]">Separador</TableHead>
-                <TableHead className="w-[5%]"></TableHead>
-              </TableRow>
-            </TableHeader>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-[200px] w-[40%]">Campo da Planilha (X)</TableHead>
+                  <TableHead className="min-w-[180px] w-[30%]">Campo do Sistema (Y)</TableHead>
+                  <TableHead className="min-w-[80px] w-[10%]">Ordem</TableHead>
+                  <TableHead className="min-w-[100px] w-[15%]">Separador</TableHead>
+                  <TableHead className="w-[5%]"></TableHead>
+                </TableRow>
+              </TableHeader>
             <TableBody>
               {mappings.map((mapping, idx) => (
                 <TableRow key={idx}>
