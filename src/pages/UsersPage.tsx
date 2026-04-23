@@ -214,87 +214,106 @@ export default function UsersPage() {
 
   const permLabel = (level: string) => PERMISSION_LEVELS.find(p => p.value === level)?.label || level;
 
-  if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
-
-  if (!isAdmin) {
+  // Admin restricted actions check
+  const renderActions = (user: AppUser) => {
+    if (!isAdmin) return null;
+    
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Shield className="h-12 w-12 text-muted-foreground/30 mb-4" />
-        <h2 className="text-xl font-semibold">Acesso Restrito</h2>
-        <p className="text-muted-foreground max-w-sm mx-auto">
-          Apenas administradores podem acessar a gestão de usuários e realizar ações como redefinir senhas ou entrar como outro usuário.
-        </p>
+      <div className="flex items-center gap-1">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          title="Redefinir senha"
+          onClick={() => { setResetTarget({ id: user.id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
+          className="h-8 w-8 text-muted-foreground hover:text-primary"
+        >
+          <KeyRound className="h-4 w-4" />
+        </Button>
+        {user.id !== currentUser?.id && (
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Entrar como este usuário"
+            onClick={() => setImpersonateTarget({ id: user.id, name: user.name, email: user.email })}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+          >
+            <UserCog className="h-4 w-4" />
+          </Button>
+        )}
+        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8">
+          <Edit2 className="h-4 w-4" />
+        </Button>
       </div>
     );
-  }
+  };
+
+  if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
 
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Gerenciar Usuários</h1>
+        <h1 className="text-2xl font-bold text-foreground">Transparência</h1>
       </div>
 
       <Tabs defaultValue="users">
         <TabsList>
-          {isAdmin && (
-            <TabsTrigger value="approvals" className="gap-1.5">
-              <UserCheck className="h-3.5 w-3.5" />
-              Aprovações
-              {requests.length > 0 && (
-                <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] flex items-center justify-center">
-                  {requests.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-          )}
+          <TabsTrigger value="approvals" className="gap-1.5">
+            <UserCheck className="h-3.5 w-3.5" />
+            Aprovações
+            {requests.length > 0 && (
+              <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] flex items-center justify-center">
+                {requests.length}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="embed" className="gap-1.5"><Code2 className="h-3.5 w-3.5" />Embed</TabsTrigger>
         </TabsList>
 
-        {/* Approval panel - Admin only */}
-        {isAdmin && (
-          <TabsContent value="approvals" className="mt-4 space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Clock className="h-5 w-5 text-primary" />
-                  Solicitações de Acesso Pendentes
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Novos usuários que solicitaram acesso ao sistema aguardam sua aprovação.
-                </p>
-              </CardHeader>
-              <CardContent>
-                {requestsLoading ? (
-                  <p className="text-sm text-muted-foreground">Carregando...</p>
-                ) : requests.length === 0 ? (
-                  <div className="text-center py-8">
-                    <UserCheck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">Nenhuma solicitação pendente</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {requests.map(req => (
-                      <div key={req.id} className="flex flex-col gap-4 rounded-lg border border-border p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                              {req.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-foreground truncate">{req.name}</p>
-                              <p className="text-xs text-muted-foreground truncate">{req.email}</p>
-                            </div>
+        {/* Approval panel */}
+        <TabsContent value="approvals" className="mt-4 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Clock className="h-5 w-5 text-primary" />
+                Solicitações de Acesso Pendentes
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Novos usuários que solicitaram acesso ao sistema aguardam sua aprovação.
+              </p>
+            </CardHeader>
+            <CardContent>
+              {requestsLoading ? (
+                <p className="text-sm text-muted-foreground">Carregando...</p>
+              ) : requests.length === 0 ? (
+                <div className="text-center py-8">
+                  <UserCheck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Nenhuma solicitação pendente</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {requests.map(req => (
+                    <div key={req.id} className="flex flex-col gap-4 rounded-lg border border-border p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                            {req.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                           </div>
-                          <Badge variant="secondary" className="text-[10px] sm:text-xs shrink-0">
-                            {new Date(req.requested_at).toLocaleDateString('pt-BR')}
-                          </Badge>
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground truncate">{req.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{req.email}</p>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <Badge variant="outline" className="gap-1 w-fit">
-                            {ROLE_ICONS[req.requested_role]}
-                            {ROLE_LABELS[req.requested_role] || req.requested_role}
-                          </Badge>
+                        <Badge variant="secondary" className="text-[10px] sm:text-xs shrink-0">
+                          {new Date(req.requested_at).toLocaleDateString('pt-BR')}
+                        </Badge>
+                      </div>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <Badge variant="outline" className="gap-1 w-fit">
+                          {ROLE_ICONS[req.requested_role]}
+                          {ROLE_LABELS[req.requested_role] || req.requested_role}
+                        </Badge>
+                        {isAdmin && (
                           <div className="flex gap-2">
                             <Button
                               size="sm"
@@ -317,15 +336,15 @@ export default function UsersPage() {
                               Rejeitar
                             </Button>
                           </div>
-                        </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="users" className="space-y-4 mt-4">
           <div className="relative max-w-md">
@@ -363,33 +382,7 @@ export default function UsersPage() {
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
                     </div>
-                    {isAdmin && (
-                      <div className="flex items-center gap-1">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          title="Redefinir senha"
-                          onClick={() => { setResetTarget({ id: user.id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
-                          className="h-8 w-8 text-muted-foreground hover:text-primary"
-                        >
-                          <KeyRound className="h-4 w-4" />
-                        </Button>
-                        {user.id !== currentUser?.id && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Entrar como este usuário"
-                            onClick={() => setImpersonateTarget({ id: user.id, name: user.name, email: user.email })}
-                            className="h-8 w-8 text-muted-foreground hover:text-primary"
-                          >
-                            <UserCog className="h-4 w-4" />
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8">
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
+                    {renderActions(user)}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline" className="text-[10px]">{user.unit}</Badge>
@@ -451,23 +444,27 @@ export default function UsersPage() {
                           <Badge variant="secondary" className="text-xs">
                             {new Date(user.created_at).toLocaleDateString('pt-BR')}
                           </Badge>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Redefinir senha"
-                            onClick={() => { setResetTarget({ id: user.user_id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
-                          >
-                            <KeyRound className="h-4 w-4" />
-                          </Button>
-                          {user.user_id !== currentUser?.id && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="Entrar como este usuário"
-                              onClick={() => setImpersonateTarget({ id: user.user_id, name: user.name, email: user.email })}
-                            >
-                              <UserCog className="h-4 w-4" />
-                            </Button>
+                          {isAdmin && (
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                title="Redefinir senha"
+                                onClick={() => { setResetTarget({ id: user.user_id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
+                              >
+                                <KeyRound className="h-4 w-4" />
+                              </Button>
+                              {user.user_id !== currentUser?.id && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  title="Entrar como este usuário"
+                                  onClick={() => setImpersonateTarget({ id: user.user_id, name: user.name, email: user.email })}
+                                >
+                                  <UserCog className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
