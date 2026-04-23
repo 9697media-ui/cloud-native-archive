@@ -2,3 +2,6 @@ project_id = "ihqogooddvhsvfhbwdez"
 
 [functions.r2-upload]
 verify_jwt = true
+
+[functions.emergency-password-reset]
+verify_jwt = false
