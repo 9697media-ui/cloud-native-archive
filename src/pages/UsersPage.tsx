@@ -214,39 +214,58 @@ export default function UsersPage() {
 
   const permLabel = (level: string) => PERMISSION_LEVELS.find(p => p.value === level)?.label || level;
 
-  if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
-
-  if (!isAdmin) {
+  // Admin restricted actions check
+  const renderActions = (user: AppUser) => {
+    if (!isAdmin) return null;
+    
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Shield className="h-12 w-12 text-muted-foreground/30 mb-4" />
-        <h2 className="text-xl font-semibold">Acesso Restrito</h2>
-        <p className="text-muted-foreground max-w-sm mx-auto">
-          Apenas administradores podem acessar a gestão de usuários e realizar ações como redefinir senhas ou entrar como outro usuário.
-        </p>
+      <div className="flex items-center gap-1">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          title="Redefinir senha"
+          onClick={() => { setResetTarget({ id: user.id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
+          className="h-8 w-8 text-muted-foreground hover:text-primary"
+        >
+          <KeyRound className="h-4 w-4" />
+        </Button>
+        {user.id !== currentUser?.id && (
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Entrar como este usuário"
+            onClick={() => setImpersonateTarget({ id: user.id, name: user.name, email: user.email })}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+          >
+            <UserCog className="h-4 w-4" />
+          </Button>
+        )}
+        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8">
+          <Edit2 className="h-4 w-4" />
+        </Button>
       </div>
     );
-  }
+  };
+
+  if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
 
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Gerenciar Usuários</h1>
+        <h1 className="text-2xl font-bold text-foreground">Transparência</h1>
       </div>
 
       <Tabs defaultValue="users">
         <TabsList>
-          {isAdmin && (
-            <TabsTrigger value="approvals" className="gap-1.5">
-              <UserCheck className="h-3.5 w-3.5" />
-              Aprovações
-              {requests.length > 0 && (
-                <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] flex items-center justify-center">
-                  {requests.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-          )}
+          <TabsTrigger value="approvals" className="gap-1.5">
+            <UserCheck className="h-3.5 w-3.5" />
+            Aprovações
+            {requests.length > 0 && (
+              <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] flex items-center justify-center">
+                {requests.length}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="embed" className="gap-1.5"><Code2 className="h-3.5 w-3.5" />Embed</TabsTrigger>
         </TabsList>
