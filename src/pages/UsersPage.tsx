@@ -44,6 +44,7 @@ export default function UsersPage() {
   const { isAdmin, loading: roleLoading } = useUserRole();
   const { dbUsers, loading: dbUsersLoading } = useDbUsers();
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
+  const isMobile = useIsMobile();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
