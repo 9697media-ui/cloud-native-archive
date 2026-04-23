@@ -248,17 +248,17 @@ export default function Dashboard() {
 
       {/* Timeline da Semana Atual */}
       <Card>
-        <CardContent className="p-5">
-          <div className="mb-4 flex items-center justify-between">
+        <CardContent className="p-4 sm:p-5">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold text-foreground">Timeline da Semana Atual</h2>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               {UNITS.map(u => (
                 <div key={u} className="flex items-center gap-1.5">
-                  <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[u]}`} />
-                  <span className="text-xs text-muted-foreground">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
+                  <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                  <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
                 </div>
               ))}
             </div>
@@ -266,25 +266,28 @@ export default function Dashboard() {
           {weekEvents.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento nesta semana</p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               {weekEvents.slice(0, 6).map(e => (
-                <div key={e.id} className="flex w-full items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors hover:bg-accent">
+                <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
                   {canEdit && (
                     <Checkbox
                       checked={selectedEvents.has(e.id)}
                       onCheckedChange={() => toggleEventSelection(e.id)}
                       onClick={(ev) => ev.stopPropagation()}
+                      className="h-4 w-4"
                     />
                   )}
-                  <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-3 text-left">
-                    <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[e.unit]}`} />
-                    <span className="flex-1 text-sm font-medium text-foreground">{e.title}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {format(new Date(e.start_datetime), 'dd/MM HH:mm')} - {format(new Date(e.end_datetime), 'HH:mm')}
-                    </span>
-                    <Badge variant="outline" className={`text-xs capitalize ${getStatusBadgeClass(e.status)}`}>
-                      {e.status}
-                    </Badge>
+                  <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
+                    <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                    <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
+                    <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
+                        {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
+                      </span>
+                      <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
+                        {e.status}
+                      </Badge>
+                    </div>
                   </button>
                 </div>
               ))}
