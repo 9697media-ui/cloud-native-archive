@@ -382,33 +382,7 @@ export default function UsersPage() {
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
                     </div>
-                    {isAdmin && (
-                      <div className="flex items-center gap-1">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          title="Redefinir senha"
-                          onClick={() => { setResetTarget({ id: user.id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
-                          className="h-8 w-8 text-muted-foreground hover:text-primary"
-                        >
-                          <KeyRound className="h-4 w-4" />
-                        </Button>
-                        {user.id !== currentUser?.id && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Entrar como este usuário"
-                            onClick={() => setImpersonateTarget({ id: user.id, name: user.name, email: user.email })}
-                            className="h-8 w-8 text-muted-foreground hover:text-primary"
-                          >
-                            <UserCog className="h-4 w-4" />
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8">
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
+                    {renderActions(user)}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline" className="text-[10px]">{user.unit}</Badge>
@@ -470,23 +444,27 @@ export default function UsersPage() {
                           <Badge variant="secondary" className="text-xs">
                             {new Date(user.created_at).toLocaleDateString('pt-BR')}
                           </Badge>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Redefinir senha"
-                            onClick={() => { setResetTarget({ id: user.user_id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
-                          >
-                            <KeyRound className="h-4 w-4" />
-                          </Button>
-                          {user.user_id !== currentUser?.id && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="Entrar como este usuário"
-                              onClick={() => setImpersonateTarget({ id: user.user_id, name: user.name, email: user.email })}
-                            >
-                              <UserCog className="h-4 w-4" />
-                            </Button>
+                          {isAdmin && (
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                title="Redefinir senha"
+                                onClick={() => { setResetTarget({ id: user.user_id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
+                              >
+                                <KeyRound className="h-4 w-4" />
+                              </Button>
+                              {user.user_id !== currentUser?.id && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  title="Entrar como este usuário"
+                                  onClick={() => setImpersonateTarget({ id: user.user_id, name: user.name, email: user.email })}
+                                >
+                                  <UserCog className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
