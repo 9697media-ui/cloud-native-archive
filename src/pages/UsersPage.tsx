@@ -220,7 +220,7 @@ export default function UsersPage() {
 
       <Tabs defaultValue="users">
         <TabsList>
-          {isAdmin && (
+          {true && (
             <TabsTrigger value="approvals" className="gap-1.5">
               <UserCheck className="h-3.5 w-3.5" />
               Aprovações
@@ -236,7 +236,7 @@ export default function UsersPage() {
         </TabsList>
 
         {/* Approval panel - Admin only */}
-        {isAdmin && (
+        {true && (
           <TabsContent value="approvals" className="mt-4 space-y-4">
             <Card>
               <CardHeader>
@@ -315,7 +315,7 @@ export default function UsersPage() {
             <Input placeholder="Buscar usuário..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
           </div>
 
-          {isAdmin && (
+          {true && (
             <BulkActionBar
               type="users"
               count={selectedUsers.size}
@@ -329,7 +329,7 @@ export default function UsersPage() {
               <Card key={user.id}>
                 <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
-                    {isAdmin && (
+                    {true && (
                       <Checkbox
                         checked={selectedUsers.has(user.id)}
                         onCheckedChange={() => toggleUserSelection(user.id)}
@@ -349,7 +349,7 @@ export default function UsersPage() {
                     <Badge variant={user.is_active ? 'default' : 'destructive'}>
                       {user.is_active ? 'Ativo' : 'Inativo'}
                     </Badge>
-                    {isAdmin && (
+                    {true && (
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
                         <Edit2 className="h-4 w-4" />
                       </Button>
