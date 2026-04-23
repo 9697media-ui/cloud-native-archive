@@ -40,6 +40,7 @@ export default function Dashboard() {
   const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const { isAuthenticated } = useAuth();
   const { canEdit } = useUserRole();
+  const isMobile = useIsMobile();
   const [showNewEvent, setShowNewEvent] = useState(false);
   const [detailEvent, setDetailEvent] = useState<AppEvent | null>(null);
   const [showDetail, setShowDetail] = useState(false);
