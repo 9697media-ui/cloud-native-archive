@@ -3,6 +3,7 @@ import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useSearchParams } from 'react-router-dom';
 import { AppEvent, EventStatus, UNITS, EVENT_STATUSES, EVENT_TYPES, Unit } from '@/types';
 import { cn } from '@/lib/utils';
@@ -34,6 +35,7 @@ export default function CalendarPage() {
   const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
   const { isAuthenticated } = useAuth();
   const { canEdit } = useUserRole();
+  const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<View>('month');
   const [filterUnit, setFilterUnit] = useState<string>('all');
@@ -194,50 +196,52 @@ export default function CalendarPage() {
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Calendário</h1>
-        <div className="flex items-center gap-2">
-          <Button variant={view === 'month' ? 'default' : 'outline'} size="sm" onClick={() => setView('month')}>
-            <LayoutGrid className="mr-1 h-4 w-4" /> Mês
+        <h1 className="text-xl font-bold text-foreground sm:text-2xl">Calendário</h1>
+        <div className="flex items-center gap-1.5 p-1 bg-muted rounded-lg w-fit">
+          <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3">
+            <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>
           </Button>
-          <Button variant={view === 'week' ? 'default' : 'outline'} size="sm" onClick={() => setView('week')}>
-            <CalendarIcon className="mr-1 h-4 w-4" /> Semana
+          <Button variant={view === 'week' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('week')} className="px-3">
+            <CalendarIcon className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Semana</span>
           </Button>
-          <Button variant={view === 'list' ? 'default' : 'outline'} size="sm" onClick={() => setView('list')}>
-            <List className="mr-1 h-4 w-4" /> Lista
+          <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('list')} className="px-3">
+            <List className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Lista</span>
           </Button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Buscar por título ou local..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+          <Input placeholder="Buscar por título ou local..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10" />
         </div>
-        <Select value={filterUnit} onValueChange={setFilterUnit}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Unidade" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas unidades</SelectItem>
-            {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos status</SelectItem>
-            {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos tipos</SelectItem>
-            {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Button variant={conflictOnly ? 'destructive' : 'outline'} size="default" onClick={() => setConflictOnly(!conflictOnly)}>
-          <AlertTriangle className="mr-1 h-4 w-4" /> Conflitos
-        </Button>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+          <Select value={filterUnit} onValueChange={setFilterUnit}>
+            <SelectTrigger className="h-10 w-full sm:w-[160px]"><SelectValue placeholder="Unidade" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas unidades</SelectItem>
+              {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="h-10 w-full sm:w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos status</SelectItem>
+              {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="h-10 w-full sm:w-[170px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos tipos</SelectItem>
+              {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Button variant={conflictOnly ? 'destructive' : 'outline'} size="default" onClick={() => setConflictOnly(!conflictOnly)} className="h-10 w-full sm:w-auto">
+            <AlertTriangle className="mr-1.5 h-4 w-4" /> Conflitos
+          </Button>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -275,7 +279,7 @@ export default function CalendarPage() {
           <CardContent className="p-2">
             <div className="grid grid-cols-7 text-center">
               {dayNames.map(d => (
-                <div key={d} className="p-2 text-xs font-semibold text-muted-foreground">{d}</div>
+                <div key={d} className="p-1 text-[10px] font-semibold text-muted-foreground sm:p-2 sm:text-xs">{d}</div>
               ))}
               {days.map(day => {
                 const dayEvents = getEventsForDay(day);
@@ -291,27 +295,42 @@ export default function CalendarPage() {
                     onDragOver={(e) => handleDragOver(e, dateStr)}
                     onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, day)}
-                    className={`min-h-[100px] border border-border p-1 transition-colors ${!isCurrentMonth ? 'opacity-40' : ''} ${isToday ? 'bg-primary/5' : ''} ${isDragOver ? 'bg-accent/50 border-primary/50' : ''} ${hasConflict ? 'bg-destructive/10 border-destructive/30' : ''} ${shouldPulse ? 'animate-conflict-pulse' : ''}`}
+                    className={cn(
+                      "min-h-[80px] sm:min-h-[100px] border border-border p-0.5 sm:p-1 transition-colors relative",
+                      !isCurrentMonth ? 'opacity-30 bg-muted/20' : '',
+                      isToday ? 'bg-primary/5' : '',
+                      isDragOver ? 'bg-accent/50 border-primary/50' : '',
+                      hasConflict ? 'bg-destructive/5 border-destructive/20' : '',
+                      shouldPulse ? 'animate-conflict-pulse' : ''
+                    )}
                   >
-                    <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs ${isToday ? 'bg-primary text-primary-foreground' : hasConflict ? 'bg-destructive text-destructive-foreground' : 'text-foreground'}`}>
+                    <span className={cn(
+                      "inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] sm:h-6 sm:w-6 sm:text-xs mb-1",
+                      isToday ? 'bg-primary text-primary-foreground font-bold' : hasConflict ? 'bg-destructive text-destructive-foreground' : 'text-foreground'
+                    )}>
                       {format(day, 'd')}
                     </span>
-                    <div className="mt-0.5 space-y-0.5">
-                      {dayEvents.slice(0, 3).map(e => (
+                    <div className="flex flex-col gap-0.5">
+                      {dayEvents.slice(0, isMobile ? 2 : 3).map(e => (
                         <button
                           key={e.id}
                           draggable
                           onDragStart={(ev) => handleDragStart(ev, e)}
                           onClick={() => handleEventClick(e)}
-                          className={`flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[10px] leading-tight cursor-grab active:cursor-grabbing hover:opacity-80 ${unitDotColors[e.unit]} bg-opacity-15`}
+                          className={cn(
+                            "flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[8px] sm:text-[10px] leading-tight cursor-grab active:cursor-grabbing hover:opacity-80 border-l-2",
+                            unitDotColors[e.unit], "bg-opacity-10",
+                            `border-l-${unitDotColors[e.unit].split('-')[1]}`
+                          )}
                         >
-                          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${unitDotColors[e.unit]}`} />
-                          <span className="truncate text-foreground">{e.title}</span>
-                          {e.has_conflict && <AlertTriangle className="h-2.5 w-2.5 shrink-0 text-destructive" />}
+                          <span className="truncate text-foreground flex-1">{e.title}</span>
+                          {e.has_conflict && <AlertTriangle className="h-2 w-2 shrink-0 text-destructive sm:h-2.5 sm:w-2.5" />}
                         </button>
                       ))}
-                      {dayEvents.length > 3 && (
-                        <span className="block text-center text-[10px] text-muted-foreground">+{dayEvents.length - 3}</span>
+                      {dayEvents.length > (isMobile ? 2 : 3) && (
+                        <span className="block text-center text-[8px] font-medium text-muted-foreground sm:text-[10px]">
+                          +{dayEvents.length - (isMobile ? 2 : 3)}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -325,8 +344,8 @@ export default function CalendarPage() {
       {/* Week view */}
       {view === 'week' && (
         <Card>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-7 gap-3">
+          <CardContent className="p-2 sm:p-4">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-7 sm:gap-3">
               {weekDays.map(day => {
                 const dayEvents = getEventsForDay(day);
                 const isToday = isSameDay(day, new Date());
@@ -338,32 +357,46 @@ export default function CalendarPage() {
                     onDragOver={(e) => handleDragOver(e, dateStr)}
                     onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, day)}
-                    className={`rounded-lg border border-border p-3 transition-colors ${isToday ? 'bg-primary/5 border-primary/30' : ''} ${isDragOver ? 'bg-accent/50 border-primary/50' : ''}`}
+                    className={cn(
+                      "rounded-lg border border-border transition-colors",
+                      isToday ? 'bg-primary/5 border-primary/20' : '',
+                      isDragOver ? 'bg-accent/50 border-primary/50' : '',
+                      isMobile ? 'p-2' : 'p-3'
+                    )}
                   >
-                    <p className="mb-2 text-center text-xs font-semibold text-muted-foreground">
-                      {format(day, 'EEE', { locale: ptBR })}
-                    </p>
-                    <p className={`mb-3 text-center text-lg font-bold ${isToday ? 'text-primary' : 'text-foreground'}`}>
-                      {format(day, 'd')}
-                    </p>
-                    <div className="space-y-2">
-                      {dayEvents.map(e => (
-                        <button
-                          key={e.id}
-                          draggable
-                          onDragStart={(ev) => handleDragStart(ev, e)}
-                          onClick={() => handleEventClick(e)}
-                          className="w-full rounded-md border border-border p-2 text-left cursor-grab active:cursor-grabbing hover:bg-accent"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]}`} />
-                            <span className="truncate text-xs font-medium text-foreground">{e.title}</span>
-                          </div>
-                          <p className="mt-1 text-[10px] text-muted-foreground">
-                            {format(new Date(e.start_datetime), 'HH:mm')} - {format(new Date(e.end_datetime), 'HH:mm')}
-                          </p>
-                        </button>
-                      ))}
+                    <div className="flex items-center justify-between mb-2 sm:flex-col sm:mb-3">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider sm:text-xs sm:mb-2 text-center w-full">
+                        {format(day, isMobile ? 'EEEE' : 'EEE', { locale: ptBR })}
+                      </p>
+                      <p className={cn(
+                        "text-lg font-bold sm:text-xl text-center w-full",
+                        isToday ? 'text-primary' : 'text-foreground'
+                      )}>
+                        {format(day, 'd')}
+                      </p>
+                    </div>
+                    <div className="space-y-1.5 sm:space-y-2">
+                      {dayEvents.length === 0 ? (
+                        <p className="text-[10px] text-muted-foreground text-center py-2 sm:hidden">Sem eventos</p>
+                      ) : (
+                        dayEvents.map(e => (
+                          <button
+                            key={e.id}
+                            draggable
+                            onDragStart={(ev) => handleDragStart(ev, e)}
+                            onClick={() => handleEventClick(e)}
+                            className="w-full rounded-md border border-border p-2 text-left cursor-grab active:cursor-grabbing hover:bg-accent bg-card"
+                          >
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className={`h-1.5 w-1.5 rounded-full ${unitDotColors[e.unit]}`} />
+                              <span className="truncate text-[10px] font-medium text-foreground sm:text-xs">{e.title}</span>
+                            </div>
+                            <p className="text-[9px] text-muted-foreground sm:text-[10px]">
+                              {format(new Date(e.start_datetime), 'HH:mm')} - {format(new Date(e.end_datetime), 'HH:mm')}
+                            </p>
+                          </button>
+                        ))
+                      )}
                     </div>
                   </div>
                 );

@@ -25,16 +25,18 @@ export default function BulkActionBar(props: BulkActionBarProps) {
   if (props.count === 0) return null;
 
   return (
-    <div className="sticky top-0 z-20 flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 shadow-sm backdrop-blur-sm">
-      <CheckSquare className="h-4 w-4 text-primary" />
-      <span className="text-sm font-medium text-foreground">
-        {props.count} {props.type === 'events' ? 'evento(s)' : 'usuário(s)'} selecionado(s)
-      </span>
+    <div className="sticky top-16 z-40 flex flex-col gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 shadow-sm backdrop-blur-sm sm:flex-row sm:items-center">
+      <div className="flex items-center gap-3">
+        <CheckSquare className="h-4 w-4 text-primary" />
+        <span className="text-sm font-medium text-foreground">
+          {props.count} {props.type === 'events' ? 'evento(s)' : 'usuário(s)'} selecionado(s)
+        </span>
+      </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:ml-auto">
         {props.type === 'events' && (
           <Select onValueChange={(v) => (props as BulkEventActionBarProps).onChangeStatus(v as EventStatus)}>
-            <SelectTrigger className="w-[160px] h-8 text-xs">
+            <SelectTrigger className="flex-1 h-9 text-xs sm:w-[160px] sm:h-8">
               <SelectValue placeholder="Alterar status" />
             </SelectTrigger>
             <SelectContent>
@@ -46,21 +48,21 @@ export default function BulkActionBar(props: BulkActionBarProps) {
         )}
 
         {props.type === 'users' && (
-          <>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => (props as BulkUserActionBarProps).onToggleActive(false)}>
+          <div className="flex flex-1 gap-2 sm:flex-initial">
+            <Button size="sm" variant="outline" className="flex-1 h-9 text-xs sm:h-8 sm:px-3" onClick={() => (props as BulkUserActionBarProps).onToggleActive(false)}>
               Desativar
             </Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => (props as BulkUserActionBarProps).onToggleActive(true)}>
+            <Button size="sm" variant="outline" className="flex-1 h-9 text-xs sm:h-8 sm:px-3" onClick={() => (props as BulkUserActionBarProps).onToggleActive(true)}>
               Ativar
             </Button>
-          </>
+          </div>
         )}
 
-        <Button size="sm" variant="destructive" className="h-8 text-xs gap-1" onClick={props.onDelete}>
-          <Trash2 className="h-3.5 w-3.5" /> Excluir
+        <Button size="sm" variant="destructive" className="h-9 text-xs gap-1 sm:h-8" onClick={props.onDelete}>
+          <Trash2 className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Excluir</span>
         </Button>
 
-        <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={props.onClearSelection}>
+        <Button size="sm" variant="ghost" className="h-9 w-9 p-0 sm:h-8 sm:w-8" onClick={props.onClearSelection}>
           <X className="h-4 w-4" />
         </Button>
       </div>

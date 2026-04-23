@@ -3,6 +3,7 @@ import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { AppEvent, EventStatus, UNITS, Unit } from '@/types';
 import { CalendarDays, CheckCircle2, Clock, AlertCircle, Plus, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Camera, Handshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ export default function Dashboard() {
   const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const { isAuthenticated } = useAuth();
   const { canEdit } = useUserRole();
+  const isMobile = useIsMobile();
   const [showNewEvent, setShowNewEvent] = useState(false);
   const [detailEvent, setDetailEvent] = useState<AppEvent | null>(null);
   const [showDetail, setShowDetail] = useState(false);
@@ -153,29 +155,29 @@ export default function Dashboard() {
   return (
     <div className="animate-fade-in space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Visão Geral Consolidada</h1>
-          <p className="text-sm text-muted-foreground">Programação institucional de todas as unidades</p>
+          <h1 className="text-xl font-bold text-foreground sm:text-2xl">Visão Geral Consolidada</h1>
+          <p className="text-xs text-muted-foreground sm:text-sm">Programação institucional de todas as unidades</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           {canEdit && (
-            <Button onClick={() => setShowNewEvent(true)} className="gap-2">
-              <Plus className="h-4 w-4" /> Nova Programação
+            <Button onClick={() => setShowNewEvent(true)} className="w-full gap-2 sm:w-auto">
+              <Plus className="h-4 w-4" /> <span className="sm:inline">Nova Programação</span>
             </Button>
           )}
-          <div className="flex items-center gap-1 rounded-lg border border-border bg-card px-3 py-2">
-            <button onClick={prevMonth}><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
+          <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2">
+            <button onClick={prevMonth} className="p-1 hover:bg-accent rounded"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[160px]">
-                  <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-sm font-medium capitalize text-foreground">
-                    {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
+                <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
+                  <CalendarDays className="h-3.5 w-3.5 text-muted-foreground shrink-0 sm:h-4 sm:w-4" />
+                  <span className="text-xs font-medium capitalize text-foreground sm:text-sm">
+                    {format(selectedMonth, isMobile ? 'MMM yyyy' : 'MMMM yyyy', { locale: ptBR })}
                   </span>
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="center">
+              <PopoverContent className="w-auto p-0" align="end">
                 <Calendar
                   mode="single"
                   selected={selectedMonth}
@@ -186,44 +188,45 @@ export default function Dashboard() {
                 />
               </PopoverContent>
             </Popover>
-            <button onClick={nextMonth}><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
+            <button onClick={nextMonth} className="p-1 hover:bg-accent rounded"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
           </div>
         </div>
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 sm:gap-4">
         {statCards.map(s => (
           <Card
             key={s.label}
-            className={s.onClick ? 'cursor-pointer transition-shadow hover:shadow-md' : ''}
+            className={cn(
+              "transition-shadow hover:shadow-md",
+              s.onClick ? 'cursor-pointer' : ''
+            )}
             onClick={s.onClick}
           >
-            <CardContent className="p-5">
+            <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-muted-foreground">{s.label}</p>
-                <s.icon className={`h-6 w-6 ${s.color} opacity-70 shrink-0`} />
+                <p className="text-[10px] font-medium text-muted-foreground sm:text-xs uppercase tracking-wider">{s.label}</p>
+                <s.icon className={`h-5 w-5 ${s.color} opacity-70 shrink-0 sm:h-6 sm:w-6`} />
               </div>
-              <p className="mt-2 text-3xl font-bold text-foreground">{s.value}</p>
+              <p className="mt-1 text-2xl font-bold text-foreground sm:mt-2 sm:text-3xl">{s.value}</p>
               {s.label === 'Total de Eventos' && (
-                <div className="mt-3 flex items-center gap-4 border-t border-border pt-3">
+                <div className="mt-2 flex items-center gap-3 border-t border-border pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
                   <button
-                    className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
+                    className="flex items-center gap-1 hover:opacity-70 transition-opacity"
                     title="Solicitações de Marketing"
                     onClick={(ev) => { ev.stopPropagation(); setShowFiltered('marketing'); }}
                   >
-                    <Camera className="h-4 w-4 text-info" />
-                    <span className="text-sm font-semibold text-foreground">{stats.marketing}</span>
-                    <span className="text-xs text-muted-foreground hidden sm:inline">mkt</span>
+                    <Camera className="h-3.5 w-3.5 text-info sm:h-4 sm:w-4" />
+                    <span className="text-xs font-semibold text-foreground sm:text-sm">{stats.marketing}</span>
                   </button>
                   <button
-                    className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
+                    className="flex items-center gap-1 hover:opacity-70 transition-opacity"
                     title="Parceiros Envolvidos"
                     onClick={(ev) => { ev.stopPropagation(); setShowFiltered('partners'); }}
                   >
-                    <Handshake className="h-4 w-4 text-info" />
-                    <span className="text-sm font-semibold text-foreground">{stats.partners}</span>
-                    <span className="text-xs text-muted-foreground hidden sm:inline">parceiros</span>
+                    <Handshake className="h-3.5 w-3.5 text-info sm:h-4 sm:w-4" />
+                    <span className="text-xs font-semibold text-foreground sm:text-sm">{stats.partners}</span>
                   </button>
                 </div>
               )}
@@ -245,17 +248,17 @@ export default function Dashboard() {
 
       {/* Timeline da Semana Atual */}
       <Card>
-        <CardContent className="p-5">
-          <div className="mb-4 flex items-center justify-between">
+        <CardContent className="p-4 sm:p-5">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold text-foreground">Timeline da Semana Atual</h2>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               {UNITS.map(u => (
                 <div key={u} className="flex items-center gap-1.5">
-                  <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[u]}`} />
-                  <span className="text-xs text-muted-foreground">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
+                  <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                  <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
                 </div>
               ))}
             </div>
@@ -263,25 +266,28 @@ export default function Dashboard() {
           {weekEvents.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento nesta semana</p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               {weekEvents.slice(0, 6).map(e => (
-                <div key={e.id} className="flex w-full items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors hover:bg-accent">
+                <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
                   {canEdit && (
                     <Checkbox
                       checked={selectedEvents.has(e.id)}
                       onCheckedChange={() => toggleEventSelection(e.id)}
                       onClick={(ev) => ev.stopPropagation()}
+                      className="h-4 w-4"
                     />
                   )}
-                  <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-3 text-left">
-                    <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[e.unit]}`} />
-                    <span className="flex-1 text-sm font-medium text-foreground">{e.title}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {format(new Date(e.start_datetime), 'dd/MM HH:mm')} - {format(new Date(e.end_datetime), 'HH:mm')}
-                    </span>
-                    <Badge variant="outline" className={`text-xs capitalize ${getStatusBadgeClass(e.status)}`}>
-                      {e.status}
-                    </Badge>
+                  <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
+                    <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                    <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
+                    <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
+                        {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
+                      </span>
+                      <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
+                        {e.status}
+                      </Badge>
+                    </div>
                   </button>
                 </div>
               ))}
@@ -298,28 +304,30 @@ export default function Dashboard() {
             <Collapsible key={u.unit} open={openUnits[u.unit] || false} onOpenChange={() => toggleUnit(u.unit)}>
               <Card className={`border-l-4 ${unitBorderColors[u.unit]} transition-shadow hover:shadow-md`}>
                 <CollapsibleTrigger className="w-full text-left">
-                  <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className={`h-3 w-3 rounded-full ${unitDotColors[u.unit]}`} />
-                      <span className="font-semibold text-foreground">{u.unit}</span>
-                      <Badge className={`${unitDotColors[u.unit]} text-primary-foreground text-xs`}>
+                  <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+                    <div className="flex items-center justify-between sm:justify-start sm:gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[u.unit]} shrink-0 sm:h-3 sm:w-3`} />
+                        <span className="text-sm font-semibold text-foreground sm:text-base">{u.unit}</span>
+                      </div>
+                      <Badge className={cn("text-[10px] px-1.5 py-0 sm:text-xs sm:px-2 sm:py-0.5", unitDotColors[u.unit], "text-primary-foreground")}>
                         {u.total} eventos
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-5 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] sm:gap-5 sm:text-sm">
                       <span className="flex items-center gap-1.5">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        <span className="text-muted-foreground">{u.confirmed} confirmados</span>
+                        <CheckCircle2 className="h-3.5 w-3.5 text-success sm:h-4 sm:w-4" />
+                        <span className="text-muted-foreground">{u.confirmed} <span className="hidden sm:inline">confirmados</span></span>
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <Clock className="h-4 w-4 text-warning" />
-                        <span className="text-muted-foreground">{u.pending} pendentes</span>
+                        <Clock className="h-3.5 w-3.5 text-warning sm:h-4 sm:w-4" />
+                        <span className="text-muted-foreground">{u.pending} <span className="hidden sm:inline">pendentes</span></span>
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <AlertCircle className="h-4 w-4 text-destructive" />
-                        <span className="text-muted-foreground">{u.cancelled} cancelados</span>
+                        <AlertCircle className="h-3.5 w-3.5 text-destructive sm:h-4 sm:w-4" />
+                        <span className="text-muted-foreground">{u.cancelled} <span className="hidden sm:inline">cancelados</span></span>
                       </span>
-                      <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${openUnits[u.unit] ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={cn("ml-auto h-4 w-4 text-muted-foreground transition-transform duration-200 sm:h-5 sm:w-5", openUnits[u.unit] ? 'rotate-180' : '')} />
                     </div>
                   </CardContent>
                 </CollapsibleTrigger>
@@ -328,26 +336,29 @@ export default function Dashboard() {
                     {unitEvents.length === 0 ? (
                       <p className="py-6 text-center text-sm text-muted-foreground">Nenhum evento para esta unidade</p>
                     ) : (
-                      <div className="mt-3 space-y-2">
+                      <div className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
                         {unitEvents.map(e => (
-                          <div key={e.id} className="flex w-full items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors hover:bg-accent">
+                          <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
                             {canEdit && (
                               <Checkbox
                                 checked={selectedEvents.has(e.id)}
                                 onCheckedChange={() => toggleEventSelection(e.id)}
                                 onClick={(ev) => ev.stopPropagation()}
+                                className="h-4 w-4"
                               />
                             )}
-                            <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-3 text-left">
-                              <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[e.unit]}`} />
-                              <span className="flex-1 text-sm font-medium text-foreground">{e.title}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {format(new Date(e.start_datetime), 'dd/MM HH:mm')} - {format(new Date(e.end_datetime), 'HH:mm')}
-                              </span>
-                              {e.has_conflict && <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
-                              <Badge variant="outline" className={`text-xs capitalize ${getStatusBadgeClass(e.status)}`}>
-                                {e.status}
-                              </Badge>
+                            <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
+                              <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                              <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
+                              <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
+                                <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
+                                  {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
+                                </span>
+                                {e.has_conflict && <AlertTriangle className="h-3 w-3 text-destructive sm:h-3.5 sm:w-3.5" />}
+                                <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
+                                  {e.status}
+                                </Badge>
+                              </div>
                             </button>
                           </div>
                         ))}
