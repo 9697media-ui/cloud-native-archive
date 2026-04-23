@@ -395,7 +395,7 @@ export default function UsersPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <ShieldCheck className="h-5 w-5 text-primary" />
-                  Usuários Cadastrados na Plataforma
+                  Usuários do Sistema (Nativos)
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
                   Todos os usuários que possuem conta registrada, incluindo administradores.
