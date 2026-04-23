@@ -20,7 +20,9 @@ export type Database = {
           id: string
           name: string
           requested_at: string
+          requested_permission_level: string | null
           requested_role: Database["public"]["Enums"]["app_role"]
+          requested_unit: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
@@ -31,7 +33,9 @@ export type Database = {
           id?: string
           name: string
           requested_at?: string
+          requested_permission_level?: string | null
           requested_role?: Database["public"]["Enums"]["app_role"]
+          requested_unit?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
@@ -42,7 +46,9 @@ export type Database = {
           id?: string
           name?: string
           requested_at?: string
+          requested_permission_level?: string | null
           requested_role?: Database["public"]["Enums"]["app_role"]
+          requested_unit?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
