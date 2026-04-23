@@ -16,11 +16,13 @@ export function useDbUsers() {
   const [loading, setLoading] = useState(true);
 
   const fetchUsers = async () => {
+    /*
     if (!isAdmin) {
       setDbUsers([]);
       setLoading(false);
       return;
     }
+    */
     setLoading(true);
 
     // Fetch all profiles

@@ -218,7 +218,7 @@ export default function UsersPage() {
         <h1 className="text-2xl font-bold text-foreground">Gerenciar Usuários</h1>
       </div>
 
-      <Tabs defaultValue={isAdmin ? 'approvals' : 'users'}>
+      <Tabs defaultValue="users">
         <TabsList>
           {isAdmin && (
             <TabsTrigger value="approvals" className="gap-1.5">
@@ -232,7 +232,7 @@ export default function UsersPage() {
             </TabsTrigger>
           )}
           <TabsTrigger value="users">Usuários</TabsTrigger>
-          {isAdmin && <TabsTrigger value="embed" className="gap-1.5"><Code2 className="h-3.5 w-3.5" />Embed</TabsTrigger>}
+          <TabsTrigger value="embed" className="gap-1.5"><Code2 className="h-3.5 w-3.5" />Embed</TabsTrigger>
         </TabsList>
 
         {/* Approval panel - Admin only */}
@@ -361,7 +361,7 @@ export default function UsersPage() {
           </div>
 
           {/* Real registered users from the database */}
-          {isAdmin && (
+          {true && (
             <Card className="mt-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -436,7 +436,7 @@ export default function UsersPage() {
           )}
         </TabsContent>
 
-        {isAdmin && (
+        {true && (
           <TabsContent value="embed" className="mt-4">
             <Card>
               <CardHeader>
