@@ -196,50 +196,52 @@ export default function CalendarPage() {
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Calendário</h1>
-        <div className="flex items-center gap-2">
-          <Button variant={view === 'month' ? 'default' : 'outline'} size="sm" onClick={() => setView('month')}>
-            <LayoutGrid className="mr-1 h-4 w-4" /> Mês
+        <h1 className="text-xl font-bold text-foreground sm:text-2xl">Calendário</h1>
+        <div className="flex items-center gap-1.5 p-1 bg-muted rounded-lg w-fit">
+          <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3">
+            <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>
           </Button>
-          <Button variant={view === 'week' ? 'default' : 'outline'} size="sm" onClick={() => setView('week')}>
-            <CalendarIcon className="mr-1 h-4 w-4" /> Semana
+          <Button variant={view === 'week' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('week')} className="px-3">
+            <CalendarIcon className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Semana</span>
           </Button>
-          <Button variant={view === 'list' ? 'default' : 'outline'} size="sm" onClick={() => setView('list')}>
-            <List className="mr-1 h-4 w-4" /> Lista
+          <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('list')} className="px-3">
+            <List className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Lista</span>
           </Button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Buscar por título ou local..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+          <Input placeholder="Buscar por título ou local..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10" />
         </div>
-        <Select value={filterUnit} onValueChange={setFilterUnit}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Unidade" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas unidades</SelectItem>
-            {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos status</SelectItem>
-            {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos tipos</SelectItem>
-            {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Button variant={conflictOnly ? 'destructive' : 'outline'} size="default" onClick={() => setConflictOnly(!conflictOnly)}>
-          <AlertTriangle className="mr-1 h-4 w-4" /> Conflitos
-        </Button>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+          <Select value={filterUnit} onValueChange={setFilterUnit}>
+            <SelectTrigger className="h-10 w-full sm:w-[160px]"><SelectValue placeholder="Unidade" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas unidades</SelectItem>
+              {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="h-10 w-full sm:w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos status</SelectItem>
+              {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="h-10 w-full sm:w-[170px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos tipos</SelectItem>
+              {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Button variant={conflictOnly ? 'destructive' : 'outline'} size="default" onClick={() => setConflictOnly(!conflictOnly)} className="h-10 w-full sm:w-auto">
+            <AlertTriangle className="mr-1.5 h-4 w-4" /> Conflitos
+          </Button>
+        </div>
       </div>
 
       {/* Navigation */}
