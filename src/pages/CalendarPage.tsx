@@ -403,21 +403,6 @@ export default function CalendarPage() {
               })}
             </div>
           </CardContent>
-                          <div className="flex items-center gap-1.5">
-                            <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]}`} />
-                            <span className="truncate text-xs font-medium text-foreground">{e.title}</span>
-                          </div>
-                          <p className="mt-1 text-[10px] text-muted-foreground">
-                            {format(new Date(e.start_datetime), 'HH:mm')} - {format(new Date(e.end_datetime), 'HH:mm')}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
         </Card>
       )}
 
