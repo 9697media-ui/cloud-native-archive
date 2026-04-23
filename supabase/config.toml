@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.emergency-password-reset]
 verify_jwt = false
+
+[functions.seed-admin-users]
+verify_jwt = false
