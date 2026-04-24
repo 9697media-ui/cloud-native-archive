@@ -448,10 +448,10 @@ export default function UsersPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {user.role ? (
+                          {user.role || user.permission_level ? (
                             <Badge variant="outline" className="gap-1">
-                              {ROLE_ICONS[user.role]}
-                              {ROLE_LABELS[user.role] || user.role}
+                              {ROLE_ICONS[user.role || ''] || ROLE_ICONS[user.permission_level || ''] || <Shield className="h-3.5 w-3.5" />}
+                              {ROLE_LABELS[user.role || ''] || ROLE_LABELS[user.permission_level || ''] || user.role || user.permission_level}
                             </Badge>
                           ) : (
                             <Badge variant="secondary" className="text-xs">Sem role</Badge>
