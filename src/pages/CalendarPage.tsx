@@ -41,7 +41,7 @@ type View = 'month' | 'week' | 'list';
 export default function CalendarPage() {
   const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
   const { isAuthenticated } = useAuth();
-  const { canEdit } = useUserRole();
+  const { canEdit, userName } = useUserRole();
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const hideTitle = searchParams.get('hideTitle') === 'true';
