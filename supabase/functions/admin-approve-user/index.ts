@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     // 2. Insert or update user role
     const { error: roleErr } = await adminClient
       .from('user_roles')
-      .upsert({ user_id: userId, role: role }, { onConflict: 'user_id, role' });
+      .upsert({ user_id: userId, role: role }, { onConflict: 'user_id' });
 
     if (roleErr) {
       throw roleErr;
