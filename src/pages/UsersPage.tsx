@@ -561,7 +561,7 @@ export default function UsersPage() {
                     <div className="space-y-1.5">
                       <Label className="text-xs text-muted-foreground">Link direto</Label>
                       <div className="flex items-center gap-2">
-                        <Input readOnly value={`${baseUrl}${page.path}`} className="font-mono text-xs bg-muted/50" />
+                        <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-muted/50" />
                         <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyLink(idx, page.path)}>
                           {copiedIdx === 100 + idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
                         </Button>
