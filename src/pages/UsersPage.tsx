@@ -276,24 +276,55 @@ export default function UsersPage() {
 
   // Admin restricted actions check
   const renderActions = (user: AppUser) => {
-    if (!isAdmin) return null;
-
     const dbMatch = dbUsers.find(d => d.email?.toLowerCase() === user.email.toLowerCase());
     const authUserId = dbMatch?.user_id || (user.id.length > 10 ? user.id : undefined);
 
+    const canImpersonate = (() => {
+      if (!authUserId) return false;
+      
+      // Administrador: Pode visualizar e utilizar em todos os usuários
+      if (isAdmin) return true;
+      
+      // Acesso ao próprio perfil: Podem acessar apenas o próprio perfil
+      if (authUserId === currentUser?.id) return true;
+
+      // Gestor de unidade:
+      if (isManager) {
+        // Pode visualizar apenas em perfis de usuários padrão e visualizadores
+        // Não pode entrar como administrador ou como outro gestor de unidade
+        const targetLevel = user.permission_level as string;
+        const isTargetAdmin = targetLevel === 'admin' || targetLevel === 'admin_geral';
+        const isTargetManager = targetLevel === 'gestor_unidade';
+        
+        if (isTargetAdmin || isTargetManager) return false;
+        
+        return targetLevel === 'usuario_padrao' || targetLevel === 'visualizador';
+      }
+      
+      return false;
+    })();
+
     return (
       <div className="flex items-center gap-1">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
-          disabled={!authUserId}
-          onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
-          className="h-8 w-8 text-muted-foreground hover:text-primary"
-        >
-          <KeyRound className="h-4 w-4" />
-        </Button>
-        {authUserId && authUserId !== currentUser?.id && (
+        {isAdmin && (
+          <>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
+              disabled={!authUserId}
+              onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
+              className="h-8 w-8 text-muted-foreground hover:text-primary"
+            >
+              <KeyRound className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
+              <Edit2 className="h-4 w-4" />
+            </Button>
+          </>
+        )}
+        
+        {canImpersonate && authUserId && (
           <Button
             variant="ghost"
             size="icon"
@@ -304,9 +335,6 @@ export default function UsersPage() {
             <UserCog className="h-4 w-4" />
           </Button>
         )}
-        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
-          <Edit2 className="h-4 w-4" />
-        </Button>
       </div>
     );
   };
