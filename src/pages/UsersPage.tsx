@@ -749,7 +749,7 @@ export default function UsersPage() {
             </CardHeader>
             <CardContent className="space-y-4">
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/50">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center gap-2">
                     <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
                     <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
@@ -767,7 +767,6 @@ export default function UsersPage() {
                     <Label htmlFor="show-title" className="text-sm cursor-pointer">Habilitar título da página</Label>
                   </div>
                 </div>
-              </div>
               {EMBED_PAGES.map((page, idx) => (
                 <div key={idx} className="rounded-lg border border-border p-4 space-y-3">
                   <div className="flex items-center justify-between">
