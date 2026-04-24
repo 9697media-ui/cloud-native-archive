@@ -91,7 +91,7 @@ export function useUserRole() {
   const canEdit = isAdmin || isManager;
   const canView = role !== null;
 
-  return { role, loading, canEdit, isAdmin, isManager, canView, accessStatus };
+  return { role, loading, canEdit, isAdmin, isManager, canView, accessStatus, userName };
 }
 
 export function useAccessRequests() {
