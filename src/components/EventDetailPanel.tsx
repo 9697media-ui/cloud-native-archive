@@ -1,4 +1,5 @@
 import { AppEvent, PARTNER_TYPES, Unit } from '@/types';
+import { useUserRole } from '@/hooks/useUserRole';
 import { getStatusBadgeClass } from '@/lib/statusColors';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
