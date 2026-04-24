@@ -176,16 +176,8 @@ export default function CalendarPage() {
       updated_at: new Date().toISOString(),
     };
 
-    const conflicts = detectConflicts(updatedEvent);
-    updatedEvent.has_conflict = conflicts.length > 0;
-
-    // Also update conflict flags on affected events
-    conflicts.forEach(c => {
-      if (!c.has_conflict) {
-        updateEvent({ ...c, has_conflict: true, updated_at: new Date().toISOString() });
-      }
-    });
-
+    // O recalculateAllConflicts no AppContext já cuidará de atualizar os flags de conflito
+    // tanto para este evento quanto para os outros afetados.
     updateEvent(updatedEvent);
   }, [events, detectConflicts, updateEvent]);
 
