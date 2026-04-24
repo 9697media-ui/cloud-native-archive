@@ -30,12 +30,20 @@ const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
   editor: 'Editor',
   viewer: 'Visualizador',
+  admin_geral: 'Admin Geral',
+  gestor_unidade: 'Gestor de Unidade',
+  usuario_padrao: 'Usuário Padrão',
+  visualizador: 'Visualizador',
 };
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
   admin: <ShieldCheck className="h-3.5 w-3.5" />,
+  admin_geral: <ShieldCheck className="h-3.5 w-3.5" />,
   editor: <Shield className="h-3.5 w-3.5" />,
+  gestor_unidade: <Shield className="h-3.5 w-3.5" />,
   viewer: <Eye className="h-3.5 w-3.5" />,
+  visualizador: <Eye className="h-3.5 w-3.5" />,
+  usuario_padrao: <Shield className="h-3.5 w-3.5 opacity-50" />,
 };
 
 export default function UsersPage() {
