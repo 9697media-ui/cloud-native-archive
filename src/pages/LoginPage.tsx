@@ -154,7 +154,6 @@ export default function LoginPage() {
                   <SelectContent>
                     <SelectItem value="viewer">Visualizador</SelectItem>
                     <SelectItem value="editor">Editor</SelectItem>
-                    <SelectItem value="admin">Administrador</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground mt-1">O acesso será concedido após aprovação de um administrador.</p>
