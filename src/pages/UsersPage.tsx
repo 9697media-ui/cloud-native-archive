@@ -212,8 +212,8 @@ export default function UsersPage() {
 
 
   const [customBaseUrl, setCustomBaseUrl] = useState('');
+  const isPreview = window.location.hostname.includes('preview') || window.location.hostname.includes('lovableproject.com') || window.location.hostname.includes('localhost');
   const baseUrl = customBaseUrl || window.location.origin;
-  const isPreview = window.location.hostname.includes('preview') || window.location.hostname.includes('lovableproject.com');
 
   const handleEdit = (user: AppUser) => {
     setSelectedUser(user);
