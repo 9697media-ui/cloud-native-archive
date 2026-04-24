@@ -71,11 +71,12 @@ export function useUserRole() {
     fetchRole();
   }, [user, isAuthenticated]);
 
-  const canEdit = role === 'admin';
   const isAdmin = role === 'admin';
+  const isManager = role === 'editor' || role === 'admin';
+  const canEdit = isAdmin || isManager;
   const canView = role !== null;
 
-  return { role, loading, canEdit, isAdmin, canView, accessStatus };
+  return { role, loading, canEdit, isAdmin, isManager, canView, accessStatus };
 }
 
 export function useAccessRequests() {
