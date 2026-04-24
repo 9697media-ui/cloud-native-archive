@@ -814,6 +814,36 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Delete confirm dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(v) => { if (!v && !deleteSubmitting) setDeleteTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Excluir Usuário Definitivamente
+            </DialogTitle>
+          </DialogHeader>
+          {deleteTarget && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Você está prestes a excluir permanentemente o usuário <strong className="text-foreground">{deleteTarget.name}</strong> ({deleteTarget.email}).
+              </p>
+              <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <AlertDescription className="text-xs font-medium">
+                  Esta ação é irreversível. Todos os dados vinculados a este usuário (se houver) poderão ser afetados.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleteSubmitting}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleDeleteUser} disabled={deleteSubmitting}>
+              {deleteSubmitting ? 'Excluindo...' : 'Confirmar Exclusão'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
