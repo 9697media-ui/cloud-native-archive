@@ -77,7 +77,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </span>
                 
                 {isAdmin && (
-                  <Link to="/usuarios" className="transition-transform active:scale-95">
+                  <Link to={`/usuarios${location.search}`} className="transition-transform active:scale-95">
                     <Button 
                       variant="outline" 
                       size="sm" 
