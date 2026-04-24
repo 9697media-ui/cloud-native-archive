@@ -182,7 +182,7 @@ export default function AppLayout() {
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-1 px-2">
-                  <NavContent />
+                  <NavContent onClick={() => setIsMenuOpen(false)} />
                 </nav>
                 <div className="absolute bottom-4 left-0 w-full px-6">
                   {isAuthenticated && (
