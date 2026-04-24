@@ -15,12 +15,13 @@ interface NavItem {
   label: string;
   icon: any;
   adminOnly?: boolean;
+  requireAuth?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { to: '/', label: 'Transparência', icon: LayoutDashboard },
+  { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
-  { to: '/usuarios', label: 'Administração', icon: Users, adminOnly: true },
+  { to: '/usuarios', label: 'Administração', icon: Users, requireAuth: true },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
