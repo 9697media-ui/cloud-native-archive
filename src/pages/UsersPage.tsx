@@ -314,11 +314,74 @@ export default function UsersPage() {
     setShowEdit(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editForm && selectedUser) {
-      updateUser({ ...editForm, updated_at: new Date().toISOString() });
+      setProcessingId(selectedUser.id);
+      
+      const isDbUser = dbUsers.some(u => u.user_id === selectedUser.id);
+      
+      if (isDbUser) {
+        console.log('Atualizando usuário no banco:', selectedUser.id);
+        
+        // 1. Atualiza Perfil
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            name: editForm.name,
+            unit: editForm.unit,
+            permission_level: editForm.permission_level,
+            is_active: editForm.is_active,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', selectedUser.id);
+          
+        if (profileError) {
+          console.error('Erro ao atualizar perfil:', profileError);
+          toast({ 
+            title: 'Erro ao salvar perfil', 
+            description: profileError.message, 
+            variant: 'destructive' 
+          });
+          setProcessingId(null);
+          return;
+        }
+
+        // 2. Sincroniza com a tabela user_roles
+        let mappedRole: 'admin' | 'editor' | 'viewer' = 'viewer';
+        if (editForm.permission_level === 'admin_geral') mappedRole = 'admin';
+        else if (editForm.permission_level === 'gestor_unidade') mappedRole = 'editor';
+
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .upsert({ 
+            user_id: selectedUser.id, 
+            role: mappedRole 
+          }, { 
+            onConflict: 'user_id' 
+          });
+
+        if (roleError) {
+          console.error('Erro ao atualizar cargo:', roleError);
+          // Apenas aviso, pois o perfil já foi salvo
+          toast({ 
+            title: 'Aviso', 
+            description: 'Perfil salvo, mas houve um erro ao sincronizar permissões de sistema.', 
+            variant: 'destructive' 
+          });
+        } else {
+          toast({ title: 'Sucesso', description: 'Usuário e permissões atualizados com sucesso.' });
+        }
+        
+        refetch(); // Recarrega os usuários do banco
+      } else {
+        // Fallback para usuários mock
+        updateUser({ ...editForm, updated_at: new Date().toISOString() });
+        toast({ title: 'Sucesso', description: 'Usuário (mock) atualizado localmente.' });
+      }
+      
       setShowEdit(false);
       setSelectedUser(null);
+      setProcessingId(null);
     }
   };
 
@@ -393,75 +456,77 @@ export default function UsersPage() {
     const canImpersonate = (() => {
       if (!authUserId) return false;
       
-      // 1. Administrador Geral: Permissão total em todos os usuários
+      // Não permitir entrar como si mesmo
+      if (authUserId === currentUser?.id) return false;
+
+      // 1. Administrador Geral: Permissão total em todos os outros usuários
       if (isAdmin) return true;
       
-      // 2. Acesso ao próprio perfil: Todos podem entrar em seu próprio perfil
-      if (authUserId === currentUser?.id) return true;
-
-      // 3. Gestor de unidade:
+      // 2. Gestor de unidade:
       if (isManager) {
         const targetLevel = (user.permission_level as string) || '';
         
-        // Pode entrar em perfis de Usuário Padrão e Visualizador (incluindo legacy 'viewer')
+        // Pode entrar em perfis de Usuário Padrão e Visualizador
         const isTargetStandardOrViewer = 
           targetLevel === 'usuario_padrao' || 
           targetLevel === 'visualizador' || 
           targetLevel === 'viewer';
           
         if (isTargetStandardOrViewer) return true;
-
-        // O botão fica oculto para outros Gestores ou Administradores
-        // (Já retornamos false por padrão se não for standard/viewer)
         return false;
       }
       
-      // 4. Usuário Padrão e Visualizador: Já tratado no passo 2 (próprio perfil)
-      // Para terceiros, retorna false.
       return false;
     })();
 
+    const canEdit = isAdmin || (isManager && authUserId === currentUser?.id);
+
     return (
       <div className="flex items-center gap-1">
-        {canImpersonate && (
+        {(isAdmin || canEdit) && (
           <>
             {isAdmin && (
-              <>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
-                  disabled={!authUserId}
-                  onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
-                  className="h-8 w-8 text-muted-foreground hover:text-primary"
-                >
-                  <KeyRound className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => { setSelectedUser(user); setBulkDelete(false); setShowDeleteConfirm(true); }} 
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  title="Excluir permanentemente"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
+                disabled={!authUserId}
+                onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
+                className="h-8 w-8 text-muted-foreground hover:text-primary"
+              >
+                <KeyRound className="h-4 w-4" />
+              </Button>
             )}
             
-            <Button
-              variant="ghost"
-              size="icon"
-              title="Entrar como este usuário"
-              onClick={() => setImpersonateTarget({ id: authUserId!, name: user.name, email: user.email })}
-              className="h-8 w-8 text-muted-foreground hover:text-primary"
-            >
-              <UserCog className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary" title="Editar usuário">
+              <Edit2 className="h-4 w-4" />
             </Button>
+
+            {isAdmin && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => { setSelectedUser(user); setBulkDelete(false); setShowDeleteConfirm(true); }} 
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                title="Excluir permanentemente"
+                disabled={authUserId === currentUser?.id}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </>
+        )}
+        
+        {canImpersonate && (
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Entrar como este usuário"
+            onClick={() => setImpersonateTarget({ id: authUserId!, name: user.name, email: user.email })}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+          >
+            <UserCog className="h-4 w-4" />
+          </Button>
         )}
       </div>
     );
