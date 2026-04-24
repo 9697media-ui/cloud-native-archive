@@ -177,10 +177,24 @@ export default function UsersPage() {
   }, [dbUsers, users]);
 
   const filtered = useMemo(() => {
-    if (!search) return combinedUsers;
+    let baseUsers = combinedUsers;
+    
+    if (!isAdmin) {
+      if (isManager) {
+        // Gestor pode ver gestores, usuários e visualizadores
+        baseUsers = baseUsers.filter(u => 
+          ['gestor_unidade', 'usuario_padrao', 'visualizador'].includes(u.permission_level as string)
+        );
+      } else {
+        // Usuário e visualizador podem ver somente o seu próprio perfil
+        baseUsers = baseUsers.filter(u => u.email.toLowerCase() === currentUser?.email?.toLowerCase());
+      }
+    }
+
+    if (!search) return baseUsers;
     const q = search.toLowerCase();
-    return combinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-  }, [combinedUsers, search]);
+    return baseUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  }, [combinedUsers, search, isAdmin, isManager, currentUser]);
 
   const groupedUsers = useMemo(() => {
     const admins = filtered.filter(u => (u.permission_level as string) === 'admin' || (u.permission_level as string) === 'admin_geral');
