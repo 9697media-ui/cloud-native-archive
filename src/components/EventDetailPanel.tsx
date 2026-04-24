@@ -39,11 +39,6 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
           <div className="flex flex-wrap gap-2">
             <Badge className={unitBadgeColors[event.unit]}>{event.unit}</Badge>
             <Badge variant="outline" className={`capitalize ${statusClass}`}>{event.status}</Badge>
-            {event.has_conflict && (
-              <Badge variant="destructive" className="gap-1">
-                <AlertTriangle className="h-3 w-3" /> Conflito
-              </Badge>
-            )}
           </div>
 
           {/* Details */}
