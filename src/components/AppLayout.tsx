@@ -20,6 +20,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: '/', label: 'Transparência', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
+  { to: '/usuarios', label: 'Administração', icon: Users, adminOnly: true },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
