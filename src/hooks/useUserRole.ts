@@ -49,8 +49,9 @@ export function useUserRole() {
         .eq('user_id', user.id)
         .maybeSingle();
       
-      if (profileData?.name) {
+      if (profileData) {
         setUserName(profileData.name);
+        setIsActive(profileData.is_active !== false);
       } else if (user.user_metadata?.name) {
         setUserName(user.user_metadata.name);
       } else {
