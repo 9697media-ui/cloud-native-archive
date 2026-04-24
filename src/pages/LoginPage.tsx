@@ -157,6 +157,42 @@ export default function LoginPage() {
       </AlertDialogContent>
     </AlertDialog>
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      {emergencyReset && (
+        <AlertDialog open={emergencyReset} onOpenChange={setEmergencyReset}>
+          <AlertDialogContent className="max-w-md">
+            <AlertDialogHeader>
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <KeyRound className="h-7 w-7" />
+              </div>
+              <AlertDialogTitle className="text-center">Redefinição Emergencial</AlertDialogTitle>
+              <AlertDialogDescription className="text-center">
+                Você ativou o modo de redefinição emergencial para o e-mail <strong>{email}</strong>.
+                Defina sua nova senha abaixo.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <form onSubmit={handleEmergencyReset} className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="new-password">Nova Senha</Label>
+                <Input 
+                  id="new-password" 
+                  type="password" 
+                  placeholder="Mínimo 6 caracteres" 
+                  value={newPassword} 
+                  onChange={e => setNewPassword(e.target.value)} 
+                  required 
+                  autoFocus
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Redefinindo...' : 'Definir Nova Senha'}
+              </Button>
+              <Button type="button" variant="ghost" className="w-full" onClick={() => setEmergencyReset(false)}>
+                Cancelar
+              </Button>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
