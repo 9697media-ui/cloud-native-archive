@@ -300,7 +300,7 @@ export default function CalendarPage() {
                       isToday ? 'bg-primary/5' : '',
                       isDragOver ? 'bg-accent/50 border-primary/50' : '',
                       hasConflict ? 'bg-muted/10 border-border/50' : '',
-                      shouldPulse ? 'animate-conflict-pulse' : ''
+                      
                     )}
                   >
                     <span className={cn(
