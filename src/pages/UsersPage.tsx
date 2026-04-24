@@ -314,11 +314,47 @@ export default function UsersPage() {
     setShowEdit(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editForm && selectedUser) {
-      updateUser({ ...editForm, updated_at: new Date().toISOString() });
+      setProcessingId(selectedUser.id);
+      
+      const isDbUser = dbUsers.some(u => u.user_id === selectedUser.id);
+      
+      if (isDbUser) {
+        console.log('Atualizando usuário no banco:', selectedUser.id);
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            name: editForm.name,
+            unit: editForm.unit,
+            permission_level: editForm.permission_level,
+            is_active: editForm.is_active,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', selectedUser.id);
+          
+        if (error) {
+          console.error('Erro ao atualizar perfil:', error);
+          toast({ 
+            title: 'Erro ao salvar', 
+            description: error.message, 
+            variant: 'destructive' 
+          });
+          setProcessingId(null);
+          return;
+        }
+        
+        toast({ title: 'Sucesso', description: 'Usuário atualizado no banco de dados.' });
+        refetch(); // Recarrega os usuários do banco
+      } else {
+        // Fallback para usuários mock
+        updateUser({ ...editForm, updated_at: new Date().toISOString() });
+        toast({ title: 'Sucesso', description: 'Usuário (mock) atualizado localmente.' });
+      }
+      
       setShowEdit(false);
       setSelectedUser(null);
+      setProcessingId(null);
     }
   };
 
