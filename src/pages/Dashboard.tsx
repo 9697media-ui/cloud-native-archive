@@ -40,6 +40,9 @@ const unitBorderColors: Record<Unit, string> = {
 
 export default function Dashboard() {
   const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
+  const [searchParams] = useSearchParams();
+  const hideHeader = searchParams.get('hideHeader') === 'true';
+
   const { isAuthenticated } = useAuth();
   const { canEdit } = useUserRole();
   const isMobile = useIsMobile();
