@@ -104,7 +104,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         className="h-8 gap-1.5 text-xs font-semibold bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
                       >
                         <Users className="h-3.5 w-3.5" />
-                        Painel Admin
+                        Administração
                       </Button>
                     </Link>
                   )}
