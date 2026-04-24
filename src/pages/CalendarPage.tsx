@@ -44,8 +44,7 @@ export default function CalendarPage() {
   const { canEdit } = useUserRole();
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
-  const hideHeader = searchParams.get('hideHeader') === 'true';
-
+  const hideTitle = searchParams.get('hideTitle') === 'true';
   const [view, setView] = useState<View>('month');
   const [filterUnit, setFilterUnit] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -197,8 +196,7 @@ export default function CalendarPage() {
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {!hideHeader && <h1 className="text-xl font-bold text-foreground sm:text-2xl">Calendário</h1>}
-
+        {!hideTitle && <h1 className="text-xl font-bold text-foreground sm:text-2xl">Calendário</h1>}
         <div className="flex items-center gap-1.5 p-1 bg-muted rounded-lg w-fit">
           <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3">
             <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>

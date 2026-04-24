@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-
 import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,10 +38,9 @@ const unitBorderColors: Record<Unit, string> = {
 };
 
 export default function Dashboard() {
-  const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const [searchParams] = useSearchParams();
-  const hideHeader = searchParams.get('hideHeader') === 'true';
-
+  const hideTitle = searchParams.get('hideTitle') === 'true';
+  const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const { isAuthenticated } = useAuth();
   const { canEdit } = useUserRole();
   const isMobile = useIsMobile();
@@ -161,14 +159,13 @@ export default function Dashboard() {
     <div className="animate-fade-in space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {!hideHeader && (
+        {!hideTitle && (
           <div>
             <h1 className="text-xl font-bold text-foreground sm:text-2xl">Visão Geral Consolidada</h1>
             <p className="text-xs text-muted-foreground sm:text-sm">Programação institucional de todas as unidades</p>
           </div>
         )}
-
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center", hideTitle && "ml-auto")}>
           {canEdit && (
             <Button onClick={() => setShowNewEvent(true)} className="w-full gap-2 sm:w-auto">
               <Plus className="h-4 w-4" /> <span className="sm:inline">Nova Programação</span>
@@ -362,7 +359,6 @@ export default function Dashboard() {
                                 <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
                                   {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
                                 </span>
-                                {e.has_conflict && <AlertTriangle className="h-3 w-3 text-destructive sm:h-3.5 sm:w-3.5" />}
                                 <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
                                   {e.status}
                                 </Badge>

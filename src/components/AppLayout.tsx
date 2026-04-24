@@ -21,7 +21,6 @@ const navItems: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
   { to: '/usuarios', label: 'Transparência', icon: Users },
-  // { to: '/settings/mapping', label: 'Mapeamento', icon: Settings, adminOnly: true },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -30,8 +29,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
   const hideFooterParam = queryParams.get('hideFooter') === 'true';
   const hideHeaderParam = queryParams.get('hideHeader') === 'true';
+  const hideTitleParam = queryParams.get('hideTitle') === 'true';
   const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
-
 
   useEffect(() => {
     setShowLoginLocal(!hideLoginParam);
@@ -41,103 +40,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAdmin } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
-  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam;
-
-  if (isCleanView) {
-    if (hideFooterParam) {
-      return (
-        <div className="h-full flex flex-col bg-background">
-          <ImpersonationBanner />
-          <main className="flex-1 overflow-auto p-4">
-            {children}
-          </main>
-        </div>
-      );
-    }
-
-    return (
-      <div className="h-full flex flex-col bg-background">
-        <ImpersonationBanner />
-        <main className="flex-1 overflow-auto p-4 pb-14">
-          {children}
-        </main>
-        <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 backdrop-blur-sm p-2 px-4 flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
-              <Calendar className="h-3 w-3 text-primary-foreground" />
-            </div>
-            <span className="text-[10px] font-bold tracking-tight text-foreground uppercase sm:text-xs">
-              Central ANA
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {isAuthenticated ? (
-              <div className="flex items-center gap-2">
-                <span className="hidden text-[10px] text-muted-foreground sm:inline truncate max-w-[100px]">
-                  {user?.email}
-                </span>
-                
-                {isAdmin && (
-                  <Link to={`/usuarios${location.search}`} className="transition-transform active:scale-95">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="h-8 gap-1.5 text-xs font-semibold bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
-                    >
-                      <Users className="h-3.5 w-3.5" />
-                      Painel Admin
-                    </Button>
-                  </Link>
-                )}
-
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => signOut()} 
-                  className="h-8 gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                  Sair
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1">
-                {showLoginLocal && (
-                  <a 
-                    href={`/login?redirect=${encodeURIComponent(location.pathname)}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="transition-transform active:scale-95"
-                  >
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
-                    >
-                      <LogIn className="h-3.5 w-3.5" />
-                      Login Admin
-                    </Button>
-                  </a>
-                )}
-                {!hideLoginParam && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setShowLoginLocal(!showLoginLocal)}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-opacity"
-                    title={showLoginLocal ? "Ocultar login" : "Mostrar login"}
-                  >
-                    <Settings className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
-        </footer>
-      </div>
-    );
-  }
+  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
 
   const NavContent = () => (
     <>
@@ -162,6 +65,93 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       })}
     </>
   );
+
+  if (isCleanView) {
+    return (
+      <div className="h-full flex flex-col bg-background">
+        <ImpersonationBanner />
+        <main className={cn("flex-1 overflow-auto p-4", !hideFooterParam && "pb-14")}>
+          {children}
+        </main>
+        {!hideFooterParam && (
+          <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 backdrop-blur-sm p-2 px-4 flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
+                <Calendar className="h-3 w-3 text-primary-foreground" />
+              </div>
+              <span className="text-[10px] font-bold tracking-tight text-foreground uppercase sm:text-xs">
+                Central ANA
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {isAuthenticated ? (
+                <div className="flex items-center gap-2">
+                  <span className="hidden text-[10px] text-muted-foreground sm:inline truncate max-w-[100px]">
+                    {user?.email}
+                  </span>
+                  
+                  {isAdmin && (
+                    <Link to={`/usuarios${location.search}`} className="transition-transform active:scale-95">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 gap-1.5 text-xs font-semibold bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
+                      >
+                        <Users className="h-3.5 w-3.5" />
+                        Painel Admin
+                      </Button>
+                    </Link>
+                  )}
+
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => signOut()} 
+                    className="h-8 gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    Sair
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  {showLoginLocal && (
+                    <a 
+                      href={`/login?redirect=${encodeURIComponent(location.pathname)}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="transition-transform active:scale-95"
+                    >
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
+                      >
+                        <LogIn className="h-3.5 w-3.5" />
+                        Login Admin
+                      </Button>
+                    </a>
+                  )}
+                  {!hideLoginParam && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowLoginLocal(!showLoginLocal)}
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-opacity"
+                      title={showLoginLocal ? "Ocultar login" : "Mostrar login"}
+                    >
+                      <Settings className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          </footer>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole, useAccessRequests } from '@/hooks/useUserRole';
@@ -25,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 const EMBED_PAGES = [
   { name: 'Visão Geral (Dashboard)', path: '/' },
   { name: 'Calendário', path: '/calendario' },
+  { name: 'Transparência', path: '/usuarios' },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
@@ -49,6 +51,8 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
 };
 
 export default function UsersPage() {
+  const [urlSearchParams] = useSearchParams();
+  const hideTitleParam = urlSearchParams.get('hideTitle') === 'true';
   const { users, selectedUser, setSelectedUser, updateUser } = useApp();
   const { user: currentUser } = useAuth();
   const { isAdmin, isManager, canView, loading: roleLoading } = useUserRole();
@@ -66,9 +70,8 @@ export default function UsersPage() {
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [hideLogin, setHideLogin] = useState(false);
   const [hideFooter, setHideFooter] = useState(false);
-  const [showDashboardHeader, setShowDashboardHeader] = useState(true);
-  const [showCalendarHeader, setShowCalendarHeader] = useState(true);
-
+  const [hideHeader, setHideHeader] = useState(false);
+  const [hideTitle, setHideTitle] = useState(false);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -257,10 +260,8 @@ export default function UsersPage() {
     const params = new URLSearchParams();
     if (hideLogin) params.append('hideLogin', 'true');
     if (hideFooter) params.append('hideFooter', 'true');
-    
-    const showHeader = path === '/' ? showDashboardHeader : showCalendarHeader;
-    if (!showHeader) params.append('hideHeader', 'true');
-    
+    if (hideHeader) params.append('hideHeader', 'true');
+    if (hideTitle) params.append('hideTitle', 'true');
     const queryString = params.toString();
     
     // Ensure baseUrl doesn't end with slash if path starts with one
@@ -275,7 +276,6 @@ export default function UsersPage() {
 
   const getFixedEmbedCode = (path: string) =>
     `<div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;"><iframe src="${getUrl(path)}" style="width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-
 
   const handleCopyEmbed = (idx: number, path: string) => {
     navigator.clipboard.writeText(getEmbedCode(path));
@@ -377,9 +377,11 @@ export default function UsersPage() {
 
   return (
     <div className="animate-fade-in space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Transparência</h1>
-      </div>
+      {!hideTitleParam && (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-bold text-foreground">Transparência</h1>
+        </div>
+      )}
 
       <Tabs defaultValue="users">
         <TabsList>
@@ -590,14 +592,22 @@ export default function UsersPage() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-4 pt-2 border-t border-border/50">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/50">
                   <div className="flex items-center gap-2">
                     <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
                     <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
                   </div>
-                  <div className="flex items-center gap-2 border-l border-border pl-4">
+                  <div className="flex items-center gap-2">
                     <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
                     <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
+                    <Label htmlFor="show-header" className="text-sm cursor-pointer">Habilitar cabeçalho</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
+                    <Label htmlFor="show-title" className="text-sm cursor-pointer">Habilitar título da página</Label>
                   </div>
                 </div>
               </div>
@@ -607,16 +617,7 @@ export default function UsersPage() {
                     <h3 className="font-medium text-foreground">{page.name}</h3>
                     <Badge variant="outline" className="text-xs">{page.path}</Badge>
                   </div>
-                  <div className="flex items-center gap-2 pb-2">
-                    <Switch 
-                      id={`show-header-${idx}`} 
-                      checked={page.path === '/' ? showDashboardHeader : showCalendarHeader} 
-                      onCheckedChange={(val) => page.path === '/' ? setShowDashboardHeader(val) : setShowCalendarHeader(val)} 
-                    />
-                    <Label htmlFor={`show-header-${idx}`} className="text-xs cursor-pointer">Habilitar cabeçalho (Título da página)</Label>
-                  </div>
                   <div className="space-y-1.5">
-
                     <Label className="text-xs text-muted-foreground">Link direto</Label>
                     <div className="flex items-center gap-2">
                       <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-muted/50" />
