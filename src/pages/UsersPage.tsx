@@ -253,7 +253,12 @@ export default function UsersPage() {
     if (hideLogin) params.append('hideLogin', 'true');
     if (hideFooter) params.append('hideFooter', 'true');
     const queryString = params.toString();
-    return `${baseUrl}${path}${queryString ? `?${queryString}` : ''}`;
+    
+    // Ensure baseUrl doesn't end with slash if path starts with one
+    const normalizedBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    
+    return `${normalizedBase}${normalizedPath}${queryString ? `?${queryString}` : ''}`;
   };
 
   const getEmbedCode = (path: string) =>
