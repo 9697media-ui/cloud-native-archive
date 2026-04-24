@@ -586,14 +586,22 @@ export default function UsersPage() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-4 pt-2 border-t border-border/50">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/50">
                   <div className="flex items-center gap-2">
                     <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
                     <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
                   </div>
-                  <div className="flex items-center gap-2 border-l border-border pl-4">
+                  <div className="flex items-center gap-2">
                     <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
                     <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch id="hide-header" checked={hideHeader} onCheckedChange={setHideHeader} />
+                    <Label htmlFor="hide-header" className="text-sm cursor-pointer">Ocultar cabeçalho (Navbar)</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch id="hide-title" checked={hideTitle} onCheckedChange={setHideTitle} />
+                    <Label htmlFor="hide-title" className="text-sm cursor-pointer">Ocultar título da página</Label>
                   </div>
                 </div>
               </div>
