@@ -56,7 +56,7 @@ export default function UsersPage() {
   const { users, selectedUser, setSelectedUser, updateUser, deleteUser } = useApp();
   const { user: currentUser } = useAuth();
   const { isAdmin, isManager, canView, loading: roleLoading } = useUserRole();
-  const { dbUsers, loading: dbUsersLoading } = useDbUsers();
+  const { dbUsers, loading: dbUsersLoading, refetch } = useDbUsers();
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
   const [showApprovalConfirm, setShowApprovalConfirm] = useState<{ req: any } | null>(null);
   const isMobile = useIsMobile();
@@ -157,19 +157,90 @@ export default function UsersPage() {
   };
 
   const executeDelete = async () => {
-    if (bulkDelete) {
-      selectedUsers.forEach(id => {
-        deleteUser(id);
+    setProcessingId('deleting');
+    try {
+      if (bulkDelete) {
+        const ids = Array.from(selectedUsers);
+        let successCount = 0;
+        let hasError = false;
+        
+        for (const id of ids) {
+          const isDbUser = dbUsers.some(u => u.user_id === id);
+          if (isDbUser) {
+            const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+              body: { userId: id }
+            });
+            if (error || (data as any)?.error) {
+              console.error('Erro ao excluir usuário:', id, error || (data as any)?.error);
+              hasError = true;
+            } else {
+              successCount++;
+            }
+          } else {
+            deleteUser(id);
+            successCount++;
+          }
+        }
+        
+        setSelectedUsers(new Set());
+        if (successCount > 0) {
+          toast({ 
+            title: 'Usuários excluídos', 
+            description: `${successCount} usuário(s) excluído(s) permanentemente.` 
+          });
+          refetch();
+        }
+        if (hasError) {
+          toast({ 
+            title: 'Alguns erros ocorreram', 
+            description: 'Alguns usuários não puderam ser excluídos. Verifique se você tem permissão ou se o usuário ainda existe.',
+            variant: 'destructive'
+          });
+        }
+      } else if (selectedUser) {
+        const id = selectedUser.id;
+        const isDbUser = dbUsers.some(u => u.user_id === id);
+        
+        if (isDbUser) {
+          const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+            body: { userId: id }
+          });
+          
+          if (error || (data as any)?.error) {
+            toast({ 
+              title: 'Erro ao excluir', 
+              description: (data as any)?.error || error?.message || 'Falha ao excluir usuário.', 
+              variant: 'destructive' 
+            });
+          } else {
+            toast({ 
+              title: 'Usuário excluído', 
+              description: `${selectedUser.name} foi excluído permanentemente.` 
+            });
+            refetch();
+            setSelectedUser(null);
+          }
+        } else {
+          deleteUser(id);
+          toast({ 
+            title: 'Usuário excluído', 
+            description: `${selectedUser.name} foi excluído permanentemente.` 
+          });
+          setSelectedUser(null);
+        }
+      }
+    } catch (err) {
+      console.error('Erro na exclusão:', err);
+      toast({ 
+        title: 'Erro', 
+        description: 'Ocorreu um erro inesperado ao tentar excluir.', 
+        variant: 'destructive' 
       });
-      setSelectedUsers(new Set());
-      toast({ title: 'Usuários excluídos', description: `${selectedUsers.size} usuário(s) excluído(s) permanentemente.` });
-    } else if (selectedUser) {
-      deleteUser(selectedUser.id);
-      toast({ title: 'Usuário excluído', description: `${selectedUser.name} foi excluído permanentemente.` });
-      setSelectedUser(null);
+    } finally {
+      setProcessingId(null);
+      setShowDeleteConfirm(false);
+      setBulkDelete(false);
     }
-    setShowDeleteConfirm(false);
-    setBulkDelete(false);
   };
 
   const handleBulkToggleActive = (active: boolean) => {
@@ -799,7 +870,9 @@ export default function UsersPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>Cancelar</Button>
-            <Button variant="destructive" onClick={executeDelete}>Excluir Agora</Button>
+            <Button variant="destructive" onClick={executeDelete} disabled={processingId === 'deleting'}>
+              {processingId === 'deleting' ? 'Excluindo...' : 'Excluir Agora'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
