@@ -247,11 +247,19 @@ export default function UsersPage() {
     setProcessingId(null);
   };
 
+  const getUrl = (path: string) => {
+    const params = new URLSearchParams();
+    if (hideLogin) params.append('hideLogin', 'true');
+    if (hideFooter) params.append('hideFooter', 'true');
+    const queryString = params.toString();
+    return `${baseUrl}${path}${queryString ? `?${queryString}` : ''}`;
+  };
+
   const getEmbedCode = (path: string) =>
-    `<iframe src="${baseUrl}${path}" style="width:100%;height:100vh;border:0;border-radius:8px;" allowfullscreen></iframe>`;
+    `<iframe src="${getUrl(path)}" style="width:100%;height:100vh;border:0;border-radius:8px;" allowfullscreen></iframe>`;
 
   const getFixedEmbedCode = (path: string) =>
-    `<div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;"><iframe src="${baseUrl}${path}" style="width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+    `<div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;"><iframe src="${getUrl(path)}" style="width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
 
   const handleCopyEmbed = (idx: number, path: string) => {
     navigator.clipboard.writeText(getEmbedCode(path));
