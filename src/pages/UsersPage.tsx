@@ -63,6 +63,8 @@ export default function UsersPage() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [hideLogin, setHideLogin] = useState(false);
+  const [hideFooter, setHideFooter] = useState(false);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -245,11 +247,19 @@ export default function UsersPage() {
     setProcessingId(null);
   };
 
+  const getUrl = (path: string) => {
+    const params = new URLSearchParams();
+    if (hideLogin) params.append('hideLogin', 'true');
+    if (hideFooter) params.append('hideFooter', 'true');
+    const queryString = params.toString();
+    return `${baseUrl}${path}${queryString ? `?${queryString}` : ''}`;
+  };
+
   const getEmbedCode = (path: string) =>
-    `<iframe src="${baseUrl}${path}" style="width:100%;height:100vh;border:0;border-radius:8px;" allowfullscreen></iframe>`;
+    `<iframe src="${getUrl(path)}" style="width:100%;height:100vh;border:0;border-radius:8px;" allowfullscreen></iframe>`;
 
   const getFixedEmbedCode = (path: string) =>
-    `<div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;"><iframe src="${baseUrl}${path}" style="width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+    `<div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;"><iframe src="${getUrl(path)}" style="width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
 
   const handleCopyEmbed = (idx: number, path: string) => {
     navigator.clipboard.writeText(getEmbedCode(path));
@@ -266,7 +276,7 @@ export default function UsersPage() {
   };
 
   const handleCopyLink = (idx: number, path: string) => {
-    navigator.clipboard.writeText(`${baseUrl}${path}`);
+    navigator.clipboard.writeText(getUrl(path));
     setCopiedIdx(100 + idx);
     toast({ title: 'Copiado!', description: 'Link copiado.' });
     setTimeout(() => setCopiedIdx(null), 2000);
@@ -533,6 +543,16 @@ export default function UsersPage() {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="flex flex-wrap gap-4 p-4 rounded-lg border border-border bg-muted/20">
+                  <div className="flex items-center gap-2">
+                    <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
+                    <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
+                  </div>
+                  <div className="flex items-center gap-2 border-l border-border pl-4">
+                    <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
+                    <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
+                  </div>
+                </div>
                 {EMBED_PAGES.map((page, idx) => (
                   <div key={idx} className="rounded-lg border border-border p-4 space-y-3">
                     <div className="flex items-center justify-between">

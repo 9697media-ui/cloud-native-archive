@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,12 +26,28 @@ const navItems: NavItem[] = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const hideLoginParam = queryParams.get('hideLogin') === 'true';
+  const hideFooterParam = queryParams.get('hideFooter') === 'true';
+  const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
+  
   const { isAuthenticated, signOut, user } = useAuth();
   const { isAdmin } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
 
   if (isEmbedded) {
+    if (hideFooterParam) {
+      return (
+        <div className="h-full flex flex-col bg-background">
+          <ImpersonationBanner />
+          <main className="flex-1 overflow-auto p-4">
+            {children}
+          </main>
+        </div>
+      );
+    }
+
     return (
       <div className="h-full flex flex-col bg-background">
         <ImpersonationBanner />
@@ -64,16 +81,33 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </Button>
               </>
             ) : (
-              <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
-                >
-                  <LogIn className="h-3.5 w-3.5" />
-                  Login do Usuário
-                </Button>
-              </Link>
+              <div className="flex items-center gap-1">
+                {true && (
+                  <>
+                    {showLoginLocal ? (
+                      <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
+                        >
+                          <LogIn className="h-3.5 w-3.5" />
+                          Login do Usuário
+                        </Button>
+                      </Link>
+                    ) : null}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowLoginLocal(!showLoginLocal)}
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-opacity"
+                      title={showLoginLocal ? "Ocultar login" : "Mostrar login"}
+                    >
+                      <Settings className="h-3.5 w-3.5" />
+                    </Button>
+                  </>
+                )}
+              </div>
             )}
           </div>
         </footer>
