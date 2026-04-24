@@ -302,10 +302,7 @@ export default function UsersPage() {
   }, [filtered]);
 
 
-  const [customBaseUrl, setCustomBaseUrl] = useState('');
-  const isPreview = window.location.hostname.includes('preview') || window.location.hostname.includes('lovableproject.com') || window.location.hostname.includes('localhost');
-  const PUBLISHED_URL = "https://r2-vault-craft.lovable.app";
-  const baseUrl = customBaseUrl || (isPreview ? PUBLISHED_URL : window.location.origin);
+  const baseUrl = window.location.origin;
 
   const handleEdit = (user: AppUser) => {
     setSelectedUser(user);
@@ -748,55 +745,22 @@ export default function UsersPage() {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {isPreview && (
-                <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
-                  <AlertTriangle className="h-4 w-4 text-destructive" />
-                  <AlertTitle className="text-sm font-bold text-destructive">Atenção: Ambiente de Pré-visualização</AlertTitle>
-                  <AlertDescription className="text-xs text-destructive-foreground">
-                    <p className="mb-2">Os links abaixo usam a URL de teste (<strong>{window.location.origin}</strong>) que requer login no Lovable e <strong>NÃO funcionará em seu site externo</strong>.</p>
-                    <p>Para o embed funcionar corretamente, use a URL publicada: <strong className="underline">https://r2-vault-craft.lovable.app</strong> ou insira-a no campo abaixo.</p>
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold">URL Base para Links (Opcional)</Label>
-                  <div className="flex gap-2">
-                    <Input 
-                      placeholder="Ex: https://meusite.com" 
-                      value={customBaseUrl} 
-                      onChange={(e) => setCustomBaseUrl(e.target.value)}
-                      className="text-xs h-8"
-                    />
-                    {customBaseUrl && (
-                      <Button variant="ghost" size="sm" onClick={() => setCustomBaseUrl('')} className="h-8 px-2 text-xs">
-                        Resetar
-                      </Button>
-                    )}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground italic">
-                    Deixe vazio para usar a URL atual: {window.location.origin}
-                  </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
+                  <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/50">
-                  <div className="flex items-center gap-2">
-                    <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
-                    <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
-                    <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
-                    <Label htmlFor="show-header" className="text-sm cursor-pointer">Habilitar cabeçalho</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
-                    <Label htmlFor="show-title" className="text-sm cursor-pointer">Habilitar título da página</Label>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
+                  <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
+                  <Label htmlFor="show-header" className="text-sm cursor-pointer">Habilitar cabeçalho</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
+                  <Label htmlFor="show-title" className="text-sm cursor-pointer">Habilitar título da página</Label>
                 </div>
               </div>
               {EMBED_PAGES.map((page, idx) => (
