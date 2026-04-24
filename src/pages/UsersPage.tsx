@@ -870,7 +870,9 @@ export default function UsersPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>Cancelar</Button>
-            <Button variant="destructive" onClick={executeDelete}>Excluir Agora</Button>
+            <Button variant="destructive" onClick={executeDelete} disabled={processingId === 'deleting'}>
+              {processingId === 'deleting' ? 'Excluindo...' : 'Excluir Agora'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
