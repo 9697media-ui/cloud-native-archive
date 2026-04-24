@@ -50,7 +50,7 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
 export default function UsersPage() {
   const { users, selectedUser, setSelectedUser, updateUser } = useApp();
   const { user: currentUser } = useAuth();
-  const { isAdmin, isManager, loading: roleLoading } = useUserRole();
+  const { isAdmin, isManager, canView, loading: roleLoading } = useUserRole();
   const { dbUsers, loading: dbUsersLoading } = useDbUsers();
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
   const [showApprovalConfirm, setShowApprovalConfirm] = useState<{ req: any } | null>(null);
@@ -262,10 +262,8 @@ export default function UsersPage() {
 
   // Admin restricted actions check
   const renderActions = (user: AppUser) => {
-    if (!isAdmin) return null;
+    if (!canView) return null;
 
-    // The user.id is already the authUserId for real users since we combined them
-    // But we still check dbUsers for safety or if it's a mock user with matching email
     const dbMatch = dbUsers.find(d => d.email?.toLowerCase() === user.email.toLowerCase());
     const authUserId = dbMatch?.user_id || (user.id.length > 10 ? user.id : undefined);
 
@@ -283,20 +281,20 @@ export default function UsersPage() {
         </Button>
         {authUserId && authUserId !== currentUser?.id && (
           <Button
-            variant="outline"
-            size="sm"
+            variant="ghost"
+            size="icon"
             title="Entrar como este usuário"
             onClick={() => setImpersonateTarget({ id: authUserId, name: user.name, email: user.email })}
-            className="h-8 gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all shadow-sm"
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
           >
-            <UserCog className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Entrar como este usuário</span>
-            <span className="sm:hidden">Entrar</span>
+            <UserCog className="h-4 w-4" />
           </Button>
         )}
-        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8">
-          <Edit2 className="h-4 w-4" />
-        </Button>
+        {isAdmin && (
+          <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
+            <Edit2 className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     );
   };
