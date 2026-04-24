@@ -84,7 +84,41 @@ export default function UsersPage() {
   const [impersonateSubmitting, setImpersonateSubmitting] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
+  const handleBulkPermanentDelete = async () => {
+    setDeleteSubmitting(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const id of selectedUsers) {
+      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+        body: { userId: id },
+      });
+      if (error || (data as any)?.error) {
+        errorCount++;
+      } else {
+        successCount++;
+      }
+    }
+
+    setDeleteSubmitting(false);
+    setBulkDeleteConfirm(false);
+    setSelectedUsers(new Set());
+
+    if (errorCount > 0) {
+      toast({ 
+        title: 'Exclusão concluída com avisos', 
+        description: `${successCount} excluídos, ${errorCount} falhas.`,
+        variant: 'destructive'
+      });
+    } else {
+      toast({ title: 'Usuários excluídos', description: `${successCount} usuários removidos permanentemente.` });
+    }
+    
+    window.location.reload();
+  };
 
   const handleDeleteUser = async () => {
     if (!deleteTarget) return;
