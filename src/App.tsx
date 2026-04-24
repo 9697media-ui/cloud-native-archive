@@ -46,21 +46,14 @@ const App = () => (
                 <AuthRedirect><LoginPage /></AuthRedirect>
               } />
               <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
-              <Route path="*" element={
-                <AppLayout>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/calendario" element={<CalendarPage />} />
-                    <Route path="/usuarios" element={
-                      <ProtectedRoute><UsersPage /></ProtectedRoute>
-                    } />
-                    {/* <Route path="/settings/mapping" element={
-                      <ProtectedRoute><MappingPage /></ProtectedRoute>
-                    } /> */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </AppLayout>
-              } />
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/calendario" element={<CalendarPage />} />
+                <Route path="/usuarios" element={
+                  <ProtectedRoute><UsersPage /></ProtectedRoute>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Route>
             </Routes>
           </BrowserRouter>
         </AppProvider>
