@@ -50,7 +50,7 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
 export default function UsersPage() {
   const { users, selectedUser, setSelectedUser, updateUser } = useApp();
   const { user: currentUser } = useAuth();
-  const { isAdmin, isManager, loading: roleLoading } = useUserRole();
+  const { isAdmin, isManager, canView, loading: roleLoading } = useUserRole();
   const { dbUsers, loading: dbUsersLoading } = useDbUsers();
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
   const [showApprovalConfirm, setShowApprovalConfirm] = useState<{ req: any } | null>(null);
