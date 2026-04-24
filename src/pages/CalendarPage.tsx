@@ -305,7 +305,7 @@ export default function CalendarPage() {
                   >
                     <span className={cn(
                       "inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] sm:h-6 sm:w-6 sm:text-xs mb-1",
-                      isToday ? 'bg-primary text-primary-foreground font-bold' : hasConflict ? 'bg-destructive text-destructive-foreground' : 'text-foreground'
+                      isToday ? 'bg-primary text-primary-foreground font-bold' : hasConflict ? 'bg-muted text-muted-foreground' : 'text-foreground'
                     )}>
                       {format(day, 'd')}
                     </span>
