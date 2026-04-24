@@ -44,6 +44,7 @@ export default function CalendarPage() {
   const { canEdit } = useUserRole();
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
+  const hideTitle = searchParams.get('hideTitle') === 'true';
   const [view, setView] = useState<View>('month');
   const [filterUnit, setFilterUnit] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
