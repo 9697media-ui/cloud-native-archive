@@ -24,6 +24,7 @@ interface Props {
 }
 
 export default function EventDetailPanel({ event, open, onOpenChange, onEdit, onDelete }: Props) {
+  const { canEdit } = useUserRole();
   if (!event) return null;
 
   const statusClass = getStatusBadgeClass(event.status, event.has_conflict);
