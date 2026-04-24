@@ -180,6 +180,7 @@ export default function CalendarPage() {
       start_datetime: newStart.toISOString(),
       end_datetime: newEnd.toISOString(),
       updated_at: new Date().toISOString(),
+      updated_by: userName || 'Usuário'
     };
 
     // O recalculateAllConflicts no AppContext já cuidará de atualizar os flags de conflito
