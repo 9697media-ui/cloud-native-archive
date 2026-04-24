@@ -115,10 +115,10 @@ export function useAccessRequests() {
     fetchRequests();
   }, []);
 
-  const approveRequest = async (requestId: string, userId: string, role: string) => {
+  const approveRequest = async (requestId: string, userId: string, role: string, permissionLevel?: string, unit?: string) => {
     // Use edge function to approve, assign role AND confirm email
     const { data, error } = await supabase.functions.invoke('admin-approve-user', {
-      body: { requestId, userId, role }
+      body: { requestId, userId, role, permissionLevel, unit }
     });
 
     if (error) {

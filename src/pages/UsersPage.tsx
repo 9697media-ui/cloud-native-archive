@@ -397,17 +397,7 @@ export default function UsersPage() {
     }
     
     try {
-      await approveRequest(req.id, req.user_id, req.requested_role);
-      
-      // Atualiza o perfil com as regras de nível e unidade
-      await supabase
-        .from('profiles')
-        .update({
-          permission_level: level,
-          unit: unit,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', req.user_id);
+      await approveRequest(req.id, req.user_id, req.requested_role, level, unit);
         
       toast({ title: 'Aprovado!', description: `Acesso de ${req.name} foi aprovado como ${ROLE_LABELS[req.requested_role]}.` });
       refetch();

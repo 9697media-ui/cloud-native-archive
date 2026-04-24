@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const body = await req.json();
-    const { requestId, userId, role } = body;
+    const { requestId, userId, role, permissionLevel, unit } = body;
 
     if (!requestId || !userId || !role) {
       return new Response(JSON.stringify({ error: 'Parâmetros ausentes.' }), {
@@ -73,10 +73,15 @@ Deno.serve(async (req) => {
       throw roleErr;
     }
 
-    // 2.5 Ensure profile is active
+    // 2.5 Update profile and ensure it is active
     const { error: profileErr } = await adminClient
       .from('profiles')
-      .update({ is_active: true })
+      .update({ 
+        is_active: true,
+        permission_level: permissionLevel,
+        unit: unit,
+        updated_at: new Date().toISOString()
+      })
       .eq('user_id', userId);
 
     if (profileErr) {

@@ -50,7 +50,7 @@ export default function LoginPage() {
     if (error) {
       let message = error.message;
       if (message.includes('Email not confirmed')) {
-        message = 'Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada ou solicite a um administrador que ative sua conta.';
+        message = 'Sua solicitação de acesso ainda está pendente ou seu e-mail não foi confirmado. Verifique sua caixa de entrada ou aguarde a aprovação de um administrador.';
       } else if (message.includes('Invalid login credentials')) {
         message = 'E-mail ou senha incorretos. Tente novamente.';
       }
