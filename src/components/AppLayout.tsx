@@ -96,7 +96,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     {user?.email}
                   </span>
                   
-                  {isAdmin && (
+                  {isAuthenticated && (
                     <Link to={`/usuarios${location.search}`} className="transition-transform active:scale-95">
                       <Button 
                         variant="outline" 
