@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Edit2, Code2, Copy, Check, UserCheck, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle } from 'lucide-react';
+import { Search, Edit2, Code2, Copy, Check, UserCheck, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,6 +82,60 @@ export default function UsersPage() {
   // Impersonation dialog
   const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
   const [impersonateSubmitting, setImpersonateSubmitting] = useState(false);
+
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
+  const handleBulkPermanentDelete = async () => {
+    setDeleteSubmitting(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const id of selectedUsers) {
+      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+        body: { userId: id },
+      });
+      if (error || (data as any)?.error) {
+        errorCount++;
+      } else {
+        successCount++;
+      }
+    }
+
+    setDeleteSubmitting(false);
+    setBulkDeleteConfirm(false);
+    setSelectedUsers(new Set());
+
+    if (errorCount > 0) {
+      toast({ 
+        title: 'Exclusão concluída com avisos', 
+        description: `${successCount} excluídos, ${errorCount} falhas.`,
+        variant: 'destructive'
+      });
+    } else {
+      toast({ title: 'Usuários excluídos', description: `${successCount} usuários removidos permanentemente.` });
+    }
+    
+    window.location.reload();
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deleteTarget) return;
+    setDeleteSubmitting(true);
+    const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+      body: { userId: deleteTarget.id },
+    });
+    setDeleteSubmitting(false);
+    if (error || (data as any)?.error) {
+      toast({ title: 'Erro', description: (data as any)?.error || error?.message || 'Falha ao excluir usuário.', variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Usuário excluído', description: `${deleteTarget.name} foi removido permanentemente.` });
+    setDeleteTarget(null);
+    // Refetch users to update list
+    window.location.reload(); // Simple way to refresh all data since we have mock + db users
+  };
 
   const handleResetPassword = async () => {
     if (!resetTarget) return;
@@ -150,17 +204,12 @@ export default function UsersPage() {
   };
 
   const handleBulkDeleteUsers = () => {
-    selectedUsers.forEach(id => {
-      const user = users.find(u => u.id === id);
-      if (user) updateUser({ ...user, is_active: false, updated_at: new Date().toISOString() });
-    });
-    setSelectedUsers(new Set());
-    toast({ title: 'Usuários desativados', description: `${selectedUsers.size} usuário(s) desativado(s).` });
+    setBulkDeleteConfirm(true);
   };
 
   const handleBulkToggleActive = (active: boolean) => {
     selectedUsers.forEach(id => {
-      const user = users.find(u => u.id === id);
+      const user = combinedUsers.find(u => u.id === id);
       if (user) updateUser({ ...user, is_active: active, updated_at: new Date().toISOString() });
     });
     setSelectedUsers(new Set());
@@ -354,6 +403,16 @@ export default function UsersPage() {
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
                   <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  title="Excluir definitivamente"
+                  disabled={!authUserId || authUserId === currentUser?.id}
+                  onClick={() => { if (authUserId) setDeleteTarget({ id: authUserId, name: user.name, email: user.email }); }}
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </>
             )}
@@ -781,6 +840,64 @@ export default function UsersPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowApprovalConfirm(null)}>Cancelar</Button>
             <Button onClick={() => handleApprove(showApprovalConfirm?.req)}>Confirmar Aprovação</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Delete confirm dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(v) => { if (!v && !deleteSubmitting) setDeleteTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Excluir Usuário Definitivamente
+            </DialogTitle>
+          </DialogHeader>
+          {deleteTarget && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Você está prestes a excluir permanentemente o usuário <strong className="text-foreground">{deleteTarget.name}</strong> ({deleteTarget.email}).
+              </p>
+              <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <AlertDescription className="text-xs font-medium">
+                  Esta ação é irreversível. Todos os dados vinculados a este usuário (se houver) poderão ser afetados.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleteSubmitting}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleDeleteUser} disabled={deleteSubmitting}>
+              {deleteSubmitting ? 'Excluindo...' : 'Confirmar Exclusão'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Bulk delete confirm dialog */}
+      <Dialog open={bulkDeleteConfirm} onOpenChange={(v) => { if (!v && !deleteSubmitting) setBulkDeleteConfirm(false); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Excluir {selectedUsers.size} Usuários Definitivamente
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Você está prestes a excluir permanentemente <strong>{selectedUsers.size}</strong> usuários selecionados.
+            </p>
+            <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <AlertDescription className="text-xs font-medium">
+                Esta ação é irreversível e removerá todas as contas do sistema.
+              </AlertDescription>
+            </Alert>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkDeleteConfirm(false)} disabled={deleteSubmitting}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleBulkPermanentDelete} disabled={deleteSubmitting}>
+              {deleteSubmitting ? 'Excluindo...' : 'Confirmar Exclusão em Massa'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
