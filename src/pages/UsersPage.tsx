@@ -779,6 +779,31 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Delete confirmation dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={(v) => { setShowDeleteConfirm(v); if (!v) { setBulkDelete(false); if (!showEdit) setSelectedUser(null); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Excluir Permanentemente
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              {bulkDelete 
+                ? `Você está prestes a excluir ${selectedUsers.size} usuários permanentemente. Esta ação não pode ser desfeita.`
+                : `Você está prestes a excluir o usuário ${selectedUser?.name} permanentemente. Esta ação não pode ser desfeita.`
+              }
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>Cancelar</Button>
+            <Button variant="destructive" onClick={executeDelete}>Excluir Agora</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       {/* Approval confirmation dialog */}
       <Dialog open={!!showApprovalConfirm} onOpenChange={(v) => { if (!v) setShowApprovalConfirm(null); }}>
