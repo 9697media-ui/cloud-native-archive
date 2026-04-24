@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle } from 'lucide-react';
+
 
 const unitBadgeColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic text-primary-foreground',
