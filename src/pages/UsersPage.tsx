@@ -63,6 +63,8 @@ export default function UsersPage() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [hideLogin, setHideLogin] = useState(false);
+  const [hideFooter, setHideFooter] = useState(false);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
