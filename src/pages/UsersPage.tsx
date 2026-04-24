@@ -873,6 +873,34 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Bulk delete confirm dialog */}
+      <Dialog open={bulkDeleteConfirm} onOpenChange={(v) => { if (!v && !deleteSubmitting) setBulkDeleteConfirm(false); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Excluir {selectedUsers.size} Usuários Definitivamente
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Você está prestes a excluir permanentemente <strong>{selectedUsers.size}</strong> usuários selecionados.
+            </p>
+            <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <AlertDescription className="text-xs font-medium">
+                Esta ação é irreversível e removerá todas as contas do sistema.
+              </AlertDescription>
+            </Alert>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkDeleteConfirm(false)} disabled={deleteSubmitting}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleBulkPermanentDelete} disabled={deleteSubmitting}>
+              {deleteSubmitting ? 'Excluindo...' : 'Confirmar Exclusão em Massa'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
