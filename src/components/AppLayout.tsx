@@ -96,8 +96,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
             ) : (
               <div className="flex items-center gap-1">
-                {showLoginLocal ? (
-                  <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
+                {showLoginLocal && (
+                  <a 
+                    href={`/login?redirect=${encodeURIComponent(location.pathname)}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="transition-transform active:scale-95"
+                  >
                     <Button 
                       variant="default" 
                       size="sm" 
@@ -106,17 +111,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       <LogIn className="h-3.5 w-3.5" />
                       Login Admin
                     </Button>
-                  </Link>
-                ) : null}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowLoginLocal(!showLoginLocal)}
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-opacity"
-                  title={showLoginLocal ? "Ocultar login" : "Mostrar login"}
-                >
-                  <Settings className="h-3.5 w-3.5" />
-                </Button>
+                  </a>
+                )}
+                {!hideLoginParam && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowLoginLocal(!showLoginLocal)}
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-opacity"
+                    title={showLoginLocal ? "Ocultar login" : "Mostrar login"}
+                  >
+                    <Settings className="h-3.5 w-3.5" />
+                  </Button>
+                )}
               </div>
             )}
           </div>
