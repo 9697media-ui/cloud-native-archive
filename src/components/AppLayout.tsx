@@ -24,6 +24,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const [showLoginLocal, setShowLoginLocal] = useState(true);
   const location = useLocation();
   const { isAuthenticated, signOut, user } = useAuth();
   const { isAdmin } = useUserRole();
