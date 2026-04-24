@@ -13,9 +13,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Edit2, Code2, Copy, Check, UserCheck, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog } from 'lucide-react';
+import { Search, Edit2, Code2, Copy, Check, UserCheck, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,9 +50,10 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
 export default function UsersPage() {
   const { users, selectedUser, setSelectedUser, updateUser } = useApp();
   const { user: currentUser } = useAuth();
-  const { isAdmin, loading: roleLoading } = useUserRole();
+  const { isAdmin, isManager, loading: roleLoading } = useUserRole();
   const { dbUsers, loading: dbUsersLoading } = useDbUsers();
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
+  const [showApprovalConfirm, setShowApprovalConfirm] = useState<{ req: any } | null>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -215,6 +217,11 @@ export default function UsersPage() {
     await approveRequest(req.id, req.user_id, req.requested_role);
     toast({ title: 'Aprovado!', description: `Acesso de ${req.name} foi aprovado como ${ROLE_LABELS[req.requested_role]}.` });
     setProcessingId(null);
+    setShowApprovalConfirm(null);
+  };
+
+  const onApproveClick = (req: any) => {
+    setShowApprovalConfirm({ req });
   };
 
   const handleReject = async (req: any) => {
@@ -360,14 +367,14 @@ export default function UsersPage() {
                           {ROLE_ICONS[req.requested_role]}
                           {ROLE_LABELS[req.requested_role] || req.requested_role}
                         </Badge>
-                        {isAdmin && (
+                        {isManager && (
                           <div className="flex gap-2">
                             <Button
                               size="sm"
                               variant="default"
                               className="flex-1 gap-1.5"
                               disabled={processingId === req.id}
-                              onClick={() => handleApprove(req)}
+                              onClick={() => onApproveClick(req)}
                             >
                               <UserCheck className="h-4 w-4" />
                               Aprovar
@@ -552,7 +559,9 @@ export default function UsersPage() {
                 <Select value={editForm.permission_level} onValueChange={v => setEditForm({ ...editForm, permission_level: v as any })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {PERMISSION_LEVELS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                    {PERMISSION_LEVELS
+                      .filter(p => isAdmin || p.value !== 'admin_geral')
+                      .map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -614,7 +623,34 @@ export default function UsersPage() {
               <p className="text-sm text-muted-foreground">
                 Sua sessão atual será encerrada. Para voltar à sua conta, use o botão "Sair da impersonação" no banner do topo e faça login novamente.
               </p>
+      {/* Approval confirmation dialog */}
+      <Dialog open={!!showApprovalConfirm} onOpenChange={(v) => { if (!v) setShowApprovalConfirm(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Aprovação</DialogTitle>
+          </DialogHeader>
+          {showApprovalConfirm && (
+            <div className="space-y-4">
+              <Alert className="bg-warning/10 border-warning/20">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+                <AlertTitle className="text-warning-foreground font-semibold">Aviso de Ciência</AlertTitle>
+                <AlertDescription className="text-warning-foreground/80">
+                  Ao aprovar este usuário, você confirma estar ciente das permissões que serão concedidas a ele no sistema. 
+                  Certifique-se de que a unidade e o nível de acesso solicitados estão corretos.
+                </AlertDescription>
+              </Alert>
+              <p className="text-sm">
+                Aprovar <strong className="text-foreground">{showApprovalConfirm.req.name}</strong> como <strong>{ROLE_LABELS[showApprovalConfirm.req.requested_role] || showApprovalConfirm.req.requested_role}</strong>?
+              </p>
             </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowApprovalConfirm(null)}>Cancelar</Button>
+            <Button onClick={() => handleApprove(showApprovalConfirm?.req)}>Confirmar Aprovação</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setImpersonateTarget(null)} disabled={impersonateSubmitting}>Cancelar</Button>
