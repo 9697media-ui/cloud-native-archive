@@ -434,7 +434,7 @@ export default function CalendarPage() {
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-foreground truncate">{e.title}</p>
-                      {e.has_conflict && <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />}
+                      
                     </div>
                     <p className="text-xs text-muted-foreground">{e.unit} · {e.location}</p>
                   </div>
