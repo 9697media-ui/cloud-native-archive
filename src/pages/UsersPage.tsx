@@ -728,6 +728,17 @@ export default function UsersPage() {
               <p className="text-sm text-muted-foreground">
                 Sua sessão atual será encerrada. Para voltar à sua conta, use o botão "Sair da impersonação" no banner do topo e faça login novamente.
               </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImpersonateTarget(null)} disabled={impersonateSubmitting}>Cancelar</Button>
+            <Button onClick={handleImpersonate} disabled={impersonateSubmitting}>
+              {impersonateSubmitting ? 'Entrando...' : 'Entrar como usuário'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Approval confirmation dialog */}
       <Dialog open={!!showApprovalConfirm} onOpenChange={(v) => { if (!v) setShowApprovalConfirm(null); }}>
         <DialogContent>
@@ -752,16 +763,6 @@ export default function UsersPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowApprovalConfirm(null)}>Cancelar</Button>
             <Button onClick={() => handleApprove(showApprovalConfirm?.req)}>Confirmar Aprovação</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setImpersonateTarget(null)} disabled={impersonateSubmitting}>Cancelar</Button>
-            <Button onClick={handleImpersonate} disabled={impersonateSubmitting}>
-              {impersonateSubmitting ? 'Entrando...' : 'Entrar como usuário'}
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
