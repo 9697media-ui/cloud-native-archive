@@ -346,11 +346,12 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
             )}
             {/* Unit collaboration */}
             <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-              <Switch
+               <Switch
+                id="unit_collaboration"
                 checked={form.has_unit_collaboration || false}
                 onCheckedChange={v => setForm({ ...form, has_unit_collaboration: v, ...(!v ? { collaborating_units: [], external_collaborators: [] } : {}) })}
               />
-              <Label className="cursor-pointer">Parceria com outra Unidade/Instituição</Label>
+              <Label htmlFor="unit_collaboration" className="cursor-pointer flex-1">Parceria com outra Unidade/Instituição</Label>
             </div>
             {form.has_unit_collaboration && (
               <div className="space-y-3 rounded-lg border border-border p-3">
