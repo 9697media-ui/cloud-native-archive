@@ -25,15 +25,11 @@ const navItems: NavItem[] = [
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const [showLoginLocal, setShowLoginLocal] = useState(true);
   const location = useLocation();
-  const { isAuthenticated, signOut, user } = useAuth();
-  const { isAdmin } = useUserRole();
-  const isEmbedded = useIsEmbedded();
-  const isMobile = useIsMobile();
-  const queryParams = new URLSearchParams(location.search);
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
   const hideFooterParam = queryParams.get('hideFooter') === 'true';
+  const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
 
   if (isEmbedded) {
     if (hideFooterParam) {
