@@ -204,17 +204,12 @@ export default function UsersPage() {
   };
 
   const handleBulkDeleteUsers = () => {
-    selectedUsers.forEach(id => {
-      const user = users.find(u => u.id === id);
-      if (user) updateUser({ ...user, is_active: false, updated_at: new Date().toISOString() });
-    });
-    setSelectedUsers(new Set());
-    toast({ title: 'Usuários desativados', description: `${selectedUsers.size} usuário(s) desativado(s).` });
+    setBulkDeleteConfirm(true);
   };
 
   const handleBulkToggleActive = (active: boolean) => {
     selectedUsers.forEach(id => {
-      const user = users.find(u => u.id === id);
+      const user = combinedUsers.find(u => u.id === id);
       if (user) updateUser({ ...user, is_active: active, updated_at: new Date().toISOString() });
     });
     setSelectedUsers(new Set());
