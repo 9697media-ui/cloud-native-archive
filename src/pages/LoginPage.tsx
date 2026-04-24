@@ -53,21 +53,15 @@ export default function LoginPage() {
     if (!email || !password || !name) return;
     setLoading(true);
 
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, { 
+      name, 
+      requested_role: requestedRole 
+    });
+    
     if (error) {
       setPopup({ title: 'Erro', message: error.message, type: 'error' });
       setLoading(false);
       return;
-    }
-
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    if (authUser) {
-      await (supabase.from('access_requests') as any).insert({
-        user_id: authUser.id,
-        requested_role: requestedRole,
-        name,
-        email,
-      });
     }
 
     setMode('request_sent');
