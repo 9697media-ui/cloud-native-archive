@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle } from 'lucide-react';
+
 
 const unitBadgeColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic text-primary-foreground',
@@ -57,7 +57,7 @@ export default function UnitEventsDialog({ unit, events, open, onOpenChange, onE
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-medium text-foreground truncate">{e.title}</p>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {e.has_conflict && <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
+                      
                       <Badge variant="outline" className={`capitalize text-xs ${statusClass}`}>{e.status}</Badge>
                     </div>
                   </div>

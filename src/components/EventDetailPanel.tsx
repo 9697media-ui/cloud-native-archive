@@ -5,7 +5,7 @@ import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Pencil, Trash2, Megaphone, Users, FileText } from 'lucide-react';
+import { Pencil, Trash2, Megaphone, Users } from 'lucide-react';
 
 const unitBadgeColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic text-primary-foreground',
@@ -39,11 +39,6 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
           <div className="flex flex-wrap gap-2">
             <Badge className={unitBadgeColors[event.unit]}>{event.unit}</Badge>
             <Badge variant="outline" className={`capitalize ${statusClass}`}>{event.status}</Badge>
-            {event.has_conflict && (
-              <Badge variant="destructive" className="gap-1">
-                <AlertTriangle className="h-3 w-3" /> Conflito
-              </Badge>
-            )}
           </div>
 
           {/* Details */}
@@ -115,21 +110,6 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
               </div>
             )}
 
-            {/* Attachments */}
-            {(event.attachments || []).length > 0 && (
-              <div className="rounded-lg border border-border p-3 space-y-1">
-                <p className="text-xs font-semibold text-muted-foreground">Anexos</p>
-                {event.attachments.map((url, idx) => {
-                  const fileName = decodeURIComponent(url.split('/').pop() || 'arquivo');
-                  return (
-                    <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                      <FileText className="h-3.5 w-3.5" />
-                      {fileName}
-                    </a>
-                  );
-                })}
-              </div>
-            )}
           </div>
 
           {(onEdit || onDelete) && (

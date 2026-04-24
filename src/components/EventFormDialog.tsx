@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApp } from '@/contexts/AppContext';
 import { AppEvent, UNITS, EVENT_TYPES, EVENT_STATUSES, PARTNER_TYPES, Unit, EventType, EventStatus, PartnerType } from '@/types';
@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, CheckCircle2, Plus, X, Upload, FileText, Loader2 } from 'lucide-react';
+import { CheckCircle2, Plus, X } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -47,8 +47,6 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   const [conflicts, setConflicts] = useState<AppEvent[]>([]);
   const [showConflictAlert, setShowConflictAlert] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = !!event;
 
@@ -186,8 +184,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
         {showConflictAlert ? (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-              <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
+            <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-4">
               <div>
                 <p className="font-semibold text-foreground">Conflito de horário detectado!</p>
                 <p className="text-sm text-muted-foreground">Este evento conflita com {conflicts.length} evento(s):</p>
@@ -203,7 +200,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
             </div>
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={() => setShowConflictAlert(false)}>Voltar e Corrigir</Button>
-              <Button variant="destructive" onClick={handleForceSubmit}>Salvar com Conflito</Button>
+              <Button onClick={handleForceSubmit}>Salvar Mesmo Assim</Button>
             </DialogFooter>
           </div>
         ) : (
@@ -420,74 +417,6 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 </div>
               </div>
             )}
-            {/* File attachments */}
-            <div className="space-y-2 rounded-lg border border-border p-3">
-              <Label className="text-sm font-medium">Anexos</Label>
-              {(form.attachments || []).map((url, idx) => {
-                const fileName = url.split('/').pop() || 'arquivo';
-                return (
-                  <div key={idx} className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate flex-1">{decodeURIComponent(fileName)}</a>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="shrink-0 h-8 w-8"
-                      onClick={() => {
-                        const updated = (form.attachments || []).filter((_, i) => i !== idx);
-                        setForm({ ...form, attachments: updated });
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                );
-              })}
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                multiple
-                onChange={async (e) => {
-                  const files = e.target.files;
-                  if (!files || files.length === 0) return;
-                  setUploading(true);
-                  const newUrls: string[] = [];
-                  for (const file of Array.from(files)) {
-                    try {
-                      const { data, error } = await supabase.functions.invoke('r2-upload', {
-                        body: { fileName: file.name, contentType: file.type },
-                      });
-                      if (error || !data?.uploadUrl) throw error ?? new Error('Sem URL assinada');
-                      const putRes = await fetch(data.uploadUrl, {
-                        method: 'PUT',
-                        headers: file.type ? { 'Content-Type': file.type } : {},
-                        body: file,
-                      });
-                      if (!putRes.ok) throw new Error(`Upload R2 falhou: ${putRes.status}`);
-                      newUrls.push(data.publicUrl);
-                    } catch (err) {
-                      console.error('Erro upload R2:', err);
-                    }
-                  }
-                  setForm(prev => ({ ...prev, attachments: [...(prev.attachments || []), ...newUrls] }));
-                  setUploading(false);
-                  if (fileInputRef.current) fileInputRef.current.value = '';
-                }}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="gap-1"
-                disabled={uploading}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
-                {uploading ? 'Enviando...' : 'Anexar Arquivo'}
-              </Button>
-            </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
               <Button onClick={handleSubmit}>

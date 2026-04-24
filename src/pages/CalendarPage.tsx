@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, LayoutGrid, Search, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, LayoutGrid, Search } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import EventFormDialog from '@/components/EventFormDialog';
 import EventDetailPanel from '@/components/EventDetailPanel';
@@ -237,8 +237,8 @@ export default function CalendarPage() {
               {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Button variant={conflictOnly ? 'destructive' : 'outline'} size="default" onClick={() => setConflictOnly(!conflictOnly)} className="h-10 w-full sm:w-auto">
-            <AlertTriangle className="mr-1.5 h-4 w-4" /> Conflitos
+          <Button variant={conflictOnly ? 'secondary' : 'outline'} size="default" onClick={() => setConflictOnly(!conflictOnly)} className="h-10 w-full sm:w-auto">
+            Conflitos
           </Button>
         </div>
       </div>
@@ -299,13 +299,13 @@ export default function CalendarPage() {
                       !isCurrentMonth ? 'opacity-30 bg-muted/20' : '',
                       isToday ? 'bg-primary/5' : '',
                       isDragOver ? 'bg-accent/50 border-primary/50' : '',
-                      hasConflict ? 'bg-destructive/5 border-destructive/20' : '',
-                      shouldPulse ? 'animate-conflict-pulse' : ''
+                      hasConflict ? 'bg-muted/10 border-border/50' : '',
+                      
                     )}
                   >
                     <span className={cn(
                       "inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] sm:h-6 sm:w-6 sm:text-xs mb-1",
-                      isToday ? 'bg-primary text-primary-foreground font-bold' : hasConflict ? 'bg-destructive text-destructive-foreground' : 'text-foreground'
+                      isToday ? 'bg-primary text-primary-foreground font-bold' : hasConflict ? 'bg-muted text-muted-foreground' : 'text-foreground'
                     )}>
                       {format(day, 'd')}
                     </span>
@@ -323,7 +323,6 @@ export default function CalendarPage() {
                           )}
                         >
                           <span className="truncate text-foreground flex-1">{e.title}</span>
-                          {e.has_conflict && <AlertTriangle className="h-2 w-2 shrink-0 text-destructive sm:h-2.5 sm:w-2.5" />}
                         </button>
                       ))}
                       {dayEvents.length > (isMobile ? 2 : 3) && (
@@ -435,7 +434,7 @@ export default function CalendarPage() {
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-foreground truncate">{e.title}</p>
-                      {e.has_conflict && <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />}
+                      
                     </div>
                     <p className="text-xs text-muted-foreground">{e.unit} · {e.location}</p>
                   </div>
