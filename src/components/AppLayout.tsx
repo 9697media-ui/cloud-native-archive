@@ -64,36 +64,49 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
           
           <div className="flex items-center gap-2">
-            {!hideLoginParam && (
+            {isAuthenticated ? (
               <>
-                {isAuthenticated ? (
+                <span className="hidden text-[10px] text-muted-foreground sm:inline">
+                  {user?.email}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => signOut()} 
+                  className="h-8 gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  Sair
+                </Button>
+              </>
+            ) : (
+              <div className="flex items-center gap-1">
+                {!hideLoginParam && (
                   <>
-                    <span className="hidden text-[10px] text-muted-foreground sm:inline">
-                      {user?.email}
-                    </span>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => signOut()} 
-                      className="h-8 gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                    {showLoginLocal ? (
+                      <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
+                        >
+                          <LogIn className="h-3.5 w-3.5" />
+                          Login do Usuário
+                        </Button>
+                      </Link>
+                    ) : null}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowLoginLocal(!showLoginLocal)}
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-opacity"
+                      title={showLoginLocal ? "Ocultar login" : "Mostrar login"}
                     >
-                      <LogOut className="h-3.5 w-3.5" />
-                      Sair
+                      <Settings className="h-3.5 w-3.5" />
                     </Button>
                   </>
-                ) : (
-                  <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
-                    >
-                      <LogIn className="h-3.5 w-3.5" />
-                      Login do Usuário
-                    </Button>
-                  </Link>
                 )}
-              </>
+              </div>
             )}
           </div>
         </footer>
