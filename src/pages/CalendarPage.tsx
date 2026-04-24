@@ -299,7 +299,7 @@ export default function CalendarPage() {
                       !isCurrentMonth ? 'opacity-30 bg-muted/20' : '',
                       isToday ? 'bg-primary/5' : '',
                       isDragOver ? 'bg-accent/50 border-primary/50' : '',
-                      hasConflict ? 'bg-destructive/5 border-destructive/20' : '',
+                      hasConflict ? 'bg-muted/10 border-border/50' : '',
                       shouldPulse ? 'animate-conflict-pulse' : ''
                     )}
                   >
