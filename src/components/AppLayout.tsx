@@ -32,11 +32,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
   
   const { isAuthenticated, signOut, user } = useAuth();
-  const { isAdmin } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
+  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam;
 
-  if (isEmbedded) {
+  if (isCleanView) {
     if (hideFooterParam) {
       return (
         <div className="h-full flex flex-col bg-background">
