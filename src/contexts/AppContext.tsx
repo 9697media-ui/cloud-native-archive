@@ -66,15 +66,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setEvents(prev => recalculateAllConflicts(prev.filter(e => e.id !== id)));
   }, []);
 
-  const updateUser = useCallback((user: AppUser) => {
-    setUsers(prev => prev.map(u => u.id === user.id ? user : u));
+  const deleteUser = useCallback((id: string) => {
+    setUsers(prev => prev.filter(u => u.id !== id));
   }, []);
 
   return (
     <AppContext.Provider value={{
       events, users, selectedEvent, selectedUser, selectedMonth,
       setSelectedEvent, setSelectedUser, setSelectedMonth,
-      addEvent, updateEvent, deleteEvent, updateUser, detectConflicts,
+      addEvent, updateEvent, deleteEvent, updateUser, deleteUser, detectConflicts,
     }}>
       {children}
     </AppContext.Provider>
