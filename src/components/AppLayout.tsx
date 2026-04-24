@@ -45,7 +45,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const NavContent = () => (
     <>
-      {navItems.filter(item => !item.adminOnly || isAdmin).map(item => {
+      {navItems.filter(item => {
+        if (item.adminOnly) return isAdmin;
+        if (item.requireAuth) return isAuthenticated;
+        return true;
+      }).map(item => {
         const active = location.pathname === item.to;
         return (
           <Link
