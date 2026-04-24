@@ -25,6 +25,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function AppLayout() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
