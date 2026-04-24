@@ -558,7 +558,9 @@ export default function UsersPage() {
                 <Select value={editForm.permission_level} onValueChange={v => setEditForm({ ...editForm, permission_level: v as any })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {PERMISSION_LEVELS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                    {PERMISSION_LEVELS
+                      .filter(p => isAdmin || p.value !== 'admin_geral')
+                      .map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
