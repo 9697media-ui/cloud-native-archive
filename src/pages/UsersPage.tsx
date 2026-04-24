@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 const EMBED_PAGES = [
   { name: 'Visão Geral (Dashboard)', path: '/' },
   { name: 'Calendário', path: '/calendario' },
+  { name: 'Transparência', path: '/usuarios' },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
