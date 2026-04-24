@@ -161,10 +161,13 @@ export default function Dashboard() {
     <div className="animate-fade-in space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground sm:text-2xl">Visão Geral Consolidada</h1>
-          <p className="text-xs text-muted-foreground sm:text-sm">Programação institucional de todas as unidades</p>
-        </div>
+        {!hideHeader && (
+          <div>
+            <h1 className="text-xl font-bold text-foreground sm:text-2xl">Visão Geral Consolidada</h1>
+            <p className="text-xs text-muted-foreground sm:text-sm">Programação institucional de todas as unidades</p>
+          </div>
+        )}
+
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           {canEdit && (
             <Button onClick={() => setShowNewEvent(true)} className="w-full gap-2 sm:w-auto">
