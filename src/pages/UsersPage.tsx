@@ -366,14 +366,14 @@ export default function UsersPage() {
                           {ROLE_ICONS[req.requested_role]}
                           {ROLE_LABELS[req.requested_role] || req.requested_role}
                         </Badge>
-                        {isAdmin && (
+                        {isManager && (
                           <div className="flex gap-2">
                             <Button
                               size="sm"
                               variant="default"
                               className="flex-1 gap-1.5"
                               disabled={processingId === req.id}
-                              onClick={() => handleApprove(req)}
+                              onClick={() => onApproveClick(req)}
                             >
                               <UserCheck className="h-4 w-4" />
                               Aprovar
