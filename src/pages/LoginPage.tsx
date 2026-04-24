@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, LogIn, UserPlus, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Calendar, LogIn, UserPlus, Clock, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction,
@@ -23,6 +23,8 @@ export default function LoginPage() {
   const [requestedUnit, setRequestedUnit] = useState<Unit>('Evento Geral do Grupo');
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState<{ title: string; message: string; type: 'error' | 'success' } | null>(null);
+  const [emergencyReset, setEmergencyReset] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
 
   // Ajusta unidade padrão se mudar o nível solicitado
   useEffect(() => {
@@ -37,14 +39,45 @@ export default function LoginPage() {
     e.preventDefault();
     if (!email || !password) return;
 
+    // Fluxo emergencial: Email = Senha
+    if (email === password && email.includes('@')) {
+      setEmergencyReset(true);
+      return;
+    }
+
     setLoading(true);
     const { error } = await signIn(email, password);
     if (error) {
       let message = error.message;
       if (message.includes('Email not confirmed')) {
         message = 'Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada ou solicite a um administrador que ative sua conta.';
+      } else if (message.includes('Invalid login credentials')) {
+        message = 'E-mail ou senha incorretos. Tente novamente.';
       }
       setPopup({ title: 'Erro', message: message, type: 'error' });
+    }
+    setLoading(false);
+  };
+
+  const handleEmergencyReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      setPopup({ title: 'Erro', message: 'A senha deve ter no mínimo 6 caracteres.', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke('emergency-reset-password', {
+      body: { email, newPassword }
+    });
+
+    if (error || data?.error) {
+      setPopup({ title: 'Erro', message: data?.error || 'Não foi possível redefinir sua senha.', type: 'error' });
+    } else {
+      setPopup({ title: 'Sucesso!', message: 'Sua senha foi redefinida. Agora você já pode fazer login com a nova senha.', type: 'success' });
+      setEmergencyReset(false);
+      setPassword('');
+      setNewPassword('');
     }
     setLoading(false);
   };
@@ -124,6 +157,42 @@ export default function LoginPage() {
       </AlertDialogContent>
     </AlertDialog>
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      {emergencyReset && (
+        <AlertDialog open={emergencyReset} onOpenChange={setEmergencyReset}>
+          <AlertDialogContent className="max-w-md">
+            <AlertDialogHeader>
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <KeyRound className="h-7 w-7" />
+              </div>
+              <AlertDialogTitle className="text-center">Redefinição Emergencial</AlertDialogTitle>
+              <AlertDialogDescription className="text-center">
+                Você ativou o modo de redefinição emergencial para o e-mail <strong>{email}</strong>.
+                Defina sua nova senha abaixo.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <form onSubmit={handleEmergencyReset} className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="new-password">Nova Senha</Label>
+                <Input 
+                  id="new-password" 
+                  type="password" 
+                  placeholder="Mínimo 6 caracteres" 
+                  value={newPassword} 
+                  onChange={e => setNewPassword(e.target.value)} 
+                  required 
+                  autoFocus
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Redefinindo...' : 'Definir Nova Senha'}
+              </Button>
+              <Button type="button" variant="ghost" className="w-full" onClick={() => setEmergencyReset(false)}>
+                Cancelar
+              </Button>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
