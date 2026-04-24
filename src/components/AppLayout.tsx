@@ -9,7 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import ImpersonationBanner from '@/components/ImpersonationBanner';
 
-const navItems = [
+interface NavItem {
+  to: string;
+  label: string;
+  icon: any;
+  adminOnly?: boolean;
+}
+
+const navItems: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
   { to: '/usuarios', label: 'Transparência', icon: Users },
