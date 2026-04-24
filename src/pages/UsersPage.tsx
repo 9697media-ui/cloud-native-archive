@@ -56,7 +56,7 @@ export default function UsersPage() {
   const { users, selectedUser, setSelectedUser, updateUser, deleteUser } = useApp();
   const { user: currentUser } = useAuth();
   const { isAdmin, isManager, canView, loading: roleLoading } = useUserRole();
-  const { dbUsers, loading: dbUsersLoading } = useDbUsers();
+  const { dbUsers, loading: dbUsersLoading, refetch } = useDbUsers();
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
   const [showApprovalConfirm, setShowApprovalConfirm] = useState<{ req: any } | null>(null);
   const isMobile = useIsMobile();
