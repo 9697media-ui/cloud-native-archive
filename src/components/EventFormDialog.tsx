@@ -275,11 +275,12 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
               <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Notas internas..." rows={2} />
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-              <Switch
+               <Switch
+                id="marketing_request"
                 checked={form.marketing_request || false}
                 onCheckedChange={v => setForm({ ...form, marketing_request: v })}
               />
-              <Label className="cursor-pointer">Solicitação de Marketing</Label>
+              <Label htmlFor="marketing_request" className="cursor-pointer flex-1">Solicitação de Marketing</Label>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-border p-3">
               <Switch
