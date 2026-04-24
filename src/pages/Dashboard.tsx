@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import EventFormDialog from '@/components/EventFormDialog';
@@ -30,12 +30,6 @@ const unitDotColors: Record<Unit, string> = {
   'Evento Geral do Grupo': 'bg-unit-geral',
 };
 
-const unitBorderColors: Record<Unit, string> = {
-  'DIC': 'border-l-unit-dic',
-  'Nilópolis': 'border-l-unit-nilopolis',
-  'Santana': 'border-l-unit-santana',
-  'Evento Geral do Grupo': 'border-l-unit-geral',
-};
 
 export default function Dashboard() {
   const [searchParams] = useSearchParams();
@@ -49,7 +43,7 @@ export default function Dashboard() {
   const [showDetail, setShowDetail] = useState(false);
   const [editingEvent, setEditingEvent] = useState<AppEvent | null>(null);
   const [showEdit, setShowEdit] = useState(false);
-  const [openUnits, setOpenUnits] = useState<Record<string, boolean>>({});
+  
   const [showConflicts, setShowConflicts] = useState(false);
   const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
   const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
@@ -105,16 +99,6 @@ export default function Dashboard() {
     partners: monthEvents.filter(e => e.partner_involved).length,
   }), [monthEvents, activeEvents]);
 
-  const unitStats = useMemo(() => UNITS.map(unit => {
-    const unitEvents = monthEvents.filter(e => e.unit === unit);
-    return {
-      unit,
-      total: unitEvents.length,
-      confirmed: unitEvents.filter(e => e.status === 'confirmado').length,
-      pending: unitEvents.filter(e => e.status === 'pendente').length,
-      cancelled: unitEvents.filter(e => e.status === 'cancelado').length,
-    };
-  }), [monthEvents]);
 
   const prevMonth = () => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1));
   const nextMonth = () => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
@@ -141,12 +125,6 @@ export default function Dashboard() {
     setTimeout(() => handleEventClick(event), 200);
   };
 
-  const toggleUnit = (unit: string) => {
-    setOpenUnits(prev => ({ ...prev, [unit]: !prev[unit] }));
-  };
-
-  const getUnitEvents = (unit: Unit) =>
-    monthEvents.filter(e => e.unit === unit).sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
 
   const statCards = [
     { label: 'Total de Eventos', value: stats.total, icon: CalendarDays, color: 'text-info', onClick: undefined },
@@ -301,80 +279,6 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* Unit blocks - collapsible FAQ style */}
-      <div className="space-y-3">
-        {unitStats.map(u => {
-          const unitEvents = getUnitEvents(u.unit);
-          return (
-            <Collapsible key={u.unit} open={openUnits[u.unit] || false} onOpenChange={() => toggleUnit(u.unit)}>
-              <Card className={`border-l-4 ${unitBorderColors[u.unit]} transition-shadow hover:shadow-md`}>
-                <CollapsibleTrigger className="w-full text-left">
-                  <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-                    <div className="flex items-center justify-between sm:justify-start sm:gap-3">
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[u.unit]} shrink-0 sm:h-3 sm:w-3`} />
-                        <span className="text-sm font-semibold text-foreground sm:text-base">{u.unit}</span>
-                      </div>
-                      <Badge className={cn("text-[10px] px-1.5 py-0 sm:text-xs sm:px-2 sm:py-0.5", unitDotColors[u.unit], "text-primary-foreground")}>
-                        {u.total} eventos
-                      </Badge>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] sm:gap-5 sm:text-sm">
-                      <span className="flex items-center gap-1.5">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-success sm:h-4 sm:w-4" />
-                        <span className="text-muted-foreground">{u.confirmed} <span className="hidden sm:inline">confirmados</span></span>
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-warning sm:h-4 sm:w-4" />
-                        <span className="text-muted-foreground">{u.pending} <span className="hidden sm:inline">pendentes</span></span>
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <AlertCircle className="h-3.5 w-3.5 text-destructive sm:h-4 sm:w-4" />
-                        <span className="text-muted-foreground">{u.cancelled} <span className="hidden sm:inline">cancelados</span></span>
-                      </span>
-                      <ChevronDown className={cn("ml-auto h-4 w-4 text-muted-foreground transition-transform duration-200 sm:h-5 sm:w-5", openUnits[u.unit] ? 'rotate-180' : '')} />
-                    </div>
-                  </CardContent>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="border-t border-border px-5 pb-5">
-                    {unitEvents.length === 0 ? (
-                      <p className="py-6 text-center text-sm text-muted-foreground">Nenhum evento para esta unidade</p>
-                    ) : (
-                      <div className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
-                        {unitEvents.map(e => (
-                          <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
-                            {canEdit && (
-                              <Checkbox
-                                checked={selectedEvents.has(e.id)}
-                                onCheckedChange={() => toggleEventSelection(e.id)}
-                                onClick={(ev) => ev.stopPropagation()}
-                                className="h-4 w-4"
-                              />
-                            )}
-                            <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
-                              <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                              <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
-                              <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
-                                <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
-                                  {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
-                                </span>
-                                <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
-                                  {e.status}
-                                </Badge>
-                              </div>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </CollapsibleContent>
-              </Card>
-            </Collapsible>
-          );
-        })}
-      </div>
 
       <EventFormDialog open={showNewEvent} onOpenChange={setShowNewEvent} />
       <EventFormDialog open={showEdit} onOpenChange={(v) => { setShowEdit(v); if (!v) setEditingEvent(null); }} event={editingEvent} />
