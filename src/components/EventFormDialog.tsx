@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApp } from '@/contexts/AppContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { AppEvent, UNITS, EVENT_TYPES, EVENT_STATUSES, PARTNER_TYPES, Unit, EventType, EventStatus, PartnerType } from '@/types';
 import { getStatusDotClass } from '@/lib/statusColors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -43,6 +44,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   const { addEvent, updateEvent, detectConflicts, setSelectedEvent } = useApp();
+  const { userName } = useUserRole();
   const [form, setForm] = useState<Partial<AppEvent>>(emptyEvent());
   const [conflicts, setConflicts] = useState<AppEvent[]>([]);
   const [showConflictAlert, setShowConflictAlert] = useState(false);
@@ -92,7 +94,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       location: form.location!.trim(),
       status: form.status as EventStatus,
       has_conflict: false,
-      created_by: event?.created_by || '1',
+      created_by: event?.created_by || userName || 'Usuário',
+      updated_by: isEditing ? (userName || 'Usuário') : undefined,
       created_at: event?.created_at || new Date().toISOString(),
       updated_at: new Date().toISOString(),
       notes: form.notes || '',
@@ -144,7 +147,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       location: form.location!.trim(),
       status: form.status as EventStatus,
       has_conflict: true,
-      created_by: event?.created_by || '1',
+      created_by: event?.created_by || userName || 'Usuário',
+      updated_by: isEditing ? (userName || 'Usuário') : undefined,
       created_at: event?.created_at || new Date().toISOString(),
       updated_at: new Date().toISOString(),
       notes: form.notes || '',

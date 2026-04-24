@@ -1,4 +1,5 @@
 import { AppEvent, PARTNER_TYPES, Unit } from '@/types';
+import { useUserRole } from '@/hooks/useUserRole';
 import { getStatusBadgeClass } from '@/lib/statusColors';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export default function EventDetailPanel({ event, open, onOpenChange, onEdit, onDelete }: Props) {
+  const { canEdit } = useUserRole();
   if (!event) return null;
 
   const statusClass = getStatusBadgeClass(event.status, event.has_conflict);
@@ -45,7 +47,26 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
           <div className="space-y-3">
             <DetailRow label="Título" value={event.title} />
             <DetailRow label="Tipo" value={event.event_type} capitalize />
-            <DetailRow label="Responsável" value={event.created_by} />
+            {canEdit && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">Criado por</p>
+                  <Badge variant="secondary" className="font-medium">{event.created_by}</Badge>
+                </div>
+                {event.updated_by && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Editado por</p>
+                    <Badge variant="outline" className="font-medium">{event.updated_by}</Badge>
+                  </div>
+                )}
+              </div>
+            )}
+            {!canEdit && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">Responsável</p>
+                <Badge variant="secondary" className="font-medium">{event.created_by}</Badge>
+              </div>
+            )}
             <DetailRow label="Local" value={event.location} />
             <DetailRow
               label="Início"

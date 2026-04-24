@@ -20,6 +20,7 @@ export interface AppEvent {
   status: EventStatus;
   has_conflict: boolean;
   created_by: string;
+  updated_by?: string;
   created_at: string;
   updated_at: string;
   notes: string;

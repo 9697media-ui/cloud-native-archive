@@ -41,7 +41,7 @@ type View = 'month' | 'week' | 'list';
 export default function CalendarPage() {
   const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
   const { isAuthenticated } = useAuth();
-  const { canEdit } = useUserRole();
+  const { canEdit, userName } = useUserRole();
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const hideTitle = searchParams.get('hideTitle') === 'true';
@@ -89,7 +89,12 @@ export default function CalendarPage() {
 
   const handleBulkStatusChange = (status: EventStatus) => {
     events.filter(e => selectedEvents.has(e.id)).forEach(e => {
-      updateEvent({ ...e, status, updated_at: new Date().toISOString() });
+      updateEvent({ 
+        ...e, 
+        status, 
+        updated_at: new Date().toISOString(),
+        updated_by: userName || 'Usuário'
+      });
     });
     setSelectedEvents(new Set());
   };
@@ -175,6 +180,7 @@ export default function CalendarPage() {
       start_datetime: newStart.toISOString(),
       end_datetime: newEnd.toISOString(),
       updated_at: new Date().toISOString(),
+      updated_by: userName || 'Usuário'
     };
 
     // O recalculateAllConflicts no AppContext já cuidará de atualizar os flags de conflito

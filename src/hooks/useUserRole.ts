@@ -21,6 +21,7 @@ export function useUserRole() {
   const [role, setRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
   const [accessStatus, setAccessStatus] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -40,12 +41,20 @@ export function useUserRole() {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      // Also check profile for permission_level
+      // Also check profile for permission_level and name
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('permission_level')
+        .select('permission_level, name')
         .eq('user_id', user.id)
         .maybeSingle();
+      
+      if (profileData?.name) {
+        setUserName(profileData.name);
+      } else if (user.user_metadata?.name) {
+        setUserName(user.user_metadata.name);
+      } else {
+        setUserName(user.email || 'Usuário');
+      }
 
       let effectiveRole = roleData?.role;
       
@@ -82,7 +91,7 @@ export function useUserRole() {
   const canEdit = isAdmin || isManager;
   const canView = role !== null;
 
-  return { role, loading, canEdit, isAdmin, isManager, canView, accessStatus };
+  return { role, loading, canEdit, isAdmin, isManager, canView, accessStatus, userName };
 }
 
 export function useAccessRequests() {
