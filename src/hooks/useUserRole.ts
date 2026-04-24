@@ -22,6 +22,7 @@ export function useUserRole() {
   const [loading, setLoading] = useState(true);
   const [accessStatus, setAccessStatus] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [isActive, setIsActive] = useState<boolean>(true);
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -44,12 +45,13 @@ export function useUserRole() {
       // Also check profile for permission_level and name
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('permission_level, name')
+        .select('permission_level, name, is_active')
         .eq('user_id', user.id)
         .maybeSingle();
       
-      if (profileData?.name) {
+      if (profileData) {
         setUserName(profileData.name);
+        setIsActive(profileData.is_active !== false);
       } else if (user.user_metadata?.name) {
         setUserName(user.user_metadata.name);
       } else {
@@ -91,7 +93,7 @@ export function useUserRole() {
   const canEdit = isAdmin || isManager;
   const canView = role !== null;
 
-  return { role, loading, canEdit, isAdmin, isManager, canView, accessStatus, userName };
+  return { role, loading, canEdit, isAdmin, isManager, canView, accessStatus, userName, isActive };
 }
 
 export function useAccessRequests() {
@@ -114,15 +116,15 @@ export function useAccessRequests() {
   }, []);
 
   const approveRequest = async (requestId: string, userId: string, role: string) => {
-    // Update the request status
-    await (supabase
-      .from('access_requests') as any)
-      .update({ status: 'approved', reviewed_at: new Date().toISOString() })
-      .eq('id', requestId);
+    // Use edge function to approve, assign role AND confirm email
+    const { data, error } = await supabase.functions.invoke('admin-approve-user', {
+      body: { requestId, userId, role }
+    });
 
-    await (supabase
-      .from('user_roles') as any)
-      .insert({ user_id: userId, role: role as any });
+    if (error) {
+      console.error('Erro ao aprovar solicitação:', error);
+      throw error;
+    }
 
     await fetchRequests();
   };

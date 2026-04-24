@@ -29,7 +29,11 @@ export default function LoginPage() {
     setLoading(true);
     const { error } = await signIn(email, password);
     if (error) {
-      setPopup({ title: 'Erro', message: error.message, type: 'error' });
+      let message = error.message;
+      if (message.includes('Email not confirmed')) {
+        message = 'Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada ou solicite a um administrador que ative sua conta.';
+      }
+      setPopup({ title: 'Erro', message: message, type: 'error' });
     }
     setLoading(false);
   };

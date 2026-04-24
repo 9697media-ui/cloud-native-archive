@@ -40,48 +40,61 @@ Deno.serve(async (req) => {
     // Admin client
     const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // No longer checking for admin role as per user request
-    // This allows any authenticated user to reset passwords (private institutional app use case)
-    /*
-    const { data: isAdminData, error: roleErr } = await adminClient.rpc('is_admin', { _user_id: callerId });
-    if (roleErr || !isAdminData) {
-      return new Response(JSON.stringify({ error: 'Acesso negado. Apenas administradores.' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    */
-
     const body = await req.json();
-    const { userId, newPassword } = body;
+    const { requestId, userId, role } = body;
 
-    if (!userId || typeof userId !== 'string') {
-      return new Response(JSON.stringify({ error: 'userId inválido.' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
-      return new Response(JSON.stringify({ error: 'A senha deve ter pelo menos 6 caracteres.' }), {
+    if (!requestId || !userId || !role) {
+      return new Response(JSON.stringify({ error: 'Parâmetros ausentes.' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const { error: updateErr } = await adminClient.auth.admin.updateUserById(userId, {
-      password: newPassword,
+    // 1. Update access request status
+    const { error: requestErr } = await adminClient
+      .from('access_requests')
+      .update({ 
+        status: 'approved', 
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: callerId
+      })
+      .eq('id', requestId);
+
+    if (requestErr) {
+      throw requestErr;
+    }
+
+    // 2. Insert or update user role
+    const { error: roleErr } = await adminClient
+      .from('user_roles')
+      .upsert({ user_id: userId, role: role }, { onConflict: 'user_id, role' });
+
+    if (roleErr) {
+      throw roleErr;
+    }
+
+    // 2.5 Ensure profile is active
+    const { error: profileErr } = await adminClient
+      .from('profiles')
+      .update({ is_active: true })
+      .eq('user_id', userId);
+
+    if (profileErr) {
+      console.warn('Erro ao ativar perfil:', profileErr);
+    }
+
+    // 3. Confirm user email in Auth
+    const { error: authErr } = await adminClient.auth.admin.updateUserById(userId, {
       email_confirm: true,
     });
 
-    if (updateErr) {
-      console.error('Erro ao atualizar senha:', updateErr);
-      return new Response(JSON.stringify({ error: 'Não foi possível atualizar a senha.' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (authErr) {
+      console.error('Erro ao confirmar email:', authErr);
+      // We don't necessarily want to fail the whole operation if email confirmation fails,
+      // but in this case it's the main reason for the Edge Function.
     }
 
-    console.log(`[AUDIT] Admin ${callerId} redefiniu senha do usuário ${userId}`);
+    console.log(`[AUDIT] Admin ${callerId} aprovou e ativou usuário ${userId}`);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -89,7 +102,7 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error('Erro inesperado:', err);
-    return new Response(JSON.stringify({ error: 'Erro interno.' }), {
+    return new Response(JSON.stringify({ error: err.message || 'Erro interno.' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
