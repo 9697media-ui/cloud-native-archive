@@ -544,14 +544,47 @@ export default function UsersPage() {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex flex-wrap gap-4 p-4 rounded-lg border border-border bg-muted/20">
-                  <div className="flex items-center gap-2">
-                    <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
-                    <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
+                {isPreview && (
+                  <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle className="text-sm font-bold">Ambiente de Pré-visualização</AlertTitle>
+                    <AlertDescription className="text-xs">
+                      Os links abaixo usam a URL de teste que <strong>requer login no Lovable</strong>. 
+                      Para embeds públicos, acesse o site publicado e copie os links de lá, ou insira a URL pública abaixo.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold">URL Base para Links (Opcional)</Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Ex: https://meusite.com" 
+                        value={customBaseUrl} 
+                        onChange={(e) => setCustomBaseUrl(e.target.value)}
+                        className="text-xs h-8"
+                      />
+                      {customBaseUrl && (
+                        <Button variant="ghost" size="sm" onClick={() => setCustomBaseUrl('')} className="h-8 px-2 text-xs">
+                          Resetar
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground italic">
+                      Deixe vazio para usar a URL atual: {window.location.origin}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 border-l border-border pl-4">
-                    <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
-                    <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
+
+                  <div className="flex flex-wrap gap-4 pt-2 border-t border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
+                      <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
+                    </div>
+                    <div className="flex items-center gap-2 border-l border-border pl-4">
+                      <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
+                      <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
+                    </div>
                   </div>
                 </div>
                 {EMBED_PAGES.map((page, idx) => (
