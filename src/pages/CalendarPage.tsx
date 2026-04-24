@@ -323,7 +323,6 @@ export default function CalendarPage() {
                           )}
                         >
                           <span className="truncate text-foreground flex-1">{e.title}</span>
-                          {e.has_conflict && <AlertTriangle className="h-2 w-2 shrink-0 text-destructive sm:h-2.5 sm:w-2.5" />}
                         </button>
                       ))}
                       {dayEvents.length > (isMobile ? 2 : 3) && (
