@@ -256,6 +256,8 @@ export default function UsersPage() {
     const params = new URLSearchParams();
     if (hideLogin) params.append('hideLogin', 'true');
     if (hideFooter) params.append('hideFooter', 'true');
+    if (hideHeader) params.append('hideHeader', 'true');
+    if (hideTitle) params.append('hideTitle', 'true');
     const queryString = params.toString();
     
     // Ensure baseUrl doesn't end with slash if path starts with one
