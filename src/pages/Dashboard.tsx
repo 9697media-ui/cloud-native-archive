@@ -359,7 +359,6 @@ export default function Dashboard() {
                                 <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
                                   {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
                                 </span>
-                                {e.has_conflict && <AlertTriangle className="h-3 w-3 text-destructive sm:h-3.5 sm:w-3.5" />}
                                 <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
                                   {e.status}
                                 </Badge>
