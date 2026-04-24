@@ -181,9 +181,9 @@ export default function UsersPage() {
     
     if (!isAdmin) {
       if (isManager) {
-        // Gestor pode ver gestores, usuários e visualizadores
+        // Gestor pode ver gestores, editores, usuários, visualizadores e viewers
         baseUsers = baseUsers.filter(u => 
-          ['gestor_unidade', 'usuario_padrao', 'visualizador'].includes(u.permission_level as string)
+          ['gestor_unidade', 'editor', 'usuario_padrao', 'visualizador', 'viewer'].includes(u.permission_level as string)
         );
       } else {
         // Usuário e visualizador podem ver somente o seu próprio perfil
