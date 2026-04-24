@@ -282,25 +282,31 @@ export default function UsersPage() {
     const canImpersonate = (() => {
       if (!authUserId) return false;
       
-      // Administrador: Pode visualizar e utilizar em todos os usuários
+      // 1. Administrador Geral: Permissão total em todos os usuários
       if (isAdmin) return true;
       
-      // Acesso ao próprio perfil: Podem acessar apenas o próprio perfil
+      // 2. Acesso ao próprio perfil: Todos podem entrar em seu próprio perfil
       if (authUserId === currentUser?.id) return true;
 
-      // Gestor de unidade:
+      // 3. Gestor de unidade:
       if (isManager) {
-        // Pode visualizar apenas em perfis de usuários padrão e visualizadores
-        // Não pode entrar como administrador ou como outro gestor de unidade
-        const targetLevel = user.permission_level as string;
-        const isTargetAdmin = targetLevel === 'admin' || targetLevel === 'admin_geral';
-        const isTargetManager = targetLevel === 'gestor_unidade';
+        const targetLevel = (user.permission_level as string) || '';
         
-        if (isTargetAdmin || isTargetManager) return false;
-        
-        return targetLevel === 'usuario_padrao' || targetLevel === 'visualizador';
+        // Pode entrar em perfis de Usuário Padrão e Visualizador (incluindo legacy 'viewer')
+        const isTargetStandardOrViewer = 
+          targetLevel === 'usuario_padrao' || 
+          targetLevel === 'visualizador' || 
+          targetLevel === 'viewer';
+          
+        if (isTargetStandardOrViewer) return true;
+
+        // O botão fica oculto para outros Gestores ou Administradores
+        // (Já retornamos false por padrão se não for standard/viewer)
+        return false;
       }
       
+      // 4. Usuário Padrão e Visualizador: Já tratado no passo 2 (próprio perfil)
+      // Para terceiros, retorna false.
       return false;
     })();
 
