@@ -236,13 +236,14 @@ export default function UsersPage() {
         </Button>
         {authUserId && authUserId !== currentUser?.id && (
           <Button
-            variant="ghost"
-            size="icon"
-            title="Entrar como este usuário"
+            variant="outline"
+            size="sm"
             onClick={() => setImpersonateTarget({ id: authUserId, name: user.name, email: user.email })}
-            className="h-8 w-8 text-muted-foreground hover:text-primary"
+            className="h-8 gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5"
           >
-            <UserCog className="h-4 w-4" />
+            <UserCog className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Entrar como este usuário</span>
+            <span className="sm:hidden">Entrar</span>
           </Button>
         )}
         <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8">
@@ -461,12 +462,14 @@ export default function UsersPage() {
                               </Button>
                               {user.user_id !== currentUser?.id && (
                                 <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  title="Entrar como este usuário"
+                                  variant="outline"
+                                  size="sm"
                                   onClick={() => setImpersonateTarget({ id: user.user_id, name: user.name, email: user.email })}
+                                  className="h-8 gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5"
                                 >
-                                  <UserCog className="h-4 w-4" />
+                                  <UserCog className="h-3.5 w-3.5" />
+                                  <span className="hidden sm:inline">Entrar como este usuário</span>
+                                  <span className="sm:hidden">Entrar</span>
                                 </Button>
                               )}
                             </div>
