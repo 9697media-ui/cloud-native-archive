@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
