@@ -237,8 +237,8 @@ export default function CalendarPage() {
               {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Button variant={conflictOnly ? 'destructive' : 'outline'} size="default" onClick={() => setConflictOnly(!conflictOnly)} className="h-10 w-full sm:w-auto">
-            <AlertTriangle className="mr-1.5 h-4 w-4" /> Conflitos
+          <Button variant={conflictOnly ? 'secondary' : 'outline'} size="default" onClick={() => setConflictOnly(!conflictOnly)} className="h-10 w-full sm:w-auto">
+            Conflitos
           </Button>
         </div>
       </div>
