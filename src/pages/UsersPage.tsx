@@ -607,7 +607,16 @@ export default function UsersPage() {
                     <h3 className="font-medium text-foreground">{page.name}</h3>
                     <Badge variant="outline" className="text-xs">{page.path}</Badge>
                   </div>
+                  <div className="flex items-center gap-2 pb-2">
+                    <Switch 
+                      id={`show-header-${idx}`} 
+                      checked={page.path === '/' ? showDashboardHeader : showCalendarHeader} 
+                      onCheckedChange={(val) => page.path === '/' ? setShowDashboardHeader(val) : setShowCalendarHeader(val)} 
+                    />
+                    <Label htmlFor={`show-header-${idx}`} className="text-xs cursor-pointer">Habilitar cabeçalho (Título da página)</Label>
+                  </div>
                   <div className="space-y-1.5">
+
                     <Label className="text-xs text-muted-foreground">Link direto</Label>
                     <div className="flex items-center gap-2">
                       <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-muted/50" />
