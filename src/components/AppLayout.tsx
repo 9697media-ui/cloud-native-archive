@@ -20,7 +20,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
-  { to: '/usuarios', label: 'Transparência', icon: Users },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -255,7 +254,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div className="flex items-center gap-6 text-sm font-medium">
                 <Link to={`/${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Visão Geral</Link>
                 <Link to={`/calendario${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Calendário</Link>
-                <Link to={`/usuarios${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Transparência</Link>
               </div>
               
               <div className="flex items-center gap-4 border-l border-border pl-6">
