@@ -214,7 +214,8 @@ export default function UsersPage() {
 
   const [customBaseUrl, setCustomBaseUrl] = useState('');
   const isPreview = window.location.hostname.includes('preview') || window.location.hostname.includes('lovableproject.com') || window.location.hostname.includes('localhost');
-  const baseUrl = customBaseUrl || window.location.origin;
+  const PUBLISHED_URL = "https://r2-vault-craft.lovable.app";
+  const baseUrl = customBaseUrl || (isPreview ? PUBLISHED_URL : window.location.origin);
 
   const handleEdit = (user: AppUser) => {
     setSelectedUser(user);
