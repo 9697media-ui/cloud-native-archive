@@ -18,7 +18,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
+  { to: '/', label: 'Transparência', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
 ];
 
