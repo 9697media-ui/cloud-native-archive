@@ -21,6 +21,7 @@ export function useUserRole() {
   const [role, setRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
   const [accessStatus, setAccessStatus] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
