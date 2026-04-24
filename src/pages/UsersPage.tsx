@@ -180,6 +180,19 @@ export default function UsersPage() {
     return combinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
   }, [combinedUsers, search]);
 
+  const groupedUsers = useMemo(() => {
+    const admins = filtered.filter(u => (u.permission_level as string) === 'admin' || (u.permission_level as string) === 'admin_geral');
+    const gestores = filtered.filter(u => (u.permission_level as string) === 'gestor_unidade');
+    const normalUsers = filtered.filter(u => !['admin', 'admin_geral', 'gestor_unidade'].includes(u.permission_level as string));
+    
+    return [
+      { id: 'admins', title: 'Administradores', users: admins, icon: <ShieldCheck className="h-5 w-5 text-primary" /> },
+      { id: 'gestores', title: 'Gestores de Unidade', users: gestores, icon: <Shield className="h-5 w-5 text-primary" /> },
+      { id: 'normal', title: 'Usuários e Visualizadores', users: normalUsers, icon: <UserCog className="h-5 w-5 text-primary" /> }
+    ];
+  }, [filtered]);
+
+
   const publishedUrl = 'https://unit-sync-scheduler.lovable.app';
   const baseUrl = publishedUrl;
 
@@ -395,121 +408,62 @@ export default function UsersPage() {
               onToggleActive={handleBulkToggleActive}
             />
           )}
-          <div className="space-y-2">
-            {filtered.map(user => (
-              <Card key={user.id}>
-                <CardContent className="flex flex-col gap-4 p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {isAdmin && (
-                        <Checkbox
-                          checked={selectedUsers.has(user.id)}
-                          onCheckedChange={() => toggleUserSelection(user.id)}
-                          className="h-4 w-4"
-                        />
-                      )}
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                        {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium text-foreground truncate">{user.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                      </div>
-                    </div>
-                    {renderActions(user)}
+          {dbUsersLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <RefreshCw className="h-8 w-8 text-primary animate-spin mb-4" />
+              <p className="text-muted-foreground">Carregando usuários...</p>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {groupedUsers.map(group => group.users.length > 0 && (
+                <div key={group.id} className="space-y-4">
+                  <div className="flex items-center gap-2 px-1 border-b pb-2">
+                    {group.icon}
+                    <h2 className="text-lg font-semibold text-foreground">{group.title}</h2>
+                    <Badge variant="secondary" className="ml-auto">{group.users.length}</Badge>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="text-[10px]">{user.unit}</Badge>
-                    <Badge variant="secondary" className="text-[10px]">{permLabel(user.permission_level)}</Badge>
-                    <Badge variant={user.is_active ? 'default' : 'destructive'} className="text-[10px]">
-                      {user.is_active ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Real registered users from the database */}
-          {true && (
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <ShieldCheck className="h-5 w-5 text-primary" />
-                  Usuários do Sistema (Nativos)
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Todos os usuários que possuem conta registrada, incluindo administradores.
-                </p>
-              </CardHeader>
-              <CardContent>
-                {dbUsersLoading ? (
-                  <p className="text-sm text-muted-foreground">Carregando...</p>
-                ) : dbUsers.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">Nenhum usuário cadastrado.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {dbUsers
-                      .filter(u => {
-                        if (!search) return true;
-                        const q = search.toLowerCase();
-                        return u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
-                      })
-                      .map(user => (
-                      <div key={user.user_id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-border p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                            {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">{user.name}</p>
-                            <p className="text-xs text-muted-foreground">{user.email}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {user.role || user.permission_level ? (
-                            <Badge variant="outline" className="gap-1">
-                              {ROLE_ICONS[user.role || ''] || ROLE_ICONS[user.permission_level || ''] || <Shield className="h-3.5 w-3.5" />}
-                              {ROLE_LABELS[user.role || ''] || ROLE_LABELS[user.permission_level || ''] || user.role || user.permission_level}
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="text-xs">Sem role</Badge>
-                          )}
-                          <Badge variant="secondary" className="text-xs">
-                            {new Date(user.created_at).toLocaleDateString('pt-BR')}
-                          </Badge>
-                          {isAdmin && (
-                            <div className="flex items-center gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                title="Redefinir senha"
-                                onClick={() => { setResetTarget({ id: user.user_id, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); }}
-                              >
-                                <KeyRound className="h-4 w-4" />
-                              </Button>
-                              {user.user_id !== currentUser?.id && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  title="Entrar como este usuário"
-                                  onClick={() => setImpersonateTarget({ id: user.user_id, name: user.name, email: user.email })}
-                                  className="h-8 gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all shadow-sm"
-                                >
-                                  <UserCog className="h-3.5 w-3.5" />
-                                  <span className="hidden sm:inline">Entrar como este usuário</span>
-                                  <span className="sm:hidden">Entrar</span>
-                                </Button>
+                  <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                    {group.users.map(user => (
+                      <Card key={user.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="flex flex-col gap-4 p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {isAdmin && (
+                                <Checkbox
+                                  checked={selectedUsers.has(user.id)}
+                                  onCheckedChange={() => toggleUserSelection(user.id)}
+                                  className="h-4 w-4"
+                                />
                               )}
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                                {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-medium text-foreground truncate">{user.name}</p>
+                                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      </div>
+                            {renderActions(user)}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="outline" className="text-[10px]">{user.unit}</Badge>
+                            <Badge variant="secondary" className="text-[10px]">{permLabel(user.permission_level)}</Badge>
+                            <Badge variant={user.is_active ? 'default' : 'destructive'} className="text-[10px]">
+                              {user.is_active ? 'Ativo' : 'Inativo'}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </div>
+              ))}
+              {filtered.length === 0 && (
+                <div className="text-center py-12 border rounded-lg bg-muted/20">
+                  <p className="text-muted-foreground">Nenhum usuário encontrado.</p>
+                </div>
+              )}
+            </div>
           )}
         </TabsContent>
 
