@@ -631,22 +631,14 @@ export default function UsersPage() {
           </DialogHeader>
           {showApprovalConfirm && (
             <div className="space-y-4">
-              <div className="rounded-md bg-amber-50 p-4 border border-amber-200">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <Shield className="h-5 w-5 text-amber-600" aria-hidden="true" />
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-amber-800">Aviso de Ciência</h3>
-                    <div className="mt-2 text-sm text-amber-700">
-                      <p>
-                        Ao aprovar este usuário, você confirma estar ciente das permissões que serão concedidas a ele no sistema. 
-                        Certifique-se de que a unidade e o nível de acesso solicitados estão corretos.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-900/30">
+                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <AlertTitle className="text-amber-800 dark:text-amber-300">Aviso de Ciência</AlertTitle>
+                <AlertDescription className="text-amber-700 dark:text-amber-400/80">
+                  Ao aprovar este usuário, você confirma estar ciente das permissões que serão concedidas a ele no sistema. 
+                  Certifique-se de que a unidade e o nível de acesso solicitados estão corretos.
+                </AlertDescription>
+              </Alert>
               <p className="text-sm">
                 Aprovar <strong className="text-foreground">{showApprovalConfirm.req.name}</strong> como <strong>{ROLE_LABELS[showApprovalConfirm.req.requested_role] || showApprovalConfirm.req.requested_role}</strong>?
               </p>
