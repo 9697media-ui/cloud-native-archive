@@ -8,10 +8,13 @@ function parseCSV(text: string): Record<string, string>[] {
   let current = '';
   let inQuotes = false;
 
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
+  // Normalizar quebras de linha para \n e remover \r
+  const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+  for (let i = 0; i < normalizedText.length; i++) {
+    const ch = normalizedText[i];
     if (ch === '"') {
-      if (inQuotes && text[i + 1] === '"') {
+      if (inQuotes && normalizedText[i + 1] === '"') {
         current += '"';
         i++;
       } else {
@@ -24,9 +27,15 @@ function parseCSV(text: string): Record<string, string>[] {
       current += ch;
     }
   }
-  if (current.trim()) lines.push(current);
+  if (current.length > 0) lines.push(current);
 
   if (lines.length < 2) return [];
+
+  // Detectar delimitador (vírgula ou ponto-e-vírgula)
+  const firstLine = lines[0];
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const semiCount = (firstLine.match(/;/g) || []).length;
+  const delimiter = semiCount > commaCount ? ';' : ',';
 
   const parseRow = (row: string): string[] => {
     const cells: string[] = [];
@@ -41,7 +50,7 @@ function parseCSV(text: string): Record<string, string>[] {
         } else {
           q = !q;
         }
-      } else if (ch === ',' && !q) {
+      } else if (ch === delimiter && !q) {
         cells.push(cell);
         cell = '';
       } else {
@@ -57,7 +66,9 @@ function parseCSV(text: string): Record<string, string>[] {
     const values = parseRow(line);
     const obj: Record<string, string> = {};
     headers.forEach((h, i) => {
-      obj[h] = (values[i] ?? '').trim();
+      // Garantir que h não seja vazio para evitar erros de indexação
+      const key = h || `Coluna_${i}`;
+      obj[key] = (values[i] ?? '').trim();
     });
     return obj;
   });
