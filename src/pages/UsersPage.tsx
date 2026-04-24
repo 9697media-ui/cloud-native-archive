@@ -24,7 +24,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
 const EMBED_PAGES = [
-  { name: 'Visão Geral (Dashboard)', path: '/' },
+  { name: 'Visão Geral', path: '/' },
   { name: 'Calendário', path: '/calendario' },
 ];
 

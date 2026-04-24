@@ -15,12 +15,13 @@ interface NavItem {
   label: string;
   icon: any;
   adminOnly?: boolean;
+  requireAuth?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { to: '/', label: 'Transparência', icon: LayoutDashboard },
+  { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
-  { to: '/usuarios', label: 'Administração', icon: Users, adminOnly: true },
+  { to: '/usuarios', label: 'Administração', icon: Users, requireAuth: true },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -44,7 +45,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const NavContent = () => (
     <>
-      {navItems.filter(item => !item.adminOnly || isAdmin).map(item => {
+      {navItems.filter(item => {
+        if (item.adminOnly) return isAdmin;
+        if (item.requireAuth) return isAuthenticated;
+        return true;
+      }).map(item => {
         const active = location.pathname === item.to;
         return (
           <Link
@@ -91,7 +96,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     {user?.email}
                   </span>
                   
-                  {isAdmin && (
+                  {isAuthenticated && (
                     <Link to={`/usuarios${location.search}`} className="transition-transform active:scale-95">
                       <Button 
                         variant="outline" 
@@ -99,7 +104,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         className="h-8 gap-1.5 text-xs font-semibold bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
                       >
                         <Users className="h-3.5 w-3.5" />
-                        Painel Admin
+                        Administração
                       </Button>
                     </Link>
                   )}
@@ -253,7 +258,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 justify-center md:justify-end">
               <div className="flex items-center gap-6 text-sm font-medium">
-                <Link to={`/${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Transparência</Link>
+                <Link to={`/${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Visão Geral</Link>
                 <Link to={`/calendario${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Calendário</Link>
               </div>
               

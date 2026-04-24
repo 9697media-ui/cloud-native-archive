@@ -118,7 +118,7 @@ export default function Dashboard() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {!hideTitle && (
           <div>
-            <h1 className="text-xl font-bold text-foreground sm:text-2xl">Transparência Consolidada</h1>
+            <h1 className="text-xl font-bold text-foreground sm:text-2xl">Visão Geral</h1>
             <p className="text-xs text-muted-foreground sm:text-sm">Programação institucional de todas as unidades</p>
           </div>
         )}
