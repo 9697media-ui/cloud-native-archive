@@ -41,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAdmin } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
-  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam;
+  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam;
 
   if (isCleanView) {
     if (hideFooterParam) {
