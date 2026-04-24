@@ -50,6 +50,8 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
 };
 
 export default function UsersPage() {
+  const [urlSearchParams] = useSearchParams();
+  const hideTitleParam = urlSearchParams.get('hideTitle') === 'true';
   const { users, selectedUser, setSelectedUser, updateUser } = useApp();
   const { user: currentUser } = useAuth();
   const { isAdmin, isManager, canView, loading: roleLoading } = useUserRole();
