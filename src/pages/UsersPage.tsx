@@ -369,6 +369,15 @@ export default function UsersPage() {
                 <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
                   <Edit2 className="h-4 w-4" />
                 </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => { setSelectedUser(user); setBulkDelete(false); setShowDeleteConfirm(true); }} 
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  title="Excluir permanentemente"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </>
             )}
             
