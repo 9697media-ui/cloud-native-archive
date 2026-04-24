@@ -64,7 +64,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </Button>
               </>
             ) : (
-              <Link to="/login" className="transition-transform active:scale-95">
+              <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
                 <Button 
                   variant="default" 
                   size="sm" 
