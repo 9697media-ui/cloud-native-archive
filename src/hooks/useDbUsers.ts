@@ -8,6 +8,7 @@ export interface DbUser {
   email: string;
   role: string | null;
   permission_level: string | null;
+  unit: string | null;
   created_at: string;
 }
 
