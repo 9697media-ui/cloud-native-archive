@@ -178,6 +178,8 @@ export default function UsersPage() {
     if (!search) return combinedUsers;
     const q = search.toLowerCase();
     return combinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  }, [combinedUsers, search]);
+
   const groupedUsers = useMemo(() => {
     const admins = filtered.filter(u => u.permission_level === 'admin' || u.permission_level === 'admin_geral');
     const gestores = filtered.filter(u => u.permission_level === 'gestor_unidade');
