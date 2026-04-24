@@ -34,9 +34,49 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="h-full flex flex-col bg-background">
         <ImpersonationBanner />
-        <main className="flex-1 overflow-auto p-4">
+        <main className="flex-1 overflow-auto p-4 pb-14">
           {children}
         </main>
+        <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 backdrop-blur-sm p-2 px-4 flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
+              <Calendar className="h-3 w-3 text-primary-foreground" />
+            </div>
+            <span className="text-[10px] font-bold tracking-tight text-foreground uppercase sm:text-xs">
+              Central ANA
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {isAuthenticated ? (
+              <>
+                <span className="hidden text-[10px] text-muted-foreground sm:inline">
+                  {user?.email}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => signOut()} 
+                  className="h-8 gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  Sair
+                </Button>
+              </>
+            ) : (
+              <Link to="/login" className="transition-transform active:scale-95">
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  Login do Usuário
+                </Button>
+              </Link>
+            )}
+          </div>
+        </footer>
       </div>
     );
   }
