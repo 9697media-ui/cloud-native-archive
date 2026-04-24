@@ -30,6 +30,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
   const hideFooterParam = queryParams.get('hideFooter') === 'true';
   const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
+  
+  const { isAuthenticated, signOut, user } = useAuth();
+  const { isAdmin } = useUserRole();
+  const isEmbedded = useIsEmbedded();
+  const isMobile = useIsMobile();
 
   if (isEmbedded) {
     if (hideFooterParam) {
