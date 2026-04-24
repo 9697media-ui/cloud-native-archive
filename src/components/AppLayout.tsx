@@ -200,7 +200,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Sheet>
           )}
 
-          <Link to="/" className="flex items-center gap-2 shrink-0">
+          <Link to={`/${location.search}`} className="flex items-center gap-2 shrink-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <Calendar className="h-4 w-4 text-primary-foreground" />
             </div>
