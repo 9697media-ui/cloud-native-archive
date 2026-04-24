@@ -38,6 +38,8 @@ const unitBorderColors: Record<Unit, string> = {
 };
 
 export default function Dashboard() {
+  const [searchParams] = useSearchParams();
+  const hideTitle = searchParams.get('hideTitle') === 'true';
   const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const { isAuthenticated } = useAuth();
   const { canEdit } = useUserRole();
