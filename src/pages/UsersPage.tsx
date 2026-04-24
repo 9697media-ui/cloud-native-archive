@@ -238,6 +238,7 @@ export default function UsersPage() {
           <Button
             variant="outline"
             size="sm"
+            title="Entrar como este usuário"
             onClick={() => setImpersonateTarget({ id: authUserId, name: user.name, email: user.email })}
             className="h-8 gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all shadow-sm"
           >
