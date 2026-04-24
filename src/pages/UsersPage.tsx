@@ -72,6 +72,8 @@ export default function UsersPage() {
   const [hideFooter, setHideFooter] = useState(false);
   const [hideHeader, setHideHeader] = useState(false);
   const [hideTitle, setHideTitle] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [bulkDelete, setBulkDelete] = useState(false);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
