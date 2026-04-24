@@ -550,12 +550,12 @@ export default function UsersPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {isPreview && (
-                  <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle className="text-sm font-bold">Ambiente de Pré-visualização</AlertTitle>
-                    <AlertDescription className="text-xs">
-                      Os links abaixo usam a URL de teste que <strong>requer login no Lovable</strong>. 
-                      Para embeds públicos, acesse o site publicado e copie os links de lá, ou insira a URL pública abaixo.
+                  <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    <AlertTitle className="text-sm font-bold text-destructive">Atenção: Ambiente de Pré-visualização</AlertTitle>
+                    <AlertDescription className="text-xs text-destructive-foreground">
+                      <p className="mb-2">Os links abaixo usam a URL de teste (<strong>{window.location.origin}</strong>) que requer login no Lovable e <strong>NÃO funcionará em seu site</strong>.</p>
+                      <p>Para o embed funcionar, use a URL publicada: <strong className="underline">https://r2-vault-craft.lovable.app</strong> ou insira-a no campo abaixo.</p>
                     </AlertDescription>
                   </Alert>
                 )}
