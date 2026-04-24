@@ -258,7 +258,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 justify-center md:justify-end">
               <div className="flex items-center gap-6 text-sm font-medium">
-                <Link to={`/${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Transparência</Link>
+                <Link to={`/${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Visão Geral</Link>
                 <Link to={`/calendario${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Calendário</Link>
               </div>
               
