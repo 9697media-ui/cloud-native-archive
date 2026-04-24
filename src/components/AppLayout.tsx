@@ -218,7 +218,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Link to="/login">
                 <Button variant="outline" size="sm" className="gap-1.5">
                   <LogIn className="h-4 w-4" />
-                  <span className="hidden sm:inline">Entrar</span>
+                  <span className="hidden sm:inline">Login Admin</span>
                 </Button>
               </Link>
             )}
