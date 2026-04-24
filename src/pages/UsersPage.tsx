@@ -631,10 +631,10 @@ export default function UsersPage() {
           </DialogHeader>
           {showApprovalConfirm && (
             <div className="space-y-4">
-              <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-900/30">
-                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                <AlertTitle className="text-amber-800 dark:text-amber-300">Aviso de Ciência</AlertTitle>
-                <AlertDescription className="text-amber-700 dark:text-amber-400/80">
+              <Alert className="bg-warning/10 border-warning/20">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+                <AlertTitle className="text-warning-foreground font-semibold">Aviso de Ciência</AlertTitle>
+                <AlertDescription className="text-warning-foreground/80">
                   Ao aprovar este usuário, você confirma estar ciente das permissões que serão concedidas a ele no sistema. 
                   Certifique-se de que a unidade e o nível de acesso solicitados estão corretos.
                 </AlertDescription>
