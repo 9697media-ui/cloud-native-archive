@@ -184,10 +184,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
           <DialogTitle>{isEditing ? 'Editar Evento' : 'Nova Programação'}</DialogTitle>
         </DialogHeader>
 
-        {showConflictAlert ? (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-              <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
+            <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-4">
               <div>
                 <p className="font-semibold text-foreground">Conflito de horário detectado!</p>
                 <p className="text-sm text-muted-foreground">Este evento conflita com {conflicts.length} evento(s):</p>
@@ -203,10 +201,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
             </div>
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={() => setShowConflictAlert(false)}>Voltar e Corrigir</Button>
-              <Button variant="destructive" onClick={handleForceSubmit}>Salvar com Conflito</Button>
+              <Button onClick={handleForceSubmit}>Salvar Mesmo Assim</Button>
             </DialogFooter>
           </div>
-        ) : (
           <div className="space-y-4">
             <div>
               <Label>Título *</Label>
