@@ -238,8 +238,9 @@ export default function UsersPage() {
           <Button
             variant="outline"
             size="sm"
+            title="Entrar como este usuário"
             onClick={() => setImpersonateTarget({ id: authUserId, name: user.name, email: user.email })}
-            className="h-8 gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5"
+            className="h-8 gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all shadow-sm"
           >
             <UserCog className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Entrar como este usuário</span>
@@ -464,8 +465,9 @@ export default function UsersPage() {
                                 <Button
                                   variant="outline"
                                   size="sm"
+                                  title="Entrar como este usuário"
                                   onClick={() => setImpersonateTarget({ id: user.user_id, name: user.name, email: user.email })}
-                                  className="h-8 gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5"
+                                  className="h-8 gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all shadow-sm"
                                 >
                                   <UserCog className="h-3.5 w-3.5" />
                                   <span className="hidden sm:inline">Entrar como este usuário</span>
