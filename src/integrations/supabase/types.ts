@@ -56,6 +56,87 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          attachments: Json | null
+          collaborating_units: Json | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_datetime: string
+          event_type: string
+          external_collaborators: Json | null
+          has_conflict: boolean | null
+          has_unit_collaboration: boolean | null
+          id: string
+          location: string | null
+          marketing_request: boolean | null
+          notes: string | null
+          partner_involved: boolean | null
+          partner_name: string | null
+          partner_type: string | null
+          partners: Json | null
+          start_datetime: string
+          status: string
+          title: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          collaborating_units?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_datetime: string
+          event_type: string
+          external_collaborators?: Json | null
+          has_conflict?: boolean | null
+          has_unit_collaboration?: boolean | null
+          id?: string
+          location?: string | null
+          marketing_request?: boolean | null
+          notes?: string | null
+          partner_involved?: boolean | null
+          partner_name?: string | null
+          partner_type?: string | null
+          partners?: Json | null
+          start_datetime: string
+          status?: string
+          title: string
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          collaborating_units?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_datetime?: string
+          event_type?: string
+          external_collaborators?: Json | null
+          has_conflict?: boolean | null
+          has_unit_collaboration?: boolean | null
+          id?: string
+          location?: string | null
+          marketing_request?: boolean | null
+          notes?: string | null
+          partner_involved?: boolean | null
+          partner_name?: string | null
+          partner_type?: string | null
+          partners?: Json | null
+          start_datetime?: string
+          status?: string
+          title?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
