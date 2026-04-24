@@ -82,7 +82,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </>
             ) : (
               <div className="flex items-center gap-1">
-                {!hideLoginParam && (
+                {true && (
                   <>
                     {showLoginLocal ? (
                       <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
