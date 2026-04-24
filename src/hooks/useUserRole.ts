@@ -32,16 +32,25 @@ export function useUserRole() {
 
     const fetchRole = async () => {
       setLoading(true);
-      // Get user role
+      
+      // Get role from user_roles table
       const { data: roleData } = await (supabase
         .from('user_roles') as any)
         .select('role')
         .eq('user_id', user.id)
-        .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (roleData) {
-        setRole(roleData.role as UserRole);
+      // Also check profile for permission_level
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('permission_level')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      const effectiveRole = roleData?.role || (profileData?.permission_level === 'admin_geral' ? 'admin' : null);
+
+      if (effectiveRole) {
+        setRole(effectiveRole as UserRole);
         setAccessStatus('approved');
       } else {
         // Check if there's a pending access request
@@ -51,7 +60,7 @@ export function useUserRole() {
           .eq('user_id', user.id)
           .order('requested_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         setRole(null);
         setAccessStatus(requestData?.status || null);
