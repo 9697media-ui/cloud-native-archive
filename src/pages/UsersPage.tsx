@@ -244,9 +244,10 @@ export default function UsersPage() {
   const renderActions = (user: AppUser) => {
     if (!isAdmin) return null;
 
-    // Resolve real auth UUID by email (user.id from mock data is sequential)
+    // The user.id is already the authUserId for real users since we combined them
+    // But we still check dbUsers for safety or if it's a mock user with matching email
     const dbMatch = dbUsers.find(d => d.email?.toLowerCase() === user.email.toLowerCase());
-    const authUserId = dbMatch?.user_id;
+    const authUserId = dbMatch?.user_id || (user.id.length > 10 ? user.id : undefined);
 
     return (
       <div className="flex items-center gap-1">
