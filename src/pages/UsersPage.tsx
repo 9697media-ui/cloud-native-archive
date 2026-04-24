@@ -387,10 +387,40 @@ export default function UsersPage() {
 
   const handleApprove = async (req: any) => {
     setProcessingId(req.id);
-    await approveRequest(req.id, req.user_id, req.requested_role);
-    toast({ title: 'Aprovado!', description: `Acesso de ${req.name} foi aprovado como ${ROLE_LABELS[req.requested_role]}.` });
-    setProcessingId(null);
-    setShowApprovalConfirm(null);
+    
+    // Define o nível e unidade baseados na regra solicitada
+    let level: any = 'visualizador';
+    let unit: any = 'Evento Geral do Grupo';
+    
+    if (req.requested_role === 'admin') {
+      level = 'admin_geral';
+      unit = 'Evento Geral do Grupo';
+    } else if (req.requested_role === 'editor') {
+      level = 'gestor_unidade';
+      unit = req.requested_unit || 'DIC'; // Fallback para uma unidade específica
+    }
+    
+    try {
+      await approveRequest(req.id, req.user_id, req.requested_role);
+      
+      // Atualiza o perfil com as regras de nível e unidade
+      await supabase
+        .from('profiles')
+        .update({
+          permission_level: level,
+          unit: unit,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', req.user_id);
+        
+      toast({ title: 'Aprovado!', description: `Acesso de ${req.name} foi aprovado como ${ROLE_LABELS[req.requested_role]}.` });
+      refetch();
+    } catch (error: any) {
+      toast({ title: 'Erro ao aprovar', description: error.message, variant: 'destructive' });
+    } finally {
+      setProcessingId(null);
+      setShowApprovalConfirm(null);
+    }
   };
 
   const onApproveClick = (req: any) => {
@@ -829,16 +859,39 @@ export default function UsersPage() {
               </div>
               <div>
                 <Label>Unidade</Label>
-                <Select value={editForm.unit} onValueChange={v => setEditForm({ ...editForm, unit: v as any })}>
+                <Select 
+                  disabled={editForm.permission_level === 'admin_geral'}
+                  value={editForm.unit} 
+                  onValueChange={v => setEditForm({ ...editForm, unit: v as any })}
+                >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    {UNITS.filter(u => {
+                      if (editForm.permission_level === 'gestor_unidade') {
+                        return u !== 'Evento Geral do Grupo';
+                      }
+                      return true;
+                    }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Nível de Permissão</Label>
-                <Select value={editForm.permission_level} onValueChange={v => setEditForm({ ...editForm, permission_level: v as any })}>
+                <Select 
+                  value={editForm.permission_level} 
+                  onValueChange={v => {
+                    const newLevel = v as any;
+                    let newUnit = editForm.unit;
+                    
+                    if (newLevel === 'admin_geral') {
+                      newUnit = 'Evento Geral do Grupo';
+                    } else if (newLevel === 'gestor_unidade' && newUnit === 'Evento Geral do Grupo') {
+                      newUnit = 'DIC'; // Valor padrão para gestores
+                    }
+                    
+                    setEditForm({ ...editForm, permission_level: newLevel, unit: newUnit });
+                  }}
+                >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {PERMISSION_LEVELS
