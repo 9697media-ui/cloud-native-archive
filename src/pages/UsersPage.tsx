@@ -156,11 +156,29 @@ export default function UsersPage() {
     toast({ title: active ? 'Usuários ativados' : 'Usuários desativados', description: `${selectedUsers.size} usuário(s) ${active ? 'ativado(s)' : 'desativado(s)'}.` });
   };
 
+  const combinedUsers = useMemo(() => {
+    const mappedDbUsers: AppUser[] = dbUsers.map(dbu => ({
+      id: dbu.user_id,
+      name: dbu.name,
+      email: dbu.email,
+      unit: (dbu.unit as any) || 'Evento Geral do Grupo',
+      permission_level: (dbu.permission_level || 'usuario_padrao') as any,
+      is_active: true,
+      created_at: dbu.created_at,
+      updated_at: dbu.created_at,
+    }));
+
+    const dbEmails = new Set(mappedDbUsers.map(u => u.email.toLowerCase()));
+    const uniqueMockUsers = users.filter(u => !dbEmails.has(u.email.toLowerCase()));
+
+    return [...mappedDbUsers, ...uniqueMockUsers];
+  }, [dbUsers, users]);
+
   const filtered = useMemo(() => {
-    if (!search) return users;
+    if (!search) return combinedUsers;
     const q = search.toLowerCase();
-    return users.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-  }, [users, search]);
+    return combinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  }, [combinedUsers, search]);
 
   const publishedUrl = 'https://unit-sync-scheduler.lovable.app';
   const baseUrl = publishedUrl;
