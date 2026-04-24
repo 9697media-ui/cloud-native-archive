@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,7 +24,8 @@ const navItems: NavItem[] = [
   { to: '/usuarios', label: 'Administração', icon: Users, requireAuth: true },
 ];
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function AppLayout() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
@@ -43,7 +44,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
   const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
 
-  const NavContent = () => (
+  const NavContent = ({ onClick }: { onClick?: () => void }) => (
     <>
       {navItems.filter(item => {
         if (item.adminOnly) return isAdmin;
@@ -55,6 +56,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Link
             key={item.to}
             to={`${item.to}${location.search}`}
+            onClick={onClick}
             className={cn(
               "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
               active
@@ -76,7 +78,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="h-full flex flex-col bg-background">
         <ImpersonationBanner />
         <main className={cn("flex-1 overflow-auto p-4", !hideFooterParam && "pb-14")}>
-          {children}
+          <Outlet />
         </main>
         {!hideFooterParam && (
           <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 backdrop-blur-sm p-2 px-4 flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -164,7 +166,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 lg:px-8">
           {isMobile && (
-            <Sheet>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="shrink-0">
                   <Menu className="h-5 w-5" />
@@ -180,7 +182,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-1 px-2">
-                  <NavContent />
+                  <NavContent onClick={() => setIsMenuOpen(false)} />
                 </nav>
                 <div className="absolute bottom-4 left-0 w-full px-6">
                   {isAuthenticated && (
@@ -236,7 +238,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       <main className="flex-1 overflow-auto p-4 lg:p-8 mx-auto w-full max-w-7xl">
-        {children}
+        <Outlet />
       </main>
 
       {!isEmbedded && (
