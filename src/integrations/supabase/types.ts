@@ -66,6 +66,7 @@ export type Database = {
           end_datetime: string
           event_type: string
           external_collaborators: Json | null
+          external_id: string | null
           has_conflict: boolean | null
           has_unit_collaboration: boolean | null
           id: string
@@ -92,6 +93,7 @@ export type Database = {
           end_datetime: string
           event_type: string
           external_collaborators?: Json | null
+          external_id?: string | null
           has_conflict?: boolean | null
           has_unit_collaboration?: boolean | null
           id?: string
@@ -118,6 +120,7 @@ export type Database = {
           end_datetime?: string
           event_type?: string
           external_collaborators?: Json | null
+          external_id?: string | null
           has_conflict?: boolean | null
           has_unit_collaboration?: boolean | null
           id?: string
@@ -170,6 +173,36 @@ export type Database = {
           unit?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      sheet_mappings: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          separator: string | null
+          sheet_field: string
+          system_field: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          separator?: string | null
+          sheet_field: string
+          system_field: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          separator?: string | null
+          sheet_field?: string
+          system_field?: string
+          updated_at?: string
         }
         Relationships: []
       }
