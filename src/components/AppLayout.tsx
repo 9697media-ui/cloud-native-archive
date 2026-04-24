@@ -66,10 +66,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
-              <>
-                <span className="hidden text-[10px] text-muted-foreground sm:inline">
+              <div className="flex items-center gap-2">
+                <span className="hidden text-[10px] text-muted-foreground sm:inline truncate max-w-[100px]">
                   {user?.email}
                 </span>
+                
+                {isAdmin && (
+                  <Link to="/usuarios" className="transition-transform active:scale-95">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-8 gap-1.5 text-xs font-semibold bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
+                    >
+                      <Users className="h-3.5 w-3.5" />
+                      Painel Admin
+                    </Button>
+                  </Link>
+                )}
+
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -79,34 +93,30 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <LogOut className="h-3.5 w-3.5" />
                   Sair
                 </Button>
-              </>
+              </div>
             ) : (
               <div className="flex items-center gap-1">
-                {true && (
-                  <>
-                    {showLoginLocal ? (
-                      <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
-                        <Button 
-                          variant="default" 
-                          size="sm" 
-                          className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
-                        >
-                          <LogIn className="h-3.5 w-3.5" />
-                          Login do Usuário
-                        </Button>
-                      </Link>
-                    ) : null}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setShowLoginLocal(!showLoginLocal)}
-                      className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-opacity"
-                      title={showLoginLocal ? "Ocultar login" : "Mostrar login"}
+                {showLoginLocal ? (
+                  <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
                     >
-                      <Settings className="h-3.5 w-3.5" />
+                      <LogIn className="h-3.5 w-3.5" />
+                      Login Admin
                     </Button>
-                  </>
-                )}
+                  </Link>
+                ) : null}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowLoginLocal(!showLoginLocal)}
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-opacity"
+                  title={showLoginLocal ? "Ocultar login" : "Mostrar login"}
+                >
+                  <Settings className="h-3.5 w-3.5" />
+                </Button>
               </div>
             )}
           </div>
@@ -208,7 +218,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Link to="/login">
                 <Button variant="outline" size="sm" className="gap-1.5">
                   <LogIn className="h-4 w-4" />
-                  <span className="hidden sm:inline">Entrar</span>
+                  <span className="hidden sm:inline">Login Admin</span>
                 </Button>
               </Link>
             )}
