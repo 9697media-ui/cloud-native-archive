@@ -211,8 +211,7 @@ export default function UsersPage() {
   }, [filtered]);
 
 
-  const publishedUrl = 'https://unit-sync-scheduler.lovable.app';
-  const baseUrl = publishedUrl;
+  const baseUrl = window.location.origin;
 
   const handleEdit = (user: AppUser) => {
     setSelectedUser(user);
