@@ -29,7 +29,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
   const hideFooterParam = queryParams.get('hideFooter') === 'true';
+  const hideHeaderParam = queryParams.get('hideHeader') === 'true';
   const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
+
 
   useEffect(() => {
     setShowLoginLocal(!hideLoginParam);
@@ -39,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAdmin } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
-  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam;
+  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam;
 
   if (isCleanView) {
     if (hideFooterParam) {

@@ -66,6 +66,9 @@ export default function UsersPage() {
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [hideLogin, setHideLogin] = useState(false);
   const [hideFooter, setHideFooter] = useState(false);
+  const [showDashboardHeader, setShowDashboardHeader] = useState(true);
+  const [showCalendarHeader, setShowCalendarHeader] = useState(true);
+
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -254,6 +257,10 @@ export default function UsersPage() {
     const params = new URLSearchParams();
     if (hideLogin) params.append('hideLogin', 'true');
     if (hideFooter) params.append('hideFooter', 'true');
+    
+    const showHeader = path === '/' ? showDashboardHeader : showCalendarHeader;
+    if (!showHeader) params.append('hideHeader', 'true');
+    
     const queryString = params.toString();
     
     // Ensure baseUrl doesn't end with slash if path starts with one
@@ -268,6 +275,7 @@ export default function UsersPage() {
 
   const getFixedEmbedCode = (path: string) =>
     `<div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;"><iframe src="${getUrl(path)}" style="width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+
 
   const handleCopyEmbed = (idx: number, path: string) => {
     navigator.clipboard.writeText(getEmbedCode(path));
@@ -599,7 +607,16 @@ export default function UsersPage() {
                     <h3 className="font-medium text-foreground">{page.name}</h3>
                     <Badge variant="outline" className="text-xs">{page.path}</Badge>
                   </div>
+                  <div className="flex items-center gap-2 pb-2">
+                    <Switch 
+                      id={`show-header-${idx}`} 
+                      checked={page.path === '/' ? showDashboardHeader : showCalendarHeader} 
+                      onCheckedChange={(val) => page.path === '/' ? setShowDashboardHeader(val) : setShowCalendarHeader(val)} 
+                    />
+                    <Label htmlFor={`show-header-${idx}`} className="text-xs cursor-pointer">Habilitar cabeçalho (Título da página)</Label>
+                  </div>
                   <div className="space-y-1.5">
+
                     <Label className="text-xs text-muted-foreground">Link direto</Label>
                     <div className="flex items-center gap-2">
                       <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-muted/50" />
