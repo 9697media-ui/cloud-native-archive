@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -30,6 +30,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
   const hideFooterParam = queryParams.get('hideFooter') === 'true';
   const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
+
+  useEffect(() => {
+    setShowLoginLocal(!hideLoginParam);
+  }, [hideLoginParam]);
   
   const { isAuthenticated, signOut, user } = useAuth();
   const { isAdmin } = useUserRole();
@@ -73,7 +77,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </span>
                 
                 {isAdmin && (
-                  <Link to="/usuarios" className="transition-transform active:scale-95">
+                  <Link to={`/usuarios${location.search}`} className="transition-transform active:scale-95">
                     <Button 
                       variant="outline" 
                       size="sm" 
@@ -140,7 +144,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         return (
           <Link
             key={item.to}
-            to={item.to}
+            to={`${item.to}${location.search}`}
             className={cn(
               "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
               active
@@ -196,7 +200,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Sheet>
           )}
 
-          <Link to="/" className="flex items-center gap-2 shrink-0">
+          <Link to={`/${location.search}`} className="flex items-center gap-2 shrink-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <Calendar className="h-4 w-4 text-primary-foreground" />
             </div>
@@ -257,9 +261,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 justify-center md:justify-end">
               <div className="flex items-center gap-6 text-sm font-medium">
-                <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">Visão Geral</Link>
-                <Link to="/calendario" className="text-muted-foreground hover:text-foreground transition-colors">Calendário</Link>
-                <Link to="/usuarios" className="text-muted-foreground hover:text-foreground transition-colors">Transparência</Link>
+                <Link to={`/${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Visão Geral</Link>
+                <Link to={`/calendario${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Calendário</Link>
+                <Link to={`/usuarios${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Transparência</Link>
               </div>
               
               <div className="flex items-center gap-4 border-l border-border pl-6">

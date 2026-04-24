@@ -275,18 +275,20 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
               <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Notas internas..." rows={2} />
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-              <Switch
+               <Switch
+                id="marketing_request"
                 checked={form.marketing_request || false}
                 onCheckedChange={v => setForm({ ...form, marketing_request: v })}
               />
-              <Label className="cursor-pointer">Solicitação de Marketing</Label>
+              <Label htmlFor="marketing_request" className="cursor-pointer flex-1">Solicitação de Marketing</Label>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-              <Switch
+               <Switch
+                id="partner_involved"
                 checked={form.partner_involved || false}
                 onCheckedChange={v => setForm({ ...form, partner_involved: v, ...(!v ? { partner_type: '', partner_name: '', partners: [] } : {}) })}
               />
-              <Label className="cursor-pointer">Parceiro Envolvido</Label>
+              <Label htmlFor="partner_involved" className="cursor-pointer flex-1">Parceiro Envolvido</Label>
             </div>
             {form.partner_involved && (
               <div className="space-y-2 rounded-lg border border-border p-3">
@@ -344,11 +346,12 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
             )}
             {/* Unit collaboration */}
             <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-              <Switch
+               <Switch
+                id="unit_collaboration"
                 checked={form.has_unit_collaboration || false}
                 onCheckedChange={v => setForm({ ...form, has_unit_collaboration: v, ...(!v ? { collaborating_units: [], external_collaborators: [] } : {}) })}
               />
-              <Label className="cursor-pointer">Parceria com outra Unidade/Instituição</Label>
+              <Label htmlFor="unit_collaboration" className="cursor-pointer flex-1">Parceria com outra Unidade/Instituição</Label>
             </div>
             {form.has_unit_collaboration && (
               <div className="space-y-3 rounded-lg border border-border p-3">
