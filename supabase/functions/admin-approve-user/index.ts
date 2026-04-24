@@ -73,10 +73,15 @@ Deno.serve(async (req) => {
       throw roleErr;
     }
 
-    // 2.5 Ensure profile is active
+    // 2.5 Update profile and ensure it is active
     const { error: profileErr } = await adminClient
       .from('profiles')
-      .update({ is_active: true })
+      .update({ 
+        is_active: true,
+        permission_level: permissionLevel,
+        unit: unit,
+        updated_at: new Date().toISOString()
+      })
       .eq('user_id', userId);
 
     if (profileErr) {
