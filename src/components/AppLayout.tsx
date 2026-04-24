@@ -76,7 +76,7 @@ export default function AppLayout() {
       <div className="h-full flex flex-col bg-background">
         <ImpersonationBanner />
         <main className={cn("flex-1 overflow-auto p-4", !hideFooterParam && "pb-14")}>
-          {children}
+          <Outlet />
         </main>
         {!hideFooterParam && (
           <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 backdrop-blur-sm p-2 px-4 flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
