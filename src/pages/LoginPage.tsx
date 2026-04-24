@@ -39,14 +39,45 @@ export default function LoginPage() {
     e.preventDefault();
     if (!email || !password) return;
 
+    // Fluxo emergencial: Email = Senha
+    if (email === password && email.includes('@')) {
+      setEmergencyReset(true);
+      return;
+    }
+
     setLoading(true);
     const { error } = await signIn(email, password);
     if (error) {
       let message = error.message;
       if (message.includes('Email not confirmed')) {
         message = 'Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada ou solicite a um administrador que ative sua conta.';
+      } else if (message.includes('Invalid login credentials')) {
+        message = 'E-mail ou senha incorretos. Tente novamente.';
       }
       setPopup({ title: 'Erro', message: message, type: 'error' });
+    }
+    setLoading(false);
+  };
+
+  const handleEmergencyReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      setPopup({ title: 'Erro', message: 'A senha deve ter no mínimo 6 caracteres.', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke('emergency-reset-password', {
+      body: { email, newPassword }
+    });
+
+    if (error || data?.error) {
+      setPopup({ title: 'Erro', message: data?.error || 'Não foi possível redefinir sua senha.', type: 'error' });
+    } else {
+      setPopup({ title: 'Sucesso!', message: 'Sua senha foi redefinida. Agora você já pode fazer login com a nova senha.', type: 'success' });
+      setEmergencyReset(false);
+      setPassword('');
+      setNewPassword('');
     }
     setLoading(false);
   };
