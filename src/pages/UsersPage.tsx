@@ -602,12 +602,12 @@ export default function UsersPage() {
                     <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Switch id="hide-header" checked={hideHeader} onCheckedChange={setHideHeader} />
-                    <Label htmlFor="hide-header" className="text-sm cursor-pointer">Ocultar cabeçalho (Navbar)</Label>
+                    <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
+                    <Label htmlFor="show-header" className="text-sm cursor-pointer">Habilitar cabeçalho</Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Switch id="hide-title" checked={hideTitle} onCheckedChange={setHideTitle} />
-                    <Label htmlFor="hide-title" className="text-sm cursor-pointer">Ocultar título da página</Label>
+                    <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
+                    <Label htmlFor="show-title" className="text-sm cursor-pointer">Habilitar título da página</Label>
                   </div>
                 </div>
               </div>
