@@ -216,6 +216,11 @@ export default function UsersPage() {
     await approveRequest(req.id, req.user_id, req.requested_role);
     toast({ title: 'Aprovado!', description: `Acesso de ${req.name} foi aprovado como ${ROLE_LABELS[req.requested_role]}.` });
     setProcessingId(null);
+    setShowApprovalConfirm(null);
+  };
+
+  const onApproveClick = (req: any) => {
+    setShowApprovalConfirm({ req });
   };
 
   const handleReject = async (req: any) => {
