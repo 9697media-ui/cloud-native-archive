@@ -29,6 +29,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAdmin } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
+  const queryParams = new URLSearchParams(location.search);
+  const hideLoginParam = queryParams.get('hideLogin') === 'true';
+  const hideFooterParam = queryParams.get('hideFooter') === 'true';
 
   if (isEmbedded) {
     return (
