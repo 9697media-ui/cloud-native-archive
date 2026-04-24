@@ -89,7 +89,12 @@ export default function CalendarPage() {
 
   const handleBulkStatusChange = (status: EventStatus) => {
     events.filter(e => selectedEvents.has(e.id)).forEach(e => {
-      updateEvent({ ...e, status, updated_at: new Date().toISOString() });
+      updateEvent({ 
+        ...e, 
+        status, 
+        updated_at: new Date().toISOString(),
+        updated_by: userName || 'Usuário'
+      });
     });
     setSelectedEvents(new Set());
   };
