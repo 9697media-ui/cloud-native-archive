@@ -70,7 +70,8 @@ export default function LoginPage() {
 
     const { error } = await signUp(email, password, { 
       name, 
-      requested_role: requestedRole 
+      requested_role: requestedRole,
+      requested_unit: requestedUnit 
     });
     
     if (error) {
