@@ -178,7 +178,18 @@ export default function UsersPage() {
     if (!search) return combinedUsers;
     const q = search.toLowerCase();
     return combinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-  }, [combinedUsers, search]);
+  const groupedUsers = useMemo(() => {
+    const admins = filtered.filter(u => u.permission_level === 'admin' || u.permission_level === 'admin_geral');
+    const gestores = filtered.filter(u => u.permission_level === 'gestor_unidade');
+    const normalUsers = filtered.filter(u => !['admin', 'admin_geral', 'gestor_unidade'].includes(u.permission_level));
+    
+    return [
+      { id: 'admins', title: 'Administradores', users: admins, icon: <ShieldCheck className="h-5 w-5 text-primary" /> },
+      { id: 'gestores', title: 'Gestores de Unidade', users: gestores, icon: <Shield className="h-5 w-5 text-primary" /> },
+      { id: 'normal', title: 'Usuários e Visualizadores', users: normalUsers, icon: <UserCog className="h-5 w-5 text-primary" /> }
+    ];
+  }, [filtered]);
+
 
   const publishedUrl = 'https://unit-sync-scheduler.lovable.app';
   const baseUrl = publishedUrl;
