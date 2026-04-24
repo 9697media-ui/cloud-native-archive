@@ -622,7 +622,42 @@ export default function UsersPage() {
               <p className="text-sm text-muted-foreground">
                 Sua sessão atual será encerrada. Para voltar à sua conta, use o botão "Sair da impersonação" no banner do topo e faça login novamente.
               </p>
+      {/* Approval confirmation dialog */}
+      <Dialog open={!!showApprovalConfirm} onOpenChange={(v) => { if (!v) setShowApprovalConfirm(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Aprovação</DialogTitle>
+          </DialogHeader>
+          {showApprovalConfirm && (
+            <div className="space-y-4">
+              <div className="rounded-md bg-amber-50 p-4 border border-amber-200">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <Shield className="h-5 w-5 text-amber-600" aria-hidden="true" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-amber-800">Aviso de Ciência</h3>
+                    <div className="mt-2 text-sm text-amber-700">
+                      <p>
+                        Ao aprovar este usuário, você confirma estar ciente das permissões que serão concedidas a ele no sistema. 
+                        Certifique-se de que a unidade e o nível de acesso solicitados estão corretos.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-sm">
+                Aprovar <strong className="text-foreground">{showApprovalConfirm.req.name}</strong> como <strong>{ROLE_LABELS[showApprovalConfirm.req.requested_role] || showApprovalConfirm.req.requested_role}</strong>?
+              </p>
             </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowApprovalConfirm(null)}>Cancelar</Button>
+            <Button onClick={() => handleApprove(showApprovalConfirm?.req)}>Confirmar Aprovação</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setImpersonateTarget(null)} disabled={impersonateSubmitting}>Cancelar</Button>
