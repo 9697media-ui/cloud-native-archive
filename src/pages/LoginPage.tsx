@@ -23,6 +23,8 @@ export default function LoginPage() {
   const [requestedUnit, setRequestedUnit] = useState<Unit>('Evento Geral do Grupo');
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState<{ title: string; message: string; type: 'error' | 'success' } | null>(null);
+  const [emergencyReset, setEmergencyReset] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
 
   // Ajusta unidade padrão se mudar o nível solicitado
   useEffect(() => {
