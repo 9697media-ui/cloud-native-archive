@@ -83,6 +83,26 @@ export default function UsersPage() {
   const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
   const [impersonateSubmitting, setImpersonateSubmitting] = useState(false);
 
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
+  const handleDeleteUser = async () => {
+    if (!deleteTarget) return;
+    setDeleteSubmitting(true);
+    const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+      body: { userId: deleteTarget.id },
+    });
+    setDeleteSubmitting(false);
+    if (error || (data as any)?.error) {
+      toast({ title: 'Erro', description: (data as any)?.error || error?.message || 'Falha ao excluir usuário.', variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Usuário excluído', description: `${deleteTarget.name} foi removido permanentemente.` });
+    setDeleteTarget(null);
+    // Refetch users to update list
+    window.location.reload(); // Simple way to refresh all data since we have mock + db users
+  };
+
   const handleResetPassword = async () => {
     if (!resetTarget) return;
     if (newPassword.length < 6) {
