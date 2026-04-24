@@ -94,7 +94,7 @@ export default function Dashboard() {
   }), [events, weekStart, weekEnd]);
 
   const stats = useMemo(() => ({
-    total: activeEvents.length,
+    total: monthEvents.length,
     confirmed: monthEvents.filter(e => e.status === 'confirmado').length,
     pending: monthEvents.filter(e => e.status === 'pendente').length,
     conflict: monthEvents.filter(e => e.has_conflict).length,
