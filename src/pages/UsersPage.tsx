@@ -177,10 +177,24 @@ export default function UsersPage() {
   }, [dbUsers, users]);
 
   const filtered = useMemo(() => {
-    if (!search) return combinedUsers;
+    let baseUsers = combinedUsers;
+    
+    if (!isAdmin) {
+      if (isManager) {
+        // Gestor pode ver gestores, usuários e visualizadores
+        baseUsers = baseUsers.filter(u => 
+          ['gestor_unidade', 'usuario_padrao', 'visualizador'].includes(u.permission_level as string)
+        );
+      } else {
+        // Usuário e visualizador podem ver somente o seu próprio perfil
+        baseUsers = baseUsers.filter(u => u.email.toLowerCase() === currentUser?.email?.toLowerCase());
+      }
+    }
+
+    if (!search) return baseUsers;
     const q = search.toLowerCase();
-    return combinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-  }, [combinedUsers, search]);
+    return baseUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  }, [combinedUsers, search, isAdmin, isManager, currentUser]);
 
   const groupedUsers = useMemo(() => {
     const admins = filtered.filter(u => (u.permission_level as string) === 'admin' || (u.permission_level as string) === 'admin_geral');
@@ -262,7 +276,7 @@ export default function UsersPage() {
 
   // Admin restricted actions check
   const renderActions = (user: AppUser) => {
-    if (!canView) return null;
+    if (!isAdmin) return null;
 
     const dbMatch = dbUsers.find(d => d.email?.toLowerCase() === user.email.toLowerCase());
     const authUserId = dbMatch?.user_id || (user.id.length > 10 ? user.id : undefined);
@@ -290,11 +304,9 @@ export default function UsersPage() {
             <UserCog className="h-4 w-4" />
           </Button>
         )}
-        {isAdmin && (
-          <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
-            <Edit2 className="h-4 w-4" />
-          </Button>
-        )}
+        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
+          <Edit2 className="h-4 w-4" />
+        </Button>
       </div>
     );
   };
