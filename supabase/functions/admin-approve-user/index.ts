@@ -73,6 +73,16 @@ Deno.serve(async (req) => {
       throw roleErr;
     }
 
+    // 2.5 Ensure profile is active
+    const { error: profileErr } = await adminClient
+      .from('profiles')
+      .update({ is_active: true })
+      .eq('user_id', userId);
+
+    if (profileErr) {
+      console.warn('Erro ao ativar perfil:', profileErr);
+    }
+
     // 3. Confirm user email in Auth
     const { error: authErr } = await adminClient.auth.admin.updateUserById(userId, {
       email_confirm: true,
