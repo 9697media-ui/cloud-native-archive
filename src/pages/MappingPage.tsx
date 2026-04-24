@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSheetIntegration } from '@/hooks/useSheetIntegration';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -42,7 +42,7 @@ export default function MappingPage() {
   const [showPreview, setShowPreview] = useState(false);
 
   // Initialize mappings when headers load
-  useMemo(() => {
+  useEffect(() => {
     if (headers.length > 0 && mappings.length === 0) {
       setMappings(headers.map((h, i) => ({
         sheetField: h,
@@ -51,7 +51,7 @@ export default function MappingPage() {
         separator: ' - ',
       })));
     }
-  }, [headers]);
+  }, [headers, mappings.length]);
 
   const updateMapping = (index: number, field: Partial<MappingEntry>) => {
     setMappings(prev => prev.map((m, i) => i === index ? { ...m, ...field } : m));
@@ -101,10 +101,17 @@ export default function MappingPage() {
   const moveOrder = (index: number, direction: 'up' | 'down') => {
     setMappings(prev => {
       const updated = [...prev];
-      const newOrder = direction === 'up'
-        ? Math.max(0, updated[index].order - 1)
-        : updated[index].order + 1;
-      updated[index] = { ...updated[index], order: newOrder };
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      
+      if (targetIndex >= 0 && targetIndex < updated.length) {
+        // Trocar as ordens para manter a integridade
+        const tempOrder = updated[index].order;
+        updated[index].order = updated[targetIndex].order;
+        updated[targetIndex].order = tempOrder;
+        
+        // Também trocar as posições no array para refletir a interface
+        [updated[index], updated[targetIndex]] = [updated[targetIndex], updated[index]];
+      }
       return updated;
     });
   };

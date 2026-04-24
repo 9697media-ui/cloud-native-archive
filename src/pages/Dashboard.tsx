@@ -98,8 +98,8 @@ export default function Dashboard() {
     confirmed: monthEvents.filter(e => e.status === 'confirmado').length,
     pending: monthEvents.filter(e => e.status === 'pendente').length,
     conflict: monthEvents.filter(e => e.has_conflict).length,
-    marketing: activeEvents.filter(e => e.marketing_request).length,
-    partners: activeEvents.filter(e => e.partner_involved).length,
+    marketing: monthEvents.filter(e => e.marketing_request).length,
+    partners: monthEvents.filter(e => e.partner_involved).length,
   }), [monthEvents, activeEvents]);
 
   const unitStats = useMemo(() => UNITS.map(unit => {

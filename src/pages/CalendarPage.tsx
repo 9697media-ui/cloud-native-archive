@@ -29,6 +29,13 @@ const unitDotColors: Record<Unit, string> = {
   'Evento Geral do Grupo': 'bg-unit-geral',
 };
 
+const unitBorderColors: Record<Unit, string> = {
+  'DIC': 'border-l-unit-dic',
+  'Nilópolis': 'border-l-unit-nilopolis',
+  'Santana': 'border-l-unit-santana',
+  'Evento Geral do Grupo': 'border-l-unit-geral',
+};
+
 type View = 'month' | 'week' | 'list';
 
 export default function CalendarPage() {
@@ -169,16 +176,8 @@ export default function CalendarPage() {
       updated_at: new Date().toISOString(),
     };
 
-    const conflicts = detectConflicts(updatedEvent);
-    updatedEvent.has_conflict = conflicts.length > 0;
-
-    // Also update conflict flags on affected events
-    conflicts.forEach(c => {
-      if (!c.has_conflict) {
-        updateEvent({ ...c, has_conflict: true, updated_at: new Date().toISOString() });
-      }
-    });
-
+    // O recalculateAllConflicts no AppContext já cuidará de atualizar os flags de conflito
+    // tanto para este evento quanto para os outros afetados.
     updateEvent(updatedEvent);
   }, [events, detectConflicts, updateEvent]);
 
@@ -320,7 +319,7 @@ export default function CalendarPage() {
                           className={cn(
                             "flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[8px] sm:text-[10px] leading-tight cursor-grab active:cursor-grabbing hover:opacity-80 border-l-2",
                             unitDotColors[e.unit], "bg-opacity-10",
-                            `border-l-${unitDotColors[e.unit].split('-')[1]}`
+                            unitBorderColors[e.unit]
                           )}
                         >
                           <span className="truncate text-foreground flex-1">{e.title}</span>
