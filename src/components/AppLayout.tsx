@@ -44,7 +44,7 @@ export default function AppLayout() {
   const isMobile = useIsMobile();
   const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
 
-  const NavContent = () => (
+  const NavContent = ({ onClick }: { onClick?: () => void }) => (
     <>
       {navItems.filter(item => {
         if (item.adminOnly) return isAdmin;
