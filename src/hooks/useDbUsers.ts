@@ -7,6 +7,7 @@ export interface DbUser {
   name: string;
   email: string;
   role: string | null;
+  permission_level: string | null;
   created_at: string;
 }
 
@@ -28,7 +29,7 @@ export function useDbUsers() {
     // Fetch all profiles
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('user_id, name, email, created_at')
+      .select('user_id, name, email, permission_level, created_at')
       .order('created_at', { ascending: true });
 
     // Fetch all roles (admin can see all)
@@ -48,6 +49,7 @@ export function useDbUsers() {
       name: p.name || p.email || 'Sem nome',
       email: p.email || '',
       role: roleMap.get(p.user_id) || null,
+      permission_level: p.permission_level,
       created_at: p.created_at,
     }));
 
