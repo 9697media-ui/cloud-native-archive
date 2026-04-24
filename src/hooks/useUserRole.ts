@@ -114,15 +114,15 @@ export function useAccessRequests() {
   }, []);
 
   const approveRequest = async (requestId: string, userId: string, role: string) => {
-    // Update the request status
-    await (supabase
-      .from('access_requests') as any)
-      .update({ status: 'approved', reviewed_at: new Date().toISOString() })
-      .eq('id', requestId);
+    // Use edge function to approve, assign role AND confirm email
+    const { data, error } = await supabase.functions.invoke('admin-approve-user', {
+      body: { requestId, userId, role }
+    });
 
-    await (supabase
-      .from('user_roles') as any)
-      .insert({ user_id: userId, role: role as any });
+    if (error) {
+      console.error('Erro ao aprovar solicitação:', error);
+      throw error;
+    }
 
     await fetchRequests();
   };
