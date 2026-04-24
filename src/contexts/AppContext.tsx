@@ -15,6 +15,7 @@ interface AppContextType {
   updateEvent: (event: AppEvent) => void;
   deleteEvent: (id: string) => void;
   updateUser: (user: AppUser) => void;
+  deleteUser: (id: string) => void;
   detectConflicts: (event: AppEvent) => AppEvent[];
 }
 
