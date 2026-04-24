@@ -829,16 +829,39 @@ export default function UsersPage() {
               </div>
               <div>
                 <Label>Unidade</Label>
-                <Select value={editForm.unit} onValueChange={v => setEditForm({ ...editForm, unit: v as any })}>
+                <Select 
+                  disabled={editForm.permission_level === 'admin_geral'}
+                  value={editForm.unit} 
+                  onValueChange={v => setEditForm({ ...editForm, unit: v as any })}
+                >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    {UNITS.filter(u => {
+                      if (editForm.permission_level === 'gestor_unidade') {
+                        return u !== 'Evento Geral do Grupo';
+                      }
+                      return true;
+                    }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Nível de Permissão</Label>
-                <Select value={editForm.permission_level} onValueChange={v => setEditForm({ ...editForm, permission_level: v as any })}>
+                <Select 
+                  value={editForm.permission_level} 
+                  onValueChange={v => {
+                    const newLevel = v as any;
+                    let newUnit = editForm.unit;
+                    
+                    if (newLevel === 'admin_geral') {
+                      newUnit = 'Evento Geral do Grupo';
+                    } else if (newLevel === 'gestor_unidade' && newUnit === 'Evento Geral do Grupo') {
+                      newUnit = 'DIC'; // Valor padrão para gestores
+                    }
+                    
+                    setEditForm({ ...editForm, permission_level: newLevel, unit: newUnit });
+                  }}
+                >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {PERMISSION_LEVELS
