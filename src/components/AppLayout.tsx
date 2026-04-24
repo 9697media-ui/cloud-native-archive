@@ -29,6 +29,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
   const hideFooterParam = queryParams.get('hideFooter') === 'true';
+  const hideHeaderParam = queryParams.get('hideHeader') === 'true';
+  const hideTitleParam = queryParams.get('hideTitle') === 'true';
   const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
 
   useEffect(() => {
