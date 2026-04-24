@@ -51,9 +51,9 @@ const App = () => (
                     <Route path="/usuarios" element={
                       <ProtectedRoute><UsersPage /></ProtectedRoute>
                     } />
-                    <Route path="/settings/mapping" element={
+                    {/* <Route path="/settings/mapping" element={
                       <ProtectedRoute><MappingPage /></ProtectedRoute>
-                    } />
+                    } /> */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AppLayout>
