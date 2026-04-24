@@ -24,7 +24,7 @@ const navItems: NavItem[] = [
   { to: '/usuarios', label: 'Administração', icon: Users, requireAuth: true },
 ];
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function AppLayout() {
   const location = useLocation();
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
