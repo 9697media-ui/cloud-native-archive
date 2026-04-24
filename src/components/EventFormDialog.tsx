@@ -283,11 +283,12 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
               <Label htmlFor="marketing_request" className="cursor-pointer flex-1">Solicitação de Marketing</Label>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-              <Switch
+               <Switch
+                id="partner_involved"
                 checked={form.partner_involved || false}
                 onCheckedChange={v => setForm({ ...form, partner_involved: v, ...(!v ? { partner_type: '', partner_name: '', partners: [] } : {}) })}
               />
-              <Label className="cursor-pointer">Parceiro Envolvido</Label>
+              <Label htmlFor="partner_involved" className="cursor-pointer flex-1">Parceiro Envolvido</Label>
             </div>
             {form.partner_involved && (
               <div className="space-y-2 rounded-lg border border-border p-3">
