@@ -110,21 +110,6 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
               </div>
             )}
 
-            {/* Attachments */}
-            {(event.attachments || []).length > 0 && (
-              <div className="rounded-lg border border-border p-3 space-y-1">
-                <p className="text-xs font-semibold text-muted-foreground">Anexos</p>
-                {event.attachments.map((url, idx) => {
-                  const fileName = decodeURIComponent(url.split('/').pop() || 'arquivo');
-                  return (
-                    <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                      <FileText className="h-3.5 w-3.5" />
-                      {fileName}
-                    </a>
-                  );
-                })}
-              </div>
-            )}
           </div>
 
           {(onEdit || onDelete) && (
