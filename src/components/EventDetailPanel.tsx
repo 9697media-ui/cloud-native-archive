@@ -47,7 +47,13 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
           <div className="space-y-3">
             <DetailRow label="Título" value={event.title} />
             <DetailRow label="Tipo" value={event.event_type} capitalize />
-            <DetailRow label="Responsável" value={event.created_by} />
+            {canEdit && (
+              <>
+                <DetailRow label="Criado por" value={event.created_by} />
+                {event.updated_by && <DetailRow label="Editado por" value={event.updated_by} />}
+              </>
+            )}
+            {!canEdit && <DetailRow label="Responsável" value={event.created_by} />}
             <DetailRow label="Local" value={event.location} />
             <DetailRow
               label="Início"
