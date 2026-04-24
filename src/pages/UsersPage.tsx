@@ -322,7 +322,9 @@ export default function UsersPage() {
       
       if (isDbUser) {
         console.log('Atualizando usuário no banco:', selectedUser.id);
-        const { error } = await supabase
+        
+        // 1. Atualiza Perfil
+        const { error: profileError } = await supabase
           .from('profiles')
           .update({
             name: editForm.name,
@@ -333,18 +335,43 @@ export default function UsersPage() {
           })
           .eq('user_id', selectedUser.id);
           
-        if (error) {
-          console.error('Erro ao atualizar perfil:', error);
+        if (profileError) {
+          console.error('Erro ao atualizar perfil:', profileError);
           toast({ 
-            title: 'Erro ao salvar', 
-            description: error.message, 
+            title: 'Erro ao salvar perfil', 
+            description: profileError.message, 
             variant: 'destructive' 
           });
           setProcessingId(null);
           return;
         }
+
+        // 2. Sincroniza com a tabela user_roles
+        let mappedRole: 'admin' | 'editor' | 'viewer' = 'viewer';
+        if (editForm.permission_level === 'admin_geral') mappedRole = 'admin';
+        else if (editForm.permission_level === 'gestor_unidade') mappedRole = 'editor';
+
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .upsert({ 
+            user_id: selectedUser.id, 
+            role: mappedRole 
+          }, { 
+            onConflict: 'user_id' 
+          });
+
+        if (roleError) {
+          console.error('Erro ao atualizar cargo:', roleError);
+          // Apenas aviso, pois o perfil já foi salvo
+          toast({ 
+            title: 'Aviso', 
+            description: 'Perfil salvo, mas houve um erro ao sincronizar permissões de sistema.', 
+            variant: 'destructive' 
+          });
+        } else {
+          toast({ title: 'Sucesso', description: 'Usuário e permissões atualizados com sucesso.' });
+        }
         
-        toast({ title: 'Sucesso', description: 'Usuário atualizado no banco de dados.' });
         refetch(); // Recarrega os usuários do banco
       } else {
         // Fallback para usuários mock
