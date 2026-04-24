@@ -376,9 +376,11 @@ export default function UsersPage() {
 
   return (
     <div className="animate-fade-in space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Transparência</h1>
-      </div>
+      {!hideTitleParam && (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-bold text-foreground">Transparência</h1>
+        </div>
+      )}
 
       <Tabs defaultValue="users">
         <TabsList>
