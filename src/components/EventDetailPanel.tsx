@@ -48,12 +48,25 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
             <DetailRow label="Título" value={event.title} />
             <DetailRow label="Tipo" value={event.event_type} capitalize />
             {canEdit && (
-              <>
-                <DetailRow label="Criado por" value={event.created_by} />
-                {event.updated_by && <DetailRow label="Editado por" value={event.updated_by} />}
-              </>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">Criado por</p>
+                  <Badge variant="secondary" className="font-medium">{event.created_by}</Badge>
+                </div>
+                {event.updated_by && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Editado por</p>
+                    <Badge variant="outline" className="font-medium">{event.updated_by}</Badge>
+                  </div>
+                )}
+              </div>
             )}
-            {!canEdit && <DetailRow label="Responsável" value={event.created_by} />}
+            {!canEdit && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">Responsável</p>
+                <Badge variant="secondary" className="font-medium">{event.created_by}</Badge>
+              </div>
+            )}
             <DetailRow label="Local" value={event.location} />
             <DetailRow
               label="Início"
