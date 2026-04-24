@@ -166,6 +166,19 @@ export default function LoginPage() {
                     <SelectItem value="editor">Editor</SelectItem>
                   </SelectContent>
                 </Select>
+                {requestedRole === 'editor' && (
+                  <div className="mt-4">
+                    <Label>Selecione sua unidade</Label>
+                    <Select value={requestedUnit} onValueChange={(v) => setRequestedUnit(v as Unit)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {UNITS.filter(u => u !== 'Evento Geral do Grupo').map(u => (
+                          <SelectItem key={u} value={u}>{u}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground mt-1">O acesso será concedido após aprovação de um administrador.</p>
               </div>
             )}
