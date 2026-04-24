@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction,
 } from '@/components/ui/alert-dialog';
+import { UNITS, Unit } from '@/types';
 
 export default function LoginPage() {
   const { signIn, signUp, resetPassword } = useAuth();
@@ -19,8 +20,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [requestedRole, setRequestedRole] = useState<string>('viewer');
+  const [requestedUnit, setRequestedUnit] = useState<Unit>('Evento Geral do Grupo');
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState<{ title: string; message: string; type: 'error' | 'success' } | null>(null);
+
+  // Ajusta unidade padrão se mudar o nível solicitado
+  useEffect(() => {
+    if (requestedRole === 'editor' && requestedUnit === 'Evento Geral do Grupo') {
+      setRequestedUnit('DIC');
+    } else if (requestedRole === 'viewer' && requestedUnit !== 'Evento Geral do Grupo') {
+      setRequestedUnit('Evento Geral do Grupo');
+    }
+  }, [requestedRole]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
