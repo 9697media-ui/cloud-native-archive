@@ -184,6 +184,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
           <DialogTitle>{isEditing ? 'Editar Evento' : 'Nova Programação'}</DialogTitle>
         </DialogHeader>
 
+        {showConflictAlert ? (
           <div className="space-y-4">
             <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-4">
               <div>
@@ -204,6 +205,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
               <Button onClick={handleForceSubmit}>Salvar Mesmo Assim</Button>
             </DialogFooter>
           </div>
+        ) : (
           <div className="space-y-4">
             <div>
               <Label>Título *</Label>
