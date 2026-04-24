@@ -240,6 +240,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
+      )}
 
       <main className="flex-1 overflow-auto p-4 lg:p-8 mx-auto w-full max-w-7xl">
         {children}
