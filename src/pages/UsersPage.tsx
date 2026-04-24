@@ -387,10 +387,40 @@ export default function UsersPage() {
 
   const handleApprove = async (req: any) => {
     setProcessingId(req.id);
-    await approveRequest(req.id, req.user_id, req.requested_role);
-    toast({ title: 'Aprovado!', description: `Acesso de ${req.name} foi aprovado como ${ROLE_LABELS[req.requested_role]}.` });
-    setProcessingId(null);
-    setShowApprovalConfirm(null);
+    
+    // Define o nível e unidade baseados na regra solicitada
+    let level: any = 'visualizador';
+    let unit: any = 'Evento Geral do Grupo';
+    
+    if (req.requested_role === 'admin') {
+      level = 'admin_geral';
+      unit = 'Evento Geral do Grupo';
+    } else if (req.requested_role === 'editor') {
+      level = 'gestor_unidade';
+      unit = req.requested_unit || 'DIC'; // Fallback para uma unidade específica
+    }
+    
+    try {
+      await approveRequest(req.id, req.user_id, req.requested_role);
+      
+      // Atualiza o perfil com as regras de nível e unidade
+      await supabase
+        .from('profiles')
+        .update({
+          permission_level: level,
+          unit: unit,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', req.user_id);
+        
+      toast({ title: 'Aprovado!', description: `Acesso de ${req.name} foi aprovado como ${ROLE_LABELS[req.requested_role]}.` });
+      refetch();
+    } catch (error: any) {
+      toast({ title: 'Erro ao aprovar', description: error.message, variant: 'destructive' });
+    } finally {
+      setProcessingId(null);
+      setShowApprovalConfirm(null);
+    }
   };
 
   const onApproveClick = (req: any) => {
