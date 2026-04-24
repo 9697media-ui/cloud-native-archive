@@ -66,6 +66,8 @@ export default function UsersPage() {
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [hideLogin, setHideLogin] = useState(false);
   const [hideFooter, setHideFooter] = useState(false);
+  const [hideHeader, setHideHeader] = useState(false);
+  const [hideTitle, setHideTitle] = useState(false);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
