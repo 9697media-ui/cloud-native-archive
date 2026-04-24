@@ -15,6 +15,7 @@ interface AppContextType {
   updateEvent: (event: AppEvent) => void;
   deleteEvent: (id: string) => void;
   updateUser: (user: AppUser) => void;
+  deleteUser: (id: string) => void;
   detectConflicts: (event: AppEvent) => AppEvent[];
 }
 
@@ -69,11 +70,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setUsers(prev => prev.map(u => u.id === user.id ? user : u));
   }, []);
 
+  const deleteUser = useCallback((id: string) => {
+    setUsers(prev => prev.filter(u => u.id !== id));
+  }, []);
+
   return (
     <AppContext.Provider value={{
       events, users, selectedEvent, selectedUser, selectedMonth,
       setSelectedEvent, setSelectedUser, setSelectedMonth,
-      addEvent, updateEvent, deleteEvent, updateUser, detectConflicts,
+      addEvent, updateEvent, deleteEvent, updateUser, deleteUser, detectConflicts,
     }}>
       {children}
     </AppContext.Provider>
