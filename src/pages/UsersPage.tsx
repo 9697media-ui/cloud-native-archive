@@ -276,7 +276,7 @@ export default function UsersPage() {
 
   // Admin restricted actions check
   const renderActions = (user: AppUser) => {
-    if (!canView) return null;
+    if (!isAdmin) return null;
 
     const dbMatch = dbUsers.find(d => d.email?.toLowerCase() === user.email.toLowerCase());
     const authUserId = dbMatch?.user_id || (user.id.length > 10 ? user.id : undefined);
@@ -304,11 +304,9 @@ export default function UsersPage() {
             <UserCog className="h-4 w-4" />
           </Button>
         )}
-        {isAdmin && (
-          <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
-            <Edit2 className="h-4 w-4" />
-          </Button>
-        )}
+        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary">
+          <Edit2 className="h-4 w-4" />
+        </Button>
       </div>
     );
   };
