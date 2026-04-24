@@ -152,12 +152,24 @@ export default function UsersPage() {
   };
 
   const handleBulkDeleteUsers = () => {
-    selectedUsers.forEach(id => {
-      const user = users.find(u => u.id === id);
-      if (user) updateUser({ ...user, is_active: false, updated_at: new Date().toISOString() });
-    });
-    setSelectedUsers(new Set());
-    toast({ title: 'Usuários desativados', description: `${selectedUsers.size} usuário(s) desativado(s).` });
+    setBulkDelete(true);
+    setShowDeleteConfirm(true);
+  };
+
+  const executeDelete = async () => {
+    if (bulkDelete) {
+      selectedUsers.forEach(id => {
+        deleteUser(id);
+      });
+      setSelectedUsers(new Set());
+      toast({ title: 'Usuários excluídos', description: `${selectedUsers.size} usuário(s) excluído(s) permanentemente.` });
+    } else if (selectedUser) {
+      deleteUser(selectedUser.id);
+      toast({ title: 'Usuário excluído', description: `${selectedUser.name} foi excluído permanentemente.` });
+      setSelectedUser(null);
+    }
+    setShowDeleteConfirm(false);
+    setBulkDelete(false);
   };
 
   const handleBulkToggleActive = (active: boolean) => {
