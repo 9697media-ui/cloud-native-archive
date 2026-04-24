@@ -35,6 +35,7 @@ const ROLE_LABELS: Record<string, string> = {
   gestor_unidade: 'Gestor de Unidade',
   usuario_padrao: 'Usuário Padrão',
   visualizador: 'Visualizador',
+  usuario_padrao_admin: 'Admin',
 };
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
@@ -212,8 +213,8 @@ export default function UsersPage() {
 
 
   const [customBaseUrl, setCustomBaseUrl] = useState('');
+  const isPreview = window.location.hostname.includes('preview') || window.location.hostname.includes('lovableproject.com') || window.location.hostname.includes('localhost');
   const baseUrl = customBaseUrl || window.location.origin;
-  const isPreview = window.location.hostname.includes('preview') || window.location.hostname.includes('lovableproject.com');
 
   const handleEdit = (user: AppUser) => {
     setSelectedUser(user);
@@ -536,102 +537,100 @@ export default function UsersPage() {
           )}
         </TabsContent>
 
-        {true && (
-          <TabsContent value="embed" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Code2 className="h-5 w-5 text-primary" />
-                  Links e Códigos Embed
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Use estes links para incorporar páginas em sites externos.
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {isPreview && (
-                  <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle className="text-sm font-bold">Ambiente de Pré-visualização</AlertTitle>
-                    <AlertDescription className="text-xs">
-                      Os links abaixo usam a URL de teste que <strong>requer login no Lovable</strong>. 
-                      Para embeds públicos, acesse o site publicado e copie os links de lá, ou insira a URL pública abaixo.
-                    </AlertDescription>
-                  </Alert>
-                )}
+        <TabsContent value="embed" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Code2 className="h-5 w-5 text-primary" />
+                Links e Códigos Embed
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Use estes links para incorporar páginas em sites externos.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isPreview && (
+                <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+                  <AlertTriangle className="h-4 w-4 text-destructive" />
+                  <AlertTitle className="text-sm font-bold text-destructive">Atenção: Ambiente de Pré-visualização</AlertTitle>
+                  <AlertDescription className="text-xs text-destructive-foreground">
+                    <p className="mb-2">Os links abaixo usam a URL de teste (<strong>{window.location.origin}</strong>) que requer login no Lovable e <strong>NÃO funcionará em seu site externo</strong>.</p>
+                    <p>Para o embed funcionar corretamente, use a URL publicada: <strong className="underline">https://r2-vault-craft.lovable.app</strong> ou insira-a no campo abaixo.</p>
+                  </AlertDescription>
+                </Alert>
+              )}
 
-                <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold">URL Base para Links (Opcional)</Label>
-                    <div className="flex gap-2">
-                      <Input 
-                        placeholder="Ex: https://meusite.com" 
-                        value={customBaseUrl} 
-                        onChange={(e) => setCustomBaseUrl(e.target.value)}
-                        className="text-xs h-8"
-                      />
-                      {customBaseUrl && (
-                        <Button variant="ghost" size="sm" onClick={() => setCustomBaseUrl('')} className="h-8 px-2 text-xs">
-                          Resetar
-                        </Button>
-                      )}
-                    </div>
-                    <p className="text-[10px] text-muted-foreground italic">
-                      Deixe vazio para usar a URL atual: {window.location.origin}
-                    </p>
+              <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold">URL Base para Links (Opcional)</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder="Ex: https://meusite.com" 
+                      value={customBaseUrl} 
+                      onChange={(e) => setCustomBaseUrl(e.target.value)}
+                      className="text-xs h-8"
+                    />
+                    {customBaseUrl && (
+                      <Button variant="ghost" size="sm" onClick={() => setCustomBaseUrl('')} className="h-8 px-2 text-xs">
+                        Resetar
+                      </Button>
+                    )}
                   </div>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    Deixe vazio para usar a URL atual: {window.location.origin}
+                  </p>
+                </div>
 
-                  <div className="flex flex-wrap gap-4 pt-2 border-t border-border/50">
-                    <div className="flex items-center gap-2">
-                      <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
-                      <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
-                    </div>
-                    <div className="flex items-center gap-2 border-l border-border pl-4">
-                      <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
-                      <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
-                    </div>
+                <div className="flex flex-wrap gap-4 pt-2 border-t border-border/50">
+                  <div className="flex items-center gap-2">
+                    <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
+                    <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
+                  </div>
+                  <div className="flex items-center gap-2 border-l border-border pl-4">
+                    <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
+                    <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
                   </div>
                 </div>
-                {EMBED_PAGES.map((page, idx) => (
-                  <div key={idx} className="rounded-lg border border-border p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-foreground">{page.name}</h3>
-                      <Badge variant="outline" className="text-xs">{page.path}</Badge>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">Link direto</Label>
-                      <div className="flex items-center gap-2">
-                        <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-muted/50" />
-                        <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyLink(idx, page.path)}>
-                          {copiedIdx === 100 + idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">Código embed (iframe)</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          readOnly
-                          value={getEmbedCode(page.path)}
-                          className="font-mono text-xs bg-muted/50"
-                        />
-                        <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyEmbed(idx, page.path)} title="Copiar embed">
-                          {copiedIdx === idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-                        </Button>
-                        <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyFixedEmbed(idx, page.path)} title="Copiar embed tela cheia">
-                          {copiedIdx === 200 + idx ? <Check className="h-4 w-4 text-primary" /> : <RefreshCw className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">
-                        Use <RefreshCw className="h-3 w-3 inline" /> para gerar embed que ocupa 100% da tela.
-                      </p>
+              </div>
+              {EMBED_PAGES.map((page, idx) => (
+                <div key={idx} className="rounded-lg border border-border p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-foreground">{page.name}</h3>
+                    <Badge variant="outline" className="text-xs">{page.path}</Badge>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Link direto</Label>
+                    <div className="flex items-center gap-2">
+                      <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-muted/50" />
+                      <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyLink(idx, page.path)}>
+                        {copiedIdx === 100 + idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                      </Button>
                     </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Código embed (iframe)</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        readOnly
+                        value={getEmbedCode(page.path)}
+                        className="font-mono text-xs bg-muted/50"
+                      />
+                      <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyEmbed(idx, page.path)} title="Copiar embed">
+                        {copiedIdx === idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                      <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyFixedEmbed(idx, page.path)} title="Copiar embed tela cheia">
+                        {copiedIdx === 200 + idx ? <Check className="h-4 w-4 text-primary" /> : <RefreshCw className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Use <RefreshCw className="h-3 w-3 inline" /> para gerar embed que ocupa 100% da tela.
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Edit dialog */}
@@ -728,6 +727,17 @@ export default function UsersPage() {
               <p className="text-sm text-muted-foreground">
                 Sua sessão atual será encerrada. Para voltar à sua conta, use o botão "Sair da impersonação" no banner do topo e faça login novamente.
               </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImpersonateTarget(null)} disabled={impersonateSubmitting}>Cancelar</Button>
+            <Button onClick={handleImpersonate} disabled={impersonateSubmitting}>
+              {impersonateSubmitting ? 'Entrando...' : 'Entrar como usuário'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Approval confirmation dialog */}
       <Dialog open={!!showApprovalConfirm} onOpenChange={(v) => { if (!v) setShowApprovalConfirm(null); }}>
         <DialogContent>
@@ -752,16 +762,6 @@ export default function UsersPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowApprovalConfirm(null)}>Cancelar</Button>
             <Button onClick={() => handleApprove(showApprovalConfirm?.req)}>Confirmar Aprovação</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setImpersonateTarget(null)} disabled={impersonateSubmitting}>Cancelar</Button>
-            <Button onClick={handleImpersonate} disabled={impersonateSubmitting}>
-              {impersonateSubmitting ? 'Entrando...' : 'Entrar como usuário'}
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
