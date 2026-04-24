@@ -10,7 +10,7 @@ import { CalendarDays, CheckCircle2, Clock, AlertCircle, Plus, ChevronLeft, Chev
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
+
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -18,7 +18,7 @@ import EventFormDialog from '@/components/EventFormDialog';
 import EventDetailPanel from '@/components/EventDetailPanel';
 import ConflictDialog from '@/components/ConflictDialog';
 import FilteredEventsDialog from '@/components/FilteredEventsDialog';
-import BulkActionBar from '@/components/BulkActionBar';
+
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -46,27 +46,6 @@ export default function Dashboard() {
   
   const [showConflicts, setShowConflicts] = useState(false);
   const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
-  const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
-
-  const toggleEventSelection = (id: string) => {
-    setSelectedEvents(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
-  const handleBulkDelete = () => {
-    selectedEvents.forEach(id => deleteEvent(id));
-    setSelectedEvents(new Set());
-  };
-
-  const handleBulkStatusChange = (status: EventStatus) => {
-    events.filter(e => selectedEvents.has(e.id)).forEach(e => {
-      updateEvent({ ...e, status, updated_at: new Date().toISOString() });
-    });
-    setSelectedEvents(new Set());
-  };
 
   const monthStart = startOfMonth(selectedMonth);
   const monthEnd = endOfMonth(selectedMonth);
@@ -218,16 +197,6 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Bulk action bar for events */}
-      {canEdit && (
-        <BulkActionBar
-          type="events"
-          count={selectedEvents.size}
-          onClearSelection={() => setSelectedEvents(new Set())}
-          onDelete={handleBulkDelete}
-          onChangeStatus={handleBulkStatusChange}
-        />
-      )}
 
       {/* Timeline da Semana Atual */}
       <Card>
@@ -252,14 +221,6 @@ export default function Dashboard() {
             <div className="space-y-1.5 sm:space-y-2">
               {weekEvents.slice(0, 6).map(e => (
                 <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
-                  {canEdit && (
-                    <Checkbox
-                      checked={selectedEvents.has(e.id)}
-                      onCheckedChange={() => toggleEventSelection(e.id)}
-                      onClick={(ev) => ev.stopPropagation()}
-                      className="h-4 w-4"
-                    />
-                  )}
                   <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
                     <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
                     <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
