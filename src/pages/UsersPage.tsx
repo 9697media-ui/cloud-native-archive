@@ -276,7 +276,7 @@ export default function UsersPage() {
   };
 
   const handleCopyLink = (idx: number, path: string) => {
-    navigator.clipboard.writeText(`${baseUrl}${path}`);
+    navigator.clipboard.writeText(getUrl(path));
     setCopiedIdx(100 + idx);
     toast({ title: 'Copiado!', description: 'Link copiado.' });
     setTimeout(() => setCopiedIdx(null), 2000);
