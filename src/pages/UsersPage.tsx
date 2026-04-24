@@ -745,25 +745,24 @@ export default function UsersPage() {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2">
-                    <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
-                    <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
-                    <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
-                    <Label htmlFor="show-header" className="text-sm cursor-pointer">Habilitar cabeçalho</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
-                    <Label htmlFor="show-title" className="text-sm cursor-pointer">Habilitar título da página</Label>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
+                  <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
+                  <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
+                  <Label htmlFor="show-header" className="text-sm cursor-pointer">Habilitar cabeçalho</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
+                  <Label htmlFor="show-title" className="text-sm cursor-pointer">Habilitar título da página</Label>
+                </div>
+              </div>
               {EMBED_PAGES.map((page, idx) => (
                 <div key={idx} className="rounded-lg border border-border p-4 space-y-3">
                   <div className="flex items-center justify-between">
