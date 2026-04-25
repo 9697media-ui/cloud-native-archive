@@ -589,7 +589,7 @@ export default function UsersPage() {
     <div className="animate-fade-in space-y-6">
       {!hideTitleParam && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-bold text-foreground">Administração</h1>
+          <h1 className="text-2xl font-bold text-foreground">Painel</h1>
         </div>
       )}
 
