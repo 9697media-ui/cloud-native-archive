@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
+import { isLovableBuilder } from '@/lib/utils';
+import { mockUsers } from '@/data/mockData';
 
 export interface DbUser {
   user_id: string;
@@ -9,6 +11,7 @@ export interface DbUser {
   role: string | null;
   permission_level: string | null;
   unit: string | null;
+  is_active: boolean;
   created_at: string;
 }
 
@@ -53,7 +56,22 @@ export function useDbUsers() {
         created_at: p.created_at,
       }));
 
-      setDbUsers(users);
+      // Add test profiles if in Lovable builder
+      if (isLovableBuilder()) {
+        const testUsers: DbUser[] = mockUsers.map(u => ({
+          user_id: u.id,
+          name: `${u.name} (Teste)`,
+          email: u.email,
+          role: u.permission_level === 'admin_geral' ? 'admin' : null,
+          permission_level: u.permission_level,
+          unit: u.unit,
+          is_active: u.is_active,
+          created_at: u.created_at,
+        }));
+        setDbUsers([...testUsers, ...users]);
+      } else {
+        setDbUsers(users);
+      }
     } catch (error: any) {
       console.error('Error fetching users:', error);
     } finally {
