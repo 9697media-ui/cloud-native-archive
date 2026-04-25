@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import ImpersonationBanner from '@/components/ImpersonationBanner';
+import TestModeBanner, { TestModeTrigger } from '@/components/TestModeBanner';
 
 interface NavItem {
   to: string;
