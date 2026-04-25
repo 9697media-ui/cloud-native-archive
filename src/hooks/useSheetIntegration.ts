@@ -8,33 +8,48 @@ function parseCSV(text: string): Record<string, string>[] {
   let current = '';
   let inQuotes = false;
 
-  // Normalizar quebras de linha para \n e remover \r
-  const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // Normalizar quebras de linha preservando o conteúdo
+  const chars = Array.from(text);
+  
+  for (let i = 0; i < chars.length; i++) {
+    const ch = chars[i];
+    const next = chars[i + 1];
 
-  for (let i = 0; i < normalizedText.length; i++) {
-    const ch = normalizedText[i];
     if (ch === '"') {
-      if (inQuotes && normalizedText[i + 1] === '"') {
+      if (inQuotes && next === '"') {
         current += '"';
-        i++;
+        i++; // pular as próximas aspas
       } else {
         inQuotes = !inQuotes;
       }
     } else if (ch === '\n' && !inQuotes) {
       lines.push(current);
       current = '';
+    } else if (ch === '\r' && !inQuotes) {
+      if (next === '\n') i++;
+      lines.push(current);
+      current = '';
     } else {
       current += ch;
     }
   }
-  if (current.length > 0) lines.push(current);
+  if (current || text.endsWith('\n') || text.endsWith('\r')) lines.push(current);
 
-  if (lines.length < 2) return [];
+  if (lines.length < 1) return [];
 
-  // Detectar delimitador (vírgula ou ponto-e-vírgula)
-  const firstLine = lines[0];
-  const commaCount = (firstLine.match(/,/g) || []).length;
-  const semiCount = (firstLine.match(/;/g) || []).length;
+  // Detectar delimitador com base na primeira linha (ignorando o que está entre aspas)
+  const firstLineRaw = lines[0];
+  let commaCount = 0;
+  let semiCount = 0;
+  let tempInQuotes = false;
+  
+  for (const ch of firstLineRaw) {
+    if (ch === '"') tempInQuotes = !tempInQuotes;
+    else if (!tempInQuotes) {
+      if (ch === ',') commaCount++;
+      else if (ch === ';') semiCount++;
+    }
+  }
   const delimiter = semiCount > commaCount ? ';' : ',';
 
   const parseRow = (row: string): string[] => {
@@ -61,14 +76,20 @@ function parseCSV(text: string): Record<string, string>[] {
     return cells;
   };
 
-  const headers = parseRow(lines[0]).map(h => h.trim());
-  return lines.slice(1).map(line => {
+  const rawHeaders = parseRow(lines[0]);
+  const headers = rawHeaders.map(h => h.trim().replace(/^"|"$/g, ''));
+  
+  return lines.slice(1).filter(line => line.trim() !== '').map(line => {
     const values = parseRow(line);
     const obj: Record<string, string> = {};
     headers.forEach((h, i) => {
-      // Garantir que h não seja vazio para evitar erros de indexação
       const key = h || `Coluna_${i}`;
-      obj[key] = (values[i] ?? '').trim();
+      let val = (values[i] ?? '').trim();
+      // Remover aspas extras se o parseRow não removeu tudo
+      if (val.startsWith('"') && val.endsWith('"')) {
+        val = val.substring(1, val.length - 1).replace(/""/g, '"');
+      }
+      obj[key] = val;
     });
     return obj;
   });
