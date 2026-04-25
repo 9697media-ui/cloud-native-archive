@@ -61,7 +61,6 @@ const App = () => (
           </AppProvider>
         </TestViewProvider>
       </AuthProvider>
-      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
