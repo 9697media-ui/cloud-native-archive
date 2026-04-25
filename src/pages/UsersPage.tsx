@@ -62,6 +62,10 @@ export default function UsersPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  const displayRequests = useMemo(() => {
+    if (isAdmin || isManager) return requests;
+    return requests.filter(r => r.user_id === currentUser?.id);
+  }, [requests, isAdmin, isManager, currentUser]);
   const [showEdit, setShowEdit] = useState(false);
   const [editForm, setEditForm] = useState<AppUser | null>(null);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
@@ -601,7 +605,12 @@ export default function UsersPage() {
             )}
           </TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
-          <TabsTrigger value="embed" className="gap-1.5"><Code2 className="h-3.5 w-3.5" />Embed</TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="embed" className="gap-1.5">
+              <Code2 className="h-3.5 w-3.5" />
+              Embed
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Approval panel */}
@@ -610,23 +619,25 @@ export default function UsersPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Clock className="h-5 w-5 text-primary" />
-                Solicitações de Acesso Pendentes
+                {isAdmin || isManager ? 'Solicitações de Acesso Pendentes' : 'Minha Solicitação de Acesso'}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Novos usuários que solicitaram acesso ao sistema aguardam sua aprovação.
+                {isAdmin || isManager 
+                  ? 'Novos usuários que solicitaram acesso ao sistema aguardam sua aprovação.'
+                  : 'Sua solicitação de acesso ao sistema está em análise. Você será notificado assim que um administrador aprovar seu acesso.'}
               </p>
             </CardHeader>
             <CardContent>
               {requestsLoading ? (
                 <p className="text-sm text-muted-foreground">Carregando...</p>
-              ) : requests.length === 0 ? (
+              ) : displayRequests.length === 0 ? (
                 <div className="text-center py-8">
                   <UserCheck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">Nenhuma solicitação pendente</p>
+                  <p className="text-sm text-muted-foreground">{isAdmin || isManager ? 'Nenhuma solicitação pendente' : 'Você não possui solicitações de acesso pendentes'}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {requests.map(req => (
+                  {displayRequests.map(req => (
                     <div key={req.id} className="flex flex-col gap-4 rounded-lg border border-border p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -754,7 +765,8 @@ export default function UsersPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="embed" className="mt-4">
+        {isAdmin && (
+          <TabsContent value="embed" className="mt-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -857,7 +869,8 @@ export default function UsersPage() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+      )}
+    </Tabs>
 
       {/* Edit dialog */}
       <Dialog open={showEdit} onOpenChange={(v) => { setShowEdit(v); if (!v) setSelectedUser(null); }}>
