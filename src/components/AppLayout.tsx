@@ -133,7 +133,7 @@ export default function AppLayout() {
         <main className="flex-1 overflow-auto p-4">
           <Outlet />
         </main>
-        <FAB />
+        {!hideHeaderParam && <FAB />}
       </div>
     );
   }
