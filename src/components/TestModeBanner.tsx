@@ -29,21 +29,21 @@ export default function TestModeBanner() {
     toast.success('Voltou para sua visualização normal');
   };
 
-  // Active mode → red banner with reset button
+  // Active mode → banner with reset button
   if (activePersona) {
     return (
-      <div className="sticky top-0 z-[60] w-full bg-amber-500 text-amber-950 border-b border-amber-600">
+      <div className="sticky top-0 z-[60] w-full bg-primary text-primary-foreground border-b border-primary/50">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 lg:px-8">
           <div className="flex items-center gap-2 text-sm font-medium">
             <FlaskConical className="h-4 w-4 shrink-0" />
             <span>
-              Modo teste ativo — visualizando como <strong>{activePersona.name}</strong> ({activePersona.permission_level} · {activePersona.unit})
+              Modo teste — visualizando como <strong>{activePersona.name}</strong> ({activePersona.permission_level} · {activePersona.unit})
             </span>
           </div>
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1.5 bg-white hover:bg-amber-50 border-amber-600 text-amber-950">
+                <Button variant="secondary" size="sm" className="gap-1.5">
                   Trocar perfil
                   <ChevronDown className="h-3.5 w-3.5" />
                 </Button>
@@ -66,10 +66,10 @@ export default function TestModeBanner() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button
-              variant="default"
+              variant="destructive"
               size="sm"
               onClick={handleReset}
-              className="gap-1.5 bg-amber-950 hover:bg-amber-900 text-amber-50"
+              className="gap-1.5"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               Resetar
@@ -80,7 +80,6 @@ export default function TestModeBanner() {
     );
   }
 
-  // Inactive mode → just the test trigger button (rendered inline elsewhere)
   return null;
 }
 
