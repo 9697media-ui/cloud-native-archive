@@ -325,7 +325,15 @@ export default function UsersPage() {
   }, [filtered]);
 
 
-  const baseUrl = window.location.origin;
+  const baseUrl = useMemo(() => {
+    const origin = window.location.origin;
+    // Se estiver no ambiente de preview do Lovable, sugerimos a URL de produção para os embeds
+    // Isso evita que ao colar o embed em outro site, peça login no Lovable
+    if (origin.includes('lovable.app') && (origin.includes('-preview--') || origin.includes('lovableproject.com'))) {
+      return 'https://r2-vault-craft.lovable.app';
+    }
+    return origin;
+  }, []);
 
   const handleEdit = (user: AppUser) => {
     setSelectedUser(user);
@@ -756,6 +764,17 @@ export default function UsersPage() {
               <p className="text-sm text-muted-foreground">
                 Use estes links para incorporar páginas em sites externos.
               </p>
+              {window.location.origin.includes('-preview--') && (
+                <Alert className="bg-primary/5 border-primary/10">
+                  <Eye className="h-4 w-4 text-primary" />
+                  <AlertTitle className="text-primary text-xs font-semibold">Nota de Publicação</AlertTitle>
+                  <AlertDescription className="text-muted-foreground text-[11px]">
+                    Detectamos que você está no ambiente de visualização. Os links abaixo já foram 
+                    ajustados para usar o domínio público <strong>r2-vault-craft.lovable.app</strong> para que 
+                    não peçam login do Lovable ao serem incorporados.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
