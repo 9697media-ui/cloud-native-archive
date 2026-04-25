@@ -27,6 +27,16 @@ export function useUserRole() {
   const [isActive, setIsActive] = useState<boolean>(true);
 
   useEffect(() => {
+    // If a test persona is active, use it instead of real DB role
+    if (activePersona) {
+      setRole(activePersona.role);
+      setUserName(activePersona.name);
+      setIsActive(activePersona.is_active);
+      setAccessStatus(activePersona.role ? 'approved' : 'pending');
+      setLoading(false);
+      return;
+    }
+
     if (!isAuthenticated || !user) {
       setRole(null);
       setLoading(false);
