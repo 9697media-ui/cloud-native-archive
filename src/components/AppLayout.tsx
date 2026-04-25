@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -8,6 +8,14 @@ import { useIsEmbedded } from '@/hooks/useIsEmbedded';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import ImpersonationBanner from '@/components/ImpersonationBanner';
 
 interface NavItem {
@@ -73,89 +81,59 @@ export default function AppLayout() {
     </>
   );
 
+  const FAB = () => (
+    <div className="fixed bottom-6 right-6 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {isAuthenticated ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="default" 
+              size="icon" 
+              className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 transition-transform active:scale-95 border-2 border-primary-foreground/20"
+            >
+              <UserCircle className="h-7 w-7" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 mb-2">
+            <DropdownMenuLabel className="flex flex-col">
+              <span className="text-xs font-normal text-muted-foreground truncate">{user?.email}</span>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to={`/usuarios${location.search}`} className="flex items-center gap-2 cursor-pointer py-2">
+                <Users className="h-4 w-4" />
+                <span>Administração</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 cursor-pointer py-2 text-destructive focus:text-destructive">
+              <LogOut className="h-4 w-4" />
+              <span>Sair</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
+          <Button 
+            variant="default" 
+            size="icon" 
+            className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 border-2 border-primary-foreground/20"
+          >
+            <LogIn className="h-7 w-7" />
+          </Button>
+        </Link>
+      )}
+    </div>
+  );
+
   if (isCleanView) {
     return (
-      <div className="h-full flex flex-col bg-background">
+      <div className="h-full flex flex-col bg-background relative">
         <ImpersonationBanner />
-        <main className={cn("flex-1 overflow-auto p-4", !hideFooterParam && "pb-14")}>
+        <main className="flex-1 overflow-auto p-4">
           <Outlet />
         </main>
-        {!hideFooterParam && (
-          <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/80 backdrop-blur-sm p-2 px-4 flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
-                <Calendar className="h-3 w-3 text-primary-foreground" />
-              </div>
-              <span className="text-[10px] font-bold tracking-tight text-foreground uppercase sm:text-xs">
-                Central ANA
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              {isAuthenticated ? (
-                <div className="flex items-center gap-2">
-                  <span className="hidden text-[10px] text-muted-foreground sm:inline truncate max-w-[100px]">
-                    {user?.email}
-                  </span>
-                  
-                  {isAuthenticated && (
-                    <Link to={`/usuarios${location.search}`} className="transition-transform active:scale-95">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-8 gap-1.5 text-xs font-semibold bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
-                      >
-                        <Users className="h-3.5 w-3.5" />
-                        Administração
-                      </Button>
-                    </Link>
-                  )}
-
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => signOut()} 
-                    className="h-8 gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-                  >
-                    <LogOut className="h-3.5 w-3.5" />
-                    Sair
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1">
-                  {showLoginLocal && (
-                    <a 
-                      href={`/login?redirect=${encodeURIComponent(location.pathname)}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="transition-transform active:scale-95"
-                    >
-                      <Button 
-                        variant="default" 
-                        size="sm" 
-                        className="h-8 gap-1.5 bg-primary text-xs font-semibold shadow-sm hover:bg-primary/90"
-                      >
-                        <LogIn className="h-3.5 w-3.5" />
-                        Login Admin
-                      </Button>
-                    </a>
-                  )}
-                  {!hideLoginParam && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setShowLoginLocal(!showLoginLocal)}
-                      className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 transition-opacity"
-                      title={showLoginLocal ? "Ocultar login" : "Mostrar login"}
-                    >
-                      <Settings className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
-          </footer>
-        )}
+        <FAB />
       </div>
     );
   }
@@ -241,54 +219,7 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      {!isEmbedded && (
-        <footer className="border-t border-border bg-card/50 py-8 mt-auto">
-          <div className="mx-auto max-w-7xl px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
-                  <Calendar className="h-3 w-3 text-primary-foreground" />
-                </div>
-                <span className="text-sm font-bold tracking-tight text-foreground uppercase">
-                  Central ANA
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground max-w-xs">
-                Portal de transparência e agendamentos da Central ANA.
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 justify-center md:justify-end">
-              <div className="flex items-center gap-6 text-sm font-medium">
-                <Link to={`/${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Visão Geral</Link>
-                <Link to={`/calendario${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Calendário</Link>
-              </div>
-              
-              <div className="flex items-center gap-4 border-l border-border pl-6">
-                {!isAuthenticated ? (
-                  <Link to="/login">
-                    <Button variant="outline" size="sm" className="gap-1.5 h-8">
-                      <LogIn className="h-3.5 w-3.5" />
-                      Login Admin
-                    </Button>
-                  </Link>
-                ) : (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="hidden sm:inline">{user?.email}</span>
-                    <Button variant="ghost" size="sm" onClick={() => signOut()} className="h-8 p-0 px-2 text-muted-foreground hover:text-foreground">
-                      Sair
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="mx-auto max-w-7xl px-4 lg:px-8 mt-8 pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-muted-foreground uppercase tracking-widest">
-            <p>© {new Date().getFullYear()} Central ANA. Todos os direitos reservados.</p>
-            <p>Desenvolvido para transparência ativa</p>
-          </div>
-        </footer>
-      )}
+      <FAB />
     </div>
   );
 }
