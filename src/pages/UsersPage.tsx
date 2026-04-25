@@ -601,7 +601,12 @@ export default function UsersPage() {
             )}
           </TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
-          <TabsTrigger value="embed" className="gap-1.5"><Code2 className="h-3.5 w-3.5" />Embed</TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="embed" className="gap-1.5">
+              <Code2 className="h-3.5 w-3.5" />
+              Embed
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Approval panel */}
@@ -610,10 +615,12 @@ export default function UsersPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Clock className="h-5 w-5 text-primary" />
-                Solicitações de Acesso Pendentes
+                {isAdmin || isManager ? 'Solicitações de Acesso Pendentes' : 'Minha Solicitação de Acesso'}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Novos usuários que solicitaram acesso ao sistema aguardam sua aprovação.
+                {isAdmin || isManager 
+                  ? 'Novos usuários que solicitaram acesso ao sistema aguardam sua aprovação.'
+                  : 'Sua solicitação de acesso ao sistema está em análise. Você será notificado assim que um administrador aprovar seu acesso.'}
               </p>
             </CardHeader>
             <CardContent>
