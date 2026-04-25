@@ -100,7 +100,7 @@ export function TestModeTrigger() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5 border-amber-500 text-amber-700 hover:bg-amber-50 hover:text-amber-800">
+        <Button variant="outline" size="sm" className="gap-1.5 border-primary/50 text-primary hover:bg-primary/10">
           <FlaskConical className="h-4 w-4" />
           <span className="hidden sm:inline">Teste</span>
         </Button>
