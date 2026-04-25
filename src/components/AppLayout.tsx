@@ -126,20 +126,8 @@ export default function AppLayout() {
     </div>
   );
 
-  if (isCleanView) {
-    return (
-      <div className="h-full flex flex-col bg-background relative">
-        {!hideHeaderParam && <ImpersonationBanner />}
-        <main className="flex-1 overflow-auto p-4">
-          <Outlet />
-        </main>
-        {!hideHeaderParam && <FAB />}
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className={cn("flex min-h-screen flex-col bg-background", isCleanView && "h-full")}>
       <ImpersonationBanner />
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 lg:px-8">
