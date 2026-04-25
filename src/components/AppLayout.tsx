@@ -219,54 +219,7 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      {!isEmbedded && (
-        <footer className="border-t border-border bg-card/50 py-8 mt-auto">
-          <div className="mx-auto max-w-7xl px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
-                  <Calendar className="h-3 w-3 text-primary-foreground" />
-                </div>
-                <span className="text-sm font-bold tracking-tight text-foreground uppercase">
-                  Central ANA
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground max-w-xs">
-                Portal de transparência e agendamentos da Central ANA.
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 justify-center md:justify-end">
-              <div className="flex items-center gap-6 text-sm font-medium">
-                <Link to={`/${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Visão Geral</Link>
-                <Link to={`/calendario${location.search}`} className="text-muted-foreground hover:text-foreground transition-colors">Calendário</Link>
-              </div>
-              
-              <div className="flex items-center gap-4 border-l border-border pl-6">
-                {!isAuthenticated ? (
-                  <Link to="/login">
-                    <Button variant="outline" size="sm" className="gap-1.5 h-8">
-                      <LogIn className="h-3.5 w-3.5" />
-                      Login Admin
-                    </Button>
-                  </Link>
-                ) : (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="hidden sm:inline">{user?.email}</span>
-                    <Button variant="ghost" size="sm" onClick={() => signOut()} className="h-8 p-0 px-2 text-muted-foreground hover:text-foreground">
-                      Sair
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="mx-auto max-w-7xl px-4 lg:px-8 mt-8 pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-muted-foreground uppercase tracking-widest">
-            <p>© {new Date().getFullYear()} Central ANA. Todos os direitos reservados.</p>
-            <p>Desenvolvido para transparência ativa</p>
-          </div>
-        </footer>
-      )}
+      <FAB />
     </div>
   );
 }
