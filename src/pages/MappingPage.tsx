@@ -104,13 +104,13 @@ export default function MappingPage() {
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
       
       if (targetIndex >= 0 && targetIndex < updated.length) {
-        // Trocar as ordens para manter a integridade
-        const tempOrder = updated[index].order;
-        updated[index].order = updated[targetIndex].order;
-        updated[targetIndex].order = tempOrder;
+        // Swap elements in the array
+        const temp = updated[index];
+        updated[index] = updated[targetIndex];
+        updated[targetIndex] = temp;
         
-        // Também trocar as posições no array para refletir a interface
-        [updated[index], updated[targetIndex]] = [updated[targetIndex], updated[index]];
+        // Update the 'order' property to match the new array position
+        return updated.map((m, i) => ({ ...m, order: i }));
       }
       return updated;
     });
@@ -180,7 +180,7 @@ export default function MappingPage() {
               </TableHeader>
             <TableBody>
               {mappings.map((mapping, idx) => (
-                <TableRow key={idx}>
+                <TableRow key={mapping.sheetField}>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium truncate max-w-[300px]" title={mapping.sheetField}>

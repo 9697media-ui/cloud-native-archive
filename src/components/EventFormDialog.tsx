@@ -54,10 +54,20 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
   useEffect(() => {
     if (event) {
+      const formatDate = (dateStr: string) => {
+        try {
+          const d = new Date(dateStr);
+          if (isNaN(d.getTime())) return '';
+          return d.toISOString().slice(0, 16);
+        } catch (e) {
+          return '';
+        }
+      };
+
       setForm({
         ...event,
-        start_datetime: event.start_datetime.slice(0, 16),
-        end_datetime: event.end_datetime.slice(0, 16),
+        start_datetime: formatDate(event.start_datetime),
+        end_datetime: formatDate(event.end_datetime),
       });
     } else {
       setForm(emptyEvent());
