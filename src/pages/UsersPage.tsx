@@ -67,10 +67,10 @@ export default function UsersPage() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
-  const [hideLogin, setHideLogin] = useState(false);
-  const [hideFooter, setHideFooter] = useState(false);
-  const [hideHeader, setHideHeader] = useState(false);
-  const [hideTitle, setHideTitle] = useState(false);
+  const [hideLogin, setHideLogin] = useState(true);
+  const [hideFooter, setHideFooter] = useState(true);
+  const [hideHeader, setHideHeader] = useState(true);
+  const [hideTitle, setHideTitle] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bulkDelete, setBulkDelete] = useState(false);
 
