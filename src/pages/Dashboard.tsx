@@ -51,7 +51,8 @@ export default function Dashboard() {
   const monthEnd = endOfMonth(selectedMonth);
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
   const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 });
-  const threeDaysAgo = subDays(new Date(), 3);
+  
+  const threeDaysAgo = useMemo(() => subDays(new Date(), 3), []);
 
   const monthEvents = useMemo(() => events.filter(e => {
     const d = new Date(e.start_datetime);
