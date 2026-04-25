@@ -757,23 +757,46 @@ export default function UsersPage() {
                 Use estes links para incorporar páginas em sites externos.
               </p>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center gap-2">
-                  <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
-                  <Label htmlFor="hide-login" className="text-sm cursor-pointer">Ocultar botão de login</Label>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
+                    <Label htmlFor="show-header" className="text-sm font-medium cursor-pointer">Habilitar cabeçalho</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-11">
+                    Exibe a barra de navegação superior, incluindo o menu e links de acesso.
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
-                  <Label htmlFor="hide-footer" className="text-sm cursor-pointer">Ocultar rodapé completo</Label>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
+                    <Label htmlFor="show-title" className="text-sm font-medium cursor-pointer">Habilitar título da página</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-11">
+                    Exibe o título principal (H1) no topo do conteúdo de cada página.
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
-                  <Label htmlFor="show-header" className="text-sm cursor-pointer">Habilitar cabeçalho</Label>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Switch id="hide-menu" checked={hideHeader} onCheckedChange={setHideHeader} />
+                    <Label htmlFor="hide-menu" className="text-sm font-medium cursor-pointer">Ocultar head/menu</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-11">
+                    Remove completamente o cabeçalho e menu de navegação do topo.
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
-                  <Label htmlFor="show-title" className="text-sm cursor-pointer">Habilitar título da página</Label>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
+                    <Label htmlFor="hide-login" className="text-sm font-medium cursor-pointer">Ocultar botão de login</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-11">
+                    Remove o botão de login administrativo para visualização pública.
+                  </p>
                 </div>
               </div>
               {EMBED_PAGES.map((page, idx) => (
