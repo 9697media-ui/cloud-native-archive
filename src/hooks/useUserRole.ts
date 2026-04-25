@@ -98,7 +98,7 @@ export function useUserRole() {
     };
 
     fetchRole();
-  }, [user, isAuthenticated]);
+  }, [user, isAuthenticated, activePersona]);
 
   const isAdmin = role === 'admin';
   const isManager = role === 'editor' || role === 'admin';
