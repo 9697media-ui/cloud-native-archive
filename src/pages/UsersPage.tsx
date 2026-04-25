@@ -765,10 +765,10 @@ export default function UsersPage() {
                 Use estes links para incorporar páginas em sites externos.
               </p>
               {window.location.origin.includes('-preview--') && (
-                <Alert className="bg-blue-50 border-blue-200">
-                  <Eye className="h-4 w-4 text-blue-600" />
-                  <AlertTitle className="text-blue-800 text-xs font-semibold">Nota de Publicação</AlertTitle>
-                  <AlertDescription className="text-blue-700 text-[11px]">
+                <Alert className="bg-primary/5 border-primary/10">
+                  <Eye className="h-4 w-4 text-primary" />
+                  <AlertTitle className="text-primary text-xs font-semibold">Nota de Publicação</AlertTitle>
+                  <AlertDescription className="text-muted-foreground text-[11px]">
                     Detectamos que você está no ambiente de visualização. Os links abaixo já foram 
                     ajustados para usar o domínio público <strong>r2-vault-craft.lovable.app</strong> para que 
                     não peçam login do Lovable ao serem incorporados.
