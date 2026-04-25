@@ -126,100 +126,93 @@ export default function AppLayout() {
     </div>
   );
 
-  if (isCleanView) {
-    return (
-      <div className="h-full flex flex-col bg-background relative">
-        <ImpersonationBanner />
-        <main className="flex-1 overflow-auto p-4">
-          <Outlet />
-        </main>
-        <FAB />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <ImpersonationBanner />
-      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-        <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 lg:px-8">
-          {isMobile && (
-            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="shrink-0">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[280px] p-0">
-                <SheetHeader className="p-6 text-left">
-                  <SheetTitle className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                      <Calendar className="h-4 w-4 text-primary-foreground" />
-                    </div>
-                    <span>Central ANA</span>
-                  </SheetTitle>
-                </SheetHeader>
-                <nav className="flex flex-col gap-1 px-2">
-                  <NavContent onClick={() => setIsMenuOpen(false)} />
-                </nav>
-                <div className="absolute bottom-4 left-0 w-full px-6">
-                  {isAuthenticated && (
-                    <div className="flex flex-col gap-4 border-t border-border pt-4">
-                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                      <Button variant="outline" size="sm" onClick={() => signOut()} className="w-full justify-start gap-2">
-                        <LogOut className="h-4 w-4" />
-                        Sair
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
-
-          <Link to={`/${location.search}`} className="flex items-center gap-2 shrink-0">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Calendar className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className={cn("text-sm font-semibold text-foreground", isMobile ? "inline" : "hidden sm:inline")}>
-              Central ANA
-            </span>
-          </Link>
-
-          {!isMobile && (
-            <nav className="flex items-center gap-1 flex-1">
-              <NavContent />
-            </nav>
-          )}
-
-          <div className="flex items-center gap-3 shrink-0 ml-auto">
-            {isAuthenticated ? (
-              <>
-                <span className="text-xs text-muted-foreground hidden md:inline">{user?.email}</span>
-                {!isMobile && (
-                  <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5">
-                    <LogOut className="h-4 w-4" />
-                    <span className="hidden sm:inline">Sair</span>
+    <div className={cn("flex min-h-screen flex-col bg-background", isCleanView && "h-full")}>
+      {!hideHeaderParam && <ImpersonationBanner />}
+      {!hideHeaderParam && (
+        <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+          <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 lg:px-8">
+            {isMobile && (
+              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="shrink-0">
+                    <Menu className="h-5 w-5" />
                   </Button>
-                )}
-              </>
-            ) : (
-              <Link to="/login">
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <LogIn className="h-4 w-4" />
-                  <span className="hidden sm:inline">Login Admin</span>
-                </Button>
-              </Link>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[280px] p-0">
+                  <SheetHeader className="p-6 text-left">
+                    <SheetTitle className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                        <Calendar className="h-4 w-4 text-primary-foreground" />
+                      </div>
+                      <span>Central ANA</span>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <nav className="flex flex-col gap-1 px-2">
+                    <NavContent onClick={() => setIsMenuOpen(false)} />
+                  </nav>
+                  <div className="absolute bottom-4 left-0 w-full px-6">
+                    {isAuthenticated && (
+                      <div className="flex flex-col gap-4 border-t border-border pt-4">
+                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                        <Button variant="outline" size="sm" onClick={() => signOut()} className="w-full justify-start gap-2">
+                          <LogOut className="h-4 w-4" />
+                          Sair
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
             )}
-          </div>
-        </div>
-      </header>
 
-      <main className="flex-1 overflow-auto p-4 lg:p-8 mx-auto w-full max-w-7xl">
+            <Link to={`/${location.search}`} className="flex items-center gap-2 shrink-0">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <Calendar className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <span className={cn("text-sm font-semibold text-foreground", isMobile ? "inline" : "hidden sm:inline")}>
+                Central ANA
+              </span>
+            </Link>
+
+            {!isMobile && (
+              <nav className="flex items-center gap-1 flex-1">
+                <NavContent />
+              </nav>
+            )}
+
+            <div className="flex items-center gap-3 shrink-0 ml-auto">
+              {isAuthenticated ? (
+                <>
+                  <span className="text-xs text-muted-foreground hidden md:inline">{user?.email}</span>
+                  {!isMobile && (
+                    <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5">
+                      <LogOut className="h-4 w-4" />
+                      <span className="hidden sm:inline">Sair</span>
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <Link to="/login">
+                  <Button variant="outline" size="sm" className="gap-1.5">
+                    <LogIn className="h-4 w-4" />
+                    <span className="hidden sm:inline">Login Admin</span>
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </header>
+      )}
+
+      <main className={cn(
+        "flex-1 overflow-auto p-4",
+        !isCleanView && "lg:p-8 mx-auto w-full max-w-7xl"
+      )}>
         <Outlet />
       </main>
 
-      <FAB />
+      {!hideHeaderParam && <FAB />}
     </div>
   );
 }
