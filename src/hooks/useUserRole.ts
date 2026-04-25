@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTestView } from '@/contexts/TestViewContext';
 
 export type UserRole = 'admin' | 'editor' | 'viewer' | null;
 
@@ -18,6 +19,7 @@ export interface AccessRequest {
 
 export function useUserRole() {
   const { user, isAuthenticated } = useAuth();
+  const { activePersona } = useTestView();
   const [role, setRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
   const [accessStatus, setAccessStatus] = useState<string | null>(null);
@@ -25,6 +27,16 @@ export function useUserRole() {
   const [isActive, setIsActive] = useState<boolean>(true);
 
   useEffect(() => {
+    // If a test persona is active, use it instead of real DB role
+    if (activePersona) {
+      setRole(activePersona.role);
+      setUserName(activePersona.name);
+      setIsActive(activePersona.is_active);
+      setAccessStatus(activePersona.role ? 'approved' : 'pending');
+      setLoading(false);
+      return;
+    }
+
     if (!isAuthenticated || !user) {
       setRole(null);
       setLoading(false);
@@ -86,7 +98,7 @@ export function useUserRole() {
     };
 
     fetchRole();
-  }, [user, isAuthenticated]);
+  }, [user, isAuthenticated, activePersona]);
 
   const isAdmin = role === 'admin';
   const isManager = role === 'editor' || role === 'admin';

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { TestViewProvider } from "@/contexts/TestViewContext";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import CalendarPage from "./pages/CalendarPage";
@@ -37,26 +38,28 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <AppProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={
-                <AuthRedirect><LoginPage /></AuthRedirect>
-              } />
-              <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/calendario" element={<CalendarPage />} />
-                <Route path="/usuarios" element={
-                  <ProtectedRoute><UsersPage /></ProtectedRoute>
+        <TestViewProvider>
+          <AppProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={
+                  <AuthRedirect><LoginPage /></AuthRedirect>
                 } />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </AppProvider>
+                <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/calendario" element={<CalendarPage />} />
+                  <Route path="/usuarios" element={
+                    <ProtectedRoute><UsersPage /></ProtectedRoute>
+                  } />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </AppProvider>
+        </TestViewProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
