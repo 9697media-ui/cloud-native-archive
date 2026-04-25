@@ -129,7 +129,7 @@ export default function AppLayout() {
   if (isCleanView) {
     return (
       <div className="h-full flex flex-col bg-background relative">
-        <ImpersonationBanner />
+        {!hideHeaderParam && <ImpersonationBanner />}
         <main className="flex-1 overflow-auto p-4">
           <Outlet />
         </main>
