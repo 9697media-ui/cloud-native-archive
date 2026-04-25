@@ -325,7 +325,15 @@ export default function UsersPage() {
   }, [filtered]);
 
 
-  const baseUrl = window.location.origin;
+  const baseUrl = useMemo(() => {
+    const origin = window.location.origin;
+    // Se estiver no ambiente de preview do Lovable, sugerimos a URL de produção para os embeds
+    // Isso evita que ao colar o embed em outro site, peça login no Lovable
+    if (origin.includes('lovable.app') && (origin.includes('-preview--') || origin.includes('lovableproject.com'))) {
+      return 'https://r2-vault-craft.lovable.app';
+    }
+    return origin;
+  }, []);
 
   const handleEdit = (user: AppUser) => {
     setSelectedUser(user);
