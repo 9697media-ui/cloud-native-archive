@@ -19,6 +19,7 @@ export interface AccessRequest {
 
 export function useUserRole() {
   const { user, isAuthenticated } = useAuth();
+  const { activePersona } = useTestView();
   const [role, setRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
   const [accessStatus, setAccessStatus] = useState<string | null>(null);
