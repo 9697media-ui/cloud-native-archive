@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { TestViewProvider } from "@/contexts/TestViewContext";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import CalendarPage from "./pages/CalendarPage";
