@@ -219,7 +219,7 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      <FAB />
+      {!hideHeaderParam && <FAB />}
     </div>
   );
 }
