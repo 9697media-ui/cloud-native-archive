@@ -180,7 +180,7 @@ export default function MappingPage() {
               </TableHeader>
             <TableBody>
               {mappings.map((mapping, idx) => (
-                <TableRow key={idx}>
+                <TableRow key={mapping.sheetField}>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium truncate max-w-[300px]" title={mapping.sheetField}>
