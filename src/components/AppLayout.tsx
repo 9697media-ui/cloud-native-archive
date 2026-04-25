@@ -50,7 +50,7 @@ export default function AppLayout() {
   const { isAdmin } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
-  const isCleanView = hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
+  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
 
   const NavContent = ({ onClick }: { onClick?: () => void }) => (
     <>
