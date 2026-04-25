@@ -242,13 +242,36 @@ export default function UsersPage() {
     }
   };
 
-  const handleBulkToggleActive = (active: boolean) => {
-    selectedUsers.forEach(id => {
-      const user = users.find(u => u.id === id);
-      if (user) updateUser({ ...user, is_active: active, updated_at: new Date().toISOString() });
-    });
+  const handleBulkToggleActive = async (active: boolean) => {
+    const ids = Array.from(selectedUsers);
+    setProcessingId('bulk-toggle');
+    
+    let successCount = 0;
+    
+    for (const id of ids) {
+      const isDbUser = dbUsers.some(u => u.user_id === id);
+      if (isDbUser) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ is_active: active, updated_at: new Date().toISOString() })
+          .eq('user_id', id);
+        if (!error) successCount++;
+      } else {
+        const user = users.find(u => u.id === id);
+        if (user) {
+          updateUser({ ...user, is_active: active, updated_at: new Date().toISOString() });
+          successCount++;
+        }
+      }
+    }
+    
     setSelectedUsers(new Set());
-    toast({ title: active ? 'Usuários ativados' : 'Usuários desativados', description: `${selectedUsers.size} usuário(s) ${active ? 'ativado(s)' : 'desativado(s)'}.` });
+    setProcessingId(null);
+    refetch();
+    toast({ 
+      title: active ? 'Usuários ativados' : 'Usuários desativados', 
+      description: `${successCount} usuário(s) ${active ? 'ativado(s)' : 'desativado(s)'}.` 
+    });
   };
 
   const combinedUsers = useMemo(() => {
