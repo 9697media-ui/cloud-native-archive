@@ -630,14 +630,14 @@ export default function UsersPage() {
             <CardContent>
               {requestsLoading ? (
                 <p className="text-sm text-muted-foreground">Carregando...</p>
-              ) : requests.length === 0 ? (
+              ) : displayRequests.length === 0 ? (
                 <div className="text-center py-8">
                   <UserCheck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">Nenhuma solicitação pendente</p>
+                  <p className="text-sm text-muted-foreground">{isAdmin || isManager ? 'Nenhuma solicitação pendente' : 'Você não possui solicitações de acesso pendentes'}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {requests.map(req => (
+                  {displayRequests.map(req => (
                     <div key={req.id} className="flex flex-col gap-4 rounded-lg border border-border p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
