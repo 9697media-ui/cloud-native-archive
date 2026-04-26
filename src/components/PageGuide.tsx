@@ -150,13 +150,15 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           icon: <UserCog className="h-4 w-4 text-green-500" />
         }
       ],
-      footer: {
-        title: 'Legenda e Funcionamento',
-        items: [
-          { title: 'Ativação', content: 'Usuários inativos não podem realizar login, mesmo com senha correta.', color: 'bg-slate-400' },
-          { title: 'Hierarquia', content: 'Gestores não podem alterar permissões de Administradores.', color: 'bg-primary' }
-        ]
-      }
+    footer: {
+      title: 'Legenda e Funcionamento do Sistema',
+      items: [
+        { title: 'Admin Geral', content: 'Acesso total e irrestrito. Único que gerencia usuários, aprova acessos e configurações globais.', color: 'bg-primary' },
+        { title: 'Gestor de Unidade', content: 'Gestão da sua unidade. Pode criar/editar eventos e aprovar usuários (com aviso de confirmação).', color: 'bg-blue-500' },
+        { title: 'Usuário Padrão', content: 'Visualização e acompanhamento operacional da unidade de atuação.', color: 'bg-amber-500' },
+        { title: 'Visualizador', content: 'Somente leitura. Apenas consulta de informações sem permissão de alteração.', color: 'bg-slate-400' }
+      ]
+    }
     },
     'view-configs': {
       title: 'Configurações de Visualização',
@@ -173,13 +175,15 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           icon: <Info className="h-4 w-4 text-blue-500" />
         }
       ],
-      footer: {
-        title: 'Legenda e Funcionamento do Sistema',
-        items: [
-          { title: 'Sistema por Cargo Ativo', content: 'O acesso às unidades é determinado exclusivamente pelo cargo do usuário, ignorando restrições manuais.', color: 'bg-primary' },
-          { title: 'Sistema por Cargo Inativo', content: 'O sistema prioriza as Restrições Personalizadas de cada usuário. Caso não existam, o acesso é total.', color: 'bg-amber-500' }
-        ]
-      }
+    footer: {
+      title: 'Legenda e Funcionamento do Sistema',
+      items: [
+        { title: 'Sistema por Cargo Ativo', content: 'O acesso às unidades é determinado exclusivamente pelo cargo. Ignora restrições manuais. Ex: Gestor vê apenas sua unidade.', color: 'bg-primary' },
+        { title: 'Sistema por Cargo Inativo', content: 'Prioriza as Restrições Personalizadas de cada usuário. Ex: Visualizador pode ver múltiplas unidades específicas.', color: 'bg-amber-500' },
+        { title: 'Restrição Manual', content: 'Definições individuais que prevalecem quando o sistema por cargo está inativo.', color: 'bg-blue-500' },
+        { title: 'Herança de Acesso', content: 'Se não houver restrição manual ou cargo ativo, o acesso padrão é aplicado conforme o nível.', color: 'bg-slate-400' }
+      ]
+    }
     },
     'embed': {
       title: 'Integração e Embed',
