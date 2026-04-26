@@ -1496,7 +1496,78 @@ export default function UsersPage() {
       </Dialog>
 
 
-      {/* Approval confirmation dialog */}
+      {/* Pre-registration Dialog */}
+      <Dialog open={showPreRegister} onOpenChange={setShowPreRegister}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Novo Pré-cadastro</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-1.5">
+              <Label>Nome Completo</Label>
+              <Input 
+                value={preRegisterForm.name} 
+                onChange={e => setPreRegisterForm({ ...preRegisterForm, name: e.target.value })} 
+                placeholder="Ex: João Silva" 
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>E-mail</Label>
+              <Input 
+                type="email" 
+                value={preRegisterForm.email} 
+                onChange={e => setPreRegisterForm({ ...preRegisterForm, email: e.target.value })} 
+                placeholder="Ex: joao@email.com" 
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label>Unidade</Label>
+                <Select 
+                  value={preRegisterForm.unit} 
+                  onValueChange={v => setPreRegisterForm({ ...preRegisterForm, unit: v as any })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a unidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {UNITS.map(u => (
+                      <SelectItem key={u} value={u}>{u}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Nível de Acesso</Label>
+                <Select 
+                  value={preRegisterForm.permission_level} 
+                  onValueChange={v => setPreRegisterForm({ ...preRegisterForm, permission_level: v as any })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o nível" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PERMISSION_LEVELS.filter(p => isAdmin || p.value !== 'admin_geral').map(p => (
+                      <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              * O usuário receberá um convite por e-mail e definirá sua própria senha no primeiro acesso.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPreRegister(false)} disabled={preRegisterSubmitting}>
+              Cancelar
+            </Button>
+            <Button onClick={handlePreRegister} disabled={preRegisterSubmitting}>
+              {preRegisterSubmitting ? 'Cadastrando...' : 'Realizar Pré-cadastro'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={!!showApprovalConfirm} onOpenChange={(v) => { if (!v) setShowApprovalConfirm(null); }}>
         <DialogContent>
           <DialogHeader>
