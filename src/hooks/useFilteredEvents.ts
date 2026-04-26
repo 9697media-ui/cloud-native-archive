@@ -13,21 +13,25 @@ export function useFilteredEvents() {
     // Admins see everything
     if (isAdmin) return events;
 
-    // If role-based view is disabled, see everything
+    // Se o sistema de restrição por cargo estiver DESATIVADO, o usuário vê tudo 
+    // (a menos que seja um admin que já vê tudo por padrão)
     if (configs && configs.enable_role_based_view === false) return events;
 
-    // Determine allowed units
+    // Determinar unidades permitidas seguindo lógica de mercado (Hierarquia de Permissão)
     let allowedUnits: string[] | null = null;
 
-    if (viewRestrictions !== null && viewRestrictions !== undefined) {
-      // User has custom restrictions (even if empty array [])
-      allowedUnits = viewRestrictions;
-    } else if (permissionLevel && configs?.role_defaults?.[permissionLevel]) {
-      // Use role defaults
+    // 1. Se o sistema por cargo está ATIVO, o padrão do cargo tem precedência TOTAL
+    // Isso evita que personalizações individuais "esqueçam" de ser atualizadas
+    if (permissionLevel && configs?.role_defaults?.[permissionLevel]) {
       allowedUnits = configs.role_defaults[permissionLevel];
-    } else {
+    } 
+    // 2. Fallback para restrição individual APENAS se não houver padrão de cargo ou se quisermos permitir overrides
+    // (Mas seguindo o pedido do usuário, o cargo deve prevalecer)
+    else if (viewRestrictions !== null && viewRestrictions !== undefined) {
+      allowedUnits = viewRestrictions;
+    } 
+    else {
       // Se não houver restrições definidas e o sistema estiver ativo, por segurança não mostramos nada
-      // ao invés de mostrar tudo (exceto para admins que já foram validados acima)
       return [];
     }
 
