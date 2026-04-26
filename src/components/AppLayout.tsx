@@ -131,10 +131,8 @@ export default function AppLayout() {
             )}
 
             <Link to={`/${location.search}`} className="flex items-center gap-2.5 shrink-0 group transition-all active:scale-95">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-sm group-hover:shadow-md group-hover:bg-primary/90 transition-all">
-                <LayoutDashboard className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className={cn("text-xl font-black leading-none text-foreground tracking-tighter uppercase", isMobile ? "inline" : "hidden sm:inline")}>
+              <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-all" />
+              <span className={cn("text-xl font-black leading-none text-foreground tracking-tighter lowercase", isMobile ? "inline" : "hidden sm:inline")}>
                 anabrasil
               </span>
             </Link>
