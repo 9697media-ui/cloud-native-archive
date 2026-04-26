@@ -814,7 +814,7 @@ export default function UsersPage() {
                   <Switch 
                     id="enable-role-view" 
                     checked={configs?.enable_role_based_view || false} 
-                    onCheckedChange={(v) => updateConfig.mutate({ key: 'enable_role_based_view', value: v })}
+                    onCheckedChange={(v) => setShowRoleToggleConfirm(v)}
                   />
                 </div>
 
