@@ -204,7 +204,6 @@ export default function CalendarPage() {
   const getEventsForDay = (day: Date) => filtered.filter(e => isSameDay(new Date(e.start_datetime), day));
 
   return (
-  return (
     <div className="animate-fade-in space-y-6">
       <PageHeader
         title="Calendário"
