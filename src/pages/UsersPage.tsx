@@ -84,6 +84,16 @@ export default function UsersPage() {
   const [bulkDelete, setBulkDelete] = useState(false);
   const [showRoleToggleConfirm, setShowRoleToggleConfirm] = useState<boolean | null>(null);
   const [approvalsExpanded, setApprovalsExpanded] = useState(false);
+  const [showPreRegister, setShowPreRegister] = useState(false);
+  const [preRegisterForm, setPreRegisterForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'viewer',
+    unit: 'Evento Geral do Grupo',
+    permission_level: 'visualizador'
+  });
+  const [preRegisterSubmitting, setPreRegisterSubmitting] = useState(false);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
