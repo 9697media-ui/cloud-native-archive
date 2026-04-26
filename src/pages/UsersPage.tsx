@@ -62,6 +62,7 @@ export default function UsersPage() {
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
   const [showApprovalConfirm, setShowApprovalConfirm] = useState<{ req: any } | null>(null);
   const [viewSearch, setViewSearch] = useState('');
+  const [activeTab, setActiveTab] = useState('users');
   const [selectedViewUser, setSelectedViewUser] = useState<AppUser | null>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
