@@ -64,16 +64,30 @@ export default function Dashboard() {
   const threeDaysAgo = useMemo(() => subDays(new Date(), 3), []);
 
   const filtered = useMemo(() => {
+    const searchTerm = search.toLowerCase().trim();
+    const searchWords = searchTerm.split(/\s+/);
+
     return events.filter(e => {
+      // 1. Unit filter
       if (filterUnit !== 'all' && e.unit !== filterUnit) return false;
+      
+      // 2. Status filter
       if (filterStatus !== 'all' && e.status !== filterStatus) return false;
+      
+      // 3. Conflict filter
       if (conflictOnly && !e.has_conflict) return false;
-      if (search) {
-        const s = search.toLowerCase();
-        return e.title.toLowerCase().includes(s) || 
-               (e.location && e.location.toLowerCase().includes(s)) ||
-               (e.description && e.description.toLowerCase().includes(s));
+      
+      // 4. Search filter (multi-word support)
+      if (searchTerm) {
+        const title = e.title.toLowerCase();
+        const location = (e.location || '').toLowerCase();
+        const description = (e.description || '').toLowerCase();
+        
+        return searchWords.every(word => 
+          title.includes(word) || location.includes(word) || description.includes(word)
+        );
       }
+      
       return true;
     });
   }, [events, filterUnit, filterStatus, conflictOnly, search]);
@@ -83,7 +97,6 @@ export default function Dashboard() {
     return d >= monthStart && d <= monthEnd;
   }), [filtered, monthStart, monthEnd]);
 
-  // Events from 3 days ago onwards (no end limit) for total count
   const activeEvents = useMemo(() => filtered.filter(e => {
     const d = new Date(e.start_datetime);
     return d >= threeDaysAgo;
@@ -94,14 +107,17 @@ export default function Dashboard() {
     return isWithinInterval(d, { start: weekStart, end: weekEnd });
   }), [filtered, weekStart, weekEnd]);
 
-  const stats = useMemo(() => ({
-    total: monthEvents.length,
-    confirmed: monthEvents.filter(e => e.status === 'confirmado').length,
-    pending: monthEvents.filter(e => e.status === 'pendente').length,
-    conflict: monthEvents.filter(e => e.has_conflict).length,
-    marketing: monthEvents.filter(e => e.marketing_request).length,
-    partners: monthEvents.filter(e => e.partner_involved).length,
-  }), [monthEvents, activeEvents]);
+  const stats = useMemo(() => {
+    return monthEvents.reduce((acc, e) => {
+      acc.total++;
+      if (e.status === 'confirmado') acc.confirmed++;
+      if (e.status === 'pendente') acc.pending++;
+      if (e.has_conflict) acc.conflict++;
+      if (e.marketing_request) acc.marketing++;
+      if (e.partner_involved) acc.partners++;
+      return acc;
+    }, { total: 0, confirmed: 0, pending: 0, conflict: 0, marketing: 0, partners: 0 });
+  }, [monthEvents]);
 
 
   const prevMonth = () => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1));
