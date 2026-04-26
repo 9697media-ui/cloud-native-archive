@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
 import { 
-  HelpCircle, 
-  Info, 
-  BookOpen, 
-  Lightbulb, 
-  Clock, 
-  ShieldCheck, 
-  Search, 
-  LayoutGrid, 
-  List, 
-  Calendar as CalendarIcon, 
-  UserCog, 
-  Code2,
-  ChevronDown 
-} from 'lucide-react';
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { HelpCircle, Info, BookOpen, Lightbulb, Clock, ShieldCheck, Search, LayoutGrid, List, Calendar as CalendarIcon, UserCog, Code2 } from 'lucide-react';
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 interface GuideSection {
@@ -70,11 +66,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         { title: 'Confirmado', content: 'Evento validado e pronto para realização.', color: 'bg-green-500' },
         { title: 'Pendente', content: 'Aguardando aprovação ou detalhes finais.', color: 'bg-amber-500' },
         { title: 'Conflito', content: 'Horários sobrepostos em uma mesma unidade.', color: 'bg-destructive' },
-        { title: 'Marketing', content: 'Eventos que possuem solicitação de cobertura.', color: 'bg-blue-500' },
-        { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
-        { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
-        { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
-        { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
+        { title: 'Marketing', content: 'Eventos que possuem solicitação de cobertura.', color: 'bg-blue-500' }
       ]
     }
   },
@@ -102,13 +94,10 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       footer: {
         title: 'Legenda e Funcionamento',
         items: [
+          { title: 'Unidades', content: 'Cores laterais identificam a unidade (DIC, Nilópolis, etc).', color: 'bg-primary' },
           { title: 'Status', content: 'Cores de fundo e bordas indicam se está Confirmado ou Pendente.', color: 'bg-amber-500' },
           { title: 'Conflitos', content: 'Dias com múltiplos eventos no mesmo horário são destacados.', color: 'bg-destructive' },
-          { title: 'Hoje', content: 'O dia atual é destacado com um fundo suave azulado.', color: 'bg-blue-400' },
-          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
-          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
-          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
-          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
+          { title: 'Hoje', content: 'O dia atual é destacado com um fundo suave azulado.', color: 'bg-blue-400' }
         ]
       }
     },
@@ -126,10 +115,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         title: 'Legenda e Funcionamento',
         items: [
           { title: 'Horários', content: 'Visualize a ocupação diária por faixas de horário.', color: 'bg-primary' },
-          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
-          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
-          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
-          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
+          { title: 'Unidades', content: 'Identificação por cores laterais em cada bloco.', color: 'bg-blue-500' }
         ]
       }
     },
@@ -147,11 +133,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         title: 'Legenda e Funcionamento',
         items: [
           { title: 'Cronologia', content: 'Eventos ordenados do mais próximo para o futuro.', color: 'bg-primary' },
-          { title: 'Filtros', content: 'A lista respeita todos os filtros ativos no topo.', color: 'bg-amber-500' },
-          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
-          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
-          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
-          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
+          { title: 'Filtros', content: 'A lista respeita todos os filtros ativos no topo.', color: 'bg-amber-500' }
         ]
       }
     }
@@ -176,11 +158,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         title: 'Legenda e Funcionamento',
         items: [
           { title: 'Ativação', content: 'Usuários inativos não podem realizar login, mesmo com senha correta.', color: 'bg-slate-400' },
-          { title: 'Hierarquia', content: 'Gestores não podem alterar permissões de Administradores.', color: 'bg-primary' },
-          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
-          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
-          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
-          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
+          { title: 'Hierarquia', content: 'Gestores não podem alterar permissões de Administradores.', color: 'bg-primary' }
         ]
       }
     },
@@ -202,12 +180,8 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       footer: {
         title: 'Legenda e Funcionamento do Sistema',
         items: [
-          { title: 'Sistema por Cargo Ativo', content: 'Quando Ligado, o sistema segue estritamente os padrões definidos por Cargo abaixo, ignorando restrições manuais.', color: 'bg-primary' },
-          { title: 'Sistema por Cargo Inativo', content: 'Quando Desligado, o sistema permite que você defina Restrições Individuais personalizadas por usuário.', color: 'bg-amber-500' },
-          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
-          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
-          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
-          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
+          { title: 'Sistema por Cargo Ativo', content: 'O acesso às unidades é determinado exclusivamente pelo cargo do usuário, ignorando restrições manuais.', color: 'bg-primary' },
+          { title: 'Sistema por Cargo Inativo', content: 'O sistema prioriza as Restrições Personalizadas de cada usuário. Caso não existam, o acesso é total.', color: 'bg-amber-500' }
         ]
       }
     },
@@ -230,11 +204,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         title: 'Legenda e Funcionamento',
         items: [
           { title: 'Domínio', content: 'Sempre use a URL de produção para evitar pedidos de login.', color: 'bg-green-600' },
-          { title: 'iFrame', content: 'Use width="100%" para garantir a responsividade do widget.', color: 'bg-primary' },
-          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
-          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
-          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
-          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
+          { title: 'iFrame', content: 'Use width="100%" para garantir a responsividade do widget.', color: 'bg-primary' }
         ]
       }
     }
@@ -258,11 +228,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       title: 'Legenda e Funcionamento',
       items: [
         { title: 'Imutabilidade', content: 'Os logs de auditoria não podem ser editados ou excluídos.', color: 'bg-destructive' },
-        { title: 'Retenção', content: 'O sistema mantém o histórico recente de todas as unidades.', color: 'bg-info' },
-        { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
-        { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
-        { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
-        { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
+        { title: 'Retenção', content: 'O sistema mantém o histórico recente de todas as unidades.', color: 'bg-info' }
       ]
     }
   }
@@ -273,7 +239,7 @@ interface PageGuideProps {
 }
 
 export default function PageGuide({ activeTab }: PageGuideProps) {
-  const [expanded, setExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
   const location = useLocation();
   const path = location.pathname;
   
@@ -298,44 +264,38 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
   if (!content) return null;
 
   return (
-    <div className="w-full mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-4 rounded-lg border border-primary/20 bg-card hover:bg-accent/50 transition-all duration-200"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-full bg-primary/10">
-            <BookOpen className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex flex-col items-start text-left">
-            <span className="font-semibold text-foreground">Guia de Uso</span>
-            <span className="text-xs text-muted-foreground">
-              {content.title} - Saiba como utilizar os recursos desta página
-            </span>
-          </div>
-        </div>
-        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
-      </button>
-
-      {expanded && (
-        <div className="mt-2 p-6 rounded-lg border border-primary/20 bg-primary/5 animate-in slide-in-from-top-2 duration-300 space-y-6">
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-primary" />
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-2 h-9 border-primary/20 hover:bg-primary/5 text-primary"
+        >
+          <HelpCircle className="h-4 w-4" />
+          <span className="hidden sm:inline">Guia da Página</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col p-0 overflow-hidden">
+        <div className="p-6 pb-2">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
               {content.title}
-            </h3>
-            <p className="text-sm text-muted-foreground">
+            </DialogTitle>
+            <DialogDescription className="text-sm">
               {content.description}
-            </p>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+        
+        <ScrollArea className="flex-1 px-6 pb-4">
+          <div className="space-y-4 pt-4">
             {content.sections.map((section, idx) => (
-              <div key={idx} className="flex gap-3 p-4 rounded-lg border border-border bg-background shadow-sm hover:shadow-md transition-shadow">
-                <div className="mt-0.5 shrink-0 p-1.5 rounded-md bg-accent/50">
+              <div key={idx} className="flex gap-3 p-3 rounded-lg border border-border bg-accent/30">
+                <div className="mt-0.5 shrink-0">
                   {section.icon || <Info className="h-4 w-4 text-primary" />}
                 </div>
-                <div className="space-y-1 flex-1 text-left">
+                <div className="space-y-1 flex-1">
                   <h4 className="text-sm font-semibold text-foreground">{section.title}</h4>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {section.content}
@@ -343,42 +303,42 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
                 </div>
               </div>
             ))}
-          </div>
 
-          {content.footer && (
-            <div className="space-y-4 pt-4 border-t border-primary/10">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary" />
-                <h4 className="text-sm font-bold uppercase tracking-wider text-primary">{content.footer.title}</h4>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {content.footer.items.map((item, idx) => (
-                  <div key={idx} className="space-y-2 p-4 rounded-lg bg-background border shadow-sm">
-                    <h5 className="text-xs font-bold text-foreground flex items-center gap-2">
-                      <div className={`h-2.5 w-2.5 rounded-full ${item.color || 'bg-primary'}`} />
-                      {item.title}
-                    </h5>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      {item.content}
-                    </p>
+            {content.footer && (
+              <>
+                <Separator className="my-4" />
+                <div className="rounded-lg border border-dashed bg-muted/30 overflow-hidden">
+                  <div className="px-3 py-2 border-b border-dashed bg-muted/50 flex items-center gap-2">
+                    <Clock className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-xs font-bold uppercase tracking-wider">{content.footer.title}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-end pt-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setExpanded(false)}
-              className="text-xs"
-            >
-              Recolher Guia
-            </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
+                    {content.footer.items.map((item, idx) => (
+                      <div key={idx} className="space-y-1.5 p-2 rounded-md bg-background/50 border">
+                        <h5 className="text-[11px] font-bold text-primary flex items-center gap-1.5">
+                          <div className={`h-2 w-2 rounded-full ${item.color || 'bg-primary'}`} />
+                          {item.title}
+                        </h5>
+                        <p className="text-[10px] text-muted-foreground leading-normal">
+                          {item.content}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
+        </ScrollArea>
+        
+        <div className="p-4 border-t border-border bg-accent/10 flex justify-end">
+          <DialogClose asChild>
+            <Button variant="default" size="sm">
+              Entendi
+            </Button>
+          </DialogClose>
         </div>
-      )}
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
