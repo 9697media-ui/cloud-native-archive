@@ -10,6 +10,7 @@ import AppLayout from "@/components/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import CalendarPage from "./pages/CalendarPage";
 import UsersPage from "./pages/UsersPage";
+import AuditPage from "./pages/AuditPage";
 import LoginPage from "./pages/LoginPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
