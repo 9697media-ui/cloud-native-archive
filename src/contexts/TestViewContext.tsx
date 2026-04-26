@@ -5,8 +5,8 @@ export type TestPersona = {
   id: string;
   name: string;
   email: string;
-  permission_level: 'admin_geral' | 'gestor_unidade' | 'usuario_padrao' | 'visualizador';
-  role: 'admin' | 'editor' | 'viewer' | null;
+  permission_level: 'admin_geral' | 'gestor_unidade' | 'usuario_padrao';
+  role: 'admin' | 'editor' | null;
   unit: string;
   is_active: boolean;
 };
@@ -44,24 +44,15 @@ export const TEST_PERSONAS: TestPersona[] = [
     name: 'Usuário Padrão (Teste)',
     email: 'usuario.teste@lovable.local',
     permission_level: 'usuario_padrao',
-    role: 'viewer',
+    role: null,
     unit: 'DIC',
-    is_active: true,
-  },
-  {
-    id: 'test-visualizador',
-    name: 'Visualizador (Teste)',
-    email: 'view.teste@lovable.local',
-    permission_level: 'visualizador',
-    role: 'viewer',
-    unit: 'Santana',
     is_active: true,
   },
   {
     id: 'test-pendente',
     name: 'Usuário Pendente (Teste)',
     email: 'pendente.teste@lovable.local',
-    permission_level: 'visualizador',
+    permission_level: 'usuario_padrao',
     role: null,
     unit: 'Pendente',
     is_active: false,
