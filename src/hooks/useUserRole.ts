@@ -60,8 +60,8 @@ export function useUserRole() {
       setLoading(true);
       
       // Get role from user_roles table
-      const { data: roleData } = await (supabase
-        .from('user_roles') as any)
+      const { data: roleData } = await supabase
+        .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
         .maybeSingle();
