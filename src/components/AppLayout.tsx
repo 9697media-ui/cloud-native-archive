@@ -151,7 +151,10 @@ export default function AppLayout() {
               <TestModeTrigger />
               {isAuthenticated ? (
                 <>
-                  <span className="text-xs text-muted-foreground hidden md:inline">{user?.email}</span>
+                  <div className="flex flex-col items-end hidden md:flex">
+                    <span className="text-xs font-semibold text-foreground">{userName}</span>
+                    <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">{unit || user?.email}</span>
+                  </div>
                   {!isMobile && (
                     <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5">
                       <LogOut className="h-4 w-4" />
