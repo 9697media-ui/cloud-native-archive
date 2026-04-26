@@ -311,12 +311,16 @@ export default function UsersPage() {
     if (!isAdmin) {
       if (isManager) {
         // Gestor pode ver gestores, editores, usuários, visualizadores e viewers
+        // Garantindo que níveis administrativos NUNCA apareçam para gestores
         baseUsers = baseUsers.filter(u => 
-          ['gestor_unidade', 'editor', 'usuario_padrao', 'visualizador', 'viewer'].includes(u.permission_level as string)
+          ['gestor_unidade', 'editor', 'usuario_padrao', 'visualizador', 'viewer'].includes(u.permission_level as string) &&
+          u.permission_level !== 'admin_geral'
         );
       } else {
         // Usuário e visualizador podem ver somente o seu próprio perfil
-        baseUsers = baseUsers.filter(u => u.email.toLowerCase() === currentUser?.email?.toLowerCase());
+        // Se não houver email do usuário atual, não mostra nada para segurança
+        if (!currentUser?.email) return [];
+        baseUsers = baseUsers.filter(u => u.email.toLowerCase() === currentUser.email?.toLowerCase());
       }
     }
 
@@ -593,6 +597,12 @@ export default function UsersPage() {
   };
 
   if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
+
+  // Redireciona se o usuário não for admin ou gestor
+  if (!isAdmin && !isManager) {
+    navigate('/', { replace: true });
+    return null;
+  }
 
   return (
     <div className="animate-fade-in space-y-8">

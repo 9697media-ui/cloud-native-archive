@@ -25,14 +25,14 @@ interface NavItem {
   label: string;
   icon: any;
   adminOnly?: boolean;
+  managerOnly?: boolean;
   requireAuth?: boolean;
 }
 
 const navItems: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
-  { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true },
-  
+  { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
 ];
 
 export default function AppLayout() {
@@ -56,7 +56,7 @@ export default function AppLayout() {
   }, [hideLoginParam]);
   
   const { isAuthenticated, signOut, user } = useAuth();
-  const { isAdmin } = useUserRole();
+  const { isAdmin, isManager } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
   const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
@@ -65,6 +65,7 @@ export default function AppLayout() {
     <>
       {navItems.filter(item => {
         if (item.adminOnly) return isAdmin;
+        if (item.managerOnly) return isAdmin || isManager;
         if (item.requireAuth) return isAuthenticated;
         return true;
       }).map(item => {
@@ -196,12 +197,14 @@ export default function AppLayout() {
                   <span className="text-xs font-normal text-muted-foreground truncate">{user?.email}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to={`/usuarios${location.search}`} className="flex items-center gap-2 cursor-pointer py-2">
-                    <Users className="h-4 w-4" />
-                    <span>Painel</span>
-                  </Link>
-                </DropdownMenuItem>
+                {(isAdmin || isManager) && (
+                  <DropdownMenuItem asChild>
+                    <Link to={`/usuarios${location.search}`} className="flex items-center gap-2 cursor-pointer py-2">
+                      <Users className="h-4 w-4" />
+                      <span>Painel</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 cursor-pointer py-2 text-destructive focus:text-destructive">
                   <LogOut className="h-4 w-4" />
