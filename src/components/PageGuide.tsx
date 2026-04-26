@@ -155,7 +155,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         }
       ],
       footer: {
-        title: 'Regras de Segurança',
+        title: 'Legenda e Funcionamento',
         items: [
           { title: 'Ativação', content: 'Usuários inativos não podem realizar login, mesmo com senha correta.', color: 'bg-slate-400' },
           { title: 'Hierarquia', content: 'Gestores não podem alterar permissões de Administradores.', color: 'bg-primary' }
