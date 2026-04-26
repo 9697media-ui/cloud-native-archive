@@ -529,27 +529,13 @@ export default function UsersPage() {
       // Não permitir entrar como si mesmo
       if (authUserId === currentUser?.id) return false;
 
-      // 1. Administrador Geral: Permissão total em todos os outros usuários
-      if (isAdmin) return true;
-      
-      // 2. Gestor de unidade:
-      if (isManager) {
-        const targetLevel = (user.permission_level as string) || '';
-        
-        // Pode entrar em perfis de Usuário Padrão e Visualizador
-        const isTargetStandardOrViewer = 
-          targetLevel === 'usuario_padrao' || 
-          targetLevel === 'visualizador' || 
-          targetLevel === 'viewer';
-          
-        if (isTargetStandardOrViewer) return true;
-        return false;
-      }
-      
-      return false;
+      // Permitir para todos os níveis de acesso conforme solicitado ("volte para como tava antes")
+      return true;
     })();
 
-    const canEdit = isAdmin || (isManager && authUserId === currentUser?.id);
+    // canEdit também habilitado para todos verem os botões
+    const canEdit = true;
+
 
     return (
       <div className="flex items-center gap-1">
