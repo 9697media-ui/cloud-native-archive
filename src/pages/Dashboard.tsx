@@ -49,6 +49,9 @@ export default function Dashboard() {
   const [editingEvent, setEditingEvent] = useState<AppEvent | null>(null);
   const [showEdit, setShowEdit] = useState(false);
   const [search, setSearch] = useState('');
+  const [filterUnit, setFilterUnit] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [conflictOnly, setConflictOnly] = useState(false);
   
   const [showConflicts, setShowConflicts] = useState(false);
   const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
@@ -60,31 +63,36 @@ export default function Dashboard() {
   
   const threeDaysAgo = useMemo(() => subDays(new Date(), 3), []);
 
-  const searchedEvents = useMemo(() => {
-    if (!search) return events;
-    const s = search.toLowerCase();
-    return events.filter(e => 
-      e.title.toLowerCase().includes(s) || 
-      (e.location && e.location.toLowerCase().includes(s)) ||
-      (e.description && e.description.toLowerCase().includes(s))
-    );
-  }, [events, search]);
+  const filtered = useMemo(() => {
+    return events.filter(e => {
+      if (filterUnit !== 'all' && e.unit !== filterUnit) return false;
+      if (filterStatus !== 'all' && e.status !== filterStatus) return false;
+      if (conflictOnly && !e.has_conflict) return false;
+      if (search) {
+        const s = search.toLowerCase();
+        return e.title.toLowerCase().includes(s) || 
+               (e.location && e.location.toLowerCase().includes(s)) ||
+               (e.description && e.description.toLowerCase().includes(s));
+      }
+      return true;
+    });
+  }, [events, filterUnit, filterStatus, conflictOnly, search]);
 
-  const monthEvents = useMemo(() => searchedEvents.filter(e => {
+  const monthEvents = useMemo(() => filtered.filter(e => {
     const d = new Date(e.start_datetime);
     return d >= monthStart && d <= monthEnd;
-  }), [searchedEvents, monthStart, monthEnd]);
+  }), [filtered, monthStart, monthEnd]);
 
   // Events from 3 days ago onwards (no end limit) for total count
-  const activeEvents = useMemo(() => searchedEvents.filter(e => {
+  const activeEvents = useMemo(() => filtered.filter(e => {
     const d = new Date(e.start_datetime);
     return d >= threeDaysAgo;
-  }), [searchedEvents, threeDaysAgo]);
+  }), [filtered, threeDaysAgo]);
 
-  const weekEvents = useMemo(() => searchedEvents.filter(e => {
+  const weekEvents = useMemo(() => filtered.filter(e => {
     const d = new Date(e.start_datetime);
     return isWithinInterval(d, { start: weekStart, end: weekEnd });
-  }), [searchedEvents, weekStart, weekEnd]);
+  }), [filtered, weekStart, weekEnd]);
 
   const stats = useMemo(() => ({
     total: monthEvents.length,
