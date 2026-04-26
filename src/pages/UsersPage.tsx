@@ -32,33 +32,23 @@ const EMBED_PAGES = [
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
-  admin_geral: 'Admin Geral',
-  diretor: 'Diretor',
   editor: 'Editor',
-  gestor_unidade: 'Gestor de Unidade',
-  coordenador: 'Coordenador',
-  analista: 'Analista',
-  usuario_padrao: 'Usuário Padrão',
-  assistente: 'Assistente',
-  estagiario: 'Estagiário',
   viewer: 'Visualizador',
+  admin_geral: 'Admin Geral',
+  gestor_unidade: 'Gestor de Unidade',
+  usuario_padrao: 'Usuário Padrão',
   visualizador: 'Visualizador',
   usuario_padrao_admin: 'Admin',
 };
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
-  admin: <ShieldCheck className="h-3.5 w-3.5 text-primary" />,
-  admin_geral: <ShieldCheck className="h-3.5 w-3.5 text-primary" />,
-  diretor: <ShieldCheck className="h-3.5 w-3.5 text-purple-500" />,
-  editor: <Shield className="h-3.5 w-3.5 text-blue-500" />,
-  gestor_unidade: <Shield className="h-3.5 w-3.5 text-blue-500" />,
-  coordenador: <Shield className="h-3.5 w-3.5 text-amber-500" />,
-  analista: <Shield className="h-3.5 w-3.5 text-slate-500" />,
-  usuario_padrao: <Shield className="h-3.5 w-3.5 text-slate-400 opacity-70" />,
-  assistente: <Shield className="h-3.5 w-3.5 text-slate-400 opacity-60" />,
-  estagiario: <Shield className="h-3.5 w-3.5 text-slate-400 opacity-50" />,
-  viewer: <Eye className="h-3.5 w-3.5 text-slate-400" />,
-  visualizador: <Eye className="h-3.5 w-3.5 text-slate-400" />,
+  admin: <ShieldCheck className="h-3.5 w-3.5" />,
+  admin_geral: <ShieldCheck className="h-3.5 w-3.5" />,
+  editor: <Shield className="h-3.5 w-3.5" />,
+  gestor_unidade: <Shield className="h-3.5 w-3.5" />,
+  viewer: <Eye className="h-3.5 w-3.5" />,
+  visualizador: <Eye className="h-3.5 w-3.5" />,
+  usuario_padrao: <Shield className="h-3.5 w-3.5 opacity-50" />,
 };
 
 export default function UsersPage() {
@@ -318,14 +308,21 @@ export default function UsersPage() {
   const filtered = useMemo(() => {
     let baseUsers = combinedUsers;
     
-    // Removidas as restrições de visibilidade para voltar ao estado anterior
-    // onde todos os usuários podiam ver a lista completa
-    if (!isAdmin && !isManager) {
-      // Mesmo usuários comuns podem ver a lista, conforme solicitado anteriormente
-      // mas mantemos uma proteção mínima para não quebrar a página se não houver usuário
-      if (!currentUser?.email) return [];
+    if (!isAdmin) {
+      if (isManager) {
+        // Gestor pode ver gestores, editores, usuários, visualizadores e viewers
+        // Garantindo que níveis administrativos NUNCA apareçam para gestores
+        baseUsers = baseUsers.filter(u => 
+          ['gestor_unidade', 'editor', 'usuario_padrao', 'visualizador', 'viewer'].includes(u.permission_level as string) &&
+          u.permission_level !== 'admin_geral'
+        );
+      } else {
+        // Usuário e visualizador podem ver somente o seu próprio perfil
+        // Se não houver email do usuário atual, não mostra nada para segurança
+        if (!currentUser?.email) return [];
+        baseUsers = baseUsers.filter(u => u.email.toLowerCase() === currentUser.email?.toLowerCase());
+      }
     }
-
 
     if (!search) return baseUsers;
     const q = search.toLowerCase();
@@ -333,9 +330,9 @@ export default function UsersPage() {
   }, [combinedUsers, search, isAdmin, isManager, currentUser]);
 
   const groupedUsers = useMemo(() => {
-    const admins = filtered.filter(u => ['admin', 'admin_geral', 'diretor'].includes(u.permission_level as string));
-    const gestores = filtered.filter(u => ['gestor_unidade', 'coordenador', 'analista'].includes(u.permission_level as string));
-    const normalUsers = filtered.filter(u => !['admin', 'admin_geral', 'diretor', 'gestor_unidade', 'coordenador', 'analista'].includes(u.permission_level as string));
+    const admins = filtered.filter(u => (u.permission_level as string) === 'admin' || (u.permission_level as string) === 'admin_geral');
+    const gestores = filtered.filter(u => (u.permission_level as string) === 'gestor_unidade');
+    const normalUsers = filtered.filter(u => !['admin', 'admin_geral', 'gestor_unidade'].includes(u.permission_level as string));
     
     return [
       { id: 'admins', title: 'Administradores', users: admins, icon: <ShieldCheck className="h-5 w-5 text-primary" /> },
@@ -395,11 +392,8 @@ export default function UsersPage() {
 
         // 2. Sincroniza com a tabela user_roles
         let mappedRole: 'admin' | 'editor' | 'viewer' = 'viewer';
-        if (['admin_geral', 'diretor'].includes(editForm.permission_level)) {
-          mappedRole = 'admin';
-        } else if (['gestor_unidade', 'coordenador', 'analista'].includes(editForm.permission_level)) {
-          mappedRole = 'editor';
-        }
+        if (editForm.permission_level === 'admin_geral') mappedRole = 'admin';
+        else if (editForm.permission_level === 'gestor_unidade') mappedRole = 'editor';
 
         const { error: roleError } = await supabase
           .from('user_roles')
@@ -529,44 +523,63 @@ export default function UsersPage() {
       // Não permitir entrar como si mesmo
       if (authUserId === currentUser?.id) return false;
 
-      // Permitir para todos os níveis de acesso conforme solicitado ("volte para como tava antes")
-      return true;
+      // 1. Administrador Geral: Permissão total em todos os outros usuários
+      if (isAdmin) return true;
+      
+      // 2. Gestor de unidade:
+      if (isManager) {
+        const targetLevel = (user.permission_level as string) || '';
+        
+        // Pode entrar em perfis de Usuário Padrão e Visualizador
+        const isTargetStandardOrViewer = 
+          targetLevel === 'usuario_padrao' || 
+          targetLevel === 'visualizador' || 
+          targetLevel === 'viewer';
+          
+        if (isTargetStandardOrViewer) return true;
+        return false;
+      }
+      
+      return false;
     })();
 
-    // canEdit também habilitado para todos verem os botões
-    const canEdit = true;
-
+    const canEdit = isAdmin || (isManager && authUserId === currentUser?.id);
 
     return (
       <div className="flex items-center gap-1">
-        <div className="flex items-center gap-1">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
-            disabled={!authUserId}
-            onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
-            className="h-8 w-8 text-muted-foreground hover:text-primary"
-          >
-            <KeyRound className="h-4 w-4" />
-          </Button>
-          
-          <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary" title="Editar usuário">
-            <Edit2 className="h-4 w-4" />
-          </Button>
+        {(isAdmin || canEdit) && (
+          <>
+            {isAdmin && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
+                disabled={!authUserId}
+                onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
+                className="h-8 w-8 text-muted-foreground hover:text-primary"
+              >
+                <KeyRound className="h-4 w-4" />
+              </Button>
+            )}
+            
+            <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary" title="Editar usuário">
+              <Edit2 className="h-4 w-4" />
+            </Button>
 
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => { setSelectedUser(user); setBulkDelete(false); setShowDeleteConfirm(true); }} 
-            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-            title="Excluir permanentemente"
-            disabled={authUserId === currentUser?.id}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-
+            {isAdmin && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => { setSelectedUser(user); setBulkDelete(false); setShowDeleteConfirm(true); }} 
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                title="Excluir permanentemente"
+                disabled={authUserId === currentUser?.id}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </>
+        )}
         
         {canImpersonate && (
           <Button
@@ -585,8 +598,11 @@ export default function UsersPage() {
 
   if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
 
-  // Removido o redirecionamento para permitir que todos vejam a página, como solicitado
-
+  // Redireciona se o usuário não for admin ou gestor
+  if (!isAdmin && !isManager) {
+    navigate('/', { replace: true });
+    return null;
+  }
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -600,15 +616,18 @@ export default function UsersPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
                 <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
-                <TabsTrigger value="view-configs" className="gap-1.5 h-8">
-                  <Eye className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Visualização</span>
-                </TabsTrigger>
-                <TabsTrigger value="embed" className="gap-1.5 h-8">
-                  <Code2 className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Embed</span>
-                </TabsTrigger>
-
+                {isAdmin && (
+                  <TabsTrigger value="view-configs" className="gap-1.5 h-8">
+                    <Eye className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Visualização</span>
+                  </TabsTrigger>
+                )}
+                {isAdmin && (
+                  <TabsTrigger value="embed" className="gap-1.5 h-8">
+                    <Code2 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Embed</span>
+                  </TabsTrigger>
+                )}
               </TabsList>
             </Tabs>
 
@@ -630,14 +649,15 @@ export default function UsersPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
 
         <TabsContent value="users" className="space-y-6">
-          <BulkActionBar
-            type="users"
-            count={selectedUsers.size}
-            onClearSelection={() => setSelectedUsers(new Set())}
-            onDelete={handleBulkDeleteUsers}
-            onToggleActive={handleBulkToggleActive}
-          />
-
+          {isAdmin && (
+            <BulkActionBar
+              type="users"
+              count={selectedUsers.size}
+              onClearSelection={() => setSelectedUsers(new Set())}
+              onDelete={handleBulkDeleteUsers}
+              onToggleActive={handleBulkToggleActive}
+            />
+          )}
 
           <div className="space-y-4">
             <button
@@ -757,12 +777,13 @@ export default function UsersPage() {
                         <CardContent className="flex flex-col gap-4 p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <Checkbox
-                                checked={selectedUsers.has(user.id)}
-                                onCheckedChange={() => toggleUserSelection(user.id)}
-                                className="h-4 w-4"
-                              />
-
+                              {isAdmin && (
+                                <Checkbox
+                                  checked={selectedUsers.has(user.id)}
+                                  onCheckedChange={() => toggleUserSelection(user.id)}
+                                  className="h-4 w-4"
+                                />
+                              )}
                               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                                 {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                               </div>
@@ -795,8 +816,8 @@ export default function UsersPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="view-configs" className="mt-4 space-y-6">
-
+        {isAdmin && (
+          <TabsContent value="view-configs" className="mt-4 space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -1154,9 +1175,10 @@ export default function UsersPage() {
               </CardContent>
             </Card>
           </TabsContent>
+        )}
 
-        <TabsContent value="embed" className="mt-4">
-
+        {isAdmin && (
+          <TabsContent value="embed" className="mt-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -1259,6 +1281,7 @@ export default function UsersPage() {
             </CardContent>
           </Card>
         </TabsContent>
+      )}
     </Tabs>
 
       {/* Edit dialog */}

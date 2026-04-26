@@ -5,7 +5,7 @@ export type TestPersona = {
   id: string;
   name: string;
   email: string;
-  permission_level: 'admin_geral' | 'diretor' | 'gestor_unidade' | 'coordenador' | 'analista' | 'usuario_padrao' | 'assistente' | 'estagiario' | 'visualizador';
+  permission_level: 'admin_geral' | 'gestor_unidade' | 'usuario_padrao' | 'visualizador';
   role: 'admin' | 'editor' | 'viewer' | null;
   unit: string;
   is_active: boolean;
@@ -22,15 +22,6 @@ export const TEST_PERSONAS: TestPersona[] = [
     is_active: true,
   },
   {
-    id: 'test-diretor',
-    name: 'Diretor (Teste)',
-    email: 'diretor.teste@lovable.local',
-    permission_level: 'diretor',
-    role: 'admin',
-    unit: 'Evento Geral do Grupo',
-    is_active: true,
-  },
-  {
     id: 'test-gestor-dic',
     name: 'Gestor DIC (Teste)',
     email: 'gestor.dic@lovable.local',
@@ -40,19 +31,10 @@ export const TEST_PERSONAS: TestPersona[] = [
     is_active: true,
   },
   {
-    id: 'test-coordenador',
-    name: 'Coordenador (Teste)',
-    email: 'coord.teste@lovable.local',
-    permission_level: 'coordenador',
-    role: 'editor',
-    unit: 'Santana',
-    is_active: true,
-  },
-  {
-    id: 'test-analista',
-    name: 'Analista (Teste)',
-    email: 'analista.teste@lovable.local',
-    permission_level: 'analista',
+    id: 'test-gestor-nilopolis',
+    name: 'Gestor Nilópolis (Teste)',
+    email: 'gestor.nilopolis@lovable.local',
+    permission_level: 'gestor_unidade',
     role: 'editor',
     unit: 'Nilópolis',
     is_active: true,
@@ -64,24 +46,6 @@ export const TEST_PERSONAS: TestPersona[] = [
     permission_level: 'usuario_padrao',
     role: 'viewer',
     unit: 'DIC',
-    is_active: true,
-  },
-  {
-    id: 'test-assistente',
-    name: 'Assistente (Teste)',
-    email: 'assistente.teste@lovable.local',
-    permission_level: 'assistente',
-    role: 'viewer',
-    unit: 'Santana',
-    is_active: true,
-  },
-  {
-    id: 'test-estagiario',
-    name: 'Estagiário (Teste)',
-    email: 'estagiario.teste@lovable.local',
-    permission_level: 'estagiario',
-    role: 'viewer',
-    unit: 'Nilópolis',
     is_active: true,
   },
   {
