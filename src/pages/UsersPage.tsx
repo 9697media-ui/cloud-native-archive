@@ -670,7 +670,7 @@ export default function UsersPage() {
         className="mb-4"
         actions={
           <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
-            <PageGuide activeTab={activeTab} />
+
             {isAdmin && (
               <Button 
                 onClick={() => setShowPreRegister(true)}
@@ -1650,6 +1650,7 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <PageGuide activeTab={activeTab} />
     </div>
   );
 }

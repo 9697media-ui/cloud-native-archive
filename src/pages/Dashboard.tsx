@@ -172,7 +172,6 @@ export default function Dashboard() {
         className="mb-4"
         actions={
           <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
-            <PageGuide />
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1 rounded-lg border border-border bg-background px-2 py-1.5 shadow-sm h-10">
                 <button onClick={prevMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
@@ -364,6 +363,7 @@ export default function Dashboard() {
           onEventClick={(e) => { setShowFiltered(null); setTimeout(() => handleEventClick(e), 200); }}
         />
       )}
+      <PageGuide />
     </div>
   );
 }
