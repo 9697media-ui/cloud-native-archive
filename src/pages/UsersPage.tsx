@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown } from 'lucide-react';
+import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
