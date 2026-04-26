@@ -6,7 +6,7 @@ import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash2, Megaphone, Users } from 'lucide-react';
+import { Pencil, Trash2, Megaphone, Users, Paperclip } from 'lucide-react';
 
 const unitBadgeColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic text-primary-foreground',
@@ -128,6 +128,26 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
                     Instituições: <span className="font-medium text-foreground">{event.external_collaborators.filter(e => e).join(', ')}</span>
                   </p>
                 )}
+              </div>
+            )}
+
+            {event.attachments && event.attachments.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground">Anexos</p>
+                <div className="flex flex-wrap gap-2">
+                  {event.attachments.map((url, idx) => (
+                    <a
+                      key={idx}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 bg-muted/50 border border-border rounded-md px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+                    >
+                      <Paperclip className="h-3 w-3 text-muted-foreground" />
+                      <span className="max-w-[120px] truncate text-foreground">Anexo {idx + 1}</span>
+                    </a>
+                  ))}
+                </div>
               </div>
             )}
 

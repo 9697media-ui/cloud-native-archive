@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CheckCircle2, Plus, X } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
+import { FileUpload } from './FileUpload';
 
 interface Props {
   open: boolean;
@@ -431,6 +432,14 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 </div>
               </div>
             )}
+            
+            <div className="border-t border-border pt-4">
+              <FileUpload 
+                attachments={form.attachments || []} 
+                onChange={(urls) => setForm({ ...form, attachments: urls })} 
+              />
+            </div>
+
             <DialogFooter>
               <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
               <Button onClick={handleSubmit}>
