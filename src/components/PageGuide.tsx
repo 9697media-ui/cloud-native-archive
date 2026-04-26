@@ -102,10 +102,13 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       footer: {
         title: 'Legenda e Funcionamento',
         items: [
-          { title: 'Unidades', content: 'Cores laterais identificam a unidade (DIC, Nilópolis, etc).', color: 'bg-primary' },
           { title: 'Status', content: 'Cores de fundo e bordas indicam se está Confirmado ou Pendente.', color: 'bg-amber-500' },
           { title: 'Conflitos', content: 'Dias com múltiplos eventos no mesmo horário são destacados.', color: 'bg-destructive' },
-          { title: 'Hoje', content: 'O dia atual é destacado com um fundo suave azulado.', color: 'bg-blue-400' }
+          { title: 'Hoje', content: 'O dia atual é destacado com um fundo suave azulado.', color: 'bg-blue-400' },
+          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
+          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
+          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
+          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
         ]
       }
     },
