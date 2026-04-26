@@ -25,6 +25,7 @@ interface NavItem {
   label: string;
   icon: any;
   adminOnly?: boolean;
+  managerOnly?: boolean;
   requireAuth?: boolean;
 }
 
