@@ -598,6 +598,12 @@ export default function UsersPage() {
 
   if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
 
+  // Redireciona se o usuário não for admin ou gestor
+  if (!isAdmin && !isManager) {
+    navigate('/', { replace: true });
+    return null;
+  }
+
   return (
     <div className="animate-fade-in space-y-8">
       <PageHeader
