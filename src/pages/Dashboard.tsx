@@ -47,6 +47,7 @@ export default function Dashboard() {
   const [showDetail, setShowDetail] = useState(false);
   const [editingEvent, setEditingEvent] = useState<AppEvent | null>(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [search, setSearch] = useState('');
   
   const [showConflicts, setShowConflicts] = useState(false);
   const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
@@ -58,21 +59,31 @@ export default function Dashboard() {
   
   const threeDaysAgo = useMemo(() => subDays(new Date(), 3), []);
 
-  const monthEvents = useMemo(() => events.filter(e => {
+  const searchedEvents = useMemo(() => {
+    if (!search) return events;
+    const s = search.toLowerCase();
+    return events.filter(e => 
+      e.title.toLowerCase().includes(s) || 
+      (e.location && e.location.toLowerCase().includes(s)) ||
+      (e.description && e.description.toLowerCase().includes(s))
+    );
+  }, [events, search]);
+
+  const monthEvents = useMemo(() => searchedEvents.filter(e => {
     const d = new Date(e.start_datetime);
     return d >= monthStart && d <= monthEnd;
-  }), [events, monthStart, monthEnd]);
+  }), [searchedEvents, monthStart, monthEnd]);
 
   // Events from 3 days ago onwards (no end limit) for total count
-  const activeEvents = useMemo(() => events.filter(e => {
+  const activeEvents = useMemo(() => searchedEvents.filter(e => {
     const d = new Date(e.start_datetime);
     return d >= threeDaysAgo;
-  }), [events, threeDaysAgo]);
+  }), [searchedEvents, threeDaysAgo]);
 
-  const weekEvents = useMemo(() => events.filter(e => {
+  const weekEvents = useMemo(() => searchedEvents.filter(e => {
     const d = new Date(e.start_datetime);
     return isWithinInterval(d, { start: weekStart, end: weekEnd });
-  }), [events, weekStart, weekEnd]);
+  }), [searchedEvents, weekStart, weekEnd]);
 
   const stats = useMemo(() => ({
     total: monthEvents.length,
