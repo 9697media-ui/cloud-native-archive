@@ -26,11 +26,12 @@ export function useFilteredEvents() {
       // Use role defaults
       allowedUnits = configs.role_defaults[permissionLevel];
     } else {
-      // No restrictions found, see everything by default (safety fallback)
-      return events;
+      // Se não houver restrições definidas e o sistema estiver ativo, por segurança não mostramos nada
+      // ao invés de mostrar tudo (exceto para admins que já foram validados acima)
+      return [];
     }
 
-    if (allowedUnits === null) return events;
+    if (allowedUnits === null) return [];
 
 
     // Filter events by unit
