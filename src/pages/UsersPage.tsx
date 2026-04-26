@@ -1281,6 +1281,8 @@ export default function UsersPage() {
                         </AlertDescription>
                       </Alert>
                     )}
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-6 border-b">
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
