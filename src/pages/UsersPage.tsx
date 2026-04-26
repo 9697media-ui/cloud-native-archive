@@ -968,17 +968,29 @@ export default function UsersPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={configs?.enable_role_based_view ? "border-primary/20 bg-muted/5" : ""}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Search className="h-5 w-5 text-primary" />
-                  Restrições Personalizadas
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Busque um usuário para definir restrições específicas ou veja quem já possui configurações customizadas.
-                </p>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Search className="h-5 w-5 text-primary" />
+                      Restrições Personalizadas
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {configs?.enable_role_based_view 
+                        ? "As restrições individuais estão desabilitadas pois o Sistema por Cargo está ativo." 
+                        : "Busque um usuário para definir restrições específicas ou veja quem já possui configurações customizadas."}
+                    </p>
+                  </div>
+                  {configs?.enable_role_based_view && (
+                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 gap-1.5 py-1 px-3">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      Sistema por Cargo Ativo
+                    </Badge>
+                  )}
+                </div>
               </CardHeader>
-              <CardContent className={`space-y-6 transition-opacity duration-300 ${!configs?.enable_role_based_view ? "opacity-50 pointer-events-none grayscale-[0.5]" : ""}`}>
+              <CardContent className={`space-y-6 transition-opacity duration-300 ${configs?.enable_role_based_view ? "opacity-50 pointer-events-none grayscale-[0.5]" : ""}`}>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input 
