@@ -865,7 +865,7 @@ export default function UsersPage() {
               )}
             </div>
           )}
-        </TabsContent>
+        </div>
 
         {isAdmin && (
           <TabsContent value="view-configs" className="mt-4 space-y-6">
