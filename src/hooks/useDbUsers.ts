@@ -51,6 +51,7 @@ export function useDbUsers() {
         unit: p.unit,
         is_active: (p as any).is_active !== false,
         created_at: p.created_at,
+        view_restrictions: (p as any).view_restrictions,
       }));
 
       setDbUsers(users);
