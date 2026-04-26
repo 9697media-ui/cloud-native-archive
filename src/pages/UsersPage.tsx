@@ -897,7 +897,8 @@ export default function UsersPage() {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            className="h-7 px-2 text-[10px] font-semibold hover:text-primary hover:bg-primary/5"
+                            disabled={!configs?.enable_role_based_view}
+                            className="h-7 px-2 text-[10px] font-semibold hover:text-primary hover:bg-primary/5 disabled:opacity-50"
                             onClick={() => {
                               const newValue = { ...configs?.role_defaults, [role]: UNITS };
                               updateConfig.mutate({ key: 'role_defaults', value: newValue });
