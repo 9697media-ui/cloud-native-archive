@@ -61,7 +61,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       }
     ],
     footer: {
-      title: 'Legenda de Status',
+      title: 'Legenda e Funcionamento',
       items: [
         { title: 'Confirmado', content: 'Evento validado e pronto para realização.', color: 'bg-green-500' },
         { title: 'Pendente', content: 'Aguardando aprovação ou detalhes finais.', color: 'bg-amber-500' },
@@ -92,7 +92,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         }
       ],
       footer: {
-        title: 'Cores e Identificação',
+        title: 'Legenda e Funcionamento',
         items: [
           { title: 'Unidades', content: 'Cores laterais identificam a unidade (DIC, Nilópolis, etc).', color: 'bg-primary' },
           { title: 'Status', content: 'Cores de fundo e bordas indicam se está Confirmado ou Pendente.', color: 'bg-amber-500' },
@@ -110,7 +110,14 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           content: 'Visualize a distribuição horária dos eventos ao longo de cada dia da semana.',
           icon: <CalendarIcon className="h-4 w-4 text-blue-500" />
         }
-      ]
+      ],
+      footer: {
+        title: 'Legenda e Funcionamento',
+        items: [
+          { title: 'Horários', content: 'Visualize a ocupação diária por faixas de horário.', color: 'bg-primary' },
+          { title: 'Unidades', content: 'Identificação por cores laterais em cada bloco.', color: 'bg-blue-500' }
+        ]
+      }
     },
     'list': {
       title: 'Guia do Calendário (Lista)',
@@ -121,7 +128,14 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           content: 'Ideal para uma visualização rápida e sequencial dos próximos compromissos em todas as unidades.',
           icon: <List className="h-4 w-4 text-blue-500" />
         }
-      ]
+      ],
+      footer: {
+        title: 'Legenda e Funcionamento',
+        items: [
+          { title: 'Cronologia', content: 'Eventos ordenados do mais próximo para o futuro.', color: 'bg-primary' },
+          { title: 'Filtros', content: 'A lista respeita todos os filtros ativos no topo.', color: 'bg-amber-500' }
+        ]
+      }
     }
   },
   '/usuarios': {
@@ -141,7 +155,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         }
       ],
       footer: {
-        title: 'Regras de Segurança',
+        title: 'Legenda e Funcionamento',
         items: [
           { title: 'Ativação', content: 'Usuários inativos não podem realizar login, mesmo com senha correta.', color: 'bg-slate-400' },
           { title: 'Hierarquia', content: 'Gestores não podem alterar permissões de Administradores.', color: 'bg-primary' }
@@ -164,10 +178,10 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         }
       ],
       footer: {
-        title: 'Funcionamento',
+        title: 'Legenda e Funcionamento do Sistema',
         items: [
-          { title: 'Por Cargo', content: 'Ignora restrições manuais em favor do padrão hierárquico.', color: 'bg-primary' },
-          { title: 'Manual', content: 'Prioriza as restrições personalizadas de cada perfil individual.', color: 'bg-amber-500' }
+          { title: 'Sistema por Cargo Ativo', content: 'O acesso às unidades é determinado exclusivamente pelo cargo do usuário, ignorando restrições manuais.', color: 'bg-primary' },
+          { title: 'Sistema por Cargo Inativo', content: 'O sistema prioriza as Restrições Personalizadas de cada usuário. Caso não existam, o acesso é total.', color: 'bg-amber-500' }
         ]
       }
     },
@@ -187,7 +201,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         }
       ],
       footer: {
-        title: 'Dica de Publicação',
+        title: 'Legenda e Funcionamento',
         items: [
           { title: 'Domínio', content: 'Sempre use a URL de produção para evitar pedidos de login.', color: 'bg-green-600' },
           { title: 'iFrame', content: 'Use width="100%" para garantir a responsividade do widget.', color: 'bg-primary' }
@@ -211,7 +225,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       }
     ],
     footer: {
-      title: 'Privacidade e Controle',
+      title: 'Legenda e Funcionamento',
       items: [
         { title: 'Imutabilidade', content: 'Os logs de auditoria não podem ser editados ou excluídos.', color: 'bg-destructive' },
         { title: 'Retenção', content: 'O sistema mantém o histórico recente de todas as unidades.', color: 'bg-info' }
