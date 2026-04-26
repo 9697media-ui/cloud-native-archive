@@ -670,6 +670,7 @@ export default function UsersPage() {
         className="mb-4"
         actions={
           <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
+            <PageGuide activeTab={activeTab} />
             {isAdmin && (
               <Button 
                 onClick={() => setShowPreRegister(true)}
@@ -680,7 +681,6 @@ export default function UsersPage() {
                 <span className="sm:hidden">Novo</span>
               </Button>
             )}
-            <PageGuide activeTab={activeTab} />
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
                 <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
