@@ -184,6 +184,7 @@ export default function AppLayout() {
         !isCleanView && "lg:p-8 mx-auto w-full max-w-7xl"
       )}>
         <Outlet />
+        {!hideFooterParam && <FooterLegend />}
       </main>
 
       {!hideHeaderParam && (
