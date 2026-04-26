@@ -309,7 +309,7 @@ export default function CalendarPage() {
                 />
               </div>
 
-              {canEdit && (
+              {canCreate && (
                 <Button 
                   onClick={() => setShowForm(true)} 
                   className="gap-2 h-10 shadow-sm"
