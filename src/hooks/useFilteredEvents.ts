@@ -17,10 +17,10 @@ export function useFilteredEvents() {
     if (configs && configs.enable_role_based_view === false) return events;
 
     // Determine allowed units
-    let allowedUnits: string[] = [];
+    let allowedUnits: string[] | null = null;
 
-    if (viewRestrictions && viewRestrictions.length > 0) {
-      // User has custom restrictions
+    if (viewRestrictions !== null && viewRestrictions !== undefined) {
+      // User has custom restrictions (even if empty array [])
       allowedUnits = viewRestrictions;
     } else if (permissionLevel && configs?.role_defaults?.[permissionLevel]) {
       // Use role defaults
@@ -29,6 +29,9 @@ export function useFilteredEvents() {
       // No restrictions found, see everything by default (safety fallback)
       return events;
     }
+
+    if (allowedUnits === null) return events;
+
 
     // Filter events by unit
     return events.filter(event => allowedUnits.includes(event.unit));
