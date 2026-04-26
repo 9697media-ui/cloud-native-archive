@@ -333,20 +333,6 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
                     ))}
                   </div>
                 </div>
-                
-                <div className="mt-6 pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 opacity-70">
-                    <HelpCircle className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-[10px] font-medium text-muted-foreground">
-                      Dúvidas ou problemas? Entre em contato com o Administrador Geral.
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity">
-                    <span className="text-[10px] font-bold lowercase tracking-tighter text-foreground">anabrasil</span>
-                    <div className="h-1 w-1 rounded-full bg-primary" />
-                    <span className="text-[9px] text-muted-foreground">© {new Date().getFullYear()}</span>
-                  </div>
-                </div>
               </>
             )}
           </CardContent>

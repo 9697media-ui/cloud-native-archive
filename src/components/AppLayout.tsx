@@ -184,26 +184,6 @@ export default function AppLayout() {
       )}>
         <Outlet />
       </main>
-      {!isCleanView && (
-        <footer className="border-t border-border bg-card/30 py-6 shrink-0 mt-auto">
-          <div className="mx-auto max-w-7xl px-4 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2.5 opacity-80">
-              <img src={logoImg} alt="anabrasil" className="h-7 w-7 rounded-lg object-cover" />
-              <span className="text-sm font-bold tracking-tighter text-foreground lowercase" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                anabrasil
-              </span>
-            </div>
-            <div className="flex flex-col items-center sm:items-end gap-1">
-              <p className="text-[10px] text-muted-foreground sm:text-xs">
-                © {new Date().getFullYear()} Grupo Anabrasil. Sistema de Gestão de Eventos.
-              </p>
-              <p className="text-[9px] text-muted-foreground/60">
-                Programação Institucional e Operacional de Unidades
-              </p>
-            </div>
-          </div>
-        </footer>
-      )}
 
       {!hideHeaderParam && (
         <div className={cn(
