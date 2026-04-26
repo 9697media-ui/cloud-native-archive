@@ -44,8 +44,6 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
   admin_geral: <ShieldCheck className="h-3.5 w-3.5" />,
   editor: <Shield className="h-3.5 w-3.5" />,
   gestor_unidade: <Shield className="h-3.5 w-3.5" />,
-  viewer: <Eye className="h-3.5 w-3.5" />,
-  visualizador: <Eye className="h-3.5 w-3.5" />,
   usuario_padrao: <Shield className="h-3.5 w-3.5 opacity-50" />,
 };
 
