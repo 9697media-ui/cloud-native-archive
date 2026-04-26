@@ -1365,7 +1365,6 @@ export default function UsersPage() {
           </Card>
         )}
       </div>
-    </div>
 
       {/* Edit dialog */}
       <Dialog open={showEdit} onOpenChange={(v) => { setShowEdit(v); if (!v) setSelectedUser(null); }}>
