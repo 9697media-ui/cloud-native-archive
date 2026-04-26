@@ -128,7 +128,14 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           content: 'Ideal para uma visualização rápida e sequencial dos próximos compromissos em todas as unidades.',
           icon: <List className="h-4 w-4 text-blue-500" />
         }
-      ]
+      ],
+      footer: {
+        title: 'Legenda e Funcionamento',
+        items: [
+          { title: 'Cronologia', content: 'Eventos ordenados do mais próximo para o futuro.', color: 'bg-primary' },
+          { title: 'Filtros', content: 'A lista respeita todos os filtros ativos no topo.', color: 'bg-amber-500' }
+        ]
+      }
     }
   },
   '/usuarios': {
