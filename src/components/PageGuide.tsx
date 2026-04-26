@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogTrigger,
-  DialogClose
-} from "@/components/ui/dialog";
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Info, BookOpen, Lightbulb, Clock, ShieldCheck, Search, LayoutGrid, List, Calendar as CalendarIcon, UserCog, Code2 } from 'lucide-react';
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { HelpCircle, Info, BookOpen, Lightbulb, Clock, ShieldCheck, Search, LayoutGrid, List, Calendar as CalendarIcon, UserCog, Code2, ChevronDown } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 
 interface GuideSection {
