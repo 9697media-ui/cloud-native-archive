@@ -1261,7 +1261,6 @@ export default function UsersPage() {
             </CardContent>
           </Card>
         </TabsContent>
-      )}
     </Tabs>
 
       {/* Edit dialog */}
