@@ -881,7 +881,7 @@ export default function UsersPage() {
                   </Alert>
                 )}
 
-                <div className={`grid gap-6 md:grid-cols-2 transition-opacity duration-300 ${!configs?.enable_role_based_view ? "opacity-50 grayscale-[0.5]" : ""}`}>
+                <div className={`grid gap-6 md:grid-cols-2 transition-all duration-300 ${!configs?.enable_role_based_view ? "opacity-50 grayscale-[0.5] pointer-events-none select-none" : ""}`}>
                   {Object.entries(configs?.role_defaults || {}).map(([role, allowedUnits]) => (
                     <div key={role} className="space-y-3 p-4 border rounded-lg bg-card shadow-sm">
                       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -897,7 +897,8 @@ export default function UsersPage() {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            className="h-7 px-2 text-[10px] font-semibold hover:text-primary hover:bg-primary/5"
+                            disabled={!configs?.enable_role_based_view}
+                            className="h-7 px-2 text-[10px] font-semibold hover:text-primary hover:bg-primary/5 disabled:opacity-50"
                             onClick={() => {
                               const newValue = { ...configs?.role_defaults, [role]: UNITS };
                               updateConfig.mutate({ key: 'role_defaults', value: newValue });
@@ -908,7 +909,8 @@ export default function UsersPage() {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            className="h-7 px-2 text-[10px] font-semibold hover:text-destructive hover:bg-destructive/5"
+                            disabled={!configs?.enable_role_based_view}
+                            className="h-7 px-2 text-[10px] font-semibold hover:text-destructive hover:bg-destructive/5 disabled:opacity-50"
                             onClick={() => {
                               const newValue = { ...configs?.role_defaults, [role]: [] };
                               updateConfig.mutate({ key: 'role_defaults', value: newValue });
@@ -919,7 +921,8 @@ export default function UsersPage() {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-7 w-7 text-muted-foreground hover:text-primary"
+                            disabled={!configs?.enable_role_based_view}
+                            className="h-7 w-7 text-muted-foreground hover:text-primary disabled:opacity-50"
                             title="Resetar usuários deste perfil"
                             onClick={async () => {
                               const usersToReset = combinedUsers.filter(u => u.permission_level === role && u.view_restrictions !== null);
@@ -951,6 +954,7 @@ export default function UsersPage() {
                               id={`role-${role}-${unit}`}
                               className="scale-[0.7] origin-right"
                               checked={allowedUnits.includes(unit)}
+                              disabled={!configs?.enable_role_based_view}
                               onCheckedChange={(checked) => {
                                 const newUnits = checked 
                                   ? [...allowedUnits, unit]
@@ -997,6 +1001,7 @@ export default function UsersPage() {
                     placeholder="Buscar usuário por nome ou email..." 
                     value={viewSearch} 
                     onChange={e => setViewSearch(e.target.value)} 
+                    disabled={configs?.enable_role_based_view}
                     className="pl-9"
                   />
                   {viewSearch.length > 2 && (
@@ -1052,6 +1057,7 @@ export default function UsersPage() {
                               <Switch 
                                 id={`user-${selectedViewUser.id}-${unit}`}
                                 checked={isChecked}
+                                disabled={configs?.enable_role_based_view}
                                 onCheckedChange={async (checked) => {
                                   const newRestrictions = checked 
                                     ? [...currentRestrictions, unit]
@@ -1078,6 +1084,7 @@ export default function UsersPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
+                      disabled={configs?.enable_role_based_view}
                       className="w-full gap-2"
                       onClick={async () => {
                         const { error } = await supabase
@@ -1112,6 +1119,7 @@ export default function UsersPage() {
                           <Button 
                             variant="ghost" 
                             size="icon" 
+                            disabled={configs?.enable_role_based_view}
                             className="h-8 w-8"
                             onClick={() => setSelectedViewUser(u)}
                           >
@@ -1123,6 +1131,40 @@ export default function UsersPage() {
                       <p className="text-xs text-muted-foreground text-center col-span-full py-4">Nenhum usuário com restrições customizadas.</p>
                     )}
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-muted/30 border-dashed">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  Legenda e Funcionamento do Sistema
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2 text-xs">
+                <div className="space-y-2 p-3 rounded-md bg-background/50 border">
+                  <h4 className="font-bold text-primary flex items-center gap-1.5">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    Sistema por Cargo ATIVO
+                  </h4>
+                  <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
+                    <li>O acesso às unidades é determinado <strong>exclusivamente</strong> pelo cargo do usuário.</li>
+                    <li>Qualquer restrição personalizada individual será <strong>ignorada</strong> enquanto este modo estiver ativo.</li>
+                    <li>Ideal para manter um padrão rígido de acesso baseado na hierarquia.</li>
+                  </ul>
+                </div>
+                
+                <div className="space-y-2 p-3 rounded-md bg-background/50 border">
+                  <h4 className="font-bold text-amber-600 flex items-center gap-1.5">
+                    <div className="h-2 w-2 rounded-full bg-amber-500" />
+                    Sistema por Cargo INATIVO
+                  </h4>
+                  <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
+                    <li>As definições por cargo abaixo são <strong>ignoradas</strong> pelo sistema.</li>
+                    <li>O sistema prioriza as <strong>Restrições Personalizadas</strong> de cada usuário.</li>
+                    <li>Se um usuário não tiver restrição manual, ele terá acesso total ou padrão do sistema.</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>
