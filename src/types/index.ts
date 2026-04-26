@@ -79,6 +79,7 @@ export const PARTNER_TYPES: { value: PartnerType; label: string }[] = [
 
 export const PERMISSION_LEVELS: { value: PermissionLevel; label: string }[] = [
   { value: 'admin_geral', label: 'Admin Geral' },
-  { value: 'gestor_unidade', label: 'Gestor de Unidade' },
-  { value: 'usuario_padrao', label: 'Usuário Padrão' },
+  { value: 'gestor_unidade', label: 'Gestor de Unidade (Cria/Edita)' },
+  { value: 'editor', label: 'Editor (Apenas Edição)' },
+  { value: 'usuario_padrao', label: 'Usuário Padrão (Visualizador)' },
 ];
