@@ -28,7 +28,7 @@ export default function LoginPage() {
 
   // Ajusta unidade padrão se mudar o nível solicitado
   useEffect(() => {
-    if (requestedRole === 'editor' && requestedUnit === 'Evento Geral do Grupo') {
+    if ((requestedRole === 'editor' || requestedRole === 'criador') && requestedUnit === 'Evento Geral do Grupo') {
       setRequestedUnit('DIC');
     } else if (requestedRole === 'viewer' && requestedUnit !== 'Evento Geral do Grupo') {
       setRequestedUnit('Evento Geral do Grupo');
@@ -232,10 +232,11 @@ export default function LoginPage() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="viewer">Visualizador</SelectItem>
-                    <SelectItem value="editor">Editor</SelectItem>
+                    <SelectItem value="editor">Editor (Apenas Edição)</SelectItem>
+                    <SelectItem value="criador">Criador (Cria e Edita)</SelectItem>
                   </SelectContent>
                 </Select>
-                {requestedRole === 'editor' && (
+                {(requestedRole === 'editor' || requestedRole === 'criador') && (
                   <div className="mt-4">
                     <Label>Selecione sua unidade</Label>
                     <Select value={requestedUnit} onValueChange={(v) => setRequestedUnit(v as Unit)}>

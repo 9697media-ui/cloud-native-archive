@@ -41,7 +41,7 @@ export default function Dashboard() {
   const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
-  const { canEdit, unit } = useUserRole();
+  const { canEdit, canCreate, unit } = useUserRole();
   const isMobile = useIsMobile();
   const [showNewEvent, setShowNewEvent] = useState(false);
   const [detailEvent, setDetailEvent] = useState<AppEvent | null>(null);
@@ -249,7 +249,7 @@ export default function Dashboard() {
                 />
               </div>
 
-              {canEdit && (
+              {canCreate && (
                 <Button 
                   onClick={() => setShowNewEvent(true)} 
                   className="gap-2 h-10 shadow-sm"

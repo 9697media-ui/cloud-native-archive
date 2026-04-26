@@ -45,7 +45,7 @@ export default function CalendarPage() {
   const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
   const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
-  const { canEdit, userName, unit } = useUserRole();
+  const { canEdit, canCreate, userName, unit } = useUserRole();
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const hideTitle = searchParams.get('hideTitle') === 'true';
@@ -309,7 +309,7 @@ export default function CalendarPage() {
                 />
               </div>
 
-              {canEdit && (
+              {canCreate && (
                 <Button 
                   onClick={() => setShowForm(true)} 
                   className="gap-2 h-10 shadow-sm"

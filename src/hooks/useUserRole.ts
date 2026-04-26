@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTestView } from '@/contexts/TestViewContext';
 
-export type UserRole = 'admin' | 'editor' | null;
+export type UserRole = 'admin' | 'editor' | 'criador' | null;
 
 export interface AccessRequest {
   id: string;
@@ -90,11 +90,12 @@ export function useUserRole() {
       
       if (!effectiveRole && profileData?.permission_level) {
         if (profileData.permission_level === 'admin_geral') effectiveRole = 'admin';
-        else if (profileData.permission_level === 'gestor_unidade') effectiveRole = 'editor';
+        else if (profileData.permission_level === 'gestor_unidade') effectiveRole = 'criador';
+        else if (profileData.permission_level === 'editor') effectiveRole = 'editor';
         else effectiveRole = null;
       }
 
-      if (effectiveRole && (effectiveRole === 'admin' || effectiveRole === 'editor')) {
+      if (effectiveRole && (effectiveRole === 'admin' || effectiveRole === 'editor' || effectiveRole === 'criador')) {
         setRole(effectiveRole as UserRole);
         setAccessStatus('approved');
       } else {
@@ -117,9 +118,11 @@ export function useUserRole() {
   }, [user, isAuthenticated, activePersona]);
 
   const isAdmin = role === 'admin' || permissionLevel === 'admin_geral';
-  const isManager = role === 'editor' || role === 'admin' || permissionLevel === 'gestor_unidade' || permissionLevel === 'admin_geral';
+  const isCreator = role === 'criador' || isAdmin;
+  const isManager = role === 'editor' || isCreator || permissionLevel === 'gestor_unidade' || permissionLevel === 'admin_geral';
   const hasDelegatedAccess = delegatedUnits && delegatedUnits.length > 0;
-  const canEdit = isAdmin || isManager;
+  const canEdit = isAdmin || isCreator || role === 'editor';
+  const canCreate = isAdmin || isCreator;
   const canViewAuditoria = isAdmin || isManager || hasDelegatedAccess;
   const canView = true; // System is public
 
@@ -127,8 +130,10 @@ export function useUserRole() {
     role, 
     loading, 
     canEdit, 
+    canCreate,
     isAdmin, 
     isManager, 
+    isCreator,
     canView, 
     accessStatus, 
     userName, 

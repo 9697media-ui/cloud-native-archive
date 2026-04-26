@@ -32,7 +32,8 @@ const EMBED_PAGES = [
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
-  editor: 'Editor',
+  criador: 'Criador e Editor',
+  editor: 'Editor (Apenas Edição)',
   admin_geral: 'Admin Geral',
   gestor_unidade: 'Gestor de Unidade',
   usuario_padrao: 'Usuário Padrão',
@@ -42,6 +43,7 @@ const ROLE_LABELS: Record<string, string> = {
 const ROLE_ICONS: Record<string, React.ReactNode> = {
   admin: <ShieldCheck className="h-3.5 w-3.5" />,
   admin_geral: <ShieldCheck className="h-3.5 w-3.5" />,
+  criador: <Edit2 className="h-3.5 w-3.5" />,
   editor: <Shield className="h-3.5 w-3.5" />,
   gestor_unidade: <Shield className="h-3.5 w-3.5" />,
   usuario_padrao: <Shield className="h-3.5 w-3.5 opacity-50" />,
@@ -387,9 +389,10 @@ export default function UsersPage() {
         }
 
         // 2. Sincroniza com a tabela user_roles
-        let mappedRole: 'admin' | 'editor' | 'viewer' = 'viewer';
-        if (editForm.permission_level === 'admin_geral') mappedRole = 'admin';
-        else if (editForm.permission_level === 'gestor_unidade') mappedRole = 'editor';
+        let mappedRole: 'admin' | 'editor' | 'criador' | 'viewer' = 'viewer';
+        if ((editForm.permission_level as string) === 'admin_geral') mappedRole = 'admin';
+        else if ((editForm.permission_level as string) === 'gestor_unidade') mappedRole = 'criador';
+        else if ((editForm.permission_level as string) === 'editor') mappedRole = 'editor';
 
         const { error: roleError } = await supabase
           .from('user_roles')
@@ -435,9 +438,12 @@ export default function UsersPage() {
     if (req.requested_role === 'admin') {
       level = 'admin_geral';
       unit = 'Evento Geral do Grupo';
-    } else if (req.requested_role === 'editor') {
+    } else if (req.requested_role === 'criador') {
       level = 'gestor_unidade';
-      unit = req.requested_unit || 'DIC'; // Fallback para uma unidade específica
+      unit = req.requested_unit || 'DIC';
+    } else if (req.requested_role === 'editor') {
+      level = 'editor';
+      unit = req.requested_unit || 'DIC';
     }
     
     try {
