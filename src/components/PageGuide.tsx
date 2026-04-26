@@ -225,7 +225,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       }
     ],
     footer: {
-      title: 'Privacidade e Controle',
+      title: 'Legenda e Funcionamento',
       items: [
         { title: 'Imutabilidade', content: 'Os logs de auditoria não podem ser editados ou excluídos.', color: 'bg-destructive' },
         { title: 'Retenção', content: 'O sistema mantém o histórico recente de todas as unidades.', color: 'bg-info' }
