@@ -200,7 +200,8 @@ export default function AppLayout() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 mb-2">
                 <DropdownMenuLabel className="flex flex-col">
-                  <span className="text-xs font-normal text-muted-foreground truncate">{user?.email}</span>
+                  <span className="text-sm font-semibold text-foreground truncate">{userName}</span>
+                  <span className="text-xs font-normal text-muted-foreground truncate">{unit || user?.email}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {(isAdmin || isManager) && (
