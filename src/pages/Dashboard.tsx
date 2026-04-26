@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback, DragEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -24,7 +24,7 @@ import FilteredEventsDialog from '@/components/FilteredEventsDialog';
 import PageHeader from '@/components/PageHeader';
 import PageGuide from '@/components/PageGuide';
 
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, subDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, subDays, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
@@ -33,6 +33,13 @@ const unitDotColors: Record<Unit, string> = {
   'Nilópolis': 'bg-unit-nilopolis',
   'Santana': 'bg-unit-santana',
   'Evento Geral do Grupo': 'bg-unit-geral',
+};
+
+const unitBorderColors: Record<Unit, string> = {
+  'DIC': 'border-l-unit-dic',
+  'Nilópolis': 'border-l-unit-nilopolis',
+  'Santana': 'border-l-unit-santana',
+  'Evento Geral do Grupo': 'border-l-unit-geral',
 };
 
 
