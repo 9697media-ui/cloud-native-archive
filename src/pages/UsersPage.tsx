@@ -806,19 +806,59 @@ export default function UsersPage() {
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/10">
-                  <div className="space-y-1">
-                    <Label htmlFor="enable-role-view" className="text-base font-semibold">Habilitar Restrição por Perfil</Label>
-                    <p className="text-sm text-muted-foreground">Quando ativado, os usuários verão apenas as unidades definidas abaixo.</p>
+                <div className={`p-4 rounded-lg border transition-all duration-200 ${
+                  configs?.enable_role_based_view 
+                    ? "bg-primary/5 border-primary/20 shadow-sm" 
+                    : "bg-muted/30 border-border"
+                }`}>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="enable-role-view" className="text-base font-bold">
+                          Sistema de Restrição por Cargo
+                        </Label>
+                        {configs?.enable_role_based_view ? (
+                          <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20 gap-1 px-1.5 py-0 h-5">
+                            <Check className="h-3 w-3" /> Ativo
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-muted-foreground gap-1 px-1.5 py-0 h-5">
+                            Inativo
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+                        Quando <strong>Ativo</strong>, as permissões de visualização abaixo serão aplicadas globalmente. 
+                        Se <strong>Inativo</strong>, todos os usuários (exceto restrições manuais específicas) terão acesso a todas as unidades.
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <Switch 
+                        id="enable-role-view" 
+                        checked={configs?.enable_role_based_view || false} 
+                        onCheckedChange={(v) => setShowRoleToggleConfirm(v)}
+                        className="data-[state=checked]:bg-primary"
+                      />
+                      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                        {configs?.enable_role_based_view ? "Ligado" : "Desligado"}
+                      </span>
+                    </div>
                   </div>
-                  <Switch 
-                    id="enable-role-view" 
-                    checked={configs?.enable_role_based_view || false} 
-                    onCheckedChange={(v) => setShowRoleToggleConfirm(v)}
-                  />
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                {!configs?.enable_role_based_view && (
+                  <Alert className="bg-amber-50 border-amber-200 text-amber-800">
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                    <div>
+                      <AlertTitle className="text-amber-800 font-semibold">Configurações Inativas</AlertTitle>
+                      <AlertDescription className="text-amber-700/90 text-xs">
+                        O sistema de restrição global está desativado. As definições por cargo abaixo estão sendo ignoradas no momento.
+                      </AlertDescription>
+                    </div>
+                  </Alert>
+                )}
+
+                <div className={`grid gap-6 md:grid-cols-2 transition-opacity duration-300 ${!configs?.enable_role_based_view ? "opacity-50 grayscale-[0.5]" : ""}`}>
                   {Object.entries(configs?.role_defaults || {}).map(([role, allowedUnits]) => (
                     <div key={role} className="space-y-3 p-4 border rounded-lg bg-card shadow-sm">
                       <div className="flex items-center justify-between flex-wrap gap-2">
