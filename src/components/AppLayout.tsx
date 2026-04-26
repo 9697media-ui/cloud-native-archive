@@ -112,7 +112,7 @@ export default function AppLayout() {
                           <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
                       </div>
-                      <span className="font-bold tracking-tight">ANA Brasil</span>
+                      <span className="font-bold tracking-tighter text-lg">anabrasil</span>
                     </SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col gap-1 px-2">
@@ -140,14 +140,9 @@ export default function AppLayout() {
                   <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </div>
-              <div className="flex flex-col">
-                <span className={cn("text-sm font-bold leading-tight text-foreground tracking-tight", isMobile ? "inline" : "hidden sm:inline")}>
-                  ANA Brasil
-                </span>
-                <span className={cn("text-[10px] font-medium leading-tight text-muted-foreground uppercase tracking-widest", isMobile ? "inline" : "hidden sm:inline")}>
-                  Institucional
-                </span>
-              </div>
+              <span className={cn("text-lg font-bold leading-none text-foreground tracking-tighter", isMobile ? "inline" : "hidden sm:inline")}>
+                anabrasil
+              </span>
             </Link>
 
             {!isMobile && (
