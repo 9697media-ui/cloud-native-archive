@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { 
-  HelpCircle, 
   Info, 
   BookOpen, 
   Lightbulb, 
@@ -22,8 +21,6 @@ import {
   ChevronUp,
   MapPin
 } from 'lucide-react';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 interface GuideSection {
@@ -290,120 +287,107 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
   if (!content) return null;
 
   return (
-    <div className={cn(
-      "fixed bottom-0 left-0 right-0 z-[100] transition-all duration-300 ease-in-out",
-      isOpen ? "translate-y-0" : "translate-y-0"
-    )}>
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <div className="bg-background/95 backdrop-blur-md border-t border-primary/20 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
-          <div className="mx-auto max-w-7xl px-4 py-2">
+    <div className="mt-12 mb-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 print:hidden">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
+        <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 bg-muted/30 border-b border-border/50">
             <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 overflow-hidden">
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-primary/10 text-primary shrink-0">
-                  <HelpCircle className="h-3.5 w-3.5" />
-                  <span className="text-xs font-bold uppercase tracking-wider hidden xs:inline">Guia</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary shrink-0">
+                  <BookOpen className="h-5 w-5" />
                 </div>
-                <div className="flex items-center gap-2 truncate">
-                  <span className="text-sm font-semibold text-foreground truncate">{content.title}</span>
-                  {!isOpen && content.units && (
-                    <div className="hidden md:flex items-center gap-3 ml-2 border-l pl-3 border-border">
-                      {content.units.items.slice(0, 4).map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-1.5">
-                          <div className={cn("h-2 w-2 rounded-full", item.color)} />
-                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">{item.title}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                <div className="flex flex-col">
+                  <h3 className="text-base font-bold text-foreground">Legenda e Funcionamento do Sistema</h3>
+                  <p className="text-xs text-muted-foreground">{content.title}</p>
                 </div>
               </div>
               
               <CollapsibleTrigger asChild>
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="sm" 
                   className={cn(
-                    "h-8 gap-2 hover:bg-primary/10 hover:text-primary transition-all rounded-full px-4",
-                    isOpen && "bg-primary/10 text-primary"
+                    "gap-2 transition-all rounded-lg",
+                    isOpen && "bg-primary/10 text-primary border-primary/20"
                   )}
                 >
-                  <span className="text-xs font-medium">{isOpen ? "Fechar" : "Expandir Guia"}</span>
+                  <span className="text-xs font-medium">{isOpen ? "Ocultar Detalhes" : "Ver Funcionamento"}</span>
                   <ChevronUp className={cn("h-4 w-4 transition-transform duration-300", isOpen && "rotate-180")} />
                 </Button>
               </CollapsibleTrigger>
             </div>
+          </div>
 
-            <CollapsibleContent className="animate-in slide-in-from-bottom-2 duration-300">
-              <div className="pt-4 pb-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Informações da Página */}
-                  <div className="lg:col-span-2 space-y-4">
-                    <div className="flex flex-col gap-1">
-                      <p className="text-xs text-muted-foreground leading-relaxed italic">
-                        {content.description}
-                      </p>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {content.sections.map((section, idx) => (
-                        <div key={idx} className="flex gap-3 p-3 rounded-lg border border-border bg-accent/5">
-                          <div className="mt-0.5 shrink-0 p-1.5 rounded-md bg-background shadow-sm">
-                            {section.icon || <Info className="h-4 w-4 text-primary" />}
-                          </div>
-                          <div className="space-y-0.5 flex-1">
-                            <h4 className="text-[11px] font-bold text-foreground uppercase tracking-tight">{section.title}</h4>
-                            <p className="text-[10px] text-muted-foreground leading-snug">
-                              {section.content}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+          <CollapsibleContent className="animate-in slide-in-from-top-2 duration-300">
+            <div className="p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Informações da Página */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {content.description}
+                    </p>
                   </div>
-
-                  {/* Legendas */}
-                  <div className="space-y-4 border-l border-border/50 pl-0 lg:pl-6">
-                    {content.units && (
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-3.5 w-3.5 text-primary" />
-                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{content.units.title}</h4>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {content.sections.map((section, idx) => (
+                      <div key={idx} className="flex gap-4 p-4 rounded-lg border border-border bg-accent/5 hover:bg-accent/10 transition-colors">
+                        <div className="mt-0.5 shrink-0 p-2 rounded-md bg-background shadow-sm">
+                          {section.icon || <Info className="h-4 w-4 text-primary" />}
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          {content.units.items.map((item, idx) => (
-                            <div key={idx} className="flex items-center gap-2 p-1.5 rounded-md bg-accent/5 border border-border/50">
-                              <div className={cn("h-2 w-2 rounded-full shadow-sm", item.color || 'bg-primary')} />
-                              <span className="text-[10px] font-medium text-foreground">{item.title}</span>
-                            </div>
-                          ))}
+                        <div className="space-y-1 flex-1">
+                          <h4 className="text-xs font-bold text-foreground uppercase tracking-tight">{section.title}</h4>
+                          <p className="text-[11px] text-muted-foreground leading-snug">
+                            {section.content}
+                          </p>
                         </div>
                       </div>
-                    )}
-
-                    {content.footer && (
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-3.5 w-3.5 text-primary" />
-                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{content.footer.title}</h4>
-                        </div>
-                        <div className="grid grid-cols-1 gap-1.5">
-                          {content.footer.items.map((item, idx) => (
-                            <div key={idx} className="flex items-center justify-between p-1.5 rounded-md bg-background border shadow-sm">
-                              <div className="flex items-center gap-2">
-                                <div className={cn("h-1.5 w-1.5 rounded-full", item.color || 'bg-primary')} />
-                                <span className="text-[10px] font-bold text-primary">{item.title}</span>
-                              </div>
-                              <span className="text-[9px] text-muted-foreground">{item.content}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    ))}
                   </div>
                 </div>
+
+                {/* Legendas */}
+                <div className="space-y-6 lg:border-l lg:border-border/50 lg:pl-8">
+                  {content.units && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{content.units.title}</h4>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
+                        {content.units.items.map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-3 p-2 rounded-md bg-accent/5 border border-border/50">
+                            <div className={cn("h-3 w-3 rounded-full shadow-sm", item.color || 'bg-primary')} />
+                            <span className="text-xs font-medium text-foreground">{item.title}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {content.footer && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{content.footer.title}</h4>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2">
+                        {content.footer.items.map((item, idx) => (
+                          <div key={idx} className="flex flex-col gap-1 p-2 rounded-md bg-background border shadow-sm">
+                            <div className="flex items-center gap-2">
+                              <div className={cn("h-2 w-2 rounded-full", item.color || 'bg-primary')} />
+                              <span className="text-xs font-bold text-primary">{item.title}</span>
+                            </div>
+                            <span className="text-[10px] text-muted-foreground leading-tight pl-4">{item.content}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </CollapsibleContent>
-          </div>
+            </div>
+          </CollapsibleContent>
         </div>
       </Collapsible>
     </div>
