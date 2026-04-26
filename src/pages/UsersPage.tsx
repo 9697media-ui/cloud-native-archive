@@ -24,7 +24,7 @@ import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import PageGuide from '@/components/PageGuide';
+
 
 const EMBED_PAGES = [
   { name: 'Visão Geral', path: '/' },
@@ -1701,7 +1701,7 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <PageGuide activeTab={activeTab} />
+      
     </div>
   );
 }

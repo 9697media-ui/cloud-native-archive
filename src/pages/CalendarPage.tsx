@@ -24,7 +24,7 @@ import EventFormDialog from '@/components/EventFormDialog';
 import EventDetailPanel from '@/components/EventDetailPanel';
 import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
-import PageGuide from '@/components/PageGuide';
+
 
 const unitDotColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic',
@@ -495,7 +495,7 @@ export default function CalendarPage() {
 
       <EventDetailPanel event={detailEvent} open={showDetail} onOpenChange={setShowDetail} onEdit={canEdit ? handleEdit : undefined} onDelete={canEdit ? handleDelete : undefined} />
       <EventFormDialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) setEditingEvent(null); }} event={editingEvent} />
-      <PageGuide activeTab={view} />
+      
     </div>
   );
 }
