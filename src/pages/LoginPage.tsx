@@ -119,7 +119,7 @@ export default function LoginPage() {
 
   if (mode === 'request_sent') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background p-4">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
