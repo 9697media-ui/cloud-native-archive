@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Edit2, Code2, Copy, Check, UserCheck, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown } from 'lucide-react';
+import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
@@ -84,6 +84,16 @@ export default function UsersPage() {
   const [bulkDelete, setBulkDelete] = useState(false);
   const [showRoleToggleConfirm, setShowRoleToggleConfirm] = useState<boolean | null>(null);
   const [approvalsExpanded, setApprovalsExpanded] = useState(false);
+  const [showPreRegister, setShowPreRegister] = useState(false);
+  const [preRegisterForm, setPreRegisterForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'viewer',
+    unit: 'Evento Geral do Grupo',
+    permission_level: 'visualizador'
+  });
+  const [preRegisterSubmitting, setPreRegisterSubmitting] = useState(false);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -94,6 +104,50 @@ export default function UsersPage() {
   // Impersonation dialog
   const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
   const [impersonateSubmitting, setImpersonateSubmitting] = useState(false);
+
+  const handlePreRegister = async () => {
+    if (!preRegisterForm.name || !preRegisterForm.email || !preRegisterForm.password) {
+      toast({ title: 'Campos obrigatórios', description: 'Preencha nome, e-mail e senha.', variant: 'destructive' });
+      return;
+    }
+    if (preRegisterForm.password.length < 6) {
+      toast({ title: 'Senha curta', description: 'Mínimo 6 caracteres.', variant: 'destructive' });
+      return;
+    }
+
+    setPreRegisterSubmitting(true);
+    const { data, error } = await supabase.functions.invoke('admin-create-user', {
+      body: {
+        ...preRegisterForm,
+        role: preRegisterForm.permission_level === 'admin_geral' ? 'admin' : 
+              preRegisterForm.permission_level === 'gestor_unidade' ? 'criador' : 
+              preRegisterForm.permission_level === 'editor' ? 'editor' : 'viewer'
+      },
+    });
+
+    setPreRegisterSubmitting(false);
+
+    if (error || (data as any)?.error) {
+      toast({ 
+        title: 'Erro ao cadastrar', 
+        description: (data as any)?.error || error?.message || 'Falha ao criar usuário.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    toast({ title: 'Usuário cadastrado!', description: `${preRegisterForm.name} foi adicionado ao sistema.` });
+    setShowPreRegister(false);
+    setPreRegisterForm({
+      name: '',
+      email: '',
+      password: '',
+      role: 'viewer',
+      unit: 'Evento Geral do Grupo',
+      permission_level: 'visualizador'
+    });
+    refetch();
+  };
 
   const handleResetPassword = async () => {
     if (!resetTarget) return;
@@ -616,6 +670,16 @@ export default function UsersPage() {
         className="mb-4"
         actions={
           <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
+            {isAdmin && (
+              <Button 
+                onClick={() => setShowPreRegister(true)}
+                className="gap-2 h-10 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">Pré-cadastro</span>
+                <span className="sm:hidden">Novo</span>
+              </Button>
+            )}
             <PageGuide activeTab={activeTab} />
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
@@ -1495,6 +1559,93 @@ export default function UsersPage() {
               setShowRoleToggleConfirm(null);
             }}>
               Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Pre-register dialog */}
+      <Dialog open={showPreRegister} onOpenChange={setShowPreRegister}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-primary" />
+              Pré-cadastro de Usuário
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="pre-name">Nome Completo</Label>
+              <Input 
+                id="pre-name" 
+                placeholder="Ex: João Silva" 
+                value={preRegisterForm.name} 
+                onChange={e => setPreRegisterForm({ ...preRegisterForm, name: e.target.value })} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pre-email">E-mail</Label>
+              <Input 
+                id="pre-email" 
+                type="email" 
+                placeholder="exemplo@email.com" 
+                value={preRegisterForm.email} 
+                onChange={e => setPreRegisterForm({ ...preRegisterForm, email: e.target.value })} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pre-password">Senha Provisória</Label>
+              <Input 
+                id="pre-password" 
+                type="text" 
+                placeholder="Mínimo 6 caracteres" 
+                value={preRegisterForm.password} 
+                onChange={e => setPreRegisterForm({ ...preRegisterForm, password: e.target.value })} 
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Informe esta senha ao usuário. Ele poderá alterá-la depois.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Nível de Acesso</Label>
+                <Select 
+                  value={preRegisterForm.permission_level} 
+                  onValueChange={v => {
+                    const newLevel = v as any;
+                    let newUnit = preRegisterForm.unit;
+                    if (newLevel === 'admin_geral') newUnit = 'Evento Geral do Grupo';
+                    else if (newLevel === 'gestor_unidade' && newUnit === 'Evento Geral do Grupo') newUnit = 'DIC';
+                    setPreRegisterForm({ ...preRegisterForm, permission_level: newLevel, unit: newUnit });
+                  }}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PERMISSION_LEVELS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Unidade</Label>
+                <Select 
+                  disabled={preRegisterForm.permission_level === 'admin_geral'}
+                  value={preRegisterForm.unit} 
+                  onValueChange={v => setPreRegisterForm({ ...preRegisterForm, unit: v as any })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {UNITS.filter(u => {
+                      if (preRegisterForm.permission_level === 'gestor_unidade') return u !== 'Evento Geral do Grupo';
+                      return true;
+                    }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPreRegister(false)} disabled={preRegisterSubmitting}>Cancelar</Button>
+            <Button onClick={handlePreRegister} disabled={preRegisterSubmitting}>
+              {preRegisterSubmitting ? 'Cadastrando...' : 'Finalizar Cadastro'}
             </Button>
           </DialogFooter>
         </DialogContent>
