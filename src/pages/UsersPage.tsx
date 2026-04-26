@@ -33,11 +33,9 @@ const EMBED_PAGES = [
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
   editor: 'Editor',
-  viewer: 'Visualizador',
   admin_geral: 'Admin Geral',
   gestor_unidade: 'Gestor de Unidade',
   usuario_padrao: 'Usuário Padrão',
-  visualizador: 'Visualizador',
   usuario_padrao_admin: 'Admin',
 };
 
