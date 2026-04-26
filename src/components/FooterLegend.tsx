@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ChevronDown, Info, Shield, Hammer, Users, Calendar, LayoutDashboard, History, LogIn } from 'lucide-react';
+import { ChevronDown, Info, Shield, Hammer, Users, Calendar, LayoutDashboard, History, LogIn, UserCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
