@@ -1084,6 +1084,7 @@ export default function UsersPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
+                      disabled={configs?.enable_role_based_view}
                       className="w-full gap-2"
                       onClick={async () => {
                         const { error } = await supabase
