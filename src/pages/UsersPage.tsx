@@ -1120,7 +1120,7 @@ export default function UsersPage() {
                         ))}
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="personalizado" className="p-6 space-y-6">
