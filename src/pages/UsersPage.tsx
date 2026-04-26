@@ -954,6 +954,7 @@ export default function UsersPage() {
                               id={`role-${role}-${unit}`}
                               className="scale-[0.7] origin-right"
                               checked={allowedUnits.includes(unit)}
+                              disabled={!configs?.enable_role_based_view}
                               onCheckedChange={(checked) => {
                                 const newUnits = checked 
                                   ? [...allowedUnits, unit]
