@@ -13,7 +13,7 @@ import UsersPage from "./pages/UsersPage";
 import LoginPage from "./pages/LoginPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
-import MappingPage from "./pages/MappingPage";
+
 
 const queryClient = new QueryClient();
 
@@ -53,9 +53,6 @@ const App = () => (
                   <Route path="/calendario" element={<CalendarPage />} />
                   <Route path="/usuarios" element={
                     <ProtectedRoute><UsersPage /></ProtectedRoute>
-                  } />
-                  <Route path="/mapeamento" element={
-                    <ProtectedRoute><MappingPage /></ProtectedRoute>
                   } />
                   <Route path="*" element={<NotFound />} />
                 </Route>

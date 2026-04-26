@@ -31,7 +31,7 @@ const navItems: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true },
-  { to: '/mapeamento', label: 'Mapeamento', icon: Settings, adminOnly: true, requireAuth: true },
+  
 ];
 
 export default function AppLayout() {
