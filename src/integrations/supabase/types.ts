@@ -303,8 +303,13 @@ export type Database = {
     Functions: {
       can_manage_unit: { Args: { target_unit: string }; Returns: boolean }
       check_audit_log_access: { Args: { log_unit: string }; Returns: boolean }
+      get_user_delegated_units: {
+        Args: { _user_id: string }
+        Returns: string[]
+      }
       get_user_role: { Args: { _user_id: string }; Returns: string }
       get_user_unit: { Args: { _user_id: string }; Returns: string }
+      get_user_unit_v2: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
