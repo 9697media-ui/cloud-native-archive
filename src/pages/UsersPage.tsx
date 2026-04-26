@@ -1261,36 +1261,27 @@ export default function UsersPage() {
                       <p className="text-xs text-muted-foreground text-center col-span-full py-4">Nenhum usuário com restrições customizadas.</p>
                     )}
                   </div>
-                </div>
-          </CardContent>
-        </Card>
-          </TabsContent>
-        )}
+                  </div>
+                </TabsContent>
 
-        {isAdmin && (
-          <TabsContent value="embed" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Code2 className="h-5 w-5 text-primary" />
-                Links e Códigos Embed
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Use estes links para incorporar páginas em sites externos.
-              </p>
-              {window.location.origin.includes('-preview--') && (
-                <Alert className="bg-primary/5 border-primary/10">
-                  <Eye className="h-4 w-4 text-primary" />
-                  <AlertTitle className="text-primary text-xs font-semibold">Nota de Publicação</AlertTitle>
-                  <AlertDescription className="text-muted-foreground text-[11px]">
-                    Detectamos que você está no ambiente de visualização. Os links abaixo já foram 
-                    ajustados para usar o domínio público <strong>r2-vault-craft.lovable.app</strong> para que 
-                    não peçam login do Lovable ao serem incorporados.
-                  </AlertDescription>
-                </Alert>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-6">
+                <TabsContent value="embed" className="p-6 space-y-6">
+                  <div className="space-y-1 mb-4">
+                    <p className="text-sm text-muted-foreground">
+                      Use estes links para incorporar páginas em sites externos.
+                    </p>
+                    {window.location.origin.includes('-preview--') && (
+                      <Alert className="bg-primary/5 border-primary/10 mt-2">
+                        <Eye className="h-4 w-4 text-primary" />
+                        <AlertTitle className="text-primary text-xs font-semibold">Nota de Publicação</AlertTitle>
+                        <AlertDescription className="text-muted-foreground text-[11px]">
+                          Detectamos que você está no ambiente de visualização. Os links abaixo já foram 
+                          ajustados para usar o domínio público para que não peçam login do Lovable.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-6 border-b">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
