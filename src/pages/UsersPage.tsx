@@ -806,7 +806,34 @@ export default function UsersPage() {
                     <div key={role} className="space-y-3 p-4 border rounded-lg">
                       <div className="flex items-center justify-between">
                         <Label className="font-bold capitalize">{ROLE_LABELS[role] || role}</Label>
-                        <Badge variant="outline">{allowedUnits.length} unidades</Badge>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                            title="Resetar todos os usuários deste perfil para este padrão"
+                            onClick={async () => {
+                              const usersToReset = combinedUsers.filter(u => u.permission_level === role && u.view_restrictions !== null);
+                              if (usersToReset.length === 0) {
+                                toast({ title: "Nenhum usuário com restrição customizada encontrada para este perfil" });
+                                return;
+                              }
+                              
+                              const { error } = await supabase
+                                .from('profiles')
+                                .update({ view_restrictions: null })
+                                .eq('permission_level', role);
+                              
+                              if (!error) {
+                                toast({ title: `${usersToReset.length} usuários resetados para o padrão` });
+                                refetch();
+                              }
+                            }}
+                          >
+                            <RefreshCw className="h-4 w-4" />
+                          </Button>
+                          <Badge variant="outline">{allowedUnits.length} unidades</Badge>
+                        </div>
                       </div>
                       <div className="grid grid-cols-1 gap-2">
                         {UNITS.map(unit => (
