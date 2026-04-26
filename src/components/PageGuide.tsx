@@ -1,23 +1,41 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogTrigger,
-  DialogClose
-} from "@/components/ui/dialog";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Info, BookOpen, Lightbulb, Clock, ShieldCheck, Search, LayoutGrid, List, Calendar as CalendarIcon, UserCog, Code2 } from 'lucide-react';
+import { 
+  HelpCircle, 
+  Info, 
+  BookOpen, 
+  Lightbulb, 
+  Clock, 
+  ShieldCheck, 
+  Search, 
+  LayoutGrid, 
+  List, 
+  Calendar as CalendarIcon, 
+  UserCog, 
+  Code2, 
+  ChevronUp,
+  MapPin
+} from 'lucide-react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 interface GuideSection {
   title: string;
   content: string;
   icon?: React.ReactNode;
+}
+
+interface LegendItem {
+  title: string;
+  content: string;
+  color?: string;
 }
 
 interface GuideContent {
@@ -26,13 +44,20 @@ interface GuideContent {
   sections: GuideSection[];
   footer?: {
     title: string;
-    items: Array<{
-      title: string;
-      content: string;
-      color?: string;
-    }>;
+    items: LegendItem[];
+  };
+  units?: {
+    title: string;
+    items: LegendItem[];
   };
 }
+
+const UNIT_LEGEND_ITEMS: LegendItem[] = [
+  { title: 'DIC', content: 'Unidade DIC', color: 'bg-unit-dic' },
+  { title: 'Nilópolis', content: 'Unidade Nilópolis', color: 'bg-unit-nilopolis' },
+  { title: 'Santana', content: 'Unidade Santana', color: 'bg-unit-santana' },
+  { title: 'Geral', content: 'Evento Geral do Grupo', color: 'bg-unit-geral' },
+];
 
 const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
   '/': {
@@ -60,6 +85,10 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         icon: <BookOpen className="h-4 w-4 text-green-500" />
       }
     ],
+    units: {
+      title: 'Legenda de Unidades',
+      items: UNIT_LEGEND_ITEMS
+    },
     footer: {
       title: 'Legenda de Status',
       items: [
@@ -91,10 +120,13 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           icon: <Lightbulb className="h-4 w-4 text-yellow-500" />
         }
       ],
+      units: {
+        title: 'Legenda de Unidades',
+        items: UNIT_LEGEND_ITEMS
+      },
       footer: {
         title: 'Cores e Identificação',
         items: [
-          { title: 'Unidades', content: 'Cores laterais identificam a unidade (DIC, Nilópolis, etc).', color: 'bg-primary' },
           { title: 'Status', content: 'Cores de fundo e bordas indicam se está Confirmado ou Pendente.', color: 'bg-amber-500' },
           { title: 'Conflitos', content: 'Dias com múltiplos eventos no mesmo horário são destacados.', color: 'bg-destructive' },
           { title: 'Hoje', content: 'O dia atual é destacado com um fundo suave azulado.', color: 'bg-blue-400' }
@@ -110,7 +142,11 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           content: 'Visualize a distribuição horária dos eventos ao longo de cada dia da semana.',
           icon: <CalendarIcon className="h-4 w-4 text-blue-500" />
         }
-      ]
+      ],
+      units: {
+        title: 'Legenda de Unidades',
+        items: UNIT_LEGEND_ITEMS
+      }
     },
     'list': {
       title: 'Guia do Calendário (Lista)',
@@ -121,7 +157,11 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           content: 'Ideal para uma visualização rápida e sequencial dos próximos compromissos em todas as unidades.',
           icon: <List className="h-4 w-4 text-blue-500" />
         }
-      ]
+      ],
+      units: {
+        title: 'Legenda de Unidades',
+        items: UNIT_LEGEND_ITEMS
+      }
     }
   },
   '/usuarios': {
@@ -225,7 +265,7 @@ interface PageGuideProps {
 }
 
 export default function PageGuide({ activeTab }: PageGuideProps) {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const path = location.pathname;
   
@@ -250,81 +290,122 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
   if (!content) return null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="gap-2 h-9 border-primary/20 hover:bg-primary/5 text-primary"
-        >
-          <HelpCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Guia da Página</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col p-0 overflow-hidden">
-        <div className="p-6 pb-2">
-          <DialogHeader>
-            <DialogTitle className="text-xl flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-primary" />
-              {content.title}
-            </DialogTitle>
-            <DialogDescription className="text-sm">
-              {content.description}
-            </DialogDescription>
-          </DialogHeader>
-        </div>
-        
-        <ScrollArea className="flex-1 px-6 pb-4">
-          <div className="space-y-4 pt-4">
-            {content.sections.map((section, idx) => (
-              <div key={idx} className="flex gap-3 p-3 rounded-lg border border-border bg-accent/30">
-                <div className="mt-0.5 shrink-0">
-                  {section.icon || <Info className="h-4 w-4 text-primary" />}
+    <div className={cn(
+      "fixed bottom-0 left-0 right-0 z-[100] transition-all duration-300 ease-in-out",
+      isOpen ? "translate-y-0" : "translate-y-0"
+    )}>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div className="bg-background/95 backdrop-blur-md border-t border-primary/20 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+          <div className="mx-auto max-w-7xl px-4 py-2">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-primary/10 text-primary shrink-0">
+                  <HelpCircle className="h-3.5 w-3.5" />
+                  <span className="text-xs font-bold uppercase tracking-wider hidden xs:inline">Guia</span>
                 </div>
-                <div className="space-y-1 flex-1">
-                  <h4 className="text-sm font-semibold text-foreground">{section.title}</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {section.content}
-                  </p>
+                <div className="flex items-center gap-2 truncate">
+                  <span className="text-sm font-semibold text-foreground truncate">{content.title}</span>
+                  {!isOpen && content.units && (
+                    <div className="hidden md:flex items-center gap-3 ml-2 border-l pl-3 border-border">
+                      {content.units.items.slice(0, 4).map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5">
+                          <div className={cn("h-2 w-2 rounded-full", item.color)} />
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">{item.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
+              
+              <CollapsibleTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "h-8 gap-2 hover:bg-primary/10 hover:text-primary transition-all rounded-full px-4",
+                    isOpen && "bg-primary/10 text-primary"
+                  )}
+                >
+                  <span className="text-xs font-medium">{isOpen ? "Fechar" : "Expandir Guia"}</span>
+                  <ChevronUp className={cn("h-4 w-4 transition-transform duration-300", isOpen && "rotate-180")} />
+                </Button>
+              </CollapsibleTrigger>
+            </div>
 
-            {content.footer && (
-              <>
-                <Separator className="my-4" />
-                <div className="rounded-lg border border-dashed bg-muted/30 overflow-hidden">
-                  <div className="px-3 py-2 border-b border-dashed bg-muted/50 flex items-center gap-2">
-                    <Clock className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-xs font-bold uppercase tracking-wider">{content.footer.title}</span>
+            <CollapsibleContent className="animate-in slide-in-from-bottom-2 duration-300">
+              <div className="pt-4 pb-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Informações da Página */}
+                  <div className="lg:col-span-2 space-y-4">
+                    <div className="flex flex-col gap-1">
+                      <p className="text-xs text-muted-foreground leading-relaxed italic">
+                        {content.description}
+                      </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {content.sections.map((section, idx) => (
+                        <div key={idx} className="flex gap-3 p-3 rounded-lg border border-border bg-accent/5">
+                          <div className="mt-0.5 shrink-0 p-1.5 rounded-md bg-background shadow-sm">
+                            {section.icon || <Info className="h-4 w-4 text-primary" />}
+                          </div>
+                          <div className="space-y-0.5 flex-1">
+                            <h4 className="text-[11px] font-bold text-foreground uppercase tracking-tight">{section.title}</h4>
+                            <p className="text-[10px] text-muted-foreground leading-snug">
+                              {section.content}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
-                    {content.footer.items.map((item, idx) => (
-                      <div key={idx} className="space-y-1.5 p-2 rounded-md bg-background/50 border">
-                        <h5 className="text-[11px] font-bold text-primary flex items-center gap-1.5">
-                          <div className={`h-2 w-2 rounded-full ${item.color || 'bg-primary'}`} />
-                          {item.title}
-                        </h5>
-                        <p className="text-[10px] text-muted-foreground leading-normal">
-                          {item.content}
-                        </p>
+
+                  {/* Legendas */}
+                  <div className="space-y-4 border-l border-border/50 pl-0 lg:pl-6">
+                    {content.units && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-3.5 w-3.5 text-primary" />
+                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{content.units.title}</h4>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {content.units.items.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-2 p-1.5 rounded-md bg-accent/5 border border-border/50">
+                              <div className={cn("h-2 w-2 rounded-full shadow-sm", item.color || 'bg-primary')} />
+                              <span className="text-[10px] font-medium text-foreground">{item.title}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+                    )}
+
+                    {content.footer && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-3.5 w-3.5 text-primary" />
+                          <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{content.footer.title}</h4>
+                        </div>
+                        <div className="grid grid-cols-1 gap-1.5">
+                          {content.footer.items.map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-1.5 rounded-md bg-background border shadow-sm">
+                              <div className="flex items-center gap-2">
+                                <div className={cn("h-1.5 w-1.5 rounded-full", item.color || 'bg-primary')} />
+                                <span className="text-[10px] font-bold text-primary">{item.title}</span>
+                              </div>
+                              <span className="text-[9px] text-muted-foreground">{item.content}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </>
-            )}
+              </div>
+            </CollapsibleContent>
           </div>
-        </ScrollArea>
-        
-        <div className="p-4 border-t border-border bg-accent/10 flex justify-end">
-          <DialogClose asChild>
-            <Button variant="default" size="sm">
-              Entendi
-            </Button>
-          </DialogClose>
         </div>
-      </DialogContent>
-    </Dialog>
+      </Collapsible>
+    </div>
   );
 }
