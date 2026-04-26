@@ -136,7 +136,8 @@ export function useUserRole() {
     viewRestrictions,
     permissionLevel,
     unit,
-    delegatedUnits
+    delegatedUnits,
+    canViewAuditoria
   };
 }
 
