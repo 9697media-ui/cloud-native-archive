@@ -402,8 +402,11 @@ export default function UsersPage() {
 
         // 2. Sincroniza com a tabela user_roles
         let mappedRole: 'admin' | 'editor' | 'viewer' = 'viewer';
-        if (editForm.permission_level === 'admin_geral') mappedRole = 'admin';
-        else if (editForm.permission_level === 'gestor_unidade') mappedRole = 'editor';
+        if (['admin_geral', 'diretor'].includes(editForm.permission_level)) {
+          mappedRole = 'admin';
+        } else if (['gestor_unidade', 'coordenador', 'analista'].includes(editForm.permission_level)) {
+          mappedRole = 'editor';
+        }
 
         const { error: roleError } = await supabase
           .from('user_roles')
