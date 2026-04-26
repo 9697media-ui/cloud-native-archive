@@ -1155,7 +1155,6 @@ export default function UsersPage() {
               </CardContent>
             </Card>
           </TabsContent>
-        )}
 
         <TabsContent value="embed" className="mt-4">
 
