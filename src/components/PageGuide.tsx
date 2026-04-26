@@ -184,8 +184,12 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       footer: {
         title: 'Legenda e Funcionamento do Sistema',
         items: [
-          { title: 'Sistema por Cargo Ativo', content: 'O acesso às unidades é determinado exclusivamente pelo cargo do usuário, ignorando restrições manuais.', color: 'bg-primary' },
-          { title: 'Sistema por Cargo Inativo', content: 'O sistema prioriza as Restrições Personalizadas de cada usuário. Caso não existam, o acesso é total.', color: 'bg-amber-500' }
+          { title: 'Sistema por Cargo Ativo', content: 'Quando Ligado, o sistema segue estritamente os padrões definidos por Cargo abaixo, ignorando restrições manuais.', color: 'bg-primary' },
+          { title: 'Sistema por Cargo Inativo', content: 'Quando Desligado, o sistema permite que você defina Restrições Individuais personalizadas por usuário.', color: 'bg-amber-500' },
+          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
+          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
+          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
+          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
         ]
       }
     },
