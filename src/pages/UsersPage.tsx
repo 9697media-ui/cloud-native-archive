@@ -600,30 +600,42 @@ export default function UsersPage() {
       />
 
       <Tabs defaultValue="users">
-        <TabsList>
-          <TabsTrigger value="approvals" className="gap-1.5">
-            <UserCheck className="h-3.5 w-3.5" />
-            Aprovações
-            {requests.length > 0 && (
-              <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] flex items-center justify-center">
-                {requests.length}
-              </Badge>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <TabsList className="w-full sm:w-auto overflow-x-auto justify-start">
+            <TabsTrigger value="approvals" className="gap-1.5">
+              <UserCheck className="h-3.5 w-3.5" />
+              Aprovações
+              {requests.length > 0 && (
+                <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] flex items-center justify-center">
+                  {requests.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="users">Usuários</TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="view-configs" className="gap-1.5">
+                <Eye className="h-3.5 w-3.5" />
+                Visualização
+              </TabsTrigger>
             )}
-          </TabsTrigger>
-          <TabsTrigger value="users">Usuários</TabsTrigger>
-          {isAdmin && (
-            <TabsTrigger value="view-configs" className="gap-1.5">
-              <Eye className="h-3.5 w-3.5" />
-              Visualização
-            </TabsTrigger>
-          )}
-          {isAdmin && (
-            <TabsTrigger value="embed" className="gap-1.5">
-              <Code2 className="h-3.5 w-3.5" />
-              Embed
-            </TabsTrigger>
-          )}
-        </TabsList>
+            {isAdmin && (
+              <TabsTrigger value="embed" className="gap-1.5">
+                <Code2 className="h-3.5 w-3.5" />
+                Embed
+              </TabsTrigger>
+            )}
+          </TabsList>
+
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input 
+              placeholder="Buscar usuário..." 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+              className="pl-9 h-10 shadow-sm" 
+            />
+          </div>
+        </div>
 
         {/* Approval panel */}
         <TabsContent value="approvals" className="mt-4 space-y-4">
@@ -703,14 +715,7 @@ export default function UsersPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="users" className="space-y-6 mt-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative w-full sm:max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Buscar usuário por nome ou email..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10 shadow-sm" />
-            </div>
-          </div>
-
+        <TabsContent value="users" className="space-y-6">
           {isAdmin && (
             <BulkActionBar
               type="users"
