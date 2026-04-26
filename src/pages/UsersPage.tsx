@@ -1567,7 +1567,7 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
+                </div>
 
       {/* Approval confirmation dialog */}
       <Dialog open={!!showApprovalConfirm} onOpenChange={(v) => { if (!v) setShowApprovalConfirm(null); }}>
