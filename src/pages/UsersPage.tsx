@@ -105,6 +105,50 @@ export default function UsersPage() {
   const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
   const [impersonateSubmitting, setImpersonateSubmitting] = useState(false);
 
+  const handlePreRegister = async () => {
+    if (!preRegisterForm.name || !preRegisterForm.email || !preRegisterForm.password) {
+      toast({ title: 'Campos obrigatórios', description: 'Preencha nome, e-mail e senha.', variant: 'destructive' });
+      return;
+    }
+    if (preRegisterForm.password.length < 6) {
+      toast({ title: 'Senha curta', description: 'Mínimo 6 caracteres.', variant: 'destructive' });
+      return;
+    }
+
+    setPreRegisterSubmitting(true);
+    const { data, error } = await supabase.functions.invoke('admin-create-user', {
+      body: {
+        ...preRegisterForm,
+        role: preRegisterForm.permission_level === 'admin_geral' ? 'admin' : 
+              preRegisterForm.permission_level === 'gestor_unidade' ? 'criador' : 
+              preRegisterForm.permission_level === 'editor' ? 'editor' : 'viewer'
+      },
+    });
+
+    setPreRegisterSubmitting(false);
+
+    if (error || (data as any)?.error) {
+      toast({ 
+        title: 'Erro ao cadastrar', 
+        description: (data as any)?.error || error?.message || 'Falha ao criar usuário.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    toast({ title: 'Usuário cadastrado!', description: `${preRegisterForm.name} foi adicionado ao sistema.` });
+    setShowPreRegister(false);
+    setPreRegisterForm({
+      name: '',
+      email: '',
+      password: '',
+      role: 'viewer',
+      unit: 'Evento Geral do Grupo',
+      permission_level: 'visualizador'
+    });
+    refetch();
+  };
+
   const handleResetPassword = async () => {
     if (!resetTarget) return;
     if (newPassword.length < 6) {
