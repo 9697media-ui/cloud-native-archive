@@ -7,10 +7,11 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AppEvent, EventStatus, UNITS, Unit } from '@/types';
-import { CalendarDays, CheckCircle2, Clock, AlertCircle, Plus, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Camera, Handshake } from 'lucide-react';
+import { CalendarDays, CheckCircle2, Clock, AlertCircle, Plus, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Camera, Handshake, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -46,6 +47,7 @@ export default function Dashboard() {
   const [showDetail, setShowDetail] = useState(false);
   const [editingEvent, setEditingEvent] = useState<AppEvent | null>(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [search, setSearch] = useState('');
   
   const [showConflicts, setShowConflicts] = useState(false);
   const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
@@ -57,21 +59,31 @@ export default function Dashboard() {
   
   const threeDaysAgo = useMemo(() => subDays(new Date(), 3), []);
 
-  const monthEvents = useMemo(() => events.filter(e => {
+  const searchedEvents = useMemo(() => {
+    if (!search) return events;
+    const s = search.toLowerCase();
+    return events.filter(e => 
+      e.title.toLowerCase().includes(s) || 
+      (e.location && e.location.toLowerCase().includes(s)) ||
+      (e.description && e.description.toLowerCase().includes(s))
+    );
+  }, [events, search]);
+
+  const monthEvents = useMemo(() => searchedEvents.filter(e => {
     const d = new Date(e.start_datetime);
     return d >= monthStart && d <= monthEnd;
-  }), [events, monthStart, monthEnd]);
+  }), [searchedEvents, monthStart, monthEnd]);
 
   // Events from 3 days ago onwards (no end limit) for total count
-  const activeEvents = useMemo(() => events.filter(e => {
+  const activeEvents = useMemo(() => searchedEvents.filter(e => {
     const d = new Date(e.start_datetime);
     return d >= threeDaysAgo;
-  }), [events, threeDaysAgo]);
+  }), [searchedEvents, threeDaysAgo]);
 
-  const weekEvents = useMemo(() => events.filter(e => {
+  const weekEvents = useMemo(() => searchedEvents.filter(e => {
     const d = new Date(e.start_datetime);
     return isWithinInterval(d, { start: weekStart, end: weekEnd });
-  }), [events, weekStart, weekEnd]);
+  }), [searchedEvents, weekStart, weekEnd]);
 
   const stats = useMemo(() => ({
     total: monthEvents.length,
@@ -124,13 +136,24 @@ export default function Dashboard() {
         description="Programação institucional de todas as unidades"
         hidden={hideTitle}
         actions={
-          <>
+          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto">
             {canEdit && (
-              <Button onClick={() => setShowNewEvent(true)} className="gap-2 shadow-sm">
+              <Button onClick={() => setShowNewEvent(true)} className="gap-2 shadow-sm h-10">
                 <Plus className="h-4 w-4" /> Nova Programação
               </Button>
             )}
-            <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm">
+            
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input 
+                placeholder="Buscar..." 
+                value={search} 
+                onChange={e => setSearch(e.target.value)} 
+                className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm h-10">
               <button onClick={prevMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
               <Popover>
                 <PopoverTrigger asChild>
@@ -154,7 +177,7 @@ export default function Dashboard() {
               </Popover>
               <button onClick={nextMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
             </div>
-          </>
+          </div>
         }
       />
 
