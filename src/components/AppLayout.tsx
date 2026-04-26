@@ -73,10 +73,10 @@ export default function AppLayout() {
             to={`${item.to}${location.search}`}
             onClick={onClick}
             className={cn(
-              "flex items-center gap-2.5 rounded-lg px-4 py-2 text-sm font-bold transition-all duration-200",
+              "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
               active
-                ? "bg-background text-primary shadow-sm ring-1 ring-border/50"
-                : "text-muted-foreground hover:text-foreground hover:bg-background/50",
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground",
               isMobile && "px-4 py-3 text-base"
             )}
           >
@@ -94,39 +94,34 @@ export default function AppLayout() {
       {!hideHeaderParam && <ImpersonationBanner />}
       {!hideHeaderParam && <TestModeBanner />}
       {!hideHeaderParam && (
-        <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-          <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-8">
+        <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+          <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 lg:px-8">
             {isMobile && (
               <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="shrink-0 rounded-lg hover:bg-accent/50">
+                  <Button variant="ghost" size="icon" className="shrink-0">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[280px] p-0 border-r border-border/40">
-                  <SheetHeader className="p-6 text-left border-b border-border/40">
-                    <SheetTitle className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
-                        <Calendar className="h-5 w-5 text-primary-foreground" />
+                <SheetContent side="left" className="w-[280px] p-0">
+                  <SheetHeader className="p-6 text-left">
+                    <SheetTitle className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                        <Calendar className="h-4 w-4 text-primary-foreground" />
                       </div>
-                      <span className="font-bold tracking-tight">Central ANA</span>
+                      <span>Central ANA</span>
                     </SheetTitle>
                   </SheetHeader>
-                  <nav className="flex flex-col gap-1.5 p-4">
+                  <nav className="flex flex-col gap-1 px-2">
                     <NavContent onClick={() => setIsMenuOpen(false)} />
                   </nav>
-                  <div className="absolute bottom-0 left-0 w-full p-4 border-t border-border/40 bg-accent/5">
+                  <div className="absolute bottom-4 left-0 w-full px-6">
                     {isAuthenticated && (
-                      <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3 px-2">
-                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <UserCircle className="h-5 w-5 text-primary" />
-                          </div>
-                          <p className="text-xs font-semibold text-foreground truncate">{user?.email}</p>
-                        </div>
-                        <Button variant="outline" size="sm" onClick={() => signOut()} className="w-full justify-start gap-2 rounded-lg border-border/60">
+                      <div className="flex flex-col gap-4 border-t border-border pt-4">
+                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                        <Button variant="outline" size="sm" onClick={() => signOut()} className="w-full justify-start gap-2">
                           <LogOut className="h-4 w-4" />
-                          <span className="font-medium">Sair da conta</span>
+                          Sair
                         </Button>
                       </div>
                     )}
@@ -135,41 +130,38 @@ export default function AppLayout() {
               </Sheet>
             )}
 
-            <Link to={`/${location.search}`} className="flex items-center gap-3 shrink-0 transition-opacity hover:opacity-90">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
-                <Calendar className="h-5 w-5 text-primary-foreground" />
+            <Link to={`/${location.search}`} className="flex items-center gap-2 shrink-0">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <Calendar className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className={cn("text-lg font-bold tracking-tight text-foreground", isMobile ? "inline" : "hidden sm:inline")}>
+              <span className={cn("text-sm font-semibold text-foreground", isMobile ? "inline" : "hidden sm:inline")}>
                 Central ANA
               </span>
             </Link>
 
             {!isMobile && (
-              <nav className="flex items-center gap-1.5 ml-8 bg-muted/30 p-1 rounded-xl border border-border/40">
+              <nav className="flex items-center gap-1 flex-1">
                 <NavContent />
               </nav>
             )}
 
-            <div className="flex items-center gap-4 shrink-0 ml-auto">
+            <div className="flex items-center gap-3 shrink-0 ml-auto">
               <TestModeTrigger />
               {isAuthenticated ? (
-                <div className="flex items-center gap-4">
-                  <div className="hidden lg:flex flex-col items-end">
-                    <span className="text-xs font-bold text-foreground truncate max-w-[150px]">{user?.email}</span>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Admin</span>
-                  </div>
+                <>
+                  <span className="text-xs text-muted-foreground hidden md:inline">{user?.email}</span>
                   {!isMobile && (
-                    <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-2 rounded-lg hover:bg-destructive/5 hover:text-destructive transition-colors px-3">
+                    <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5">
                       <LogOut className="h-4 w-4" />
-                      <span className="hidden sm:inline font-semibold text-xs uppercase tracking-wider">Sair</span>
+                      <span className="hidden sm:inline">Sair</span>
                     </Button>
                   )}
-                </div>
+                </>
               ) : (
                 <Link to="/login">
-                  <Button variant="outline" size="sm" className="gap-2 rounded-xl border-border/60 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all px-4 shadow-sm active:scale-95">
+                  <Button variant="outline" size="sm" className="gap-1.5">
                     <LogIn className="h-4 w-4" />
-                    <span className="hidden sm:inline font-bold text-xs uppercase tracking-wider">Login Admin</span>
+                    <span className="hidden sm:inline">Login Admin</span>
                   </Button>
                 </Link>
               )}

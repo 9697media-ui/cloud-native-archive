@@ -116,33 +116,33 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="animate-in fade-in duration-700 space-y-8 pb-10">
+    <div className="animate-fade-in space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {!hideTitle && (
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Visão Geral</h1>
-            <p className="text-sm text-muted-foreground">Programação institucional de todas as unidades</p>
+          <div>
+            <h1 className="text-xl font-bold text-foreground sm:text-2xl">Visão Geral</h1>
+            <p className="text-xs text-muted-foreground sm:text-sm">Programação institucional de todas as unidades</p>
           </div>
         )}
         <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center", hideTitle && "ml-auto")}>
           {canEdit && (
-            <Button onClick={() => setShowNewEvent(true)} className="w-full gap-2 sm:w-auto shadow-sm hover:shadow-md transition-all active:scale-95">
-              <Plus className="h-4 w-4" /> <span className="sm:inline font-medium">Nova Programação</span>
+            <Button onClick={() => setShowNewEvent(true)} className="w-full gap-2 sm:w-auto">
+              <Plus className="h-4 w-4" /> <span className="sm:inline">Nova Programação</span>
             </Button>
           )}
-          <div className="flex items-center justify-between gap-1 rounded-xl border border-border bg-card/50 backdrop-blur-sm px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm">
-            <button onClick={prevMonth} className="p-1.5 hover:bg-accent rounded-lg transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
+          <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2">
+            <button onClick={prevMonth} className="p-1 hover:bg-accent rounded"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center justify-center gap-2 rounded-lg px-3 py-1 hover:bg-accent transition-all min-w-[120px] sm:min-w-[180px]">
-                  <CalendarDays className="h-4 w-4 text-primary shrink-0" />
-                  <span className="text-sm font-semibold capitalize text-foreground tracking-tight">
+                <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
+                  <CalendarDays className="h-3.5 w-3.5 text-muted-foreground shrink-0 sm:h-4 sm:w-4" />
+                  <span className="text-xs font-medium capitalize text-foreground sm:text-sm">
                     {format(selectedMonth, isMobile ? 'MMM yyyy' : 'MMMM yyyy', { locale: ptBR })}
                   </span>
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 border-border shadow-xl rounded-xl" align="end">
+              <PopoverContent className="w-auto p-0" align="end">
                 <Calendar
                   mode="single"
                   selected={selectedMonth}
@@ -153,51 +153,45 @@ export default function Dashboard() {
                 />
               </PopoverContent>
             </Popover>
-            <button onClick={nextMonth} className="p-1.5 hover:bg-accent rounded-lg transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
+            <button onClick={nextMonth} className="p-1 hover:bg-accent rounded"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
           </div>
         </div>
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((s, i) => (
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 sm:gap-4">
+        {statCards.map(s => (
           <Card
             key={s.label}
             className={cn(
-              "group relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all hover:border-primary/20 hover:shadow-xl hover:-translate-y-1",
+              "transition-shadow hover:shadow-md",
               s.onClick ? 'cursor-pointer' : ''
             )}
-            style={{ animationDelay: `${i * 100}ms` }}
             onClick={s.onClick}
           >
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{s.label}</p>
-                <div className={cn("rounded-full p-2 bg-background shadow-inner transition-colors group-hover:bg-primary/10", s.color)}>
-                  <s.icon className="h-5 w-5 transition-transform group-hover:scale-110" />
-                </div>
+                <p className="text-[10px] font-medium text-muted-foreground sm:text-xs uppercase tracking-wider">{s.label}</p>
+                <s.icon className={`h-5 w-5 ${s.color} opacity-70 shrink-0 sm:h-6 sm:w-6`} />
               </div>
-              <div className="mt-4 flex items-baseline gap-2">
-                <p className="text-3xl font-bold tracking-tight text-foreground">{s.value}</p>
-              </div>
-              
+              <p className="mt-1 text-2xl font-bold text-foreground sm:mt-2 sm:text-3xl">{s.value}</p>
               {s.label === 'Total de Eventos' && (
-                <div className="mt-6 flex items-center gap-4 border-t border-border/50 pt-4">
+                <div className="mt-2 flex items-center gap-3 border-t border-border pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
                   <button
-                    className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-primary/5 transition-colors"
+                    className="flex items-center gap-1 hover:opacity-70 transition-opacity"
                     title="Solicitações de Marketing"
                     onClick={(ev) => { ev.stopPropagation(); setShowFiltered('marketing'); }}
                   >
-                    <Camera className="h-4 w-4 text-primary/70" />
-                    <span className="text-sm font-bold text-foreground">{stats.marketing}</span>
+                    <Camera className="h-3.5 w-3.5 text-info sm:h-4 sm:w-4" />
+                    <span className="text-xs font-semibold text-foreground sm:text-sm">{stats.marketing}</span>
                   </button>
                   <button
-                    className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-primary/5 transition-colors"
+                    className="flex items-center gap-1 hover:opacity-70 transition-opacity"
                     title="Parceiros Envolvidos"
                     onClick={(ev) => { ev.stopPropagation(); setShowFiltered('partners'); }}
                   >
-                    <Handshake className="h-4 w-4 text-primary/70" />
-                    <span className="text-sm font-bold text-foreground">{stats.partners}</span>
+                    <Handshake className="h-3.5 w-3.5 text-info sm:h-4 sm:w-4" />
+                    <span className="text-xs font-semibold text-foreground sm:text-sm">{stats.partners}</span>
                   </button>
                 </div>
               )}
@@ -206,64 +200,46 @@ export default function Dashboard() {
         ))}
       </div>
 
+
       {/* Timeline da Semana Atual */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-lg overflow-hidden">
-        <CardContent className="p-0">
-          <div className="border-b border-border/50 p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Clock className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold tracking-tight text-foreground">Timeline Semanal</h2>
-                <p className="text-xs text-muted-foreground">Próximos compromissos agendados</p>
-              </div>
+      <Card>
+        <CardContent className="p-4 sm:p-5">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold text-foreground">Timeline da Semana Atual</h2>
             </div>
-            <div className="grid grid-cols-2 items-center gap-x-6 gap-y-2 px-4 py-2 rounded-xl bg-muted/30">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               {UNITS.map(u => (
-                <div key={u} className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[u]} shadow-sm`} />
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
+                <div key={u} className="flex items-center gap-1.5">
+                  <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                  <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="p-6">
-            {weekEvents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <CalendarDays className="h-12 w-12 text-muted/20 mb-3" />
-                <p className="text-sm font-medium text-muted-foreground">Nenhum evento programado para esta semana</p>
-              </div>
-            ) : (
-              <div className="grid gap-3">
-                {weekEvents.slice(0, 6).map((e, i) => (
-                  <button 
-                    key={e.id} 
-                    onClick={() => handleEventClick(e)}
-                    className="group flex w-full items-center gap-4 rounded-xl border border-border/40 bg-background/50 p-4 text-left transition-all hover:border-primary/30 hover:shadow-md hover:bg-accent/50"
-                  >
-                    <div className={cn("h-10 w-1 rounded-full", unitDotColors[e.unit])} />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">{e.title}</h3>
-                      <div className="mt-1 flex items-center gap-3">
-                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <CalendarDays className="h-3 w-3" />
-                          {format(new Date(e.start_datetime), "EEEE, dd 'de' MMMM", { locale: ptBR })}
-                        </span>
-                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                          <Clock className="h-3 w-3" />
-                          {format(new Date(e.start_datetime), 'HH:mm')}
-                        </span>
-                      </div>
+          {weekEvents.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento nesta semana</p>
+          ) : (
+            <div className="space-y-1.5 sm:space-y-2">
+              {weekEvents.slice(0, 6).map(e => (
+                <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
+                  <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
+                    <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                    <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
+                    <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
+                        {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
+                      </span>
+                      <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
+                        {e.status}
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className={cn("ml-auto text-[10px] uppercase tracking-widest px-2.5 py-1 font-bold border-border/50", getStatusBadgeClass(e.status))}>
-                      {e.status}
-                    </Badge>
                   </button>
-                ))}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
