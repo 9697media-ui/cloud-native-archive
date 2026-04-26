@@ -167,7 +167,7 @@ export default function AuditPage() {
           </div>
         </CardContent>
       </Card>
-      <PageGuide />
+      
     </div>
   );
 }
