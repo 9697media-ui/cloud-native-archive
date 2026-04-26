@@ -88,10 +88,10 @@ export function useUserRole() {
       if (!effectiveRole && profileData?.permission_level) {
         if (profileData.permission_level === 'admin_geral') effectiveRole = 'admin';
         else if (profileData.permission_level === 'gestor_unidade') effectiveRole = 'editor';
-        else effectiveRole = 'viewer';
+        else effectiveRole = null;
       }
 
-      if (effectiveRole) {
+      if (effectiveRole && (effectiveRole === 'admin' || effectiveRole === 'editor')) {
         setRole(effectiveRole as UserRole);
         setAccessStatus('approved');
       } else {
@@ -116,7 +116,7 @@ export function useUserRole() {
   const isAdmin = role === 'admin';
   const isManager = role === 'editor' || role === 'admin';
   const canEdit = isAdmin || isManager;
-  const canView = role !== null;
+  const canView = true; // System is public
 
   return { 
     role, 
