@@ -10,31 +10,34 @@ export function useFilteredEvents() {
   const { configs } = useViewConfigs();
 
   const filteredEvents = useMemo(() => {
-    // Admins see everything
+    // Admins sempre veem tudo
     if (isAdmin) return events;
 
-    // If role-based view is disabled, see everything
-    if (configs && configs.enable_role_based_view === false) return events;
-
-    // Determine allowed units
+    // Determinar unidades permitidas seguindo lógica de mercado
     let allowedUnits: string[] | null = null;
 
-    if (viewRestrictions !== null && viewRestrictions !== undefined) {
-      // User has custom restrictions (even if empty array [])
-      allowedUnits = viewRestrictions;
-    } else if (permissionLevel && configs?.role_defaults?.[permissionLevel]) {
-      // Use role defaults
-      allowedUnits = configs.role_defaults[permissionLevel];
+    if (configs?.enable_role_based_view) {
+      // 1. MODO CARGO ATIVO: O padrão do cargo tem precedência TOTAL e ignora personalizações individuais
+      // Isso garante conformidade com a regra do sistema
+      if (permissionLevel && configs?.role_defaults?.[permissionLevel]) {
+        allowedUnits = configs.role_defaults[permissionLevel];
+      } else {
+        // Se o sistema está ativo mas não há regra para o cargo, por segurança não mostramos nada
+        return [];
+      }
     } else {
-      // Se não houver restrições definidas e o sistema estiver ativo, por segurança não mostramos nada
-      // ao invés de mostrar tudo (exceto para admins que já foram validados acima)
-      return [];
+      // 2. MODO CARGO DESATIVADO: Permite personalizações individuais ou acesso total
+      if (viewRestrictions !== null && viewRestrictions !== undefined) {
+        allowedUnits = viewRestrictions;
+      } else {
+        // Sem restrições de cargo E sem restrição individual = Acesso Total
+        return events;
+      }
     }
 
     if (allowedUnits === null) return [];
 
-
-    // Filter events by unit
+    // Filtra os eventos pelas unidades permitidas
     return events.filter(event => allowedUnits.includes(event.unit));
   }, [events, viewRestrictions, permissionLevel, configs, isAdmin]);
 
