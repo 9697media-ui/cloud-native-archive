@@ -204,25 +204,24 @@ export default function CalendarPage() {
 
   return (
     <div className="animate-fade-in space-y-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-        {!hideTitle && (
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Calendário</h1>
-            <p className="text-sm text-muted-foreground">Visualize e gerencie a programação em diferentes formatos</p>
+      <PageHeader
+        title="Calendário"
+        description="Visualize e gerencie a programação em diferentes formatos"
+        hidden={hideTitle}
+        actions={
+          <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg shadow-sm border border-border">
+            <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3">
+              <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>
+            </Button>
+            <Button variant={view === 'week' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('week')} className="px-3">
+              <CalendarIcon className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Semana</span>
+            </Button>
+            <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('list')} className="px-3">
+              <List className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Lista</span>
+            </Button>
           </div>
-        )}
-        <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg w-fit shadow-sm border border-border">
-          <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3">
-            <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>
-          </Button>
-          <Button variant={view === 'week' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('week')} className="px-3">
-            <CalendarIcon className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Semana</span>
-          </Button>
-          <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('list')} className="px-3">
-            <List className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Lista</span>
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Filters and Search */}
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
