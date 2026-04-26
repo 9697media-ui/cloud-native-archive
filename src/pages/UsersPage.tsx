@@ -311,8 +311,11 @@ export default function UsersPage() {
     if (!isAdmin) {
       if (isManager) {
         // Gestor pode ver gestores, editores, usuários, visualizadores e viewers
+        // Garantindo que 'admin' e 'admin_geral' NUNCA apareçam para gestores
         baseUsers = baseUsers.filter(u => 
-          ['gestor_unidade', 'editor', 'usuario_padrao', 'visualizador', 'viewer'].includes(u.permission_level as string)
+          ['gestor_unidade', 'editor', 'usuario_padrao', 'visualizador', 'viewer'].includes(u.permission_level as string) &&
+          u.permission_level !== 'admin' && 
+          u.permission_level !== 'admin_geral'
         );
       } else {
         // Usuário e visualizador podem ver somente o seu próprio perfil
