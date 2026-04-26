@@ -670,6 +670,16 @@ export default function UsersPage() {
         className="mb-4"
         actions={
           <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
+            {isAdmin && (
+              <Button 
+                onClick={() => setShowPreRegister(true)}
+                className="gap-2 h-10 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">Pré-cadastro</span>
+                <span className="sm:hidden">Novo</span>
+              </Button>
+            )}
             <PageGuide activeTab={activeTab} />
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
