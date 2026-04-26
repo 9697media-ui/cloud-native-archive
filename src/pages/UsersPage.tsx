@@ -1263,6 +1263,7 @@ export default function UsersPage() {
                     )}
                   </div>
                   </div>
+                </div>
                 </TabsContent>
 
                 <TabsContent value="embed" className="p-6 space-y-6">
