@@ -936,35 +936,6 @@ export default function UsersPage() {
                   </div>
                 </div>
 
-                <Card className="bg-muted/30 border-dashed">
-                  <CardHeader className="py-4">
-                    <CardTitle className="text-base font-bold flex items-center gap-2">
-                      <RefreshCw className="h-4 w-4 text-primary" />
-                      Legenda e Funcionamento do Sistema
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid gap-6 md:grid-cols-2 pt-0">
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                        Sistema por Cargo ATIVO
-                      </h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        O acesso é determinado <strong>exclusivamente</strong> pelo cargo. Restrições personalizadas são ignoradas.
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-slate-400" />
-                        Sistema por Cargo INATIVO
-                      </h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        O sistema prioriza as <strong>Restrições Personalizadas</strong> de cada usuário sobre o cargo.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
 
                 {!configs?.enable_role_based_view && (
                   <Alert className="bg-amber-50 border-amber-200 text-amber-800">
