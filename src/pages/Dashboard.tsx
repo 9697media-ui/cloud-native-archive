@@ -143,6 +143,42 @@ export default function Dashboard() {
               </Button>
             )}
             
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm h-10">
+                <button onClick={prevMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
+                      <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="text-sm font-medium capitalize text-foreground">
+                        {format(selectedMonth, isMobile ? 'MMM yyyy' : 'MMMM yyyy', { locale: ptBR })}
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={selectedMonth}
+                      onSelect={(date) => date && setSelectedMonth(date)}
+                      defaultMonth={selectedMonth}
+                      className={cn("p-3 pointer-events-auto")}
+                      locale={ptBR}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <button onClick={nextMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
+              </div>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setSelectedMonth(new Date())}
+                className="h-10 px-3 shadow-sm border-muted-foreground/20 bg-card hover:bg-accent"
+              >
+                Hoje
+              </Button>
+            </div>
+            
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input 
@@ -151,31 +187,6 @@ export default function Dashboard() {
                 onChange={e => setSearch(e.target.value)} 
                 className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
               />
-            </div>
-
-            <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm h-10">
-              <button onClick={prevMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
-                    <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <span className="text-sm font-medium capitalize text-foreground">
-                      {format(selectedMonth, isMobile ? 'MMM yyyy' : 'MMMM yyyy', { locale: ptBR })}
-                    </span>
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="single"
-                    selected={selectedMonth}
-                    onSelect={(date) => date && setSelectedMonth(date)}
-                    defaultMonth={selectedMonth}
-                    className={cn("p-3 pointer-events-auto")}
-                    locale={ptBR}
-                  />
-                </PopoverContent>
-              </Popover>
-              <button onClick={nextMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
             </div>
           </div>
         }

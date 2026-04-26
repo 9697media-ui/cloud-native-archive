@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, LayoutGrid, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, LayoutGrid, Search, Plus } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import EventFormDialog from '@/components/EventFormDialog';
 import EventDetailPanel from '@/components/EventDetailPanel';
@@ -57,7 +57,6 @@ export default function CalendarPage() {
   const [conflictOnly, setConflictOnly] = useState(false);
   const [highlightConflicts, setHighlightConflicts] = useState(false);
 
-  // When navigated with ?conflitos=true, enable conflict filter + pulse animation for 30s
   useEffect(() => {
     if (searchParams.get('conflitos') === 'true') {
       setConflictOnly(true);
@@ -68,11 +67,8 @@ export default function CalendarPage() {
     }
   }, []);
 
-  // Detail panel state
   const [detailEvent, setDetailEvent] = useState<AppEvent | null>(null);
   const [showDetail, setShowDetail] = useState(false);
-
-  // Edit form state
   const [editingEvent, setEditingEvent] = useState<AppEvent | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
@@ -187,10 +183,8 @@ export default function CalendarPage() {
       updated_by: userName || 'Usuário'
     };
 
-    // O recalculateAllConflicts no AppContext já cuidará de atualizar os flags de conflito
-    // tanto para este evento quanto para os outros afetados.
     updateEvent(updatedEvent);
-  }, [events, detectConflicts, updateEvent]);
+  }, [events, updateEvent, userName]);
 
   const prev = () => setSelectedMonth(view === 'week'
     ? new Date(selectedMonth.getTime() - 7 * 86400000)
@@ -206,47 +200,60 @@ export default function CalendarPage() {
   return (
     <div className="animate-fade-in space-y-6">
       <PageHeader
-        title="Calendário"
-        description="Visualize e gerencie a programação"
+        title={hideTitle ? "" : "Calendário de Eventos"}
+        description={hideTitle ? "" : "Visualize e gerencie a programação em formato de calendário"}
         hidden={hideTitle}
+        className="mb-4"
         actions={
-          <div className="flex flex-wrap items-center gap-3">
-            <Tabs value={view} onValueChange={(v) => setView(v as View)} className="w-auto">
-              <TabsList className="h-10">
-                <TabsTrigger value="month" className="gap-1.5 h-8">
-                  <LayoutGrid className="h-4 w-4" /> <span className="hidden sm:inline">Mês</span>
-                </TabsTrigger>
-                <TabsTrigger value="week" className="gap-1.5 h-8">
-                  <CalendarIcon className="h-4 w-4" /> <span className="hidden sm:inline">Semana</span>
-                </TabsTrigger>
-                <TabsTrigger value="list" className="gap-1.5 h-8">
-                  <List className="h-4 w-4" /> <span className="hidden sm:inline">Lista</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 rounded-lg border border-border bg-background px-2 py-1.5 shadow-sm h-10">
+                <button onClick={prev} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="text-sm font-medium capitalize text-foreground">
+                        {view === 'week'
+                          ? `${format(weekStart, 'dd MMM', { locale: ptBR })} - ${format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}`
+                          : format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={selectedMonth}
+                      onSelect={(date) => date && setSelectedMonth(date)}
+                      defaultMonth={selectedMonth}
+                      className={cn("p-3 pointer-events-auto")}
+                      locale={ptBR}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <button onClick={next} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
+              </div>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setSelectedMonth(new Date())}
+                className="h-10 px-3 shadow-sm border-muted-foreground/20 bg-background"
+              >
+                Hoje
+              </Button>
+            </div>
 
             <div className="flex items-center gap-2">
-              <Select value={filterUnit} onValueChange={setFilterUnit}>
-                <SelectTrigger className="h-10 w-[130px] shadow-sm bg-background"><SelectValue placeholder="Unidade" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Unidades</SelectItem>
-                  {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Status" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Status</SelectItem>
-                  {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Tipo" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tipos</SelectItem>
-                  {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              {canEdit && (
+                <Button 
+                  onClick={() => setShowForm(true)} 
+                  className="gap-2 h-10 shadow-sm"
+                >
+                  <Plus className="h-4 w-4" /> Novo
+                </Button>
+              )}
+              
               <Button 
                 variant={conflictOnly ? 'secondary' : 'outline'} 
                 size="default" 
@@ -271,38 +278,40 @@ export default function CalendarPage() {
       />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-2">
-        <div className="flex items-center gap-1 rounded-lg border border-border bg-background px-2 py-1.5 shadow-sm h-10">
-          <button onClick={prev} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
-                <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-sm font-medium capitalize text-foreground">
-                  {view === 'week'
-                    ? `${format(weekStart, 'dd MMM', { locale: ptBR })} - ${format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}`
-                    : format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
-                </span>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="single"
-                selected={selectedMonth}
-                onSelect={(date) => date && setSelectedMonth(date)}
-                defaultMonth={selectedMonth}
-                className={cn("p-3 pointer-events-auto")}
-                locale={ptBR}
-              />
-            </PopoverContent>
-          </Popover>
-          <button onClick={next} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
+        <div className="flex items-center gap-2">
+          <Tabs value={view} onValueChange={(v) => setView(v as View)} className="w-full sm:w-auto">
+            <TabsList className="h-10">
+              <TabsTrigger value="month" className="gap-1.5 h-8">
+                <LayoutGrid className="h-4 w-4" /> <span className="hidden sm:inline">Mês</span>
+              </TabsTrigger>
+              <TabsTrigger value="week" className="gap-1.5 h-8">
+                <CalendarIcon className="h-4 w-4" /> <span className="hidden sm:inline">Semana</span>
+              </TabsTrigger>
+              <TabsTrigger value="list" className="gap-1.5 h-8">
+                <List className="h-4 w-4" /> <span className="hidden sm:inline">Lista</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          <div className="flex items-center gap-2">
+            <Select value={filterUnit} onValueChange={setFilterUnit}>
+              <SelectTrigger className="h-10 w-[130px] shadow-sm bg-background"><SelectValue placeholder="Unidade" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Unidades</SelectItem>
+                {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Status</SelectItem>
+                {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-
-        <Button variant="ghost" size="sm" onClick={() => setSelectedMonth(new Date())} className="h-10 font-medium px-4">Hoje</Button>
       </div>
 
-
-      {/* Month view */}
       {view === 'month' && (
         <Card>
           <CardContent className="p-2">
@@ -317,7 +326,6 @@ export default function CalendarPage() {
                 const dateStr = format(day, 'yyyy-MM-dd');
                 const isDragOver = dragOverDate === dateStr;
                 const hasConflict = conflictDates.has(dateStr);
-                const shouldPulse = hasConflict && highlightConflicts;
                 return (
                   <div
                     key={day.toISOString()}
@@ -330,7 +338,6 @@ export default function CalendarPage() {
                       isToday ? 'bg-primary/5' : '',
                       isDragOver ? 'bg-accent/50 border-primary/50' : '',
                       hasConflict ? 'bg-muted/10 border-border/50' : '',
-                      
                     )}
                   >
                     <span className={cn(
@@ -369,7 +376,6 @@ export default function CalendarPage() {
         </Card>
       )}
 
-      {/* Week view */}
       {view === 'week' && (
         <Card>
           <CardContent className="p-2 sm:p-4">
@@ -434,7 +440,6 @@ export default function CalendarPage() {
         </Card>
       )}
 
-      {/* List view */}
       {view === 'list' && (
         <div className="space-y-2">
           {canEdit && (
@@ -446,10 +451,7 @@ export default function CalendarPage() {
               onChangeStatus={handleBulkStatusChange}
             />
           )}
-          {filtered.filter(e => {
-            const d = new Date(e.start_datetime);
-            return d >= monthStart && d <= monthEnd;
-          }).sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime()).map(e => (
+          {filtered.sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime()).map(e => (
             <Card key={e.id} className="hover:shadow-md transition-shadow">
               <CardContent className="flex items-center gap-4 p-4">
                 {canEdit && (
@@ -462,10 +464,7 @@ export default function CalendarPage() {
                 <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-4 cursor-pointer">
                   <span className={`h-3 w-3 rounded-full ${unitDotColors[e.unit]}`} />
                   <div className="flex-1 min-w-0 text-left">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-foreground truncate">{e.title}</p>
-                      
-                    </div>
+                    <p className="font-medium text-foreground truncate">{e.title}</p>
                     <p className="text-xs text-muted-foreground">{e.unit} · {e.location}</p>
                   </div>
                   <div className="text-right shrink-0">
