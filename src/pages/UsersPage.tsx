@@ -84,7 +84,7 @@ export default function UsersPage() {
   const [bulkDelete, setBulkDelete] = useState(false);
   const [showRoleToggleConfirm, setShowRoleToggleConfirm] = useState<boolean | null>(null);
   const [approvalsExpanded, setApprovalsExpanded] = useState(false);
-  const [legendExpanded, setLegendExpanded] = useState(false);
+  
   const [showPreRegister, setShowPreRegister] = useState(false);
   const [preRegisterForm, setPreRegisterForm] = useState({
     name: '',
@@ -937,92 +937,6 @@ export default function UsersPage() {
                   </div>
                 </div>
 
-                {/* Legenda e Funcionamento do Sistema (card expansível) */}
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => setLegendExpanded(!legendExpanded)}
-                    className="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-all duration-200"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full bg-primary/10">
-                        <Clock className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex flex-col items-start">
-                        <span className="font-semibold text-foreground">Legenda e Funcionamento do Sistema</span>
-                        <span className="text-xs text-muted-foreground">
-                          Clique para ver como funciona o sistema de restrições e os níveis de permissão
-                        </span>
-                      </div>
-                    </div>
-                    <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${legendExpanded ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {legendExpanded && (
-                    <Card className="border-primary/20 bg-primary/5 animate-in slide-in-from-top-2 duration-300">
-                      <CardContent className="p-6 space-y-6">
-                        {/* Bloco superior: ATIVO x INATIVO */}
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <div className="rounded-lg border border-border bg-background/60 p-4 space-y-2">
-                            <div className="flex items-center gap-2">
-                              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                              <h4 className="font-semibold text-emerald-600">Sistema por Cargo ATIVO</h4>
-                            </div>
-                            <ul className="text-sm text-foreground/90 space-y-1.5 list-disc list-inside">
-                              <li>O acesso às unidades é determinado <strong>exclusivamente</strong> pelo cargo do usuário.</li>
-                              <li>Qualquer restrição personalizada individual será <strong>ignorada</strong> enquanto este modo estiver ativo.</li>
-                            </ul>
-                            <p className="text-xs italic text-emerald-700/90 pt-1">
-                              <strong>Exemplo:</strong> Um "Gestor de Unidade" da DIC terá acesso apenas à DIC, mesmo que tenha restrições manuais.
-                            </p>
-                          </div>
-
-                          <div className="rounded-lg border border-border bg-background/60 p-4 space-y-2">
-                            <div className="flex items-center gap-2">
-                              <span className="h-2 w-2 rounded-full bg-orange-500" />
-                              <h4 className="font-semibold text-orange-600">Sistema por Cargo INATIVO</h4>
-                            </div>
-                            <ul className="text-sm text-foreground/90 space-y-1.5 list-disc list-inside">
-                              <li>O sistema prioriza as <strong>Restrições Personalizadas</strong> de cada usuário.</li>
-                              <li>Caso o usuário não possua restrição manual, o acesso é total ou padrão do sistema.</li>
-                            </ul>
-                            <p className="text-xs italic text-orange-700/90 pt-1">
-                              <strong>Exemplo:</strong> Um "Usuário Padrão" pode ser configurado para ver especificamente as unidades DIC e DIP simultaneamente.
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Bloco inferior: Definição dos Níveis de Permissão */}
-                        <div className="space-y-3 pt-2 border-t border-border">
-                          <div className="flex items-center gap-2 pt-3">
-                            <ShieldCheck className="h-4 w-4 text-primary" />
-                            <h4 className="font-semibold text-foreground">Definição dos Níveis de Permissão</h4>
-                          </div>
-                          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                            <div className="rounded-lg border border-border bg-background/60 p-3 space-y-1">
-                              <p className="text-sm font-semibold text-primary">Admin Geral</p>
-                              <p className="text-xs text-muted-foreground leading-relaxed">
-                                Acesso total e irrestrito. Único com poder de gerenciar usuários e aprovar novos acessos.
-                              </p>
-                            </div>
-                            <div className="rounded-lg border border-border bg-background/60 p-3 space-y-1">
-                              <p className="text-sm font-semibold text-primary">Gestor de Unidade</p>
-                              <p className="text-xs text-muted-foreground leading-relaxed">
-                                Responsável pela gestão da sua unidade. Pode criar/editar eventos e aprovar usuários (com aviso).
-                              </p>
-                            </div>
-                            <div className="rounded-lg border border-border bg-background/60 p-3 space-y-1">
-                              <p className="text-sm font-semibold text-primary">Usuário Padrão</p>
-                              <p className="text-xs text-muted-foreground leading-relaxed">
-                                Perfil operacional focado na visualização e acompanhamento dos eventos de sua unidade de atuação.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
 
                 {!configs?.enable_role_based_view && (
                   <Alert className="bg-amber-50 border-amber-200 text-amber-800">
