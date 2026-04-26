@@ -150,13 +150,15 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           icon: <UserCog className="h-4 w-4 text-green-500" />
         }
       ],
-      footer: {
-        title: 'Legenda e Funcionamento',
-        items: [
-          { title: 'Ativação', content: 'Usuários inativos não podem realizar login, mesmo com senha correta.', color: 'bg-slate-400' },
-          { title: 'Hierarquia', content: 'Gestores não podem alterar permissões de Administradores.', color: 'bg-primary' }
-        ]
-      }
+    footer: {
+      title: 'Legenda e Funcionamento do Sistema',
+      items: [
+        { title: 'Admin Geral', content: 'Acesso total e irrestrito. Único que gerencia usuários, aprova acessos e configurações globais.', color: 'bg-primary' },
+        { title: 'Gestor de Unidade', content: 'Gestão da sua unidade. Pode criar/editar eventos e aprovar usuários (com aviso de confirmação).', color: 'bg-blue-500' },
+        { title: 'Usuário Padrão', content: 'Visualização e acompanhamento operacional da unidade de atuação.', color: 'bg-amber-500' },
+        { title: 'Visualizador', content: 'Somente leitura. Apenas consulta de informações sem permissão de alteração.', color: 'bg-slate-400' }
+      ]
+    }
     },
     'view-configs': {
       title: 'Configurações de Visualização',
