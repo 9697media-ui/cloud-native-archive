@@ -85,7 +85,6 @@ export default function AuditPage() {
       <PageHeader 
         title="Logs de Auditoria" 
         description="Histórico de ações realizadas no sistema"
-        icon={<History className="h-6 w-6" />}
       />
 
       <Card>
