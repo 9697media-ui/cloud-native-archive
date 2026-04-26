@@ -35,7 +35,8 @@ const unitDotColors: Record<Unit, string> = {
 export default function Dashboard() {
   const [searchParams] = useSearchParams();
   const hideTitle = searchParams.get('hideTitle') === 'true';
-  const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
+  const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
+  const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
   const { canEdit } = useUserRole();
   const isMobile = useIsMobile();
