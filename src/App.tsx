@@ -8,7 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { TestViewProvider } from "@/contexts/TestViewContext";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "./pages/Dashboard";
-import CalendarPage from "./pages/CalendarPage";
+// CalendarPage removed
 import UsersPage from "./pages/UsersPage";
 import AuditPage from "./pages/AuditPage";
 import LoginPage from "./pages/LoginPage";
