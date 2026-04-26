@@ -240,6 +240,13 @@ export default function CalendarPage() {
                   {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
                 </SelectContent>
               </Select>
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tipos</SelectItem>
+                  {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
               <Button 
                 variant={conflictOnly ? 'secondary' : 'outline'} 
                 size="default" 
