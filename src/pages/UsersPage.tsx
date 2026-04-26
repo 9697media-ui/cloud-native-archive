@@ -946,7 +946,7 @@ export default function UsersPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-full bg-primary/10">
-                        <Clock className="h-5 w-5 text-primary" />
+                        <HelpCircle className="h-5 w-5 text-primary" />
                       </div>
                       <div className="flex flex-col items-start">
                         <span className="font-semibold text-foreground">Configurações de Visualização</span>
