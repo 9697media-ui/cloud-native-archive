@@ -142,6 +142,19 @@ export default function Dashboard() {
                 <Plus className="h-4 w-4" /> Nova Programação
               </Button>
             )}
+            <div className="flex items-center gap-2 mr-1">
+              <span className="text-sm font-medium capitalize text-foreground hidden sm:inline-block">
+                {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setSelectedMonth(new Date())}
+                className="h-10 px-3 shadow-sm border-muted-foreground/20"
+              >
+                Hoje
+              </Button>
+            </div>
             
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
