@@ -828,8 +828,8 @@ export default function UsersPage() {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-                        Quando <strong>Ativo</strong>, as permissões de visualização abaixo serão aplicadas globalmente. 
-                        Se <strong>Inativo</strong>, todos os usuários (exceto restrições manuais específicas) terão acesso a todas as unidades.
+                        Quando <strong>Ativo</strong>, as permissões de visualização abaixo (tanto por cargo quanto personalizadas) serão aplicadas. 
+                        Se <strong>Inativo</strong>, todos os usuários verão todas as unidades, ignorando qualquer restrição definida.
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
