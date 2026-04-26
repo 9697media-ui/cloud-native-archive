@@ -393,7 +393,6 @@ export default function UsersPage() {
       { id: 'normal', title: 'Usuários e Visualizadores', users: normalUsers, icon: <UserCog className="h-5 w-5 text-primary" /> }
     ];
   }, [filtered]);
-                </div>
 
   const baseUrl = useMemo(() => {
     const origin = window.location.origin;
