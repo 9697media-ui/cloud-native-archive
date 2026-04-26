@@ -136,13 +136,24 @@ export default function Dashboard() {
         description="Programação institucional de todas as unidades"
         hidden={hideTitle}
         actions={
-          <>
+          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto">
             {canEdit && (
-              <Button onClick={() => setShowNewEvent(true)} className="gap-2 shadow-sm">
+              <Button onClick={() => setShowNewEvent(true)} className="gap-2 shadow-sm h-10">
                 <Plus className="h-4 w-4" /> Nova Programação
               </Button>
             )}
-            <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm">
+            
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input 
+                placeholder="Buscar..." 
+                value={search} 
+                onChange={e => setSearch(e.target.value)} 
+                className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm h-10">
               <button onClick={prevMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
               <Popover>
                 <PopoverTrigger asChild>
@@ -166,7 +177,7 @@ export default function Dashboard() {
               </Popover>
               <button onClick={nextMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
             </div>
-          </>
+          </div>
         }
       />
 
