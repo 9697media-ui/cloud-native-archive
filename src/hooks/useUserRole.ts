@@ -28,6 +28,7 @@ export function useUserRole() {
   const [viewRestrictions, setViewRestrictions] = useState<string[] | null>(null);
   const [permissionLevel, setPermissionLevel] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>(null);
+  const [delegatedUnits, setDelegatedUnits] = useState<string[]>([]);
 
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export function useUserRole() {
       setAccessStatus(activePersona.role ? 'approved' : 'pending');
       setPermissionLevel(activePersona.permission_level);
       setUnit(activePersona.unit);
+      setDelegatedUnits(activePersona.delegated_units || []);
       
       // If general admin, no restrictions. Otherwise, restrict to the persona's unit.
       setViewRestrictions(activePersona.permission_level === 'admin_geral' ? null : [activePersona.unit]);
@@ -67,7 +69,7 @@ export function useUserRole() {
       // Also check profile for permission_level and name
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('permission_level, name, is_active, view_restrictions, unit')
+        .select('permission_level, name, is_active, view_restrictions, unit, delegated_units')
         .eq('user_id', user.id)
         .maybeSingle();
       
@@ -77,6 +79,7 @@ export function useUserRole() {
         setViewRestrictions(profileData.view_restrictions as string[] | null);
         setPermissionLevel(profileData.permission_level);
         setUnit(profileData.unit);
+        setDelegatedUnits(profileData.delegated_units as string[] || []);
       } else if (user.user_metadata?.name) {
         setUserName(user.user_metadata.name);
       } else {
@@ -113,8 +116,8 @@ export function useUserRole() {
     fetchRole();
   }, [user, isAuthenticated, activePersona]);
 
-  const isAdmin = role === 'admin';
-  const isManager = role === 'editor' || role === 'admin';
+  const isAdmin = role === 'admin' || permissionLevel === 'admin_geral';
+  const isManager = role === 'editor' || role === 'admin' || permissionLevel === 'gestor_unidade' || permissionLevel === 'admin_geral';
   const canEdit = isAdmin || isManager;
   const canView = true; // System is public
 
@@ -130,7 +133,8 @@ export function useUserRole() {
     isActive,
     viewRestrictions,
     permissionLevel,
-    unit
+    unit,
+    delegatedUnits
   };
 }
 
