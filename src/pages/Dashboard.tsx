@@ -141,26 +141,21 @@ export default function Dashboard() {
     <div className="animate-fade-in space-y-6">
       {/* Header */}
       <PageHeader
-        title="Visão Geral"
-        description="Programação institucional de todas as unidades"
+        title={hideTitle ? "" : "Visão Geral"}
+        description={hideTitle ? "" : "Programação institucional de todas as unidades"}
         hidden={hideTitle}
+        className="mb-4"
         actions={
-          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto">
-            {canEdit && (
-              <Button onClick={() => setShowNewEvent(true)} className="gap-2 shadow-sm h-10">
-                <Plus className="h-4 w-4" /> Nova Programação
-              </Button>
-            )}
-            
+          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm h-10">
+              <div className="flex items-center gap-1 rounded-lg border border-border bg-background px-2 py-1.5 shadow-sm h-10">
                 <button onClick={prevMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
                 <Popover>
                   <PopoverTrigger asChild>
                     <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
                       <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
                       <span className="text-sm font-medium capitalize text-foreground">
-                        {format(selectedMonth, isMobile ? 'MMM yyyy' : 'MMMM yyyy', { locale: ptBR })}
+                        {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
                       </span>
                     </button>
                   </PopoverTrigger>
@@ -182,20 +177,62 @@ export default function Dashboard() {
                 variant="outline" 
                 size="sm" 
                 onClick={() => setSelectedMonth(new Date())}
-                className="h-10 px-3 shadow-sm border-muted-foreground/20 bg-card hover:bg-accent"
+                className="h-10 px-3 shadow-sm border-muted-foreground/20 bg-background"
               >
                 Hoje
               </Button>
             </div>
-            
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar..." 
-                value={search} 
-                onChange={e => setSearch(e.target.value)} 
-                className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
-              />
+
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                <Select value={filterUnit} onValueChange={setFilterUnit}>
+                  <SelectTrigger className="h-10 w-[130px] shadow-sm bg-background"><SelectValue placeholder="Unidade" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Unidades</SelectItem>
+                    {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Status</SelectItem>
+                    {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                
+                <Button 
+                  variant={conflictOnly ? 'destructive' : 'outline'} 
+                  size="default" 
+                  onClick={() => setConflictOnly(!conflictOnly)} 
+                  className={cn(
+                    "h-10 shadow-sm whitespace-nowrap bg-background border-muted-foreground/20",
+                    conflictOnly && "bg-destructive text-destructive-foreground hover:bg-destructive/90 border-destructive"
+                  )}
+                >
+                  Conflitos
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="relative w-40 sm:w-64">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar..." 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                  className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
+                />
+              </div>
+
+              {canEdit && (
+                <Button 
+                  onClick={() => setShowNewEvent(true)} 
+                  className="gap-2 h-10 shadow-sm"
+                >
+                  <Plus className="h-4 w-4" /> Novo
+                </Button>
+              )}
             </div>
           </div>
         }
