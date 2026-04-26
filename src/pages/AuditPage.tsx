@@ -41,8 +41,8 @@ export default function AuditPage() {
 
       if (filterUnit !== 'all') {
         query = query.eq('unit', filterUnit);
-      } else if (!isAdmin) {
-        // Restricted to their unit and delegated units
+      } else if (!isAdmin && !isManager) {
+        // Restricted to their unit and delegated units for standard users
         const units = [userUnit, ...delegatedUnits].filter(Boolean);
         if (units.length > 0) {
           query = query.in('unit', units);
