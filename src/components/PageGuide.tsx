@@ -178,10 +178,10 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         }
       ],
       footer: {
-        title: 'Funcionamento',
+        title: 'Legenda e Funcionamento do Sistema',
         items: [
-          { title: 'Por Cargo', content: 'Ignora restrições manuais em favor do padrão hierárquico.', color: 'bg-primary' },
-          { title: 'Manual', content: 'Prioriza as restrições personalizadas de cada perfil individual.', color: 'bg-amber-500' }
+          { title: 'Sistema por Cargo Ativo', content: 'O acesso às unidades é determinado exclusivamente pelo cargo do usuário, ignorando restrições manuais.', color: 'bg-primary' },
+          { title: 'Sistema por Cargo Inativo', content: 'O sistema prioriza as Restrições Personalizadas de cada usuário. Caso não existam, o acesso é total.', color: 'bg-amber-500' }
         ]
       }
     },
