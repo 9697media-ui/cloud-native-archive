@@ -605,15 +605,6 @@ export default function UsersPage() {
           <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
-                <TabsTrigger value="approvals" className="gap-1.5 h-8">
-                  <UserCheck className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Aprovações</span>
-                  {requests.length > 0 && (
-                    <Badge variant="destructive" className="ml-1 h-4 w-4 rounded-full p-0 text-[10px] flex items-center justify-center">
-                      {requests.length}
-                    </Badge>
-                  )}
-                </TabsTrigger>
                 <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
                 {isAdmin && (
                   <TabsTrigger value="view-configs" className="gap-1.5 h-8">
