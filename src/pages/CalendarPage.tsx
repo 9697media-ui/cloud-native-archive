@@ -266,7 +266,6 @@ export default function CalendarPage() {
             Conflitos
           </Button>
         </div>
-      </div>
 
       {/* Navigation */}
       <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-xl border border-border/50">
