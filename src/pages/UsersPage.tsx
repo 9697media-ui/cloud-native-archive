@@ -1057,6 +1057,7 @@ export default function UsersPage() {
                               <Switch 
                                 id={`user-${selectedViewUser.id}-${unit}`}
                                 checked={isChecked}
+                                disabled={configs?.enable_role_based_view}
                                 onCheckedChange={async (checked) => {
                                   const newRestrictions = checked 
                                     ? [...currentRestrictions, unit]
