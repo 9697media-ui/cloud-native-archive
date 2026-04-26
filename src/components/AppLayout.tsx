@@ -58,7 +58,7 @@ export default function AppLayout() {
   }, [hideLoginParam]);
   
   const { isAuthenticated, signOut, user } = useAuth();
-  const { isAdmin, isManager, userName, unit } = useUserRole();
+  const { isAdmin, isManager, userName, unit, canViewAuditoria } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
   const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
