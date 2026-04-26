@@ -37,6 +37,12 @@ export function useUserRole() {
       setUserName(activePersona.name);
       setIsActive(activePersona.is_active);
       setAccessStatus(activePersona.role ? 'approved' : 'pending');
+      setPermissionLevel(activePersona.permission_level);
+      setUnit(activePersona.unit);
+      
+      // If general admin, no restrictions. Otherwise, restrict to the persona's unit.
+      setViewRestrictions(activePersona.permission_level === 'admin_geral' ? null : [activePersona.unit]);
+      
       setLoading(false);
       return;
     }
