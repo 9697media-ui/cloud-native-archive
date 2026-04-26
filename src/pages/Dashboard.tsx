@@ -52,11 +52,14 @@ export default function Dashboard() {
   const [filterUnit, setFilterUnit] = useState<string>('all');
 
   // Sync filter unit with user unit when it changes (useful for test mode)
-  useState(() => {
+  useEffect(() => {
     if (unit && unit !== 'Evento Geral do Grupo') {
       setFilterUnit(unit);
+    } else {
+      setFilterUnit('all');
     }
-  });
+  }, [unit]);
+
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [conflictOnly, setConflictOnly] = useState(false);
   
