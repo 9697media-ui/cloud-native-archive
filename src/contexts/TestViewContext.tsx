@@ -9,6 +9,7 @@ export type TestPersona = {
   role: 'admin' | 'editor' | null;
   unit: string;
   is_active: boolean;
+  delegated_units?: string[];
 };
 
 export const TEST_PERSONAS: TestPersona[] = [
