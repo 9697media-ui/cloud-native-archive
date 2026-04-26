@@ -19,6 +19,7 @@ import {
 import ImpersonationBanner from '@/components/ImpersonationBanner';
 import TestModeBanner, { TestModeTrigger } from '@/components/TestModeBanner';
 import logoImg from '@/assets/logo.png';
+import FooterLegend from '@/components/FooterLegend';
 
 interface NavItem {
   to: string;
