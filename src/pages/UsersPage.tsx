@@ -1359,11 +1359,13 @@ export default function UsersPage() {
                   </div>
                 </div>
               ))}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
-        </TabsContent>
-      )}
-    </Tabs>
+        )}
+      </div>
+    </div>
 
       {/* Edit dialog */}
       <Dialog open={showEdit} onOpenChange={(v) => { setShowEdit(v); if (!v) setSelectedUser(null); }}>
