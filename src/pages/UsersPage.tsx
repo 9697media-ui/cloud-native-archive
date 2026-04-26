@@ -1207,35 +1207,60 @@ export default function UsersPage() {
                   Legenda e Funcionamento do Sistema
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2 text-xs">
-                <div className="space-y-2 p-3 rounded-md bg-background/50 border">
-                  <h4 className="font-bold text-primary flex items-center gap-1.5">
-                    <div className="h-2 w-2 rounded-full bg-primary" />
-                    Sistema por Cargo ATIVO
-                  </h4>
-                  <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
-                    <li>O acesso às unidades é determinado <strong>exclusivamente</strong> pelo cargo do usuário.</li>
-                    <li>Qualquer restrição personalizada individual será <strong>ignorada</strong> enquanto este modo estiver ativo.</li>
-                    <li>Ideal para manter um padrão rígido de acesso baseado na hierarquia.</li>
-                    <li className="mt-2 text-primary/80 list-none font-medium italic border-t border-primary/10 pt-1.5">
-                      <strong>Exemplo:</strong> Um "Gestor de Unidade" da DIC terá acesso apenas à DIC, independentemente de restrições manuais.
-                    </li>
-                  </ul>
+              <CardContent className="space-y-6 text-xs">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2 p-3 rounded-md bg-background/50 border">
+                    <h4 className="font-bold text-primary flex items-center gap-1.5">
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                      Sistema por Cargo ATIVO
+                    </h4>
+                    <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
+                      <li>O acesso às unidades é determinado <strong>exclusivamente</strong> pelo cargo do usuário.</li>
+                      <li>Qualquer restrição personalizada individual será <strong>ignorada</strong> enquanto este modo estiver ativo.</li>
+                      <li className="mt-2 text-primary/80 list-none font-medium italic border-t border-primary/10 pt-1.5">
+                        <strong>Exemplo:</strong> Um "Gestor de Unidade" da DIC terá acesso apenas à DIC, mesmo que tenha restrições manuais.
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="space-y-2 p-3 rounded-md bg-background/50 border">
+                    <h4 className="font-bold text-amber-600 flex items-center gap-1.5">
+                      <div className="h-2 w-2 rounded-full bg-amber-500" />
+                      Sistema por Cargo INATIVO
+                    </h4>
+                    <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
+                      <li>O sistema prioriza as <strong>Restrições Personalizadas</strong> de cada usuário.</li>
+                      <li>Caso o usuário não possua restrição manual, o acesso é total ou padrão do sistema.</li>
+                      <li className="mt-2 text-amber-600/80 list-none font-medium italic border-t border-amber-600/10 pt-1.5">
+                        <strong>Exemplo:</strong> Um "Visualizador" pode ser configurado para ver especificamente as unidades DIC e DIP simultaneamente.
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-                
-                <div className="space-y-2 p-3 rounded-md bg-background/50 border">
-                  <h4 className="font-bold text-amber-600 flex items-center gap-1.5">
-                    <div className="h-2 w-2 rounded-full bg-amber-500" />
-                    Sistema por Cargo INATIVO
+
+                <div className="pt-4 border-t">
+                  <h4 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                    <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                    Definição dos Níveis de Permissão
                   </h4>
-                  <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
-                    <li>As definições por cargo abaixo são <strong>ignoradas</strong> pelo sistema.</li>
-                    <li>O sistema prioriza as <strong>Restrições Personalizadas</strong> de cada usuário.</li>
-                    <li>Se um usuário não tiver restrição manual, ele terá acesso total ou padrão do sistema.</li>
-                    <li className="mt-2 text-amber-600/80 list-none font-medium italic border-t border-amber-600/10 pt-1.5">
-                      <strong>Exemplo:</strong> Um "Visualizador" pode ser configurado para ver especificamente as unidades DIC e DIP simultaneamente.
-                    </li>
-                  </ul>
+                  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                    <div className="space-y-1 p-2 rounded-md bg-muted/20 border border-dashed">
+                      <p className="font-bold text-primary">Admin Geral</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">Acesso total e irrestrito. Único com poder de gerenciar usuários e aprovar novos acessos.</p>
+                    </div>
+                    <div className="space-y-1 p-2 rounded-md bg-muted/20 border border-dashed">
+                      <p className="font-bold text-primary">Gestor de Unidade</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">Responsável pela gestão da sua unidade. Pode criar/editar eventos e aprovar usuários (com aviso).</p>
+                    </div>
+                    <div className="space-y-1 p-2 rounded-md bg-muted/20 border border-dashed">
+                      <p className="font-bold text-primary">Usuário Padrão</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">Perfil operacional focado na visualização e acompanhamento dos eventos de sua unidade de atuação.</p>
+                    </div>
+                    <div className="space-y-1 p-2 rounded-md bg-muted/20 border border-dashed">
+                      <p className="font-bold text-primary">Visualizador</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">Acesso somente leitura (Read-only). Destinado apenas para consulta de informações e calendário.</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
