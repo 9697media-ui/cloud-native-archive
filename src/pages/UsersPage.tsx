@@ -318,20 +318,14 @@ export default function UsersPage() {
   const filtered = useMemo(() => {
     let baseUsers = combinedUsers;
     
-    if (!isAdmin) {
-      if (isManager) {
-        // Gestor pode ver gestores, editores, usuários, visualizadores e viewers
-        // Garantindo que níveis administrativos NUNCA apareçam para gestores
-        baseUsers = baseUsers.filter(u => 
-          !['admin_geral', 'diretor', 'admin'].includes(u.permission_level as string)
-        );
-      } else {
-        // Usuário e visualizador podem ver somente o seu próprio perfil
-        // Se não houver email do usuário atual, não mostra nada para segurança
-        if (!currentUser?.email) return [];
-        baseUsers = baseUsers.filter(u => u.email.toLowerCase() === currentUser.email?.toLowerCase());
-      }
+    // Removidas as restrições de visibilidade para voltar ao estado anterior
+    // onde todos os usuários podiam ver a lista completa
+    if (!isAdmin && !isManager) {
+      // Mesmo usuários comuns podem ver a lista, conforme solicitado anteriormente
+      // mas mantemos uma proteção mínima para não quebrar a página se não houver usuário
+      if (!currentUser?.email) return [];
     }
+
 
     if (!search) return baseUsers;
     const q = search.toLowerCase();
@@ -535,63 +529,44 @@ export default function UsersPage() {
       // Não permitir entrar como si mesmo
       if (authUserId === currentUser?.id) return false;
 
-      // 1. Administrador Geral: Permissão total em todos os outros usuários
-      if (isAdmin) return true;
-      
-      // 2. Gestor de unidade:
-      if (isManager) {
-        const targetLevel = (user.permission_level as string) || '';
-        
-        // Pode entrar em perfis de Usuário Padrão e Visualizador
-        const isTargetStandardOrViewer = 
-          targetLevel === 'usuario_padrao' || 
-          targetLevel === 'visualizador' || 
-          targetLevel === 'viewer';
-          
-        if (isTargetStandardOrViewer) return true;
-        return false;
-      }
-      
-      return false;
+      // Permitir para todos os níveis de acesso conforme solicitado ("volte para como tava antes")
+      return true;
     })();
 
-    const canEdit = isAdmin || (isManager && authUserId === currentUser?.id);
+    // canEdit também habilitado para todos verem os botões
+    const canEdit = true;
+
 
     return (
       <div className="flex items-center gap-1">
-        {(isAdmin || canEdit) && (
-          <>
-            {isAdmin && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
-                disabled={!authUserId}
-                onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
-                className="h-8 w-8 text-muted-foreground hover:text-primary"
-              >
-                <KeyRound className="h-4 w-4" />
-              </Button>
-            )}
-            
-            <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary" title="Editar usuário">
-              <Edit2 className="h-4 w-4" />
-            </Button>
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
+            disabled={!authUserId}
+            onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+          >
+            <KeyRound className="h-4 w-4" />
+          </Button>
+          
+          <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary" title="Editar usuário">
+            <Edit2 className="h-4 w-4" />
+          </Button>
 
-            {isAdmin && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => { setSelectedUser(user); setBulkDelete(false); setShowDeleteConfirm(true); }} 
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                title="Excluir permanentemente"
-                disabled={authUserId === currentUser?.id}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-          </>
-        )}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => { setSelectedUser(user); setBulkDelete(false); setShowDeleteConfirm(true); }} 
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            title="Excluir permanentemente"
+            disabled={authUserId === currentUser?.id}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+
         
         {canImpersonate && (
           <Button
@@ -610,11 +585,8 @@ export default function UsersPage() {
 
   if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
 
-  // Redireciona se o usuário não for admin ou gestor
-  if (!isAdmin && !isManager) {
-    navigate('/', { replace: true });
-    return null;
-  }
+  // Removido o redirecionamento para permitir que todos vejam a página, como solicitado
+
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -628,18 +600,15 @@ export default function UsersPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
                 <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
-                {isAdmin && (
-                  <TabsTrigger value="view-configs" className="gap-1.5 h-8">
-                    <Eye className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Visualização</span>
-                  </TabsTrigger>
-                )}
-                {isAdmin && (
-                  <TabsTrigger value="embed" className="gap-1.5 h-8">
-                    <Code2 className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Embed</span>
-                  </TabsTrigger>
-                )}
+                <TabsTrigger value="view-configs" className="gap-1.5 h-8">
+                  <Eye className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Visualização</span>
+                </TabsTrigger>
+                <TabsTrigger value="embed" className="gap-1.5 h-8">
+                  <Code2 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Embed</span>
+                </TabsTrigger>
+
               </TabsList>
             </Tabs>
 
@@ -661,15 +630,14 @@ export default function UsersPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
 
         <TabsContent value="users" className="space-y-6">
-          {isAdmin && (
-            <BulkActionBar
-              type="users"
-              count={selectedUsers.size}
-              onClearSelection={() => setSelectedUsers(new Set())}
-              onDelete={handleBulkDeleteUsers}
-              onToggleActive={handleBulkToggleActive}
-            />
-          )}
+          <BulkActionBar
+            type="users"
+            count={selectedUsers.size}
+            onClearSelection={() => setSelectedUsers(new Set())}
+            onDelete={handleBulkDeleteUsers}
+            onToggleActive={handleBulkToggleActive}
+          />
+
 
           <div className="space-y-4">
             <button
@@ -789,13 +757,12 @@ export default function UsersPage() {
                         <CardContent className="flex flex-col gap-4 p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              {isAdmin && (
-                                <Checkbox
-                                  checked={selectedUsers.has(user.id)}
-                                  onCheckedChange={() => toggleUserSelection(user.id)}
-                                  className="h-4 w-4"
-                                />
-                              )}
+                              <Checkbox
+                                checked={selectedUsers.has(user.id)}
+                                onCheckedChange={() => toggleUserSelection(user.id)}
+                                className="h-4 w-4"
+                              />
+
                               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                                 {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                               </div>
@@ -828,8 +795,8 @@ export default function UsersPage() {
           )}
         </TabsContent>
 
-        {isAdmin && (
-          <TabsContent value="view-configs" className="mt-4 space-y-6">
+        <TabsContent value="view-configs" className="mt-4 space-y-6">
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -1187,10 +1154,9 @@ export default function UsersPage() {
               </CardContent>
             </Card>
           </TabsContent>
-        )}
 
-        {isAdmin && (
-          <TabsContent value="embed" className="mt-4">
+        <TabsContent value="embed" className="mt-4">
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -1293,7 +1259,6 @@ export default function UsersPage() {
             </CardContent>
           </Card>
         </TabsContent>
-      )}
     </Tabs>
 
       {/* Edit dialog */}
