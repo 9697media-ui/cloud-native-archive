@@ -289,9 +289,10 @@ export default function UsersPage() {
       email: dbu.email,
       unit: (dbu.unit as any) || 'Evento Geral do Grupo',
       permission_level: (dbu.permission_level || 'usuario_padrao') as any,
-      is_active: true,
+      is_active: dbu.is_active !== false,
       created_at: dbu.created_at,
       updated_at: dbu.created_at,
+      view_restrictions: dbu.view_restrictions,
     }));
 
     const dbEmails = new Set(mappedDbUsers.map(u => u.email.toLowerCase()));
