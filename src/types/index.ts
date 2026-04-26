@@ -45,6 +45,7 @@ export interface AppUser {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  view_restrictions?: Unit[] | null;
 }
 
 export const UNITS: Unit[] = ['DIC', 'Nilópolis', 'Santana', 'Evento Geral do Grupo'];
