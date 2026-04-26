@@ -84,6 +84,7 @@ export default function UsersPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bulkDelete, setBulkDelete] = useState(false);
   const [showRoleToggleConfirm, setShowRoleToggleConfirm] = useState<boolean | null>(null);
+  const [approvalsExpanded, setApprovalsExpanded] = useState(false);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
