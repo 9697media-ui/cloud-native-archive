@@ -32,7 +32,6 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
-  { to: '/calendario', label: 'Calendário', icon: Calendar },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
   { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, auditoriaOnly: true },
 ];
