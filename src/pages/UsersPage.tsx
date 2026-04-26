@@ -890,7 +890,7 @@ export default function UsersPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <ShieldCheck className="h-5 w-5 text-primary" />
-                  Configuração de Visualização por Perfil
+                  Configurações de Visualização
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
                   Defina quais unidades cada tipo de usuário pode visualizar por padrão.
