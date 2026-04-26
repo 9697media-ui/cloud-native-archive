@@ -595,48 +595,55 @@ export default function UsersPage() {
   return (
     <div className="animate-fade-in space-y-8">
       <PageHeader
-        title="Painel"
-        description="Gerencie usuários, permissões e configurações de visualização"
+        title={hideTitleParam ? "" : "Painel"}
+        description={hideTitleParam ? "" : "Gerencie usuários, permissões e configurações de visualização"}
         hidden={hideTitleParam}
+        className="mb-4"
+        actions={
+          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
+              <TabsList className="h-10">
+                <TabsTrigger value="approvals" className="gap-1.5 h-8">
+                  <UserCheck className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Aprovações</span>
+                  {requests.length > 0 && (
+                    <Badge variant="destructive" className="ml-1 h-4 w-4 rounded-full p-0 text-[10px] flex items-center justify-center">
+                      {requests.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
+                {isAdmin && (
+                  <TabsTrigger value="view-configs" className="gap-1.5 h-8">
+                    <Eye className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Visualização</span>
+                  </TabsTrigger>
+                )}
+                {isAdmin && (
+                  <TabsTrigger value="embed" className="gap-1.5 h-8">
+                    <Code2 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Embed</span>
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            </Tabs>
+
+            <div className="flex items-center gap-2">
+              <div className="relative w-40 sm:w-64">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar usuário..." 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                  className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
+                />
+              </div>
+            </div>
+          </div>
+        }
       />
 
-      <Tabs defaultValue="users">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-          <TabsList className="w-full sm:w-auto overflow-x-auto justify-start">
-            <TabsTrigger value="approvals" className="gap-1.5">
-              <UserCheck className="h-3.5 w-3.5" />
-              Aprovações
-              {requests.length > 0 && (
-                <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] flex items-center justify-center">
-                  {requests.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="users">Usuários</TabsTrigger>
-            {isAdmin && (
-              <TabsTrigger value="view-configs" className="gap-1.5">
-                <Eye className="h-3.5 w-3.5" />
-                Visualização
-              </TabsTrigger>
-            )}
-            {isAdmin && (
-              <TabsTrigger value="embed" className="gap-1.5">
-                <Code2 className="h-3.5 w-3.5" />
-                Embed
-              </TabsTrigger>
-            )}
-          </TabsList>
-
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar usuário..." 
-              value={search} 
-              onChange={e => setSearch(e.target.value)} 
-              className="pl-9 h-10 shadow-sm" 
-            />
-          </div>
-        </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
 
         {/* Approval panel */}
         <TabsContent value="approvals" className="mt-4 space-y-4">
