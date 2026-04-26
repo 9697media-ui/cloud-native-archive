@@ -109,7 +109,7 @@ export default function AuditPage() {
                   <SelectValue placeholder="Unidade" />
                 </SelectTrigger>
                 <SelectContent>
-                  {isAdmin && <SelectItem value="all">Todas as Unidades</SelectItem>}
+                  {(isAdmin || isManager) && <SelectItem value="all">Todas as Unidades</SelectItem>}
                   {!isAdmin && availableUnits.length > 1 && <SelectItem value="all">Todas Delegadas</SelectItem>}
                   {availableUnits.map(u => (
                     <SelectItem key={u} value={u}>{u}</SelectItem>
