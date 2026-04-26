@@ -363,6 +363,107 @@ export default function Dashboard() {
           onEventClick={(e) => { setShowFiltered(null); setTimeout(() => handleEventClick(e), 200); }}
         />
       )}
+
+      {/* Seção de Configurações e Legenda (Consolidada) */}
+      <div className="mt-8">
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-6 space-y-6">
+            <div className="flex items-center gap-2 border-b border-primary/10 pb-3">
+              <LayoutGrid className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-foreground">Configurações de Visualização e Legenda</h3>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {/* Funcionamento do Sistema */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  Funcionamento
+                </h4>
+                <div className="space-y-2">
+                  <div className="rounded-md bg-background/50 p-2 border border-border">
+                    <p className="text-[11px] font-bold text-primary mb-1 uppercase">Atualização Automática</p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      Os dados são sincronizados em tempo real com todas as unidades do grupo.
+                    </p>
+                  </div>
+                  <div className="rounded-md bg-background/50 p-2 border border-border">
+                    <p className="text-[11px] font-bold text-primary mb-1 uppercase">Filtros Inteligentes</p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      Clique nos indicadores do topo para filtrar instantaneamente os eventos do mês.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Legenda de Status */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  Status dos Eventos
+                </h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2 rounded-md bg-background/50 border border-border flex flex-col gap-1">
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-green-600 uppercase">
+                      <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                      Confirmado
+                    </span>
+                    <p className="text-[9px] text-muted-foreground leading-tight">Evento validado e pronto.</p>
+                  </div>
+                  <div className="p-2 rounded-md bg-background/50 border border-border flex flex-col gap-1">
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600 uppercase">
+                      <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                      Pendente
+                    </span>
+                    <p className="text-[9px] text-muted-foreground leading-tight">Aguardando aprovação.</p>
+                  </div>
+                  <div className="p-2 rounded-md bg-background/50 border border-border flex flex-col gap-1">
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-destructive uppercase">
+                      <div className="h-1.5 w-1.5 rounded-full bg-destructive" />
+                      Conflito
+                    </span>
+                    <p className="text-[9px] text-muted-foreground leading-tight">Horários sobrepostos.</p>
+                  </div>
+                  <div className="p-2 rounded-md bg-background/50 border border-border flex flex-col gap-1">
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 uppercase">
+                      <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                      Marketing
+                    </span>
+                    <p className="text-[9px] text-muted-foreground leading-tight">Com cobertura solicitada.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Unidades */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-primary" />
+                  Cores das Unidades
+                </h4>
+                <div className="grid grid-cols-1 gap-2">
+                  <div className="flex items-center gap-3 px-3 py-2 rounded-md bg-background/50 border border-border">
+                    <div className="h-3 w-3 rounded-full bg-unit-dic" />
+                    <span className="text-[11px] font-medium">DIC</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-3 py-2 rounded-md bg-background/50 border border-border">
+                    <div className="h-3 w-3 rounded-full bg-unit-nilopolis" />
+                    <span className="text-[11px] font-medium">Nilópolis</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-3 py-2 rounded-md bg-background/50 border border-border">
+                    <div className="h-3 w-3 rounded-full bg-unit-santana" />
+                    <span className="text-[11px] font-medium">Santana</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-3 py-2 rounded-md bg-background/50 border border-border">
+                    <div className="h-3 w-3 rounded-full bg-unit-geral" />
+                    <span className="text-[11px] font-medium">Evento Geral</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <PageGuide />
     </div>
   );
