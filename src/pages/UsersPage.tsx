@@ -796,8 +796,8 @@ export default function UsersPage() {
           )}
         </TabsContent>
 
-        {isAdmin && (
-          <TabsContent value="view-configs" className="mt-4 space-y-6">
+        <TabsContent value="view-configs" className="mt-4 space-y-6">
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
