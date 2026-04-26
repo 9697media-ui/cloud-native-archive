@@ -918,10 +918,6 @@ export default function UsersPage() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-                        Quando <strong>Ligado</strong>, o sistema segue estritamente os padrões definidos por <strong>Cargo</strong> abaixo. 
-                        Quando <strong>Desligado</strong>, o sistema permite <strong>Restrições Individuais</strong> personalizadas por usuário.
-                      </p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <Switch 
