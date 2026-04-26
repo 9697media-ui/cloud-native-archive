@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import ImpersonationBanner from '@/components/ImpersonationBanner';
 import TestModeBanner, { TestModeTrigger } from '@/components/TestModeBanner';
+import logoImg from '@/assets/logo.png';
 
 interface NavItem {
   to: string;
