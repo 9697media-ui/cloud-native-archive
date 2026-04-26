@@ -112,7 +112,7 @@ export default function AppLayout() {
                           <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
                       </div>
-                      <span className="font-bold tracking-tight">ANA Brasil</span>
+                      <span className="font-bold tracking-tighter text-lg">anabrasil</span>
                     </SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col gap-1 px-2">
