@@ -48,25 +48,44 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
     ]
   },
   '/calendario': {
-    title: 'Guia do Calendário',
-    description: 'Como utilizar o calendário interativo.',
-    sections: [
-      {
-        title: 'Navegação',
-        content: 'Alterne entre os meses utilizando as setas no topo ou selecione uma data específica.',
-        icon: <Info className="h-4 w-4 text-blue-500" />
-      },
-      {
-        title: 'Criação de Eventos',
-        content: 'Clique em um dia vazio ou no botão "Novo" para agendar um novo evento.',
-        icon: <Lightbulb className="h-4 w-4 text-yellow-500" />
-      },
-      {
-        title: 'Detalhes do Evento',
-        content: 'Clique em um evento existente para ver detalhes, editar ou excluir.',
-        icon: <BookOpen className="h-4 w-4 text-green-500" />
-      }
-    ]
+    'month': {
+      title: 'Guia do Calendário (Mensal)',
+      description: 'Visualize todos os eventos do mês de forma organizada.',
+      sections: [
+        {
+          title: 'Navegação',
+          content: 'Alterne entre os meses utilizando as setas no topo ou selecione uma data específica.',
+          icon: <Info className="h-4 w-4 text-blue-500" />
+        },
+        {
+          title: 'Criação de Eventos',
+          content: 'Clique em um dia vazio ou no botão "Novo" para agendar um novo evento.',
+          icon: <Lightbulb className="h-4 w-4 text-yellow-500" />
+        }
+      ]
+    },
+    'week': {
+      title: 'Guia do Calendário (Semanal)',
+      description: 'Foque nos eventos da semana selecionada.',
+      sections: [
+        {
+          title: 'Visão Detalhada',
+          content: 'Veja os horários específicos de cada evento ao longo da semana.',
+          icon: <Info className="h-4 w-4 text-blue-500" />
+        }
+      ]
+    },
+    'list': {
+      title: 'Guia do Calendário (Lista)',
+      description: 'Visualize os eventos em formato de lista cronológica.',
+      sections: [
+        {
+          title: 'Fácil Leitura',
+          content: 'Ideal para uma visualização rápida e sequencial dos próximos compromissos.',
+          icon: <Info className="h-4 w-4 text-blue-500" />
+        }
+      ]
+    }
   },
   '/usuarios': {
     'users': {
