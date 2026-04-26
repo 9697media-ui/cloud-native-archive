@@ -19,6 +19,7 @@ import EventFormDialog from '@/components/EventFormDialog';
 import EventDetailPanel from '@/components/EventDetailPanel';
 import ConflictDialog from '@/components/ConflictDialog';
 import FilteredEventsDialog from '@/components/FilteredEventsDialog';
+import PageHeader from '@/components/PageHeader';
 
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
