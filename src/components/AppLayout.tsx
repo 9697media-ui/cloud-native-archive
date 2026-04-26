@@ -179,77 +179,61 @@ export default function AppLayout() {
       )}
 
       <main className={cn(
-        "flex-1 p-4",
+        "flex-1 overflow-auto p-4",
         !isCleanView && "lg:p-8 mx-auto w-full max-w-7xl"
       )}>
         <Outlet />
       </main>
 
       {!hideHeaderParam && (
-        <footer className="border-t border-border bg-card/50 py-8 px-4 mt-auto">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-3">
-              <img src={logoImg} alt="anabrasil" className="h-8 w-8 rounded-lg object-cover grayscale opacity-50" />
-              <div className="flex flex-col">
-                <span className="text-sm font-bold tracking-tighter text-muted-foreground lowercase">anabrasil</span>
-                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">Controle de Eventos v2.0</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {isAuthenticated ? (
-                <div className="flex items-center gap-4 p-2 pl-4 rounded-full bg-background border border-border shadow-sm">
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs font-semibold text-foreground">{userName}</span>
-                    <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">{unit || user?.email}</span>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-10 w-10 rounded-full hover:bg-accent"
-                      >
-                        <UserCircle className="h-6 w-6 text-primary" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 mb-2">
-                      <DropdownMenuLabel className="flex flex-col">
-                        <span className="text-sm font-semibold text-foreground truncate">{userName}</span>
-                        <span className="text-xs font-normal text-muted-foreground truncate">{unit || user?.email}</span>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {(isAdmin || isManager) && (
-                        <DropdownMenuItem asChild>
-                          <Link to={`/usuarios${location.search}`} className="flex items-center gap-2 cursor-pointer py-2">
-                            <Users className="h-4 w-4" />
-                            <span>Painel</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 cursor-pointer py-2 text-destructive focus:text-destructive">
-                        <LogOut className="h-4 w-4" />
-                        <span>Sair</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ) : (
-                <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`}>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full px-6">
-                    <LogIn className="h-4 w-4" />
-                    Acessar Painel
-                  </Button>
-                </Link>
-              )}
-            </div>
-            
-            <p className="text-[10px] text-muted-foreground/50 font-medium uppercase tracking-widest">
-              © {new Date().getFullYear()} - Todos os direitos reservados
-            </p>
-          </div>
-        </footer>
+        <div className={cn(
+          "fixed bottom-6 right-6 z-[60] duration-500",
+          isFirstRender && "animate-in fade-in slide-in-from-bottom-4"
+        )}>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="default" 
+                  size="icon" 
+                  className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 transition-transform active:scale-95 border-2 border-primary-foreground/20"
+                >
+                  <UserCircle className="h-7 w-7" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 mb-2">
+                <DropdownMenuLabel className="flex flex-col">
+                  <span className="text-sm font-semibold text-foreground truncate">{userName}</span>
+                  <span className="text-xs font-normal text-muted-foreground truncate">{unit || user?.email}</span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {(isAdmin || isManager) && (
+                  <DropdownMenuItem asChild>
+                    <Link to={`/usuarios${location.search}`} className="flex items-center gap-2 cursor-pointer py-2">
+                      <Users className="h-4 w-4" />
+                      <span>Painel</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 cursor-pointer py-2 text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4" />
+                  <span>Sair</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
+              <Button 
+                variant="default" 
+                size="icon" 
+                className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 border-2 border-primary-foreground/20"
+              >
+                <LogIn className="h-7 w-7" />
+              </Button>
+            </Link>
+          )}
+        </div>
       )}
     </div>
   );
