@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
