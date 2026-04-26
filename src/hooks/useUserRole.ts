@@ -25,6 +25,8 @@ export function useUserRole() {
   const [accessStatus, setAccessStatus] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [isActive, setIsActive] = useState<boolean>(true);
+  const [viewRestrictions, setViewRestrictions] = useState<string[] | null>(null);
+  const [permissionLevel, setPermissionLevel] = useState<string | null>(null);
 
   useEffect(() => {
     // If a test persona is active, use it instead of real DB role
