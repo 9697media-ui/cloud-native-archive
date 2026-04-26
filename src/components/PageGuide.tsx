@@ -258,7 +258,11 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       title: 'Legenda e Funcionamento',
       items: [
         { title: 'Imutabilidade', content: 'Os logs de auditoria não podem ser editados ou excluídos.', color: 'bg-destructive' },
-        { title: 'Retenção', content: 'O sistema mantém o histórico recente de todas as unidades.', color: 'bg-info' }
+        { title: 'Retenção', content: 'O sistema mantém o histórico recente de todas as unidades.', color: 'bg-info' },
+        { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
+        { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
+        { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
+        { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
       ]
     }
   }
