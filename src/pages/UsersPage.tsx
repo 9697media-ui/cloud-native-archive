@@ -610,6 +610,12 @@ export default function UsersPage() {
           </TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           {isAdmin && (
+            <TabsTrigger value="view-configs" className="gap-1.5">
+              <Eye className="h-3.5 w-3.5" />
+              Visualização
+            </TabsTrigger>
+          )}
+          {isAdmin && (
             <TabsTrigger value="embed" className="gap-1.5">
               <Code2 className="h-3.5 w-3.5" />
               Embed
