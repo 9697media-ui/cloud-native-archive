@@ -1281,86 +1281,71 @@ export default function UsersPage() {
                         </AlertDescription>
                       </Alert>
                     )}
-                  </div>
-
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-6 border-b">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
-                    <Label htmlFor="show-header" className="text-sm font-medium cursor-pointer">Habilitar Cabeçalho e Menu</Label>
-                  </div>
-                  <p className="text-xs text-muted-foreground ml-11">
-                    Exibe a barra de navegação superior e links de acesso.
-                  </p>
-                </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
+                        <Label htmlFor="show-header" className="text-sm font-medium cursor-pointer">Habilitar Cabeçalho e Menu</Label>
+                      </div>
+                    </div>
 
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
-                    <Label htmlFor="show-title" className="text-sm font-medium cursor-pointer">Habilitar Título da Página</Label>
-                  </div>
-                  <p className="text-xs text-muted-foreground ml-11">
-                    Exibe o título principal no topo do conteúdo.
-                  </p>
-                </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
+                        <Label htmlFor="show-title" className="text-sm font-medium cursor-pointer">Habilitar Título da Página</Label>
+                      </div>
+                    </div>
 
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
-                    <Label htmlFor="hide-login" className="text-sm font-medium cursor-pointer">Ocultar Botão de Login</Label>
-                  </div>
-                  <p className="text-xs text-muted-foreground ml-11">
-                    Remove o botão de login para visualização externa segura.
-                  </p>
-                </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
+                        <Label htmlFor="hide-login" className="text-sm font-medium cursor-pointer">Ocultar Botão de Login</Label>
+                      </div>
+                    </div>
 
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
-                    <Label htmlFor="hide-footer" className="text-sm font-medium cursor-pointer">Ocultar Rodapé</Label>
-                  </div>
-                  <p className="text-xs text-muted-foreground ml-11">
-                    Remove o rodapé do Lovable da página.
-                  </p>
-                </div>
-              </div>
-              {EMBED_PAGES.map((page, idx) => (
-                <div key={idx} className="rounded-lg border border-border p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-foreground">{page.name}</h3>
-                    <Badge variant="outline" className="text-xs">{page.path}</Badge>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">Link direto</Label>
-                    <div className="flex items-center gap-2">
-                      <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-muted/50" />
-                      <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyLink(idx, page.path)}>
-                        {copiedIdx === 100 + idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-                      </Button>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
+                        <Label htmlFor="hide-footer" className="text-sm font-medium cursor-pointer">Ocultar Rodapé</Label>
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">Código embed (iframe)</Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        readOnly
-                        value={getEmbedCode(page.path)}
-                        className="font-mono text-xs bg-muted/50"
-                      />
-                      <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyEmbed(idx, page.path)} title="Copiar embed">
-                        {copiedIdx === idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-                      </Button>
-                      <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyFixedEmbed(idx, page.path)} title="Copiar embed tela cheia">
-                        {copiedIdx === 200 + idx ? <Check className="h-4 w-4 text-primary" /> : <RefreshCw className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">
-                      Use <RefreshCw className="h-3 w-3 inline" /> para gerar embed que ocupa 100% da tela.
-                    </p>
+
+                  <div className="space-y-4 mt-6">
+                    {EMBED_PAGES.map((page, idx) => (
+                      <div key={idx} className="rounded-lg border border-border p-4 space-y-3 bg-muted/20">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-medium text-foreground">{page.name}</h3>
+                          <Badge variant="outline" className="text-xs">{page.path}</Badge>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-muted-foreground">Link direto</Label>
+                          <div className="flex items-center gap-2">
+                            <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-background" />
+                            <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyLink(idx, page.path)}>
+                              {copiedIdx === 100 + idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-muted-foreground">Código embed (iframe)</Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              readOnly
+                              value={getEmbedCode(page.path)}
+                              className="font-mono text-xs bg-background"
+                            />
+                            <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyEmbed(idx, page.path)} title="Copiar embed">
+                              {copiedIdx === idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                            </Button>
+                            <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyFixedEmbed(idx, page.path)} title="Copiar embed tela cheia">
+                              {copiedIdx === 200 + idx ? <Check className="h-4 w-4 text-primary" /> : <RefreshCw className="h-4 w-4" />}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              ))}
                 </TabsContent>
               </Tabs>
             </CardContent>
