@@ -202,10 +202,15 @@ export default function CalendarPage() {
   const getEventsForDay = (day: Date) => filtered.filter(e => isSameDay(new Date(e.start_datetime), day));
 
   return (
-    <div className="animate-fade-in space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {!hideTitle && <h1 className="text-xl font-bold text-foreground sm:text-2xl">Calendário</h1>}
-        <div className="flex items-center gap-1.5 p-1 bg-muted rounded-lg w-fit">
+    <div className="animate-fade-in space-y-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+        {!hideTitle && (
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Calendário</h1>
+            <p className="text-sm text-muted-foreground">Visualize e gerencie a programação em diferentes formatos</p>
+          </div>
+        )}
+        <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg w-fit shadow-sm border border-border">
           <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3">
             <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>
           </Button>
@@ -218,48 +223,62 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <div className="relative flex-1 min-w-[200px]">
+      {/* Filters and Search */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative flex-1 min-w-[280px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Buscar por título ou local..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10" />
+          <Input 
+            placeholder="Buscar por título ou local..." 
+            value={search} 
+            onChange={e => setSearch(e.target.value)} 
+            className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary" 
+          />
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <Select value={filterUnit} onValueChange={setFilterUnit}>
-            <SelectTrigger className="h-10 w-full sm:w-[160px]"><SelectValue placeholder="Unidade" /></SelectTrigger>
+            <SelectTrigger className="h-10 w-[160px] shadow-sm"><SelectValue placeholder="Unidade" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas unidades</SelectItem>
               {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="h-10 w-full sm:w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectTrigger className="h-10 w-[140px] shadow-sm"><SelectValue placeholder="Status" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos status</SelectItem>
               {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="h-10 w-full sm:w-[170px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
+            <SelectTrigger className="h-10 w-[170px] shadow-sm"><SelectValue placeholder="Tipo" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos tipos</SelectItem>
               {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Button variant={conflictOnly ? 'secondary' : 'outline'} size="default" onClick={() => setConflictOnly(!conflictOnly)} className="h-10 w-full sm:w-auto">
+          <Button 
+            variant={conflictOnly ? 'secondary' : 'outline'} 
+            size="default" 
+            onClick={() => setConflictOnly(!conflictOnly)} 
+            className="h-10 shadow-sm"
+          >
             Conflitos
           </Button>
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center gap-3">
-        <Button variant="outline" size="icon" onClick={prev}><ChevronLeft className="h-4 w-4" /></Button>
+      <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-xl border border-border/50">
+        <div className="flex items-center gap-1">
+          <Button variant="outline" size="icon" onClick={prev} className="h-9 w-9 shadow-sm"><ChevronLeft className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={next} className="h-9 w-9 shadow-sm"><ChevronRight className="h-4 w-4" /></Button>
+        </div>
+        
         <Popover>
           <PopoverTrigger asChild>
-            <button className="flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 hover:bg-accent transition-colors border border-transparent hover:border-border min-w-[200px]">
-              <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-              <span className="text-sm font-semibold capitalize text-foreground">
+            <button className="flex items-center justify-center gap-2 rounded-lg px-4 py-2 hover:bg-accent transition-all border border-transparent hover:border-border min-w-[220px]">
+              <CalendarIcon className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-sm font-bold capitalize text-foreground">
                 {view === 'week'
                   ? `${format(weekStart, 'dd MMM', { locale: ptBR })} - ${format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}`
                   : format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
@@ -277,8 +296,8 @@ export default function CalendarPage() {
             />
           </PopoverContent>
         </Popover>
-        <Button variant="outline" size="icon" onClick={next}><ChevronRight className="h-4 w-4" /></Button>
-        <Button variant="outline" size="sm" onClick={() => setSelectedMonth(new Date())}>Hoje</Button>
+
+        <Button variant="ghost" size="sm" onClick={() => setSelectedMonth(new Date())} className="ml-auto font-medium">Hoje</Button>
       </div>
 
       {/* Month view */}

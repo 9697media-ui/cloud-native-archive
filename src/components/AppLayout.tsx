@@ -31,6 +31,7 @@ const navItems: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true },
+  { to: '/mapeamento', label: 'Mapeamento', icon: Settings, adminOnly: true, requireAuth: true },
 ];
 
 export default function AppLayout() {
@@ -94,8 +95,8 @@ export default function AppLayout() {
       {!hideHeaderParam && <ImpersonationBanner />}
       {!hideHeaderParam && <TestModeBanner />}
       {!hideHeaderParam && (
-        <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-          <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 lg:px-8">
+        <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
+          <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-8">
             {isMobile && (
               <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                 <SheetTrigger asChild>
@@ -133,14 +134,14 @@ export default function AppLayout() {
               </Sheet>
             )}
 
-            <Link to={`/${location.search}`} className="flex items-center gap-2 shrink-0 group transition-transform active:scale-95">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm group-hover:shadow-md transition-all">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
+            <Link to={`/${location.search}`} className="flex items-center gap-2.5 shrink-0 group transition-all active:scale-95">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-sm group-hover:shadow-md group-hover:bg-primary/90 transition-all">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                   <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </div>
-              <span className={cn("text-lg font-bold leading-none text-foreground tracking-tighter", isMobile ? "inline" : "hidden sm:inline")}>
+              <span className={cn("text-xl font-black leading-none text-foreground tracking-tighter uppercase", isMobile ? "inline" : "hidden sm:inline")}>
                 anabrasil
               </span>
             </Link>

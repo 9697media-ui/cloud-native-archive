@@ -118,26 +118,26 @@ export default function Dashboard() {
   return (
     <div className="animate-fade-in space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
         {!hideTitle && (
           <div>
-            <h1 className="text-xl font-bold text-foreground sm:text-2xl">Visão Geral</h1>
-            <p className="text-xs text-muted-foreground sm:text-sm">Programação institucional de todas as unidades</p>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Visão Geral</h1>
+            <p className="text-sm text-muted-foreground">Programação institucional de todas as unidades</p>
           </div>
         )}
         <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center", hideTitle && "ml-auto")}>
           {canEdit && (
-            <Button onClick={() => setShowNewEvent(true)} className="w-full gap-2 sm:w-auto">
-              <Plus className="h-4 w-4" /> <span className="sm:inline">Nova Programação</span>
+            <Button onClick={() => setShowNewEvent(true)} className="w-full gap-2 sm:w-auto shadow-sm">
+              <Plus className="h-4 w-4" /> Nova Programação
             </Button>
           )}
-          <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2">
-            <button onClick={prevMonth} className="p-1 hover:bg-accent rounded"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
+          <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm">
+            <button onClick={prevMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
-                  <CalendarDays className="h-3.5 w-3.5 text-muted-foreground shrink-0 sm:h-4 sm:w-4" />
-                  <span className="text-xs font-medium capitalize text-foreground sm:text-sm">
+                  <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm font-medium capitalize text-foreground">
                     {format(selectedMonth, isMobile ? 'MMM yyyy' : 'MMMM yyyy', { locale: ptBR })}
                   </span>
                 </button>
@@ -153,7 +153,7 @@ export default function Dashboard() {
                 />
               </PopoverContent>
             </Popover>
-            <button onClick={nextMonth} className="p-1 hover:bg-accent rounded"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
+            <button onClick={nextMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
           </div>
         </div>
       </div>
