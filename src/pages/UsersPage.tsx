@@ -1001,6 +1001,7 @@ export default function UsersPage() {
                     placeholder="Buscar usuário por nome ou email..." 
                     value={viewSearch} 
                     onChange={e => setViewSearch(e.target.value)} 
+                    disabled={configs?.enable_role_based_view}
                     className="pl-9"
                   />
                   {viewSearch.length > 2 && (
