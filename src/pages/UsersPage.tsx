@@ -1200,10 +1200,7 @@ export default function UsersPage() {
                     )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-muted/30 border-dashed">
+            <Card className="bg-muted/30 border-dashed mt-6">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <Clock className="h-4 w-4 text-primary" />
@@ -1242,6 +1239,8 @@ export default function UsersPage() {
                 </div>
               </CardContent>
             </Card>
+          </CardContent>
+        </Card>
           </TabsContent>
         )}
 
