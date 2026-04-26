@@ -139,20 +139,20 @@ export default function MappingPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="animate-fade-in space-y-8 max-w-[1200px] mx-auto">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Mapeamento de Campos</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Mapeamento de Campos</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {rows.length} registros encontrados • {headers.length} campos na planilha
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={refetch}>
-            <RefreshCw className="h-4 w-4 mr-1" /> Recarregar
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Button variant="outline" size="sm" onClick={refetch} className="shadow-sm">
+            <RefreshCw className="h-4 w-4 mr-2" /> Recarregar
           </Button>
-          <Button size="sm" onClick={() => setShowPreview(!showPreview)}>
-            <Eye className="h-4 w-4 mr-1" /> {showPreview ? 'Ocultar' : 'Visualizar'} Preview
+          <Button size="sm" onClick={() => setShowPreview(!showPreview)} className="shadow-sm">
+            <Eye className="h-4 w-4 mr-2" /> {showPreview ? 'Ocultar' : 'Visualizar'} Preview
           </Button>
         </div>
       </div>
