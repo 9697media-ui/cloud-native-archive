@@ -156,7 +156,7 @@ export default function LoginPage() {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background p-4">
       {emergencyReset && (
         <AlertDialog open={emergencyReset} onOpenChange={setEmergencyReset}>
           <AlertDialogContent className="max-w-md">
