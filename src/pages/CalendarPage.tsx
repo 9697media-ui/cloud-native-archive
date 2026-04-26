@@ -22,6 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import EventFormDialog from '@/components/EventFormDialog';
 import EventDetailPanel from '@/components/EventDetailPanel';
 import BulkActionBar from '@/components/BulkActionBar';
+import PageHeader from '@/components/PageHeader';
 
 const unitDotColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic',
