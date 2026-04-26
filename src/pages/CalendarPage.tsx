@@ -3,6 +3,7 @@ import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSearchParams } from 'react-router-dom';
 import { AppEvent, EventStatus, UNITS, EVENT_STATUSES, EVENT_TYPES, Unit } from '@/types';
