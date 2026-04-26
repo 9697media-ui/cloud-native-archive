@@ -22,7 +22,7 @@ import EventDetailPanel from '@/components/EventDetailPanel';
 import ConflictDialog from '@/components/ConflictDialog';
 import FilteredEventsDialog from '@/components/FilteredEventsDialog';
 import PageHeader from '@/components/PageHeader';
-import PageGuide from '@/components/PageGuide';
+
 
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
