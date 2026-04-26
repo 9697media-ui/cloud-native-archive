@@ -837,8 +837,9 @@ export default function UsersPage() {
                       </div>
                       <div className="grid grid-cols-1 gap-2">
                         {UNITS.map(unit => (
-                          <div key={unit} className="flex items-center gap-2">
-                            <Checkbox 
+                          <div key={unit} className="flex items-center justify-between p-2 border rounded-md bg-background/50">
+                            <Label htmlFor={`role-${role}-${unit}`} className="text-sm cursor-pointer font-medium">{unit}</Label>
+                            <Switch 
                               id={`role-${role}-${unit}`}
                               checked={allowedUnits.includes(unit)}
                               onCheckedChange={(checked) => {
@@ -849,7 +850,6 @@ export default function UsersPage() {
                                 updateConfig.mutate({ key: 'role_defaults', value: newValue });
                               }}
                             />
-                            <Label htmlFor={`role-${role}-${unit}`} className="text-sm cursor-pointer">{unit}</Label>
                           </div>
                         ))}
                       </div>
