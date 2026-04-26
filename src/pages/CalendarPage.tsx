@@ -209,16 +209,7 @@ export default function CalendarPage() {
         description="Visualize e gerencie a programação em diferentes formatos"
         hidden={hideTitle}
         actions={
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
-            <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar por título ou local..." 
-                value={search} 
-                onChange={e => setSearch(e.target.value)} 
-                className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
-              />
-            </div>
+          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0">
             <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg shadow-sm border border-border w-full sm:w-auto overflow-x-auto">
               <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3 flex-1 sm:flex-none">
                 <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>
@@ -230,42 +221,52 @@ export default function CalendarPage() {
                 <List className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Lista</span>
               </Button>
             </div>
+
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input 
+                placeholder="Buscar..." 
+                value={search} 
+                onChange={e => setSearch(e.target.value)} 
+                className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Select value={filterUnit} onValueChange={setFilterUnit}>
+                <SelectTrigger className="h-10 w-[140px] shadow-sm"><SelectValue placeholder="Unidade" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas unidades</SelectItem>
+                  {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="h-10 w-[120px] shadow-sm"><SelectValue placeholder="Status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos status</SelectItem>
+                  {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="h-10 w-[140px] shadow-sm"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos tipos</SelectItem>
+                  {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Button 
+                variant={conflictOnly ? 'secondary' : 'outline'} 
+                size="default" 
+                onClick={() => setConflictOnly(!conflictOnly)} 
+                className="h-10 shadow-sm whitespace-nowrap"
+              >
+                Conflitos
+              </Button>
+            </div>
           </div>
         }
       />
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2">
-          <Select value={filterUnit} onValueChange={setFilterUnit}>
-            <SelectTrigger className="h-10 w-[160px] shadow-sm"><SelectValue placeholder="Unidade" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas unidades</SelectItem>
-              {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="h-10 w-[140px] shadow-sm"><SelectValue placeholder="Status" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos status</SelectItem>
-              {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="h-10 w-[170px] shadow-sm"><SelectValue placeholder="Tipo" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos tipos</SelectItem>
-              {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Button 
-            variant={conflictOnly ? 'secondary' : 'outline'} 
-            size="default" 
-            onClick={() => setConflictOnly(!conflictOnly)} 
-            className="h-10 shadow-sm"
-          >
-            Conflitos
-          </Button>
-        </div>
 
       {/* Navigation */}
       <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-xl border border-border/50">
