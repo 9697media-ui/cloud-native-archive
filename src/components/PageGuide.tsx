@@ -6,7 +6,8 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogDescription,
-  DialogTrigger
+  DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { HelpCircle, Info, BookOpen, Lightbulb } from 'lucide-react';
@@ -145,6 +146,7 @@ interface PageGuideProps {
 }
 
 export default function PageGuide({ activeTab }: PageGuideProps) {
+  const [open, setOpen] = useState(false);
   const location = useLocation();
   const path = location.pathname;
   
@@ -156,13 +158,13 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
       return guide as GuideContent;
     }
     
-    if (activeTab && guide[activeTab]) {
-      return guide[activeTab] as GuideContent;
+    if (activeTab && (guide as Record<string, GuideContent>)[activeTab]) {
+      return (guide as Record<string, GuideContent>)[activeTab];
     }
     
     // Fallback to first tab or a default if it's a multi-tab guide
     const firstTab = Object.keys(guide)[0];
-    return guide[firstTab] as GuideContent;
+    return (guide as Record<string, GuideContent>)[firstTab];
   };
 
   const content = getGuideContent();
@@ -170,7 +172,7 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
   if (!content) return null;
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
@@ -201,7 +203,7 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
                 <div className="mt-0.5 shrink-0">
                   {section.icon || <Info className="h-4 w-4 text-primary" />}
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 flex-1">
                   <h4 className="text-sm font-semibold text-foreground">{section.title}</h4>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {section.content}
@@ -213,12 +215,11 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
         </ScrollArea>
         
         <div className="p-4 border-t border-border bg-accent/10 flex justify-end">
-          <Button variant="default" size="sm" onClick={(e) => {
-            const closeBtn = (e.target as HTMLElement).closest('[role="dialog"]')?.querySelector('[data-state="open"] button');
-            // This is a bit hacky for shadcn/ui but works to close if you don't have access to controlled state
-          }}>
-            Entendi
-          </Button>
+          <DialogClose asChild>
+            <Button variant="default" size="sm">
+              Entendi
+            </Button>
+          </DialogClose>
         </div>
       </DialogContent>
     </Dialog>
