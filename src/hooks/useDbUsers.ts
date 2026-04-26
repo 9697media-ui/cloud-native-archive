@@ -24,7 +24,7 @@ export function useDbUsers() {
     try {
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('user_id, name, email, permission_level, unit, created_at, is_active')
+        .select('user_id, name, email, permission_level, unit, created_at, is_active, view_restrictions')
         .order('created_at', { ascending: true });
 
       if (profileError) throw profileError;
