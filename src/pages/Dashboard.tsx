@@ -4,6 +4,7 @@ import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AppEvent, EventStatus, UNITS, Unit } from '@/types';
 import { CalendarDays, CheckCircle2, Clock, AlertCircle, Plus, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Camera, Handshake } from 'lucide-react';
@@ -34,7 +35,8 @@ const unitDotColors: Record<Unit, string> = {
 export default function Dashboard() {
   const [searchParams] = useSearchParams();
   const hideTitle = searchParams.get('hideTitle') === 'true';
-  const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
+  const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
+  const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
   const { canEdit } = useUserRole();
   const isMobile = useIsMobile();

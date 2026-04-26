@@ -3,6 +3,7 @@ import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSearchParams } from 'react-router-dom';
 import { AppEvent, EventStatus, UNITS, EVENT_STATUSES, EVENT_TYPES, Unit } from '@/types';
@@ -39,7 +40,8 @@ const unitBorderColors: Record<Unit, string> = {
 type View = 'month' | 'week' | 'list';
 
 export default function CalendarPage() {
-  const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
+  const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
+  const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
   const { canEdit, userName } = useUserRole();
   const isMobile = useIsMobile();

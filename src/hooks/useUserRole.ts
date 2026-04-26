@@ -25,6 +25,8 @@ export function useUserRole() {
   const [accessStatus, setAccessStatus] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [isActive, setIsActive] = useState<boolean>(true);
+  const [viewRestrictions, setViewRestrictions] = useState<string[] | null>(null);
+  const [permissionLevel, setPermissionLevel] = useState<string | null>(null);
 
   useEffect(() => {
     // If a test persona is active, use it instead of real DB role
@@ -57,13 +59,15 @@ export function useUserRole() {
       // Also check profile for permission_level and name
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('permission_level, name, is_active')
+        .select('permission_level, name, is_active, view_restrictions')
         .eq('user_id', user.id)
         .maybeSingle();
       
       if (profileData) {
         setUserName(profileData.name);
         setIsActive(profileData.is_active !== false);
+        setViewRestrictions(profileData.view_restrictions as string[] | null);
+        setPermissionLevel(profileData.permission_level);
       } else if (user.user_metadata?.name) {
         setUserName(user.user_metadata.name);
       } else {
@@ -105,7 +109,19 @@ export function useUserRole() {
   const canEdit = isAdmin || isManager;
   const canView = role !== null;
 
-  return { role, loading, canEdit, isAdmin, isManager, canView, accessStatus, userName, isActive };
+  return { 
+    role, 
+    loading, 
+    canEdit, 
+    isAdmin, 
+    isManager, 
+    canView, 
+    accessStatus, 
+    userName, 
+    isActive,
+    viewRestrictions,
+    permissionLevel
+  };
 }
 
 export function useAccessRequests() {
