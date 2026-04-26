@@ -76,7 +76,7 @@ export default function AuditPage() {
     );
   }
 
-  const availableUnits = isAdmin 
+  const availableUnits = (isAdmin || isManager)
     ? UNITS 
     : UNITS.filter(u => u === userUnit || delegatedUnits.includes(u));
 
