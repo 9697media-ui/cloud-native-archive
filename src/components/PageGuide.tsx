@@ -126,7 +126,10 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         title: 'Legenda e Funcionamento',
         items: [
           { title: 'Horários', content: 'Visualize a ocupação diária por faixas de horário.', color: 'bg-primary' },
-          { title: 'Unidades', content: 'Identificação por cores laterais em cada bloco.', color: 'bg-blue-500' }
+          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
+          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
+          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
+          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
         ]
       }
     },
