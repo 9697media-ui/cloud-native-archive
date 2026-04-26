@@ -4,7 +4,7 @@ export type EventStatus = 'confirmado' | 'pendente' | 'cancelado';
 
 export type EventType = 'reunião' | 'evento institucional' | 'apresentação' | 'cobertura' | 'ação externa' | 'programação interna' | 'outro';
 
-export type PermissionLevel = 'admin_geral' | 'gestor_unidade' | 'usuario_padrao' | 'visualizador';
+export type PermissionLevel = 'admin_geral' | 'gestor_unidade' | 'coordenador' | 'analista' | 'usuario_padrao' | 'visualizador' | 'diretor' | 'assistente' | 'estagiario';
 
 export type PartnerType = 'padrinho' | 'doador' | 'empresa' | 'figura_publica' | 'outro' | '';
 
