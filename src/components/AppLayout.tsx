@@ -197,12 +197,14 @@ export default function AppLayout() {
                   <span className="text-xs font-normal text-muted-foreground truncate">{user?.email}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to={`/usuarios${location.search}`} className="flex items-center gap-2 cursor-pointer py-2">
-                    <Users className="h-4 w-4" />
-                    <span>Painel</span>
-                  </Link>
-                </DropdownMenuItem>
+                {(isAdmin || isManager) && (
+                  <DropdownMenuItem asChild>
+                    <Link to={`/usuarios${location.search}`} className="flex items-center gap-2 cursor-pointer py-2">
+                      <Users className="h-4 w-4" />
+                      <span>Painel</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 cursor-pointer py-2 text-destructive focus:text-destructive">
                   <LogOut className="h-4 w-4" />
