@@ -303,6 +303,8 @@ export type Database = {
     Functions: {
       can_manage_unit: { Args: { target_unit: string }; Returns: boolean }
       check_audit_log_access: { Args: { log_unit: string }; Returns: boolean }
+      check_is_admin: { Args: { _uid: string }; Returns: boolean }
+      check_is_manager: { Args: { _uid: string }; Returns: boolean }
       get_user_delegated_units: {
         Args: { _user_id: string }
         Returns: string[]
