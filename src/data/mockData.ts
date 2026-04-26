@@ -66,7 +66,7 @@ export const mockUsers: AppUser[] = [
     name: 'Visualizador Santana',
     email: 'view.santana@teste.lovable',
     unit: 'Santana',
-    permission_level: 'visualizador',
+    permission_level: 'usuario_padrao',
     is_active: true,
     created_at: d(1, 12),
     updated_at: d(1, 12),
