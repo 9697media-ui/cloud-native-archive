@@ -292,6 +292,7 @@ export default function UsersPage() {
       unit: (dbu.unit as any) || 'Evento Geral do Grupo',
       permission_level: (dbu.permission_level || 'usuario_padrao') as any,
       is_active: dbu.is_active !== false,
+      status: (dbu as any).status || (dbu.is_active !== false ? 'active' : 'inactive'),
       created_at: dbu.created_at,
       updated_at: dbu.created_at,
       view_restrictions: dbu.view_restrictions,
