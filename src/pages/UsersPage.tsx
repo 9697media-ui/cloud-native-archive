@@ -881,7 +881,7 @@ export default function UsersPage() {
                   </Alert>
                 )}
 
-                <div className={`grid gap-6 md:grid-cols-2 transition-opacity duration-300 ${!configs?.enable_role_based_view ? "opacity-50 grayscale-[0.5]" : ""}`}>
+                <div className={`grid gap-6 md:grid-cols-2 transition-all duration-300 ${!configs?.enable_role_based_view ? "opacity-50 grayscale-[0.5] pointer-events-none select-none" : ""}`}>
                   {Object.entries(configs?.role_defaults || {}).map(([role, allowedUnits]) => (
                     <div key={role} className="space-y-3 p-4 border rounded-lg bg-card shadow-sm">
                       <div className="flex items-center justify-between flex-wrap gap-2">
