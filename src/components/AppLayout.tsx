@@ -34,7 +34,13 @@ const navItems: NavItem[] = [
 ];
 
 export default function AppLayout() {
+  const [isFirstRender, setIsFirstRender] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsFirstRender(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
   const location = useLocation();
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hideLoginParam = queryParams.get('hideLogin') === 'true';
@@ -82,50 +88,6 @@ export default function AppLayout() {
     </>
   );
 
-  const FAB = () => (
-    <div className="fixed bottom-6 right-6 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {isAuthenticated ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              variant="default" 
-              size="icon" 
-              className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 transition-transform active:scale-95 border-2 border-primary-foreground/20"
-            >
-              <UserCircle className="h-7 w-7" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 mb-2">
-            <DropdownMenuLabel className="flex flex-col">
-              <span className="text-xs font-normal text-muted-foreground truncate">{user?.email}</span>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to={`/usuarios${location.search}`} className="flex items-center gap-2 cursor-pointer py-2">
-                <Users className="h-4 w-4" />
-                <span>Painel</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 cursor-pointer py-2 text-destructive focus:text-destructive">
-              <LogOut className="h-4 w-4" />
-              <span>Sair</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : (
-        <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
-          <Button 
-            variant="default" 
-            size="icon" 
-            className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 border-2 border-primary-foreground/20"
-          >
-            <LogIn className="h-7 w-7" />
-          </Button>
-        </Link>
-      )}
-    </div>
-  );
 
   return (
     <div className={cn("flex min-h-screen flex-col bg-background", isCleanView && "h-full")}>
@@ -215,7 +177,53 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      {!hideHeaderParam && <FAB />}
+      {!hideHeaderParam && (
+        <div className={cn(
+          "fixed bottom-6 right-6 z-[60] duration-500",
+          isFirstRender && "animate-in fade-in slide-in-from-bottom-4"
+        )}>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="default" 
+                  size="icon" 
+                  className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 transition-transform active:scale-95 border-2 border-primary-foreground/20"
+                >
+                  <UserCircle className="h-7 w-7" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 mb-2">
+                <DropdownMenuLabel className="flex flex-col">
+                  <span className="text-xs font-normal text-muted-foreground truncate">{user?.email}</span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to={`/usuarios${location.search}`} className="flex items-center gap-2 cursor-pointer py-2">
+                    <Users className="h-4 w-4" />
+                    <span>Painel</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 cursor-pointer py-2 text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4" />
+                  <span>Sair</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="transition-transform active:scale-95">
+              <Button 
+                variant="default" 
+                size="icon" 
+                className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 border-2 border-primary-foreground/20"
+              >
+                <LogIn className="h-7 w-7" />
+              </Button>
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }
