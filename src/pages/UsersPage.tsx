@@ -955,7 +955,7 @@ export default function UsersPage() {
                   Busque um usuário para definir restrições específicas ou veja quem já possui configurações customizadas.
                 </p>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className={`space-y-6 transition-opacity duration-300 ${!configs?.enable_role_based_view ? "opacity-50 pointer-events-none grayscale-[0.5]" : ""}`}>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input 
