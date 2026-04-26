@@ -1336,40 +1336,40 @@ export default function UsersPage() {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
-                    <Label htmlFor="show-header" className="text-sm font-medium cursor-pointer">Habilitar cabeçalho</Label>
+                    <Label htmlFor="show-header" className="text-sm font-medium cursor-pointer">Habilitar Cabeçalho e Menu</Label>
                   </div>
                   <p className="text-xs text-muted-foreground ml-11">
-                    Exibe a barra de navegação superior, incluindo o menu e links de acesso.
+                    Exibe a barra de navegação superior e links de acesso.
                   </p>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
-                    <Label htmlFor="show-title" className="text-sm font-medium cursor-pointer">Habilitar título da página</Label>
+                    <Label htmlFor="show-title" className="text-sm font-medium cursor-pointer">Habilitar Título da Página</Label>
                   </div>
                   <p className="text-xs text-muted-foreground ml-11">
-                    Exibe o título principal (H1) no topo do conteúdo de cada página.
-                  </p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <Switch id="hide-menu" checked={hideHeader} onCheckedChange={setHideHeader} />
-                    <Label htmlFor="hide-menu" className="text-sm font-medium cursor-pointer">Ocultar head/menu</Label>
-                  </div>
-                  <p className="text-xs text-muted-foreground ml-11">
-                    Remove completamente o cabeçalho e menu de navegação do topo.
+                    Exibe o título principal no topo do conteúdo.
                   </p>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
-                    <Label htmlFor="hide-login" className="text-sm font-medium cursor-pointer">Ocultar botão de login</Label>
+                    <Label htmlFor="hide-login" className="text-sm font-medium cursor-pointer">Ocultar Botão de Login</Label>
                   </div>
                   <p className="text-xs text-muted-foreground ml-11">
-                    Remove o botão de login administrativo para visualização pública.
+                    Remove o botão de login para visualização externa segura.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
+                    <Label htmlFor="hide-footer" className="text-sm font-medium cursor-pointer">Ocultar Rodapé</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-11">
+                    Remove o rodapé do Lovable da página.
                   </p>
                 </div>
               </div>
