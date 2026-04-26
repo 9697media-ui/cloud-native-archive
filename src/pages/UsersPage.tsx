@@ -600,18 +600,15 @@ export default function UsersPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
                 <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
-                {isAdmin && (
-                  <TabsTrigger value="view-configs" className="gap-1.5 h-8">
-                    <Eye className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Visualização</span>
-                  </TabsTrigger>
-                )}
-                {isAdmin && (
-                  <TabsTrigger value="embed" className="gap-1.5 h-8">
-                    <Code2 className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Embed</span>
-                  </TabsTrigger>
-                )}
+                <TabsTrigger value="view-configs" className="gap-1.5 h-8">
+                  <Eye className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Visualização</span>
+                </TabsTrigger>
+                <TabsTrigger value="embed" className="gap-1.5 h-8">
+                  <Code2 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Embed</span>
+                </TabsTrigger>
+
               </TabsList>
             </Tabs>
 
