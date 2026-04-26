@@ -147,7 +147,11 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         title: 'Legenda e Funcionamento',
         items: [
           { title: 'Cronologia', content: 'Eventos ordenados do mais próximo para o futuro.', color: 'bg-primary' },
-          { title: 'Filtros', content: 'A lista respeita todos os filtros ativos no topo.', color: 'bg-amber-500' }
+          { title: 'Filtros', content: 'A lista respeita todos os filtros ativos no topo.', color: 'bg-amber-500' },
+          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
+          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
+          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
+          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
         ]
       }
     }
