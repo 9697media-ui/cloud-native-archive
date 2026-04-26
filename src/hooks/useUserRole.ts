@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTestView } from '@/contexts/TestViewContext';
 
-export type UserRole = 'admin' | 'editor' | 'viewer' | null;
+export type UserRole = 'admin' | 'editor' | null;
 
 export interface AccessRequest {
   id: string;
