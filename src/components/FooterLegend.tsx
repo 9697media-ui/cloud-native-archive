@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ChevronDown, Info, Shield, Hammer, Users, Calendar, LayoutDashboard, History, LogIn } from 'lucide-react';
+import { ChevronDown, Info, Shield, Hammer, Users, Calendar, LayoutDashboard, History, LogIn, UserCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -58,6 +58,7 @@ const legends: Record<string, PageLegend> = {
     functions: [
       { title: 'Controle de Acessos', description: 'Definição de quem pode ver, editar ou administrar cada parte do sistema.', icon: Shield },
       { title: 'Integração (Embed)', description: 'Geração de códigos para exibir o calendário em outros sites ou portais da unidade.', icon: Hammer },
+      { title: 'Pré-cadastro', description: 'Permite que administradores e gestores cadastrem novos usuários antecipadamente.', icon: UserCheck },
     ],
     roles: [
       { title: 'Admin Geral', description: 'Configura o sistema, gerencia permissões críticas e resolve solicitações de acesso.', icon: Shield },
