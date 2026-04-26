@@ -76,6 +76,7 @@ export function useUserRole() {
         setIsActive(profileData.is_active !== false);
         setViewRestrictions(profileData.view_restrictions as string[] | null);
         setPermissionLevel(profileData.permission_level);
+        setUnit(profileData.unit);
       } else if (user.user_metadata?.name) {
         setUserName(user.user_metadata.name);
       } else {
@@ -97,11 +98,11 @@ export function useUserRole() {
         // Check if there's a pending access request
         const { data: requestData } = await (supabase
           .from('access_requests') as any)
-          .select('status')
-          .eq('user_id', user.id)
-          .order('requested_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+        .select('status')
+        .eq('user_id', user.id)
+        .order('requested_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
         setRole(null);
         setAccessStatus(requestData?.status || null);
@@ -128,7 +129,8 @@ export function useUserRole() {
     userName, 
     isActive,
     viewRestrictions,
-    permissionLevel
+    permissionLevel,
+    unit
   };
 }
 
