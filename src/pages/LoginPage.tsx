@@ -193,18 +193,18 @@ export default function LoginPage() {
           </AlertDialogContent>
         </AlertDialog>
       )}
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
-            <Calendar className="h-7 w-7 text-primary-foreground" />
+      <Card className="w-full max-w-md border-border/40 bg-card/70 backdrop-blur-xl shadow-2xl">
+        <CardHeader className="text-center pb-8">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20 rotate-3 hover:rotate-0 transition-transform duration-300">
+            <Calendar className="h-8 w-8 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl">Central ANA</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-3xl font-bold tracking-tight">Central ANA</CardTitle>
+          <CardDescription className="text-sm font-medium mt-2">
             {mode === 'signup'
               ? 'Solicite acesso para gerenciar programações'
               : mode === 'forgot'
               ? 'Informe seu e-mail para redefinir a senha'
-              : 'Faça login para editar programações'}
+              : 'Bem-vindo de volta ao painel administrativo'}
           </CardDescription>
         </CardHeader>
         <CardContent>
