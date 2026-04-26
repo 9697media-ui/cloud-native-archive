@@ -236,7 +236,7 @@ export default function LoginPage() {
                     <SelectItem value="criador">Criador (Cria e Edita)</SelectItem>
                   </SelectContent>
                 </Select>
-                {requestedRole === 'editor' && (
+                {(requestedRole === 'editor' || requestedRole === 'criador') && (
                   <div className="mt-4">
                     <Label>Selecione sua unidade</Label>
                     <Select value={requestedUnit} onValueChange={(v) => setRequestedUnit(v as Unit)}>
