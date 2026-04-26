@@ -698,9 +698,8 @@ export default function UsersPage() {
         }
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-
-        <TabsContent value="users" className="space-y-6">
+      <div className="space-y-8">
+        <div className="space-y-6">
           {isAdmin && (
             <BulkActionBar
               type="users"
