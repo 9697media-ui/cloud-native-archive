@@ -109,7 +109,7 @@ export default function AppLayout() {
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                         <Calendar className="h-4 w-4 text-primary-foreground" />
                       </div>
-                      <span>Central ANA</span>
+                      <span>ANA Brasil</span>
                     </SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col gap-1 px-2">
