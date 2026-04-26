@@ -61,7 +61,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       }
     ],
     footer: {
-      title: 'Legenda de Status',
+      title: 'Legenda e Funcionamento',
       items: [
         { title: 'Confirmado', content: 'Evento validado e pronto para realização.', color: 'bg-green-500' },
         { title: 'Pendente', content: 'Aguardando aprovação ou detalhes finais.', color: 'bg-amber-500' },
