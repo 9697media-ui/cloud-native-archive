@@ -186,7 +186,6 @@ export type Database = {
           modules: string[] | null
           name: string | null
           permission_level: string | null
-          status: string | null
           unit: string | null
           updated_at: string
           user_id: string
@@ -201,7 +200,6 @@ export type Database = {
           modules?: string[] | null
           name?: string | null
           permission_level?: string | null
-          status?: string | null
           unit?: string | null
           updated_at?: string
           user_id: string
@@ -216,7 +214,6 @@ export type Database = {
           modules?: string[] | null
           name?: string | null
           permission_level?: string | null
-          status?: string | null
           unit?: string | null
           updated_at?: string
           user_id?: string

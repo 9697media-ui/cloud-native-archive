@@ -24,7 +24,7 @@ import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import PageGuide from '@/components/PageGuide';
 
 const EMBED_PAGES = [
   { name: 'Visão Geral', path: '/' },
@@ -94,56 +94,6 @@ export default function UsersPage() {
   // Impersonation dialog
   const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
   const [impersonateSubmitting, setImpersonateSubmitting] = useState(false);
-  
-  // Pre-registration
-  const [showPreRegister, setShowPreRegister] = useState(false);
-  const [preRegisterForm, setPreRegisterForm] = useState({
-    name: '',
-    email: '',
-    unit: 'Evento Geral do Grupo' as any,
-    permission_level: 'usuario_padrao' as any,
-  });
-  const [preRegisterSubmitting, setPreRegisterSubmitting] = useState(false);
-
-  const handlePreRegister = async () => {
-    if (!preRegisterForm.name || !preRegisterForm.email) {
-      toast({ title: 'Campos obrigatórios', description: 'Preencha nome e e-mail.', variant: 'destructive' });
-      return;
-    }
-    
-    setPreRegisterSubmitting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('admin-pre-register-user', {
-        body: preRegisterForm,
-      });
-
-      if (error || (data as any)?.error) {
-        toast({ 
-          title: 'Erro no pré-cadastro', 
-          description: (data as any)?.error || error?.message || 'Falha ao realizar pré-cadastro.', 
-          variant: 'destructive' 
-        });
-      } else {
-        toast({ 
-          title: 'Pré-cadastro realizado', 
-          description: `${preRegisterForm.name} foi adicionado à lista como esperado.` 
-        });
-        setShowPreRegister(false);
-        setPreRegisterForm({
-          name: '',
-          email: '',
-          unit: 'Evento Geral do Grupo',
-          permission_level: 'usuario_padrao',
-        });
-        refetch();
-      }
-    } catch (err) {
-      console.error('Erro no pré-cadastro:', err);
-      toast({ title: 'Erro', description: 'Ocorreu um erro inesperado.', variant: 'destructive' });
-    } finally {
-      setPreRegisterSubmitting(false);
-    }
-  };
 
   const handleResetPassword = async () => {
     if (!resetTarget) return;
@@ -343,7 +293,6 @@ export default function UsersPage() {
       unit: (dbu.unit as any) || 'Evento Geral do Grupo',
       permission_level: (dbu.permission_level || 'usuario_padrao') as any,
       is_active: dbu.is_active !== false,
-      status: (dbu as any).status || (dbu.is_active !== false ? 'active' : 'inactive'),
       created_at: dbu.created_at,
       updated_at: dbu.created_at,
       view_restrictions: dbu.view_restrictions,
@@ -667,6 +616,7 @@ export default function UsersPage() {
         className="mb-4"
         actions={
           <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
+            <PageGuide activeTab={activeTab} />
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
                 <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
@@ -695,10 +645,6 @@ export default function UsersPage() {
                   className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
                 />
               </div>
-              <Button onClick={() => setShowPreRegister(true)} className="gap-2 h-10">
-                <UserCheck className="h-4 w-4" />
-                Pré-cadastro
-              </Button>
             </div>
           </div>
         }
@@ -855,8 +801,8 @@ export default function UsersPage() {
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge variant="outline" className="text-[10px]">{user.unit}</Badge>
                             <Badge variant="secondary" className="text-[10px]">{permLabel(user.permission_level)}</Badge>
-                            <Badge variant={user.status === 'pre-registered' ? 'outline' : user.is_active ? 'default' : 'destructive'} className={cn("text-[10px]", user.status === 'pre-registered' && "border-primary text-primary bg-primary/5")}>
-                              {user.status === 'pre-registered' ? 'Pré-cadastro' : user.is_active ? 'Ativo' : 'Inativo'}
+                            <Badge variant={user.is_active ? 'default' : 'destructive'} className="text-[10px]">
+                              {user.is_active ? 'Ativo' : 'Inativo'}
                             </Badge>
                           </div>
                         </CardContent>
@@ -1497,78 +1443,7 @@ export default function UsersPage() {
       </Dialog>
 
 
-      {/* Pre-registration Dialog */}
-      <Dialog open={showPreRegister} onOpenChange={setShowPreRegister}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Novo Pré-cadastro</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-1.5">
-              <Label>Nome Completo</Label>
-              <Input 
-                value={preRegisterForm.name} 
-                onChange={e => setPreRegisterForm({ ...preRegisterForm, name: e.target.value })} 
-                placeholder="Ex: João Silva" 
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>E-mail</Label>
-              <Input 
-                type="email" 
-                value={preRegisterForm.email} 
-                onChange={e => setPreRegisterForm({ ...preRegisterForm, email: e.target.value })} 
-                placeholder="Ex: joao@email.com" 
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Unidade</Label>
-                <Select 
-                  value={preRegisterForm.unit} 
-                  onValueChange={v => setPreRegisterForm({ ...preRegisterForm, unit: v as any })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a unidade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {UNITS.map(u => (
-                      <SelectItem key={u} value={u}>{u}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Nível de Acesso</Label>
-                <Select 
-                  value={preRegisterForm.permission_level} 
-                  onValueChange={v => setPreRegisterForm({ ...preRegisterForm, permission_level: v as any })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o nível" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PERMISSION_LEVELS.filter(p => isAdmin || p.value !== 'admin_geral').map(p => (
-                      <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              * O usuário receberá um convite por e-mail e definirá sua própria senha no primeiro acesso.
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPreRegister(false)} disabled={preRegisterSubmitting}>
-              Cancelar
-            </Button>
-            <Button onClick={handlePreRegister} disabled={preRegisterSubmitting}>
-              {preRegisterSubmitting ? 'Cadastrando...' : 'Realizar Pré-cadastro'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Approval confirmation dialog */}
       <Dialog open={!!showApprovalConfirm} onOpenChange={(v) => { if (!v) setShowApprovalConfirm(null); }}>
         <DialogContent>
           <DialogHeader>

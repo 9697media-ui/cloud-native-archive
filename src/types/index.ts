@@ -43,7 +43,6 @@ export interface AppUser {
   unit: Unit;
   permission_level: PermissionLevel;
   is_active: boolean;
-  status: 'active' | 'inactive' | 'pre-registered';
   created_at: string;
   updated_at: string;
   view_restrictions?: Unit[] | null;

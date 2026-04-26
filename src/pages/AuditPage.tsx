@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { UNITS } from '@/types';
 import PageHeader from '@/components/PageHeader';
+import PageGuide from '@/components/PageGuide';
 import { History, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -85,6 +86,7 @@ export default function AuditPage() {
       <PageHeader 
         title="Logs de Auditoria" 
         description="Histórico de ações realizadas no sistema"
+        actions={<PageGuide />}
       />
 
       <Card>

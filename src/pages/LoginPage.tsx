@@ -12,7 +12,6 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { UNITS, Unit } from '@/types';
-import FooterLegend from '@/components/FooterLegend';
 
 export default function LoginPage() {
   const { signIn, signUp, resetPassword } = useAuth();
@@ -274,9 +273,6 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
-      <div className="w-full max-w-7xl mx-auto px-4 mt-8">
-        <FooterLegend />
-      </div>
     </div>
     </>
   );
