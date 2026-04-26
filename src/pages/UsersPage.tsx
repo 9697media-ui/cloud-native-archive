@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Edit2, Code2, Copy, Check, UserCheck, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
+import PageHeader from '@/components/PageHeader';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -592,14 +593,11 @@ export default function UsersPage() {
 
   return (
     <div className="animate-fade-in space-y-8">
-      {!hideTitleParam && (
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Painel de Controle</h1>
-            <p className="text-sm text-muted-foreground">Gerencie usuários, permissões e configurações de visualização</p>
-          </div>
-        </div>
-      )}
+      <PageHeader
+        title="Painel"
+        description="Gerencie usuários, permissões e configurações de visualização"
+        hidden={hideTitleParam}
+      />
 
       <Tabs defaultValue="users">
         <TabsList>
