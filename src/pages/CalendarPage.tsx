@@ -211,17 +211,19 @@ export default function CalendarPage() {
         hidden={hideTitle}
         actions={
           <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0">
-            <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg shadow-sm border border-border w-full sm:w-auto overflow-x-auto">
-              <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3 flex-1 sm:flex-none">
-                <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>
-              </Button>
-              <Button variant={view === 'week' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('week')} className="px-3 flex-1 sm:flex-none">
-                <CalendarIcon className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Semana</span>
-              </Button>
-              <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('list')} className="px-3 flex-1 sm:flex-none">
-                <List className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Lista</span>
-              </Button>
-            </div>
+            <Tabs value={view} onValueChange={(v) => setView(v as View)} className="w-full sm:w-auto">
+              <TabsList className="w-full sm:w-auto">
+                <TabsTrigger value="month" className="gap-1.5 flex-1 sm:flex-none">
+                  <LayoutGrid className="h-4 w-4" /> <span>Mês</span>
+                </TabsTrigger>
+                <TabsTrigger value="week" className="gap-1.5 flex-1 sm:flex-none">
+                  <CalendarIcon className="h-4 w-4" /> <span>Semana</span>
+                </TabsTrigger>
+                <TabsTrigger value="list" className="gap-1.5 flex-1 sm:flex-none">
+                  <List className="h-4 w-4" /> <span>Lista</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
