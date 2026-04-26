@@ -110,7 +110,14 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           content: 'Visualize a distribuição horária dos eventos ao longo de cada dia da semana.',
           icon: <CalendarIcon className="h-4 w-4 text-blue-500" />
         }
-      ]
+      ],
+      footer: {
+        title: 'Legenda e Funcionamento',
+        items: [
+          { title: 'Horários', content: 'Visualize a ocupação diária por faixas de horário.', color: 'bg-primary' },
+          { title: 'Unidades', content: 'Identificação por cores laterais em cada bloco.', color: 'bg-blue-500' }
+        ]
+      }
     },
     'list': {
       title: 'Guia do Calendário (Lista)',
