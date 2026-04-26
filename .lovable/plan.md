@@ -1,51 +1,56 @@
+## Objetivo
 
+Reintroduzir o quadro **"Legenda e Funcionamento do Sistema"** (mostrado na imagem de referência) dentro da aba **Configurações de Visualização** (`/usuarios` → aba "Visualização"), no formato **card expansível**, seguindo o mesmo padrão visual do card "Solicitações de Aprovação" já existente na página.
 
-## Reset de senha pelo admin + Login como usuário (impersonação)
+## Onde inserir
 
-### O que vai existir na tela `/usuarios`
+Arquivo: `src/pages/UsersPage.tsx`
 
-Na lista "Usuários Cadastrados na Plataforma" (visível só para admins), cada linha ganha **dois novos botões** ao lado do badge de role:
+Posição: dentro do `<CardContent>` do card **"Configuração de Visualização por Perfil"** (linha 898), logo **após o bloco do toggle "Sistema de Restrição por Cargo"** (que termina na linha 937) e **antes do Alert "Configurações Inativas"** (linha 940).
 
-- 🔑 **Redefinir senha** — abre modal, admin digita nova senha, sistema atualiza
-- 👤 **Entrar como** — admin loga na conta do usuário sem precisar de senha
+Assim a legenda aparece junto às configurações que ela explica, dentro do mesmo card.
 
-### Fluxo 1 — Redefinir senha
+## Formato — card expansível (padrão "Solicitações de Aprovação")
 
-1. Admin clica em 🔑 ao lado do usuário
-2. Modal abre: *"Redefinir senha de {nome}"* com campo "Nova senha" + "Confirmar senha" + botão **Salvar**
-3. Sistema chama Edge Function `admin-reset-user-password` com `{ userId, newPassword }`
-4. Edge Function valida que o caller é admin (via `has_role`), depois usa `supabase.auth.admin.updateUserById(userId, { password })`
-5. Toast de sucesso. Admin entrega a senha ao funcionário pelo canal interno.
+Seguir exatamente o padrão usado nas linhas 730-753:
 
-### Fluxo 2 — Entrar como usuário (impersonação)
+1. **Botão de cabeçalho** (`<button>`) com:
+   - Ícone à esquerda (`Clock` em círculo `bg-primary/10`)
+   - Título: "Legenda e Funcionamento do Sistema"
+   - Subtítulo: "Clique para ver como funciona o sistema de restrições e os níveis de permissão"
+   - `ChevronDown` à direita com rotação animada (`rotate-180` quando expandido)
+   - Estado controlado por novo `useState` → `legendExpanded` (default `false`)
 
-1. Admin clica em 👤 ao lado do usuário
-2. Confirmação: *"Entrar como {nome}? Você será deslogado da sua conta atual."*
-3. Sistema chama Edge Function `admin-impersonate-user` com `{ userId }`
-4. Edge Function valida admin, gera magic link via `supabase.auth.admin.generateLink({ type: 'magiclink', email })`, extrai o token e retorna
-5. Frontend salva o ID do admin original em `sessionStorage` (`impersonator_id`), faz logout e usa o token para logar como o alvo
-6. **Banner fixo no topo** aparece em todas as páginas: *"Você está logado como {nome do alvo}. [Voltar para minha conta]"*
-7. Ao clicar **Voltar**, faz logout do alvo, limpa sessionStorage e redireciona para `/login` (admin loga manualmente de volta — limitação técnica, magic link de volta exigiria re-autenticação)
+2. **Conteúdo expandido** (renderizado quando `legendExpanded === true`):
+   - `<Card className="border-primary/20 bg-primary/5 animate-in slide-in-from-top-2 duration-300">`
+   - Conteúdo idêntico ao da imagem de referência:
 
-### Componentes / arquivos
+     **Bloco superior — grid 2 colunas:**
+     - **Sistema por Cargo ATIVO** (bullet verde):
+       - "O acesso às unidades é determinado **exclusivamente** pelo cargo do usuário."
+       - "Qualquer restrição personalizada individual será **ignorada** enquanto este modo estiver ativo."
+       - *Exemplo*: Um "Gestor de Unidade" da DIC terá acesso apenas à DIC, mesmo que tenha restrições manuais.
+     - **Sistema por Cargo INATIVO** (bullet laranja):
+       - "O sistema prioriza as **Restrições Personalizadas** de cada usuário."
+       - "Caso o usuário não possua restrição manual, o acesso é total ou padrão do sistema."
+       - *Exemplo*: Um "Visualizador" pode ser configurado para ver especificamente as unidades DIC e DIP simultaneamente.
 
-| Arquivo | Mudança |
-|---|---|
-| `supabase/functions/admin-reset-user-password/index.ts` | Criar — valida admin via JWT + service role para trocar senha |
-| `supabase/functions/admin-impersonate-user/index.ts` | Criar — valida admin + gera magic link do alvo |
-| `supabase/config.toml` | Registrar 2 novas funções (`verify_jwt = false`, validação manual no código) |
-| `src/pages/UsersPage.tsx` | Adicionar botões + modais de reset e impersonação na lista `dbUsers` |
-| `src/components/ImpersonationBanner.tsx` | Criar — banner amarelo fixo no topo quando `sessionStorage.impersonator_id` existe |
-| `src/components/AppLayout.tsx` | Renderizar `<ImpersonationBanner />` no topo |
+     **Bloco inferior — Definição dos Níveis de Permissão** (separador + grid 4 colunas):
+     - **Admin Geral**: Acesso total e irrestrito. Único com poder de gerenciar usuários e aprovar novos acessos.
+     - **Gestor de Unidade**: Responsável pela gestão da sua unidade. Pode criar/editar eventos e aprovar usuários (com aviso).
+     - **Usuário Padrão**: Perfil operacional focado na visualização e acompanhamento dos eventos de sua unidade de atuação.
+     - **Visualizador**: Acesso somente leitura (Read-only). Destinado apenas para consulta de informações e calendário.
 
-### Segurança
+## Estado adicional
 
-- Ambas as Edge Functions **validam no início** se o caller é admin (`is_admin(auth.uid())`); se não for, retornam 403
-- Senha do admin nunca trafega
-- Service role usada só dentro das functions
-- Impersonação registrada em `console.log` da function para auditoria nos logs
+Adicionar perto dos outros `useState` da página:
+```ts
+const [legendExpanded, setLegendExpanded] = useState(false);
+```
 
-### Observação sobre impersonação
+## Garantias
 
-A solução mais limpa (Supabase ainda não tem "session swap" nativo) usa magic link sob o capô. O admin precisa logar de novo manualmente ao sair da impersonação — esse é o trade-off técnico aceito para não complicar o fluxo. Se quiser uma solução mais sofisticada (manter sessão dupla), posso planejar à parte.
-
+- **Não duplicar** — verifico que não existe outro bloco "Legenda e Funcionamento do Sistema" remanescente no arquivo (foi removido na iteração anterior).
+- **Sem alterar lógica** — apenas inserção de UI estática informativa.
+- **Ícones** já importados: `Clock`, `ChevronDown`, `ShieldCheck` — não precisa de novos imports.
+- **Mantém estrutura JSX** balanceada do `CardContent` existente.
