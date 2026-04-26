@@ -777,6 +777,211 @@ export default function UsersPage() {
         </TabsContent>
 
         {isAdmin && (
+          <TabsContent value="view-configs" className="mt-4 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ShieldCheck className="h-5 w-5 text-primary" />
+                  Configuração de Visualização por Perfil
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Defina quais unidades cada tipo de usuário pode visualizar por padrão.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/10">
+                  <div className="space-y-1">
+                    <Label htmlFor="enable-role-view" className="text-base font-semibold">Habilitar Restrição por Perfil</Label>
+                    <p className="text-sm text-muted-foreground">Quando ativado, os usuários verão apenas as unidades definidas abaixo.</p>
+                  </div>
+                  <Switch 
+                    id="enable-role-view" 
+                    checked={configs?.enable_role_based_view || false} 
+                    onCheckedChange={(v) => updateConfig.mutate({ key: 'enable_role_based_view', value: v })}
+                  />
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                  {Object.entries(configs?.role_defaults || {}).map(([role, allowedUnits]) => (
+                    <div key={role} className="space-y-3 p-4 border rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <Label className="font-bold capitalize">{ROLE_LABELS[role] || role}</Label>
+                        <Badge variant="outline">{allowedUnits.length} unidades</Badge>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2">
+                        {UNITS.map(unit => (
+                          <div key={unit} className="flex items-center gap-2">
+                            <Checkbox 
+                              id={`role-${role}-${unit}`}
+                              checked={allowedUnits.includes(unit)}
+                              onCheckedChange={(checked) => {
+                                const newUnits = checked 
+                                  ? [...allowedUnits, unit]
+                                  : allowedUnits.filter(u => u !== unit);
+                                const newValue = { ...configs?.role_defaults, [role]: newUnits };
+                                updateConfig.mutate({ key: 'role_defaults', value: newValue });
+                              }}
+                            />
+                            <Label htmlFor={`role-${role}-${unit}`} className="text-sm cursor-pointer">{unit}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Search className="h-5 w-5 text-primary" />
+                  Restrições Personalizadas
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Busque um usuário para definir restrições específicas ou veja quem já possui configurações customizadas.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input 
+                    placeholder="Buscar usuário por nome ou email..." 
+                    value={viewSearch} 
+                    onChange={e => setViewSearch(e.target.value)} 
+                    className="pl-9"
+                  />
+                  {viewSearch.length > 2 && (
+                    <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-lg max-h-60 overflow-auto">
+                      {combinedUsers
+                        .filter(u => u.name.toLowerCase().includes(viewSearch.toLowerCase()) || u.email.toLowerCase().includes(viewSearch.toLowerCase()))
+                        .map(u => (
+                          <button
+                            key={u.id}
+                            className="w-full px-4 py-2 text-left hover:bg-accent transition-colors flex items-center justify-between"
+                            onClick={() => {
+                              setSelectedViewUser(u);
+                              setViewSearch('');
+                            }}
+                          >
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium">{u.name}</span>
+                              <span className="text-xs text-muted-foreground">{u.email}</span>
+                            </div>
+                            <Badge variant="secondary" className="text-[10px]">{ROLE_LABELS[u.permission_level] || u.permission_level}</Badge>
+                          </button>
+                        ))
+                      }
+                    </div>
+                  )}
+                </div>
+
+                {selectedViewUser && (
+                  <div className="p-4 border rounded-lg bg-accent/30 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                          {selectedViewUser.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-medium">{selectedViewUser.name}</p>
+                          <p className="text-xs text-muted-foreground">{selectedViewUser.email}</p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedViewUser(null)}>Fechar</Button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold">Unidades que este usuário pode visualizar:</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {UNITS.map(unit => {
+                          const currentRestrictions = (selectedViewUser as any).view_restrictions || configs?.role_defaults[selectedViewUser.permission_level] || UNITS;
+                          const isChecked = currentRestrictions.includes(unit);
+                          
+                          return (
+                            <div key={unit} className="flex items-center gap-2">
+                              <Checkbox 
+                                id={`user-${selectedViewUser.id}-${unit}`}
+                                checked={isChecked}
+                                onCheckedChange={async (checked) => {
+                                  const newRestrictions = checked 
+                                    ? [...currentRestrictions, unit]
+                                    : currentRestrictions.filter((u: string) => u !== unit);
+                                  
+                                  const { error } = await supabase
+                                    .from('profiles')
+                                    .update({ view_restrictions: newRestrictions })
+                                    .eq('user_id', selectedViewUser.id);
+                                  
+                                  if (!error) {
+                                    toast({ title: "Restrições atualizadas" });
+                                    refetch();
+                                    setSelectedViewUser({ ...selectedViewUser, view_restrictions: newRestrictions } as any);
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`user-${selectedViewUser.id}-${unit}`} className="text-sm cursor-pointer">{unit}</Label>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full gap-2"
+                      onClick={async () => {
+                        const { error } = await supabase
+                          .from('profiles')
+                          .update({ view_restrictions: null })
+                          .eq('user_id', selectedViewUser.id);
+                        
+                        if (!error) {
+                          toast({ title: "Restrições resetadas para o padrão do perfil" });
+                          refetch();
+                          setSelectedViewUser({ ...selectedViewUser, view_restrictions: null } as any);
+                        }
+                      }}
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Redefinir para Padrão do Perfil
+                    </Button>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold border-b pb-2">Usuários com Restrições Customizadas</h3>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {combinedUsers
+                      .filter(u => (u as any).view_restrictions !== null && (u as any).view_restrictions !== undefined)
+                      .map(u => (
+                        <div key={u.id} className="p-3 border rounded-md flex items-center justify-between">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate">{u.name}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">{u.email}</p>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8"
+                            onClick={() => setSelectedViewUser(u)}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    {combinedUsers.filter(u => (u as any).view_restrictions !== null && (u as any).view_restrictions !== undefined).length === 0 && (
+                      <p className="text-xs text-muted-foreground text-center col-span-full py-4">Nenhum usuário com restrições customizadas.</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+
+        {isAdmin && (
           <TabsContent value="embed" className="mt-4">
           <Card>
             <CardHeader>
