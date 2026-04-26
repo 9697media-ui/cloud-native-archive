@@ -1119,6 +1119,7 @@ export default function UsersPage() {
                           <Button 
                             variant="ghost" 
                             size="icon" 
+                            disabled={configs?.enable_role_based_view}
                             className="h-8 w-8"
                             onClick={() => setSelectedViewUser(u)}
                           >
