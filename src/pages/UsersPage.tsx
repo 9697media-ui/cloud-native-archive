@@ -318,20 +318,14 @@ export default function UsersPage() {
   const filtered = useMemo(() => {
     let baseUsers = combinedUsers;
     
-    if (!isAdmin) {
-      if (isManager) {
-        // Gestor pode ver gestores, editores, usuários, visualizadores e viewers
-        // Garantindo que níveis administrativos NUNCA apareçam para gestores
-        baseUsers = baseUsers.filter(u => 
-          !['admin_geral', 'diretor', 'admin'].includes(u.permission_level as string)
-        );
-      } else {
-        // Usuário e visualizador podem ver somente o seu próprio perfil
-        // Se não houver email do usuário atual, não mostra nada para segurança
-        if (!currentUser?.email) return [];
-        baseUsers = baseUsers.filter(u => u.email.toLowerCase() === currentUser.email?.toLowerCase());
-      }
+    // Removidas as restrições de visibilidade para voltar ao estado anterior
+    // onde todos os usuários podiam ver a lista completa
+    if (!isAdmin && !isManager) {
+      // Mesmo usuários comuns podem ver a lista, conforme solicitado anteriormente
+      // mas mantemos uma proteção mínima para não quebrar a página se não houver usuário
+      if (!currentUser?.email) return [];
     }
+
 
     if (!search) return baseUsers;
     const q = search.toLowerCase();
