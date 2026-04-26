@@ -10,35 +10,34 @@ export function useFilteredEvents() {
   const { configs } = useViewConfigs();
 
   const filteredEvents = useMemo(() => {
-    // Admins see everything
+    // Admins sempre veem tudo
     if (isAdmin) return events;
 
-    // Se o sistema de restrição por cargo estiver DESATIVADO, o usuário vê tudo 
-    // (a menos que seja um admin que já vê tudo por padrão)
-    if (configs && configs.enable_role_based_view === false) return events;
-
-    // Determinar unidades permitidas seguindo lógica de mercado (Hierarquia de Permissão)
+    // Determinar unidades permitidas seguindo lógica de mercado
     let allowedUnits: string[] | null = null;
 
-    // 1. Se o sistema por cargo está ATIVO, o padrão do cargo tem precedência TOTAL
-    // Isso evita que personalizações individuais "esqueçam" de ser atualizadas
-    if (permissionLevel && configs?.role_defaults?.[permissionLevel]) {
-      allowedUnits = configs.role_defaults[permissionLevel];
-    } 
-    // 2. Fallback para restrição individual APENAS se não houver padrão de cargo ou se quisermos permitir overrides
-    // (Mas seguindo o pedido do usuário, o cargo deve prevalecer)
-    else if (viewRestrictions !== null && viewRestrictions !== undefined) {
-      allowedUnits = viewRestrictions;
-    } 
-    else {
-      // Se não houver restrições definidas e o sistema estiver ativo, por segurança não mostramos nada
-      return [];
+    if (configs?.enable_role_based_view) {
+      // 1. MODO CARGO ATIVO: O padrão do cargo tem precedência TOTAL e ignora personalizações individuais
+      // Isso garante conformidade com a regra do sistema
+      if (permissionLevel && configs?.role_defaults?.[permissionLevel]) {
+        allowedUnits = configs.role_defaults[permissionLevel];
+      } else {
+        // Se o sistema está ativo mas não há regra para o cargo, por segurança não mostramos nada
+        return [];
+      }
+    } else {
+      // 2. MODO CARGO DESATIVADO: Permite personalizações individuais ou acesso total
+      if (viewRestrictions !== null && viewRestrictions !== undefined) {
+        allowedUnits = viewRestrictions;
+      } else {
+        // Sem restrições de cargo E sem restrição individual = Acesso Total
+        return events;
+      }
     }
 
     if (allowedUnits === null) return [];
 
-
-    // Filter events by unit
+    // Filtra os eventos pelas unidades permitidas
     return events.filter(event => allowedUnits.includes(event.unit));
   }, [events, viewRestrictions, permissionLevel, configs, isAdmin]);
 
