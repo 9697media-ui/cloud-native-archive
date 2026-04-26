@@ -757,13 +757,12 @@ export default function UsersPage() {
                         <CardContent className="flex flex-col gap-4 p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              {isAdmin && (
-                                <Checkbox
-                                  checked={selectedUsers.has(user.id)}
-                                  onCheckedChange={() => toggleUserSelection(user.id)}
-                                  className="h-4 w-4"
-                                />
-                              )}
+                              <Checkbox
+                                checked={selectedUsers.has(user.id)}
+                                onCheckedChange={() => toggleUserSelection(user.id)}
+                                className="h-4 w-4"
+                              />
+
                               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                                 {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                               </div>
