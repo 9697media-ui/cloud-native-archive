@@ -219,7 +219,7 @@ export default function Dashboard() {
                 <p className="text-xs text-muted-foreground">Próximos compromissos agendados</p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-2 py-1.5 rounded-full bg-muted/30">
+            <div className="grid grid-cols-2 items-center gap-x-6 gap-y-2 px-4 py-2 rounded-xl bg-muted/30">
               {UNITS.map(u => (
                 <div key={u} className="flex items-center gap-2">
                   <span className={`h-2.5 w-2.5 rounded-full ${unitDotColors[u]} shadow-sm`} />
