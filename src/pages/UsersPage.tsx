@@ -340,9 +340,9 @@ export default function UsersPage() {
   }, [combinedUsers, search, isAdmin, isManager, currentUser]);
 
   const groupedUsers = useMemo(() => {
-    const admins = filtered.filter(u => (u.permission_level as string) === 'admin' || (u.permission_level as string) === 'admin_geral');
-    const gestores = filtered.filter(u => (u.permission_level as string) === 'gestor_unidade');
-    const normalUsers = filtered.filter(u => !['admin', 'admin_geral', 'gestor_unidade'].includes(u.permission_level as string));
+    const admins = filtered.filter(u => ['admin', 'admin_geral', 'diretor'].includes(u.permission_level as string));
+    const gestores = filtered.filter(u => ['gestor_unidade', 'coordenador', 'analista'].includes(u.permission_level as string));
+    const normalUsers = filtered.filter(u => !['admin', 'admin_geral', 'diretor', 'gestor_unidade', 'coordenador', 'analista'].includes(u.permission_level as string));
     
     return [
       { id: 'admins', title: 'Administradores', users: admins, icon: <ShieldCheck className="h-5 w-5 text-primary" /> },
