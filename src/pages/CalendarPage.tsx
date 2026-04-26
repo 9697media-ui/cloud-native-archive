@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, LayoutGrid, Search } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import EventFormDialog from '@/components/EventFormDialog';
@@ -208,93 +209,96 @@ export default function CalendarPage() {
         title="Calendário"
         description="Visualize e gerencie a programação em diferentes formatos"
         hidden={hideTitle}
-        actions={
-          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0">
-            <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg shadow-sm border border-border w-full sm:w-auto overflow-x-auto">
-              <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3 flex-1 sm:flex-none">
-                <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>
-              </Button>
-              <Button variant={view === 'week' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('week')} className="px-3 flex-1 sm:flex-none">
-                <CalendarIcon className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Semana</span>
-              </Button>
-              <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('list')} className="px-3 flex-1 sm:flex-none">
-                <List className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Lista</span>
-              </Button>
-            </div>
-
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar..." 
-                value={search} 
-                onChange={e => setSearch(e.target.value)} 
-                className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
-              />
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Select value={filterUnit} onValueChange={setFilterUnit}>
-                <SelectTrigger className="h-10 w-[140px] shadow-sm"><SelectValue placeholder="Unidade" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas unidades</SelectItem>
-                  {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="h-10 w-[120px] shadow-sm"><SelectValue placeholder="Status" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos status</SelectItem>
-                  {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="h-10 w-[140px] shadow-sm"><SelectValue placeholder="Tipo" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos tipos</SelectItem>
-                  {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Button 
-                variant={conflictOnly ? 'secondary' : 'outline'} 
-                size="default" 
-                onClick={() => setConflictOnly(!conflictOnly)} 
-                className="h-10 shadow-sm whitespace-nowrap"
-              >
-                Conflitos
-              </Button>
-
-              <div className="flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1.5 shadow-sm h-10">
-                <button onClick={prev} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
-                      <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="text-sm font-medium capitalize text-foreground">
-                        {view === 'week'
-                          ? `${format(weekStart, 'dd MMM', { locale: ptBR })} - ${format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}`
-                          : format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
-                      </span>
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <Calendar
-                      mode="single"
-                      selected={selectedMonth}
-                      onSelect={(date) => date && setSelectedMonth(date)}
-                      defaultMonth={selectedMonth}
-                      className={cn("p-3 pointer-events-auto")}
-                      locale={ptBR}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <button onClick={next} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
-              </div>
-
-              <Button variant="ghost" size="sm" onClick={() => setSelectedMonth(new Date())} className="h-10 font-medium px-3">Hoje</Button>
-            </div>
-          </div>
-        }
       />
+
+      <Tabs value={view} onValueChange={(v) => setView(v as View)} className="w-full">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <TabsList className="w-full sm:w-auto overflow-x-auto justify-start">
+            <TabsTrigger value="month" className="gap-1.5 flex-1 sm:flex-none">
+              <LayoutGrid className="h-4 w-4" /> <span>Mês</span>
+            </TabsTrigger>
+            <TabsTrigger value="week" className="gap-1.5 flex-1 sm:flex-none">
+              <CalendarIcon className="h-4 w-4" /> <span>Semana</span>
+            </TabsTrigger>
+            <TabsTrigger value="list" className="gap-1.5 flex-1 sm:flex-none">
+              <List className="h-4 w-4" /> <span>Lista</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input 
+              placeholder="Buscar..." 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+              className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 mb-6 bg-card/50 p-2 sm:p-3 rounded-xl border border-border overflow-x-auto">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <Select value={filterUnit} onValueChange={setFilterUnit}>
+              <SelectTrigger className="h-10 w-[140px] shadow-sm bg-background"><SelectValue placeholder="Unidade" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas unidades</SelectItem>
+                {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="h-10 w-[120px] shadow-sm bg-background"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos status</SelectItem>
+                {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="h-10 w-[140px] shadow-sm bg-background"><SelectValue placeholder="Tipo" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos tipos</SelectItem>
+                {EVENT_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Button 
+              variant={conflictOnly ? 'secondary' : 'outline'} 
+              size="default" 
+              onClick={() => setConflictOnly(!conflictOnly)} 
+              className="h-10 shadow-sm whitespace-nowrap bg-background"
+            >
+              Conflitos
+            </Button>
+          </div>
+
+          <div className="sm:ml-auto flex items-center gap-1 rounded-lg border border-border bg-background px-2 py-1.5 shadow-sm h-10">
+            <button onClick={prev} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm font-medium capitalize text-foreground">
+                    {view === 'week'
+                      ? `${format(weekStart, 'dd MMM', { locale: ptBR })} - ${format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}`
+                      : format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
+                  </span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="single"
+                  selected={selectedMonth}
+                  onSelect={(date) => date && setSelectedMonth(date)}
+                  defaultMonth={selectedMonth}
+                  className={cn("p-3 pointer-events-auto")}
+                  locale={ptBR}
+                />
+              </PopoverContent>
+            </Popover>
+            <button onClick={next} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
+          </div>
+
+          <Button variant="ghost" size="sm" onClick={() => setSelectedMonth(new Date())} className="h-10 font-medium px-3 ml-auto sm:ml-0">Hoje</Button>
+        </div>
+      </Tabs>
 
       {/* Month view */}
       {view === 'month' && (
