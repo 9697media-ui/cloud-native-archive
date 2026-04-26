@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Edit2, Code2, Copy, Check, UserCheck, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2 } from 'lucide-react';
+import { Search, Edit2, Code2, Copy, Check, UserCheck, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
@@ -84,6 +84,7 @@ export default function UsersPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bulkDelete, setBulkDelete] = useState(false);
   const [showRoleToggleConfirm, setShowRoleToggleConfirm] = useState<boolean | null>(null);
+  const [approvalsExpanded, setApprovalsExpanded] = useState(false);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -604,15 +605,6 @@ export default function UsersPage() {
           <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
-                <TabsTrigger value="approvals" className="gap-1.5 h-8">
-                  <UserCheck className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Aprovações</span>
-                  {requests.length > 0 && (
-                    <Badge variant="destructive" className="ml-1 h-4 w-4 rounded-full p-0 text-[10px] flex items-center justify-center">
-                      {requests.length}
-                    </Badge>
-                  )}
-                </TabsTrigger>
                 <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
                 {isAdmin && (
                   <TabsTrigger value="view-configs" className="gap-1.5 h-8">
@@ -646,84 +638,6 @@ export default function UsersPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
 
-        {/* Approval panel */}
-        <TabsContent value="approvals" className="mt-4 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Clock className="h-5 w-5 text-primary" />
-                {isAdmin || isManager ? 'Solicitações de Acesso Pendentes' : 'Minha Solicitação de Acesso'}
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {isAdmin || isManager 
-                  ? 'Novos usuários que solicitaram acesso ao sistema aguardam sua aprovação.'
-                  : 'Sua solicitação de acesso ao sistema está em análise. Você será notificado assim que um administrador aprovar seu acesso.'}
-              </p>
-            </CardHeader>
-            <CardContent>
-              {requestsLoading ? (
-                <p className="text-sm text-muted-foreground">Carregando...</p>
-              ) : displayRequests.length === 0 ? (
-                <div className="text-center py-8">
-                  <UserCheck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">{isAdmin || isManager ? 'Nenhuma solicitação pendente' : 'Você não possui solicitações de acesso pendentes'}</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {displayRequests.map(req => (
-                    <div key={req.id} className="flex flex-col gap-4 rounded-lg border border-border p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                            {req.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-medium text-foreground truncate">{req.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{req.email}</p>
-                          </div>
-                        </div>
-                        <Badge variant="secondary" className="text-[10px] sm:text-xs shrink-0">
-                          {new Date(req.requested_at).toLocaleDateString('pt-BR')}
-                        </Badge>
-                      </div>
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <Badge variant="outline" className="gap-1 w-fit">
-                          {ROLE_ICONS[req.requested_role]}
-                          {ROLE_LABELS[req.requested_role] || req.requested_role}
-                        </Badge>
-                        {isManager && (
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="flex-1 gap-1.5"
-                              disabled={processingId === req.id}
-                              onClick={() => onApproveClick(req)}
-                            >
-                              <UserCheck className="h-4 w-4" />
-                              Aprovar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="flex-1 gap-1.5"
-                              disabled={processingId === req.id}
-                              onClick={() => handleReject(req)}
-                            >
-                              <UserX className="h-4 w-4" />
-                              Rejeitar
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="users" className="space-y-6">
           {isAdmin && (
             <BulkActionBar
@@ -734,6 +648,105 @@ export default function UsersPage() {
               onToggleActive={handleBulkToggleActive}
             />
           )}
+
+          <div className="space-y-4">
+            <button
+              onClick={() => setApprovalsExpanded(!approvalsExpanded)}
+              className="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-primary/10">
+                  <UserCheck className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="font-semibold text-foreground">Solicitações de Aprovação</span>
+                  <span className="text-xs text-muted-foreground">
+                    {requests.length === 0 
+                      ? "Nenhuma solicitação pendente" 
+                      : `${requests.length} ${requests.length === 1 ? 'solicitação aguardando' : 'solicitações aguardando'} sua análise`}
+                  </span>
+                </div>
+                {requests.length > 0 && (
+                  <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] flex items-center justify-center animate-pulse">
+                    {requests.length}
+                  </Badge>
+                )}
+              </div>
+              <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${approvalsExpanded ? 'rotate-180' : ''}`} />
+            </button>
+
+            {approvalsExpanded && (
+              <Card className="border-primary/20 bg-primary/5 animate-in slide-in-from-top-2 duration-300">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-primary" />
+                    {isAdmin || isManager ? 'Solicitações de Acesso Pendentes' : 'Minha Solicitação de Acesso'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {requestsLoading ? (
+                    <p className="text-sm text-muted-foreground">Carregando...</p>
+                  ) : displayRequests.length === 0 ? (
+                    <div className="text-center py-6">
+                      <UserCheck className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">{isAdmin || isManager ? 'Nenhuma solicitação pendente' : 'Você não possui solicitações de acesso pendentes'}</p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                      {displayRequests.map(req => (
+                        <div key={req.id} className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4 shadow-sm">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                                {req.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-medium text-foreground truncate">{req.name}</p>
+                                <p className="text-xs text-muted-foreground truncate">{req.email}</p>
+                              </div>
+                            </div>
+                            <Badge variant="secondary" className="text-[10px] shrink-0">
+                              {new Date(req.requested_at).toLocaleDateString('pt-BR')}
+                            </Badge>
+                          </div>
+                          <div className="flex flex-col gap-3">
+                            <Badge variant="outline" className="gap-1 w-fit">
+                              {ROLE_ICONS[req.requested_role]}
+                              {ROLE_LABELS[req.requested_role] || req.requested_role}
+                            </Badge>
+                            {isManager && (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="flex-1 gap-1.5 h-8 text-xs"
+                                  disabled={processingId === req.id}
+                                  onClick={() => onApproveClick(req)}
+                                >
+                                  <UserCheck className="h-3.5 w-3.5" />
+                                  Aprovar
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="flex-1 gap-1.5 h-8 text-xs"
+                                  disabled={processingId === req.id}
+                                  onClick={() => handleReject(req)}
+                                >
+                                  <UserX className="h-3.5 w-3.5" />
+                                  Rejeitar
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
           {dbUsersLoading ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <RefreshCw className="h-8 w-8 text-primary animate-spin mb-4" />
