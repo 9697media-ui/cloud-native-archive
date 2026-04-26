@@ -680,7 +680,7 @@ export default function UsersPage() {
                 <span className="sm:hidden">Novo</span>
               </Button>
             )}
-            <PageGuide activeTab={activeTab} />
+            
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
               <TabsList className="h-10">
                 <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
@@ -1650,6 +1650,7 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <PageGuide activeTab={activeTab} />
     </div>
   );
 }

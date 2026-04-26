@@ -179,15 +179,15 @@ export default function AppLayout() {
       )}
 
       <main className={cn(
-        "flex-1 overflow-auto p-4",
-        !isCleanView && "lg:p-8 mx-auto w-full max-w-7xl"
+        "flex-1 overflow-auto p-4 pb-20",
+        !isCleanView && "lg:p-8 mx-auto w-full max-w-7xl lg:pb-24"
       )}>
         <Outlet />
       </main>
 
       {!hideHeaderParam && (
         <div className={cn(
-          "fixed bottom-6 right-6 z-[60] duration-500",
+          "fixed bottom-20 right-6 z-[110] duration-500",
           isFirstRender && "animate-in fade-in slide-in-from-bottom-4"
         )}>
           {isAuthenticated ? (
