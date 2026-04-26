@@ -1152,6 +1152,9 @@ export default function UsersPage() {
                     <li>O acesso às unidades é determinado <strong>exclusivamente</strong> pelo cargo do usuário.</li>
                     <li>Qualquer restrição personalizada individual será <strong>ignorada</strong> enquanto este modo estiver ativo.</li>
                     <li>Ideal para manter um padrão rígido de acesso baseado na hierarquia.</li>
+                    <li className="mt-2 text-primary/80 list-none font-medium italic border-t border-primary/10 pt-1.5">
+                      <strong>Exemplo:</strong> Um "Gestor de Unidade" da DIC terá acesso apenas à DIC, independentemente de restrições manuais.
+                    </li>
                   </ul>
                 </div>
                 
@@ -1164,6 +1167,9 @@ export default function UsersPage() {
                     <li>As definições por cargo abaixo são <strong>ignoradas</strong> pelo sistema.</li>
                     <li>O sistema prioriza as <strong>Restrições Personalizadas</strong> de cada usuário.</li>
                     <li>Se um usuário não tiver restrição manual, ele terá acesso total ou padrão do sistema.</li>
+                    <li className="mt-2 text-amber-600/80 list-none font-medium italic border-t border-amber-600/10 pt-1.5">
+                      <strong>Exemplo:</strong> Um "Visualizador" pode ser configurado para ver especificamente as unidades DIC e DIP simultaneamente.
+                    </li>
                   </ul>
                 </div>
               </CardContent>
