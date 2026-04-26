@@ -67,7 +67,7 @@ export default function AuditPage() {
     );
   }, [logs, searchTerm]);
 
-  if (!isManager && !isAdmin) {
+  if (!canViewAuditoria) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
         <h1 className="text-2xl font-bold">Acesso Negado</h1>
