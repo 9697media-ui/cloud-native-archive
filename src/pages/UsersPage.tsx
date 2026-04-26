@@ -93,6 +93,56 @@ export default function UsersPage() {
   // Impersonation dialog
   const [impersonateTarget, setImpersonateTarget] = useState<{ id: string; name: string; email: string } | null>(null);
   const [impersonateSubmitting, setImpersonateSubmitting] = useState(false);
+  
+  // Pre-registration
+  const [showPreRegister, setShowPreRegister] = useState(false);
+  const [preRegisterForm, setPreRegisterForm] = useState({
+    name: '',
+    email: '',
+    unit: 'Evento Geral do Grupo' as any,
+    permission_level: 'usuario_padrao' as any,
+  });
+  const [preRegisterSubmitting, setPreRegisterSubmitting] = useState(false);
+
+  const handlePreRegister = async () => {
+    if (!preRegisterForm.name || !preRegisterForm.email) {
+      toast({ title: 'Campos obrigatórios', description: 'Preencha nome e e-mail.', variant: 'destructive' });
+      return;
+    }
+    
+    setPreRegisterSubmitting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-pre-register-user', {
+        body: preRegisterForm,
+      });
+
+      if (error || (data as any)?.error) {
+        toast({ 
+          title: 'Erro no pré-cadastro', 
+          description: (data as any)?.error || error?.message || 'Falha ao realizar pré-cadastro.', 
+          variant: 'destructive' 
+        });
+      } else {
+        toast({ 
+          title: 'Pré-cadastro realizado', 
+          description: `${preRegisterForm.name} foi adicionado à lista como esperado.` 
+        });
+        setShowPreRegister(false);
+        setPreRegisterForm({
+          name: '',
+          email: '',
+          unit: 'Evento Geral do Grupo',
+          permission_level: 'usuario_padrao',
+        });
+        refetch();
+      }
+    } catch (err) {
+      console.error('Erro no pré-cadastro:', err);
+      toast({ title: 'Erro', description: 'Ocorreu um erro inesperado.', variant: 'destructive' });
+    } finally {
+      setPreRegisterSubmitting(false);
+    }
+  };
 
   const handleResetPassword = async () => {
     if (!resetTarget) return;
