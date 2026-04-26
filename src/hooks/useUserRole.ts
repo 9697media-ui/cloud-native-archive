@@ -27,6 +27,8 @@ export function useUserRole() {
   const [isActive, setIsActive] = useState<boolean>(true);
   const [viewRestrictions, setViewRestrictions] = useState<string[] | null>(null);
   const [permissionLevel, setPermissionLevel] = useState<string | null>(null);
+  const [unit, setUnit] = useState<string | null>(null);
+
 
   useEffect(() => {
     // If a test persona is active, use it instead of real DB role
@@ -35,6 +37,12 @@ export function useUserRole() {
       setUserName(activePersona.name);
       setIsActive(activePersona.is_active);
       setAccessStatus(activePersona.role ? 'approved' : 'pending');
+      setPermissionLevel(activePersona.permission_level);
+      setUnit(activePersona.unit);
+      
+      // If general admin, no restrictions. Otherwise, restrict to the persona's unit.
+      setViewRestrictions(activePersona.permission_level === 'admin_geral' ? null : [activePersona.unit]);
+      
       setLoading(false);
       return;
     }
@@ -59,7 +67,7 @@ export function useUserRole() {
       // Also check profile for permission_level and name
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('permission_level, name, is_active, view_restrictions')
+        .select('permission_level, name, is_active, view_restrictions, unit')
         .eq('user_id', user.id)
         .maybeSingle();
       
@@ -68,6 +76,7 @@ export function useUserRole() {
         setIsActive(profileData.is_active !== false);
         setViewRestrictions(profileData.view_restrictions as string[] | null);
         setPermissionLevel(profileData.permission_level);
+        setUnit(profileData.unit);
       } else if (user.user_metadata?.name) {
         setUserName(user.user_metadata.name);
       } else {
@@ -89,11 +98,11 @@ export function useUserRole() {
         // Check if there's a pending access request
         const { data: requestData } = await (supabase
           .from('access_requests') as any)
-          .select('status')
-          .eq('user_id', user.id)
-          .order('requested_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+        .select('status')
+        .eq('user_id', user.id)
+        .order('requested_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
         setRole(null);
         setAccessStatus(requestData?.status || null);
@@ -120,7 +129,8 @@ export function useUserRole() {
     userName, 
     isActive,
     viewRestrictions,
-    permissionLevel
+    permissionLevel,
+    unit
   };
 }
 

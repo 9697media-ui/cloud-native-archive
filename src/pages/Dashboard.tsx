@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
@@ -41,7 +41,7 @@ export default function Dashboard() {
   const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
-  const { canEdit } = useUserRole();
+  const { canEdit, unit } = useUserRole();
   const isMobile = useIsMobile();
   const [showNewEvent, setShowNewEvent] = useState(false);
   const [detailEvent, setDetailEvent] = useState<AppEvent | null>(null);
@@ -50,6 +50,16 @@ export default function Dashboard() {
   const [showEdit, setShowEdit] = useState(false);
   const [search, setSearch] = useState('');
   const [filterUnit, setFilterUnit] = useState<string>('all');
+
+  // Sync filter unit with user unit when it changes (useful for test mode)
+  useEffect(() => {
+    if (unit && unit !== 'Evento Geral do Grupo') {
+      setFilterUnit(unit);
+    } else {
+      setFilterUnit('all');
+    }
+  }, [unit]);
+
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [conflictOnly, setConflictOnly] = useState(false);
   

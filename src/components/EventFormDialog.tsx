@@ -45,7 +45,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   const { addEvent, updateEvent, detectConflicts, setSelectedEvent } = useApp();
-  const { userName } = useUserRole();
+  const { userName, unit } = useUserRole();
   const [form, setForm] = useState<Partial<AppEvent>>(emptyEvent());
   const [conflicts, setConflicts] = useState<AppEvent[]>([]);
   const [showConflictAlert, setShowConflictAlert] = useState(false);
@@ -71,7 +71,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
         end_datetime: formatDate(event.end_datetime),
       });
     } else {
-      setForm(emptyEvent());
+      setForm({ ...emptyEvent(), unit: (unit as Unit) || 'DIC' });
     }
     setConflicts([]);
     setShowConflictAlert(false);

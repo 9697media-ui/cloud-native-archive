@@ -56,7 +56,7 @@ export default function AppLayout() {
   }, [hideLoginParam]);
   
   const { isAuthenticated, signOut, user } = useAuth();
-  const { isAdmin, isManager } = useUserRole();
+  const { isAdmin, isManager, userName, unit } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
   const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
@@ -119,7 +119,10 @@ export default function AppLayout() {
                   <div className="absolute bottom-4 left-0 w-full px-6">
                     {isAuthenticated && (
                       <div className="flex flex-col gap-4 border-t border-border pt-4">
-                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                        <div className="flex flex-col">
+                          <p className="text-sm font-semibold text-foreground truncate">{userName}</p>
+                          <p className="text-xs text-muted-foreground truncate">{unit || user?.email}</p>
+                        </div>
                         <Button variant="outline" size="sm" onClick={() => signOut()} className="w-full justify-start gap-2">
                           <LogOut className="h-4 w-4" />
                           Sair
@@ -148,7 +151,10 @@ export default function AppLayout() {
               <TestModeTrigger />
               {isAuthenticated ? (
                 <>
-                  <span className="text-xs text-muted-foreground hidden md:inline">{user?.email}</span>
+                  <div className="flex flex-col items-end hidden md:flex">
+                    <span className="text-xs font-semibold text-foreground">{userName}</span>
+                    <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">{unit || user?.email}</span>
+                  </div>
                   {!isMobile && (
                     <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5">
                       <LogOut className="h-4 w-4" />
@@ -194,7 +200,8 @@ export default function AppLayout() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 mb-2">
                 <DropdownMenuLabel className="flex flex-col">
-                  <span className="text-xs font-normal text-muted-foreground truncate">{user?.email}</span>
+                  <span className="text-sm font-semibold text-foreground truncate">{userName}</span>
+                  <span className="text-xs font-normal text-muted-foreground truncate">{unit || user?.email}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {(isAdmin || isManager) && (
