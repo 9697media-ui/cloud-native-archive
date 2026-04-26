@@ -24,6 +24,7 @@ import EventFormDialog from '@/components/EventFormDialog';
 import EventDetailPanel from '@/components/EventDetailPanel';
 import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
+import PageGuide from '@/components/PageGuide';
 
 const unitDotColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic',
