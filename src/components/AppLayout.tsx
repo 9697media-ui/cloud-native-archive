@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -26,6 +26,7 @@ interface NavItem {
   icon: any;
   adminOnly?: boolean;
   managerOnly?: boolean;
+  auditoriaOnly?: boolean;
   requireAuth?: boolean;
 }
 
@@ -33,6 +34,7 @@ const navItems: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
+  { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, auditoriaOnly: true },
 ];
 
 export default function AppLayout() {
@@ -56,7 +58,7 @@ export default function AppLayout() {
   }, [hideLoginParam]);
   
   const { isAuthenticated, signOut, user } = useAuth();
-  const { isAdmin, isManager, userName, unit } = useUserRole();
+  const { isAdmin, isManager, userName, unit, canViewAuditoria } = useUserRole();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
   const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
@@ -66,6 +68,7 @@ export default function AppLayout() {
       {navItems.filter(item => {
         if (item.adminOnly) return isAdmin;
         if (item.managerOnly) return isAdmin || isManager;
+        if (item.auditoriaOnly) return canViewAuditoria;
         if (item.requireAuth) return isAuthenticated;
         return true;
       }).map(item => {
