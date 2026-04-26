@@ -868,18 +868,33 @@ export default function UsersPage() {
         </div>
 
         {isAdmin && (
-          <TabsContent value="view-configs" className="mt-4 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <ShieldCheck className="h-5 w-5 text-primary" />
-                  Configuração de Visualização por Perfil
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Defina quais unidades cada tipo de usuário pode visualizar por padrão.
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-6">
+          <Card className="border-t-4 border-t-primary shadow-lg overflow-hidden mt-12 mb-8">
+            <CardHeader className="bg-muted/30 pb-4">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <UserCog className="h-6 w-6 text-primary" />
+                Configurações do Sistema e Visualização
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Gerencie permissões globais, restrições individuais e integrações.
+              </p>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Tabs defaultValue="visualizacao" className="w-full">
+                <div className="border-b px-6 pt-2 bg-muted/10">
+                  <TabsList className="h-10">
+                    <TabsTrigger value="visualizacao" className="gap-2">
+                      <ShieldCheck className="h-4 w-4" /> Visualização por Perfil
+                    </TabsTrigger>
+                    <TabsTrigger value="personalizado" className="gap-2">
+                      <Search className="h-4 w-4" /> Restrições Personalizadas
+                    </TabsTrigger>
+                    <TabsTrigger value="embed" className="gap-2">
+                      <Code2 className="h-4 w-4" /> Links Embed
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <TabsContent value="visualizacao" className="p-6 space-y-6">
                 <div className={`p-4 rounded-lg border transition-all duration-200 ${
                   configs?.enable_role_based_view 
                     ? "bg-primary/5 border-primary/20 shadow-sm" 
