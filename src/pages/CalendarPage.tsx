@@ -45,12 +45,21 @@ export default function CalendarPage() {
   const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
   const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
-  const { canEdit, userName } = useUserRole();
+  const { canEdit, userName, unit } = useUserRole();
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const hideTitle = searchParams.get('hideTitle') === 'true';
   const [view, setView] = useState<View>('month');
   const [filterUnit, setFilterUnit] = useState<string>('all');
+
+  // Sync filter unit with user unit when it changes (useful for test mode)
+  useEffect(() => {
+    if (unit && unit !== 'Evento Geral do Grupo') {
+      setFilterUnit(unit);
+    } else {
+      setFilterUnit('all');
+    }
+  }, [unit]);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
   const [search, setSearch] = useState('');
