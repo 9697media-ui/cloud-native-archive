@@ -205,7 +205,7 @@ export default function CalendarPage() {
         hidden={hideTitle}
         className="mb-4"
         actions={
-          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1 rounded-lg border border-border bg-background px-2 py-1.5 shadow-sm h-10">
                 <button onClick={prev} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
@@ -245,6 +245,49 @@ export default function CalendarPage() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Tabs value={view} onValueChange={(v) => setView(v as View)} className="w-full sm:w-auto">
+                <TabsList className="h-10">
+                  <TabsTrigger value="month" className="gap-1.5 h-8">
+                    <LayoutGrid className="h-4 w-4" /> <span className="hidden sm:inline">Mês</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="week" className="gap-1.5 h-8">
+                    <CalendarIcon className="h-4 w-4" /> <span className="hidden sm:inline">Semana</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="list" className="gap-1.5 h-8">
+                    <List className="h-4 w-4" /> <span className="hidden sm:inline">Lista</span>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              
+              <div className="flex items-center gap-2">
+                <Select value={filterUnit} onValueChange={setFilterUnit}>
+                  <SelectTrigger className="h-10 w-[130px] shadow-sm bg-background"><SelectValue placeholder="Unidade" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Unidades</SelectItem>
+                    {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Status</SelectItem>
+                    {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="relative w-40 sm:w-64">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar..." 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                  className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
+                />
+              </div>
+
               {canEdit && (
                 <Button 
                   onClick={() => setShowForm(true)} 
@@ -263,54 +306,10 @@ export default function CalendarPage() {
                 Conflitos
               </Button>
             </div>
-
-            <div className="relative w-40 sm:w-64">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar..." 
-                value={search} 
-                onChange={e => setSearch(e.target.value)} 
-                className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
-              />
-            </div>
           </div>
         }
       />
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <Tabs value={view} onValueChange={(v) => setView(v as View)} className="w-full sm:w-auto">
-            <TabsList className="h-10">
-              <TabsTrigger value="month" className="gap-1.5 h-8">
-                <LayoutGrid className="h-4 w-4" /> <span className="hidden sm:inline">Mês</span>
-              </TabsTrigger>
-              <TabsTrigger value="week" className="gap-1.5 h-8">
-                <CalendarIcon className="h-4 w-4" /> <span className="hidden sm:inline">Semana</span>
-              </TabsTrigger>
-              <TabsTrigger value="list" className="gap-1.5 h-8">
-                <List className="h-4 w-4" /> <span className="hidden sm:inline">Lista</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
-          <div className="flex items-center gap-2">
-            <Select value={filterUnit} onValueChange={setFilterUnit}>
-              <SelectTrigger className="h-10 w-[130px] shadow-sm bg-background"><SelectValue placeholder="Unidade" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Unidades</SelectItem>
-                {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Status" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Status</SelectItem>
-                {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
 
       {view === 'month' && (
         <Card>
