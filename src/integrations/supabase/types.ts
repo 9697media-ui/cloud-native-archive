@@ -151,6 +151,7 @@ export type Database = {
           unit: string | null
           updated_at: string
           user_id: string
+          view_restrictions: Json | null
         }
         Insert: {
           created_at?: string
@@ -162,6 +163,7 @@ export type Database = {
           unit?: string | null
           updated_at?: string
           user_id: string
+          view_restrictions?: Json | null
         }
         Update: {
           created_at?: string
@@ -173,6 +175,7 @@ export type Database = {
           unit?: string | null
           updated_at?: string
           user_id?: string
+          view_restrictions?: Json | null
         }
         Relationships: []
       }
@@ -224,6 +227,30 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      view_configs: {
+        Row: {
+          created_at: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          value: Json
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          value?: Json
         }
         Relationships: []
       }
