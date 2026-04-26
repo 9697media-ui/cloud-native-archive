@@ -239,7 +239,7 @@ interface PageGuideProps {
 }
 
 export default function PageGuide({ activeTab }: PageGuideProps) {
-  const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const location = useLocation();
   const path = location.pathname;
   
@@ -264,38 +264,44 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
   if (!content) return null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="gap-2 h-9 border-primary/20 hover:bg-primary/5 text-primary"
-        >
-          <HelpCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Guia da Página</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col p-0 overflow-hidden">
-        <div className="p-6 pb-2">
-          <DialogHeader>
-            <DialogTitle className="text-xl flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-primary" />
-              {content.title}
-            </DialogTitle>
-            <DialogDescription className="text-sm">
-              {content.description}
-            </DialogDescription>
-          </DialogHeader>
+    <div className="w-full mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-between p-4 rounded-lg border border-primary/20 bg-card hover:bg-accent/50 transition-all duration-200"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-primary/10">
+            <BookOpen className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex flex-col items-start text-left">
+            <span className="font-semibold text-foreground">Guia de Uso</span>
+            <span className="text-xs text-muted-foreground">
+              {content.title} - Saiba como utilizar os recursos desta página
+            </span>
+          </div>
         </div>
-        
-        <ScrollArea className="flex-1 px-6 pb-4">
-          <div className="space-y-4 pt-4">
+        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
+      </button>
+
+      {expanded && (
+        <div className="mt-2 p-6 rounded-lg border border-primary/20 bg-primary/5 animate-in slide-in-from-top-2 duration-300 space-y-6">
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-primary" />
+              {content.title}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {content.description}
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
             {content.sections.map((section, idx) => (
-              <div key={idx} className="flex gap-3 p-3 rounded-lg border border-border bg-accent/30">
-                <div className="mt-0.5 shrink-0">
+              <div key={idx} className="flex gap-3 p-4 rounded-lg border border-border bg-background shadow-sm hover:shadow-md transition-shadow">
+                <div className="mt-0.5 shrink-0 p-1.5 rounded-md bg-accent/50">
                   {section.icon || <Info className="h-4 w-4 text-primary" />}
                 </div>
-                <div className="space-y-1 flex-1">
+                <div className="space-y-1 flex-1 text-left">
                   <h4 className="text-sm font-semibold text-foreground">{section.title}</h4>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {section.content}
@@ -303,42 +309,42 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
                 </div>
               </div>
             ))}
-
-            {content.footer && (
-              <>
-                <Separator className="my-4" />
-                <div className="rounded-lg border border-dashed bg-muted/30 overflow-hidden">
-                  <div className="px-3 py-2 border-b border-dashed bg-muted/50 flex items-center gap-2">
-                    <Clock className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-xs font-bold uppercase tracking-wider">{content.footer.title}</span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
-                    {content.footer.items.map((item, idx) => (
-                      <div key={idx} className="space-y-1.5 p-2 rounded-md bg-background/50 border">
-                        <h5 className="text-[11px] font-bold text-primary flex items-center gap-1.5">
-                          <div className={`h-2 w-2 rounded-full ${item.color || 'bg-primary'}`} />
-                          {item.title}
-                        </h5>
-                        <p className="text-[10px] text-muted-foreground leading-normal">
-                          {item.content}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
           </div>
-        </ScrollArea>
-        
-        <div className="p-4 border-t border-border bg-accent/10 flex justify-end">
-          <DialogClose asChild>
-            <Button variant="default" size="sm">
-              Entendi
+
+          {content.footer && (
+            <div className="space-y-4 pt-4 border-t border-primary/10">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                <h4 className="text-sm font-bold uppercase tracking-wider text-primary">{content.footer.title}</h4>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {content.footer.items.map((item, idx) => (
+                  <div key={idx} className="space-y-2 p-4 rounded-lg bg-background border shadow-sm">
+                    <h5 className="text-xs font-bold text-foreground flex items-center gap-2">
+                      <div className={`h-2.5 w-2.5 rounded-full ${item.color || 'bg-primary'}`} />
+                      {item.title}
+                    </h5>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      {item.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end pt-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setExpanded(false)}
+              className="text-xs"
+            >
+              Recolher Guia
             </Button>
-          </DialogClose>
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </div>
   );
 }
