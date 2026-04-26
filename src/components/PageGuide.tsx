@@ -64,7 +64,9 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
       title: 'Legenda de Status',
       items: [
         { title: 'Confirmado', content: 'Evento validado e pronto para realização.', color: 'bg-green-500' },
-        { title: 'Pendente', content: 'Aguardando aprovação ou detalhes finais.', color: 'bg-amber-500' }
+        { title: 'Pendente', content: 'Aguardando aprovação ou detalhes finais.', color: 'bg-amber-500' },
+        { title: 'Conflito', content: 'Horários sobrepostos em uma mesma unidade.', color: 'bg-destructive' },
+        { title: 'Marketing', content: 'Eventos que possuem solicitação de cobertura.', color: 'bg-blue-500' }
       ]
     }
   },
@@ -90,10 +92,12 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         }
       ],
       footer: {
-        title: 'Identificação por Unidade',
+        title: 'Cores e Identificação',
         items: [
-          { title: 'Cores Laterais', content: 'A barra colorida indica a unidade responsável pelo evento.', color: 'bg-primary' },
-          { title: 'Conflitos', content: 'Dias com conflitos de horário são destacados visualmente.', color: 'bg-destructive' }
+          { title: 'Unidades', content: 'Cores laterais identificam a unidade (DIC, Nilópolis, etc).', color: 'bg-primary' },
+          { title: 'Status', content: 'Cores de fundo e bordas indicam se está Confirmado ou Pendente.', color: 'bg-amber-500' },
+          { title: 'Conflitos', content: 'Dias com múltiplos eventos no mesmo horário são destacados.', color: 'bg-destructive' },
+          { title: 'Hoje', content: 'O dia atual é destacado com um fundo suave azulado.', color: 'bg-blue-400' }
         ]
       }
     },
@@ -158,7 +162,14 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           content: 'Escolha entre usar restrições rígidas por cargo ou permissões manuais individualizadas.',
           icon: <Info className="h-4 w-4 text-blue-500" />
         }
-      ]
+      ],
+      footer: {
+        title: 'Funcionamento',
+        items: [
+          { title: 'Por Cargo', content: 'Ignora restrições manuais em favor do padrão hierárquico.', color: 'bg-primary' },
+          { title: 'Manual', content: 'Prioriza as restrições personalizadas de cada perfil individual.', color: 'bg-amber-500' }
+        ]
+      }
     },
     'embed': {
       title: 'Integração e Embed',
@@ -174,7 +185,14 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
           content: 'Oculte cabeçalhos ou menus para uma integração limpa em iFrames.',
           icon: <Search className="h-4 w-4 text-primary" />
         }
-      ]
+      ],
+      footer: {
+        title: 'Dica de Publicação',
+        items: [
+          { title: 'Domínio', content: 'Sempre use a URL de produção para evitar pedidos de login.', color: 'bg-green-600' },
+          { title: 'iFrame', content: 'Use width="100%" para garantir a responsividade do widget.', color: 'bg-primary' }
+        ]
+      }
     }
   },
   '/auditoria': {
@@ -310,4 +328,3 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
     </Dialog>
   );
 }
-
