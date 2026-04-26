@@ -11,6 +11,7 @@ export interface DbUser {
   unit: string | null;
   is_active: boolean;
   created_at: string;
+  view_restrictions?: any;
 }
 
 export function useDbUsers() {
