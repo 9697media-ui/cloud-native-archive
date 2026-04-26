@@ -274,6 +274,18 @@ export default function CalendarPage() {
                     {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
                   </SelectContent>
                 </Select>
+                
+                <Button 
+                  variant={conflictOnly ? 'destructive' : 'outline'} 
+                  size="default" 
+                  onClick={() => setConflictOnly(!conflictOnly)} 
+                  className={cn(
+                    "h-10 shadow-sm whitespace-nowrap bg-background border-muted-foreground/20",
+                    conflictOnly && "bg-destructive text-destructive-foreground hover:bg-destructive/90 border-destructive"
+                  )}
+                >
+                  Conflitos
+                </Button>
               </div>
             </div>
 
@@ -296,15 +308,6 @@ export default function CalendarPage() {
                   <Plus className="h-4 w-4" /> Novo
                 </Button>
               )}
-              
-              <Button 
-                variant={conflictOnly ? 'secondary' : 'outline'} 
-                size="default" 
-                onClick={() => setConflictOnly(!conflictOnly)} 
-                className="h-10 shadow-sm whitespace-nowrap bg-background"
-              >
-                Conflitos
-              </Button>
             </div>
           </div>
         }
