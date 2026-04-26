@@ -119,7 +119,10 @@ export default function AppLayout() {
                   <div className="absolute bottom-4 left-0 w-full px-6">
                     {isAuthenticated && (
                       <div className="flex flex-col gap-4 border-t border-border pt-4">
-                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                        <div className="flex flex-col">
+                          <p className="text-sm font-semibold text-foreground truncate">{userName}</p>
+                          <p className="text-xs text-muted-foreground truncate">{unit || user?.email}</p>
+                        </div>
                         <Button variant="outline" size="sm" onClick={() => signOut()} className="w-full justify-start gap-2">
                           <LogOut className="h-4 w-4" />
                           Sair
