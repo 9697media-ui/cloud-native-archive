@@ -32,7 +32,8 @@ const EMBED_PAGES = [
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
-  editor: 'Editor',
+  criador: 'Criador e Editor',
+  editor: 'Editor (Apenas Edição)',
   admin_geral: 'Admin Geral',
   gestor_unidade: 'Gestor de Unidade',
   usuario_padrao: 'Usuário Padrão',
@@ -42,6 +43,7 @@ const ROLE_LABELS: Record<string, string> = {
 const ROLE_ICONS: Record<string, React.ReactNode> = {
   admin: <ShieldCheck className="h-3.5 w-3.5" />,
   admin_geral: <ShieldCheck className="h-3.5 w-3.5" />,
+  criador: <Edit2 className="h-3.5 w-3.5" />,
   editor: <Shield className="h-3.5 w-3.5" />,
   gestor_unidade: <Shield className="h-3.5 w-3.5" />,
   usuario_padrao: <Shield className="h-3.5 w-3.5 opacity-50" />,
