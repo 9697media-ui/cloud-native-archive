@@ -26,6 +26,7 @@ interface NavItem {
   icon: any;
   adminOnly?: boolean;
   managerOnly?: boolean;
+  auditoriaOnly?: boolean;
   requireAuth?: boolean;
 }
 
