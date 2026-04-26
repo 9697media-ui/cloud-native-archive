@@ -84,6 +84,7 @@ export default function UsersPage() {
   const [bulkDelete, setBulkDelete] = useState(false);
   const [showRoleToggleConfirm, setShowRoleToggleConfirm] = useState<boolean | null>(null);
   const [approvalsExpanded, setApprovalsExpanded] = useState(false);
+  const [legendExpanded, setLegendExpanded] = useState(false);
   const [showPreRegister, setShowPreRegister] = useState(false);
   const [preRegisterForm, setPreRegisterForm] = useState({
     name: '',
@@ -889,7 +890,7 @@ export default function UsersPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <ShieldCheck className="h-5 w-5 text-primary" />
-                  Configurações de Visualização
+                  Configuração de Visualização por Perfil
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
                   Defina quais unidades cada tipo de usuário pode visualizar por padrão.
@@ -936,98 +937,91 @@ export default function UsersPage() {
                   </div>
                 </div>
 
-                {/* Legenda e Funcionamento do Sistema - Seção Integrada */}
-                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 sm:p-6 space-y-6">
-                  <div className="flex items-center gap-2 border-b border-primary/10 pb-3">
-                    <Clock className="h-5 w-5 text-primary" />
-                    <h3 className="font-semibold text-foreground">Legenda e Funcionamento do Sistema</h3>
-                  </div>
-
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                          <h4 className="text-sm font-semibold text-emerald-600 uppercase tracking-wider">Sistema por Cargo ATIVO</h4>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          O acesso às unidades é determinado <strong>exclusivamente</strong> pelo cargo. 
-                          Restrições personalizadas são <strong>ignoradas</strong>.
-                        </p>
+                {/* Legenda e Funcionamento do Sistema (card expansível) */}
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setLegendExpanded(!legendExpanded)}
+                    className="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-all duration-200"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        <Clock className="h-5 w-5 text-primary" />
                       </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-orange-500" />
-                          <h4 className="text-sm font-semibold text-orange-600 uppercase tracking-wider">Sistema por Cargo INATIVO</h4>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          O sistema prioriza as <strong>Restrições Personalizadas</strong>. 
-                          Caso não existam, o acesso segue o padrão do nível.
-                        </p>
+                      <div className="flex flex-col items-start">
+                        <span className="font-semibold text-foreground">Legenda e Funcionamento do Sistema</span>
+                        <span className="text-xs text-muted-foreground">
+                          Clique para ver como funciona o sistema de restrições e os níveis de permissão
+                        </span>
                       </div>
                     </div>
+                    <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${legendExpanded ? 'rotate-180' : ''}`} />
+                  </button>
 
-                    <div className="space-y-4 border-l border-primary/10 pl-6 hidden md:block">
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                          <ShieldCheck className="h-4 w-4 text-primary" />
-                          Níveis de Permissão
-                        </h4>
-                        <div className="space-y-2">
-                          <div className="text-[11px] leading-relaxed">
-                            <span className="font-bold text-primary">Admin Geral:</span> Acesso total e irrestrito. Gerencia usuários e aprova acessos.
+                  {legendExpanded && (
+                    <Card className="border-primary/20 bg-primary/5 animate-in slide-in-from-top-2 duration-300">
+                      <CardContent className="p-6 space-y-6">
+                        {/* Bloco superior: ATIVO x INATIVO */}
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div className="rounded-lg border border-border bg-background/60 p-4 space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                              <h4 className="font-semibold text-emerald-600">Sistema por Cargo ATIVO</h4>
+                            </div>
+                            <ul className="text-sm text-foreground/90 space-y-1.5 list-disc list-inside">
+                              <li>O acesso às unidades é determinado <strong>exclusivamente</strong> pelo cargo do usuário.</li>
+                              <li>Qualquer restrição personalizada individual será <strong>ignorada</strong> enquanto este modo estiver ativo.</li>
+                            </ul>
+                            <p className="text-xs italic text-emerald-700/90 pt-1">
+                              <strong>Exemplo:</strong> Um "Gestor de Unidade" da DIC terá acesso apenas à DIC, mesmo que tenha restrições manuais.
+                            </p>
                           </div>
-                          <div className="text-[11px] leading-relaxed">
-                            <span className="font-bold text-primary">Gestor:</span> Gestão da sua unidade. Pode criar eventos e aprovar usuários.
-                          </div>
-                          <div className="text-[11px] leading-relaxed">
-                            <span className="font-bold text-primary">Usuário/Visualizador:</span> Acompanhamento operacional ou consulta de informações.
+
+                          <div className="rounded-lg border border-border bg-background/60 p-4 space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-orange-500" />
+                              <h4 className="font-semibold text-orange-600">Sistema por Cargo INATIVO</h4>
+                            </div>
+                            <ul className="text-sm text-foreground/90 space-y-1.5 list-disc list-inside">
+                              <li>O sistema prioriza as <strong>Restrições Personalizadas</strong> de cada usuário.</li>
+                              <li>Caso o usuário não possua restrição manual, o acesso é total ou padrão do sistema.</li>
+                            </ul>
+                            <p className="text-xs italic text-orange-700/90 pt-1">
+                              <strong>Exemplo:</strong> Um "Usuário Padrão" pode ser configurado para ver especificamente as unidades DIC e DIP simultaneamente.
+                            </p>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-primary/10">
-                    <div className="space-y-1 p-2 rounded-md bg-background/50 border border-border">
-                      <h5 className="text-[10px] font-bold text-primary flex items-center gap-1.5 uppercase">
-                        <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                        Restrição Manual
-                      </h5>
-                      <p className="text-[9px] text-muted-foreground leading-tight">
-                        Definições individuais que prevalecem quando o sistema por cargo está inativo.
-                      </p>
-                    </div>
-                    <div className="space-y-1 p-2 rounded-md bg-background/50 border border-border">
-                      <h5 className="text-[10px] font-bold text-amber-600 flex items-center gap-1.5 uppercase">
-                        <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                        Herança de Acesso
-                      </h5>
-                      <p className="text-[9px] text-muted-foreground leading-tight">
-                        Se não houver restrição, o acesso padrão é aplicado conforme o nível.
-                      </p>
-                    </div>
-                    {/* Items from PageGuide footer */}
-                    <div className="space-y-1 p-2 rounded-md bg-background/50 border border-border">
-                      <h5 className="text-[10px] font-bold text-blue-600 flex items-center gap-1.5 uppercase">
-                        <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                        Sincronização
-                      </h5>
-                      <p className="text-[9px] text-muted-foreground leading-tight">
-                        Mudanças no cargo atualizam as permissões padrão automaticamente.
-                      </p>
-                    </div>
-                    <div className="space-y-1 p-2 rounded-md bg-background/50 border border-border">
-                      <h5 className="text-[10px] font-bold text-slate-600 flex items-center gap-1.5 uppercase">
-                        <div className="h-1.5 w-1.5 rounded-full bg-slate-500" />
-                        Auditoria
-                      </h5>
-                      <p className="text-[9px] text-muted-foreground leading-tight">
-                        Todas as alterações de visualização são registradas no log do sistema.
-                      </p>
-                    </div>
-                  </div>
+                        {/* Bloco inferior: Definição dos Níveis de Permissão */}
+                        <div className="space-y-3 pt-2 border-t border-border">
+                          <div className="flex items-center gap-2 pt-3">
+                            <ShieldCheck className="h-4 w-4 text-primary" />
+                            <h4 className="font-semibold text-foreground">Definição dos Níveis de Permissão</h4>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="rounded-lg border border-border bg-background/60 p-3 space-y-1">
+                              <p className="text-sm font-semibold text-primary">Admin Geral</p>
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                Acesso total e irrestrito. Único com poder de gerenciar usuários e aprovar novos acessos.
+                              </p>
+                            </div>
+                            <div className="rounded-lg border border-border bg-background/60 p-3 space-y-1">
+                              <p className="text-sm font-semibold text-primary">Gestor de Unidade</p>
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                Responsável pela gestão da sua unidade. Pode criar/editar eventos e aprovar usuários (com aviso).
+                              </p>
+                            </div>
+                            <div className="rounded-lg border border-border bg-background/60 p-3 space-y-1">
+                              <p className="text-sm font-semibold text-primary">Usuário Padrão</p>
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                Perfil operacional focado na visualização e acompanhamento dos eventos de sua unidade de atuação.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
 
                 {!configs?.enable_role_based_view && (
