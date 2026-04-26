@@ -1126,6 +1126,40 @@ export default function UsersPage() {
                 </div>
               </CardContent>
             </Card>
+            
+            <Card className="bg-muted/30 border-dashed">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  Legenda e Funcionamento do Sistema
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2 text-xs">
+                <div className="space-y-2 p-3 rounded-md bg-background/50 border">
+                  <h4 className="font-bold text-primary flex items-center gap-1.5">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    Sistema por Cargo ATIVO
+                  </h4>
+                  <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
+                    <li>O acesso às unidades é determinado <strong>exclusivamente</strong> pelo cargo do usuário.</li>
+                    <li>Qualquer restrição personalizada individual será <strong>ignorada</strong> enquanto este modo estiver ativo.</li>
+                    <li>Ideal para manter um padrão rígido de acesso baseado na hierarquia.</li>
+                  </ul>
+                </div>
+                
+                <div className="space-y-2 p-3 rounded-md bg-background/50 border">
+                  <h4 className="font-bold text-amber-600 flex items-center gap-1.5">
+                    <div className="h-2 w-2 rounded-full bg-amber-500" />
+                    Sistema por Cargo INATIVO
+                  </h4>
+                  <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
+                    <li>As definições por cargo abaixo são <strong>ignoradas</strong> pelo sistema.</li>
+                    <li>O sistema prioriza as <strong>Restrições Personalizadas</strong> de cada usuário.</li>
+                    <li>Se um usuário não tiver restrição manual, ele terá acesso total ou padrão do sistema.</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         )}
 
