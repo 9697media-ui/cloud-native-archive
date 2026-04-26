@@ -57,8 +57,11 @@ export default function UsersPage() {
   const { user: currentUser } = useAuth();
   const { isAdmin, isManager, canView, loading: roleLoading } = useUserRole();
   const { dbUsers, loading: dbUsersLoading, refetch } = useDbUsers();
+  const { configs, updateConfig, isLoading: configsLoading } = useViewConfigs();
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
   const [showApprovalConfirm, setShowApprovalConfirm] = useState<{ req: any } | null>(null);
+  const [viewSearch, setViewSearch] = useState('');
+  const [selectedViewUser, setSelectedViewUser] = useState<AppUser | null>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const navigate = useNavigate();
