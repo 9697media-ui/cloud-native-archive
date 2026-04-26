@@ -176,7 +176,11 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         title: 'Legenda e Funcionamento',
         items: [
           { title: 'Ativação', content: 'Usuários inativos não podem realizar login, mesmo com senha correta.', color: 'bg-slate-400' },
-          { title: 'Hierarquia', content: 'Gestores não podem alterar permissões de Administradores.', color: 'bg-primary' }
+          { title: 'Hierarquia', content: 'Gestores não podem alterar permissões de Administradores.', color: 'bg-primary' },
+          { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
+          { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
+          { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
+          { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
         ]
       }
     },
