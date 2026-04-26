@@ -372,47 +372,180 @@ export default function Dashboard() {
       </div>
 
 
-      {/* Timeline da Semana */}
-      <Card>
-        <CardContent className="p-4 sm:p-5">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">Timeline da Semana</h2>
-            </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              {UNITS.map(u => (
-                <div key={u} className="flex items-center gap-1.5">
-                  <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                  <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
-                </div>
-              ))}
-            </div>
+      {/* Seção de Visualização de Eventos */}
+      <Tabs value={calendarView} onValueChange={(v) => setCalendarView(v as 'month' | 'week' | 'list')} className="w-full">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <TabsList>
+            <TabsTrigger value="month" className="gap-1.5 h-8">
+              <LayoutGrid className="h-4 w-4" /> <span className="hidden sm:inline">Mensal</span>
+            </TabsTrigger>
+            <TabsTrigger value="week" className="gap-1.5 h-8">
+              <CalendarIcon className="h-4 w-4" /> <span className="hidden sm:inline">Semanal</span>
+            </TabsTrigger>
+            <TabsTrigger value="list" className="gap-1.5 h-8">
+              <List className="h-4 w-4" /> <span className="hidden sm:inline">Lista / Timeline</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            {UNITS.map(u => (
+              <div key={u} className="flex items-center gap-1.5">
+                <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
+              </div>
+            ))}
           </div>
-          {weekEvents.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento nesta semana</p>
-          ) : (
-            <div className="space-y-1.5 sm:space-y-2">
-              {weekEvents.slice(0, 6).map(e => (
-                <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
-                  <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
-                    <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                    <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
-                    <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
-                      <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
-                        {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
+        </div>
+
+        <TabsContent value="month" className="m-0 focus-visible:ring-0">
+          <Card>
+            <CardContent className="p-2">
+              <div className="grid grid-cols-7 text-center">
+                {dayNames.map(d => (
+                  <div key={d} className="p-1 text-[10px] font-semibold text-muted-foreground sm:p-2 sm:text-xs">{d}</div>
+                ))}
+                {days.map(day => {
+                  const dayEvents = getEventsForDay(day);
+                  const isCurrentMonth = isSameMonth(day, selectedMonth);
+                  const isToday = isSameDay(day, new Date());
+                  const dateStr = format(day, 'yyyy-MM-dd');
+                  const isDragOver = dragOverDate === dateStr;
+                  const hasConflict = conflictDates.has(dateStr);
+                  return (
+                    <div
+                      key={day.toISOString()}
+                      onDragOver={(e) => handleDragOver(e, dateStr)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, day)}
+                      className={cn(
+                        "min-h-[80px] sm:min-h-[120px] border border-border p-0.5 sm:p-1 transition-colors relative",
+                        !isCurrentMonth ? 'opacity-30 bg-muted/20' : '',
+                        isToday ? 'bg-primary/5' : '',
+                        isDragOver ? 'bg-accent/50 border-primary/50' : '',
+                        hasConflict ? 'bg-muted/10 border-border/50' : '',
+                      )}
+                    >
+                      <span className={cn(
+                        "inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] sm:h-6 sm:w-6 sm:text-xs mb-1",
+                        isToday ? 'bg-primary text-primary-foreground font-bold' : hasConflict ? 'bg-muted text-muted-foreground' : 'text-foreground'
+                      )}>
+                        {format(day, 'd')}
                       </span>
-                      <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
-                        {e.status}
-                      </Badge>
+                      <div className="flex flex-col gap-0.5">
+                        {dayEvents.slice(0, isMobile ? 2 : 4).map(e => (
+                          <button
+                            key={e.id}
+                            draggable
+                            onDragStart={(ev) => handleDragStart(ev, e)}
+                            onClick={() => handleEventClick(e)}
+                            className={cn(
+                              "flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[8px] sm:text-[10px] leading-tight cursor-grab active:cursor-grabbing hover:opacity-80 border-l-2",
+                              unitDotColors[e.unit], "bg-opacity-10",
+                              unitBorderColors[e.unit]
+                            )}
+                          >
+                            <span className="truncate text-foreground flex-1">{e.title}</span>
+                          </button>
+                        ))}
+                        {dayEvents.length > (isMobile ? 2 : 4) && (
+                          <span className="block text-center text-[8px] font-medium text-muted-foreground sm:text-[10px]">
+                            +{dayEvents.length - (isMobile ? 2 : 4)}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="week" className="m-0 focus-visible:ring-0">
+          <Card>
+            <CardContent className="p-2 sm:p-4">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-7 sm:gap-3">
+                {eachDayOfInterval({ 
+                  start: startOfWeek(selectedMonth, { weekStartsOn: 1 }), 
+                  end: endOfWeek(selectedMonth, { weekStartsOn: 1 }) 
+                }).map(day => {
+                  const dayEvents = getEventsForDay(day);
+                  const isToday = isSameDay(day, new Date());
+                  const dateStr = format(day, 'yyyy-MM-dd');
+                  return (
+                    <div
+                      key={day.toISOString()}
+                      className={cn(
+                        "min-h-[150px] rounded-lg border border-border p-2 sm:p-3 transition-colors",
+                        isToday ? 'bg-primary/5 border-primary/20' : 'bg-card'
+                      )}
+                    >
+                      <div className="mb-2 border-b border-border pb-1 text-center">
+                        <span className="block text-[10px] font-medium text-muted-foreground uppercase">{format(day, 'eee', { locale: ptBR })}</span>
+                        <span className={cn(
+                          "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
+                          isToday ? 'bg-primary text-primary-foreground' : 'text-foreground'
+                        )}>
+                          {format(day, 'd')}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        {dayEvents.map(e => (
+                          <button
+                            key={e.id}
+                            onClick={() => handleEventClick(e)}
+                            className={cn(
+                              "group flex w-full flex-col gap-1 rounded-md border-l-2 p-1.5 text-left text-[10px] transition-all hover:translate-x-0.5",
+                              unitDotColors[e.unit], "bg-opacity-10",
+                              unitBorderColors[e.unit]
+                            )}
+                          >
+                            <span className="font-semibold text-foreground line-clamp-2">{e.title}</span>
+                            <span className="text-[8px] text-muted-foreground">{format(new Date(e.start_datetime), 'HH:mm')}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="list" className="m-0 focus-visible:ring-0">
+          <Card>
+            <CardContent className="p-4 sm:p-5">
+              <div className="mb-4 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <h2 className="text-sm font-semibold text-foreground">Timeline de Eventos</h2>
+              </div>
+              {filtered.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento encontrado</p>
+              ) : (
+                <div className="space-y-1.5 sm:space-y-2">
+                  {filtered.slice(0, 20).map(e => (
+                    <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
+                      <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
+                        <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                        <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
+                        <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
+                            {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
+                          </span>
+                          <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
+                            {e.status}
+                          </Badge>
+                        </div>
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
 
       <EventFormDialog open={showNewEvent} onOpenChange={setShowNewEvent} />
