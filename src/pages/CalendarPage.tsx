@@ -202,10 +202,15 @@ export default function CalendarPage() {
   const getEventsForDay = (day: Date) => filtered.filter(e => isSameDay(new Date(e.start_datetime), day));
 
   return (
-    <div className="animate-fade-in space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {!hideTitle && <h1 className="text-xl font-bold text-foreground sm:text-2xl">Calendário</h1>}
-        <div className="flex items-center gap-1.5 p-1 bg-muted rounded-lg w-fit">
+    <div className="animate-fade-in space-y-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+        {!hideTitle && (
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Calendário</h1>
+            <p className="text-sm text-muted-foreground">Visualize e gerencie a programação em diferentes formatos</p>
+          </div>
+        )}
+        <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-lg w-fit shadow-sm border border-border">
           <Button variant={view === 'month' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('month')} className="px-3">
             <LayoutGrid className="mr-1.5 h-4 w-4" /> <span className="text-xs sm:text-sm">Mês</span>
           </Button>
