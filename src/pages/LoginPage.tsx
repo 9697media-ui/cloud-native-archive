@@ -274,6 +274,9 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
+      <div className="w-full max-w-7xl mx-auto px-4 mt-8">
+        <FooterLegend />
+      </div>
     </div>
     </>
   );
