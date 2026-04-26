@@ -201,7 +201,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         }
       ],
       footer: {
-        title: 'Dica de Publicação',
+        title: 'Legenda e Funcionamento',
         items: [
           { title: 'Domínio', content: 'Sempre use a URL de produção para evitar pedidos de login.', color: 'bg-green-600' },
           { title: 'iFrame', content: 'Use width="100%" para garantir a responsividade do widget.', color: 'bg-primary' }
