@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import ImpersonationBanner from '@/components/ImpersonationBanner';
 import TestModeBanner, { TestModeTrigger } from '@/components/TestModeBanner';
+import logoImg from '@/assets/logo.png';
 
 interface NavItem {
   to: string;
@@ -107,10 +108,8 @@ export default function AppLayout() {
                 <SheetContent side="left" className="w-[280px] p-0">
                   <SheetHeader className="p-6 text-left">
                     <SheetTitle className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                        <LayoutDashboard className="h-4 w-4 text-primary-foreground" />
-                      </div>
-                      <span className="font-bold tracking-tighter text-lg">anabrasil</span>
+                      <img src={logoImg} alt="anabrasil" className="h-8 w-8 rounded-lg object-cover" />
+                      <span className="font-bold tracking-tighter text-lg lowercase">anabrasil</span>
                     </SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col gap-1 px-2">
@@ -132,10 +131,8 @@ export default function AppLayout() {
             )}
 
             <Link to={`/${location.search}`} className="flex items-center gap-2.5 shrink-0 group transition-all active:scale-95">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-sm group-hover:shadow-md group-hover:bg-primary/90 transition-all">
-                <LayoutDashboard className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className={cn("text-xl font-black leading-none text-foreground tracking-tighter uppercase", isMobile ? "inline" : "hidden sm:inline")}>
+              <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-all" />
+              <span className={cn("text-xl font-black leading-none text-foreground tracking-tighter lowercase", isMobile ? "inline" : "hidden sm:inline")}>
                 anabrasil
               </span>
             </Link>
