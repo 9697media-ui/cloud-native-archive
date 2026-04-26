@@ -539,39 +539,34 @@ export default function UsersPage() {
 
     return (
       <div className="flex items-center gap-1">
-        {(isAdmin || canEdit) && (
-          <>
-            {isAdmin && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
-                disabled={!authUserId}
-                onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
-                className="h-8 w-8 text-muted-foreground hover:text-primary"
-              >
-                <KeyRound className="h-4 w-4" />
-              </Button>
-            )}
-            
-            <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary" title="Editar usuário">
-              <Edit2 className="h-4 w-4" />
-            </Button>
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            title={authUserId ? "Redefinir senha" : "Usuário sem conta no sistema"}
+            disabled={!authUserId}
+            onClick={() => { if (authUserId) { setResetTarget({ id: authUserId, name: user.name, email: user.email }); setNewPassword(''); setConfirmPassword(''); } }}
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+          >
+            <KeyRound className="h-4 w-4" />
+          </Button>
+          
+          <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 text-muted-foreground hover:text-primary" title="Editar usuário">
+            <Edit2 className="h-4 w-4" />
+          </Button>
 
-            {isAdmin && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => { setSelectedUser(user); setBulkDelete(false); setShowDeleteConfirm(true); }} 
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                title="Excluir permanentemente"
-                disabled={authUserId === currentUser?.id}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-          </>
-        )}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => { setSelectedUser(user); setBulkDelete(false); setShowDeleteConfirm(true); }} 
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            title="Excluir permanentemente"
+            disabled={authUserId === currentUser?.id}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+
         
         {canImpersonate && (
           <Button
