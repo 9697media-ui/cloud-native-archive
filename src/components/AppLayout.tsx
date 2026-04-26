@@ -19,6 +19,7 @@ import {
 import ImpersonationBanner from '@/components/ImpersonationBanner';
 import TestModeBanner, { TestModeTrigger } from '@/components/TestModeBanner';
 import logoImg from '@/assets/logo.png';
+import FooterLegend from '@/components/FooterLegend';
 
 interface NavItem {
   to: string;
@@ -183,6 +184,7 @@ export default function AppLayout() {
         !isCleanView && "lg:p-8 mx-auto w-full max-w-7xl"
       )}>
         <Outlet />
+        {!hideFooterParam && <FooterLegend />}
       </main>
 
       {!hideHeaderParam && (

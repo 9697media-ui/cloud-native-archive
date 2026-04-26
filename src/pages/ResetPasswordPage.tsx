@@ -10,6 +10,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { useNavigate } from 'react-router-dom';
+import FooterLegend from '@/components/FooterLegend';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
@@ -79,9 +80,12 @@ export default function ResetPasswordPage() {
                 {loading ? 'Aguarde...' : 'Redefinir Senha'}
               </Button>
             </form>
-          </CardContent>
-        </Card>
+        </CardContent>
+      </Card>
+      <div className="w-full max-w-7xl mx-auto px-4 mt-8">
+        <FooterLegend />
       </div>
+    </div>
     </>
   );
 }
