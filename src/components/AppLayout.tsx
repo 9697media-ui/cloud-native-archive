@@ -178,7 +178,10 @@ export default function AppLayout() {
       </main>
 
       {!hideHeaderParam && (
-        <div className="fixed bottom-6 right-6 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className={cn(
+          "fixed bottom-6 right-6 z-[60] duration-500",
+          isFirstRender && "animate-in fade-in slide-in-from-bottom-4"
+        )}>
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
