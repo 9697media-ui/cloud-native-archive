@@ -262,44 +262,39 @@ export default function CalendarPage() {
               >
                 Conflitos
               </Button>
+
+              <div className="flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1.5 shadow-sm h-10">
+                <button onClick={prev} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="text-sm font-medium capitalize text-foreground">
+                        {view === 'week'
+                          ? `${format(weekStart, 'dd MMM', { locale: ptBR })} - ${format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}`
+                          : format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={selectedMonth}
+                      onSelect={(date) => date && setSelectedMonth(date)}
+                      defaultMonth={selectedMonth}
+                      className={cn("p-3 pointer-events-auto")}
+                      locale={ptBR}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <button onClick={next} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
+              </div>
+
+              <Button variant="ghost" size="sm" onClick={() => setSelectedMonth(new Date())} className="h-10 font-medium px-3">Hoje</Button>
             </div>
           </div>
         }
       />
-
-
-      {/* Navigation */}
-      <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-xl border border-border/50">
-        <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon" onClick={prev} className="h-9 w-9 shadow-sm"><ChevronLeft className="h-4 w-4" /></Button>
-          <Button variant="outline" size="icon" onClick={next} className="h-9 w-9 shadow-sm"><ChevronRight className="h-4 w-4" /></Button>
-        </div>
-        
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="flex items-center justify-center gap-2 rounded-lg px-4 py-2 hover:bg-accent transition-all border border-transparent hover:border-border min-w-[220px]">
-              <CalendarIcon className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-sm font-bold capitalize text-foreground">
-                {view === 'week'
-                  ? `${format(weekStart, 'dd MMM', { locale: ptBR })} - ${format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}`
-                  : format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
-              </span>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="center">
-            <Calendar
-              mode="single"
-              selected={selectedMonth}
-              onSelect={(date) => date && setSelectedMonth(date)}
-              defaultMonth={selectedMonth}
-              className={cn("p-3 pointer-events-auto")}
-              locale={ptBR}
-            />
-          </PopoverContent>
-        </Popover>
-
-        <Button variant="ghost" size="sm" onClick={() => setSelectedMonth(new Date())} className="ml-auto font-medium">Hoje</Button>
-      </div>
 
       {/* Month view */}
       {view === 'month' && (
