@@ -694,6 +694,10 @@ export default function UsersPage() {
                   className="pl-9 h-10 shadow-sm border-muted-foreground/20 focus-visible:ring-primary bg-background" 
                 />
               </div>
+              <Button onClick={() => setShowPreRegister(true)} className="gap-2 h-10">
+                <UserCheck className="h-4 w-4" />
+                Pré-cadastro
+              </Button>
             </div>
           </div>
         }
