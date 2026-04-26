@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback, DragEvent } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -24,7 +24,7 @@ import FilteredEventsDialog from '@/components/FilteredEventsDialog';
 import PageHeader from '@/components/PageHeader';
 import PageGuide from '@/components/PageGuide';
 
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, subDays, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
@@ -35,13 +35,6 @@ const unitDotColors: Record<Unit, string> = {
   'Evento Geral do Grupo': 'bg-unit-geral',
 };
 
-const unitBorderColors: Record<Unit, string> = {
-  'DIC': 'border-l-unit-dic',
-  'Nilópolis': 'border-l-unit-nilopolis',
-  'Santana': 'border-l-unit-santana',
-  'Evento Geral do Grupo': 'border-l-unit-geral',
-};
-
 
 export default function Dashboard() {
   const [searchParams] = useSearchParams();
@@ -49,7 +42,7 @@ export default function Dashboard() {
   const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
-  const { canEdit, canCreate, unit, userName } = useUserRole();
+  const { canEdit, canCreate, unit } = useUserRole();
   const isMobile = useIsMobile();
   const [showNewEvent, setShowNewEvent] = useState(false);
   const [detailEvent, setDetailEvent] = useState<AppEvent | null>(null);
@@ -62,10 +55,6 @@ export default function Dashboard() {
   const [conflictOnly, setConflictOnly] = useState(false);
   const [showConflicts, setShowConflicts] = useState(false);
   const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
-
-  // Calendar specific state
-  const [calendarView, setCalendarView] = useState<'month' | 'week' | 'list'>('month');
-  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
 
   // Sync filter unit with user unit when it changes (useful for test mode)
   useEffect(() => {
@@ -139,20 +128,6 @@ export default function Dashboard() {
     }, { total: 0, confirmed: 0, pending: 0, conflict: 0, marketing: 0, partners: 0 });
   }, [monthEvents]);
 
-  // Calendar specific calculations
-  const calStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-  const calEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
-  const days = eachDayOfInterval({ start: calStart, end: calEnd });
-  const dayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-  const getEventsForDay = (day: Date) => filtered.filter(e => isSameDay(new Date(e.start_datetime), day));
-  
-  const conflictDates = useMemo(() => {
-    const dates = new Set<string>();
-    events.filter(e => e.has_conflict).forEach(e => {
-      dates.add(format(new Date(e.start_datetime), 'yyyy-MM-dd'));
-    });
-    return dates;
-  }, [events]);
 
   const prevMonth = () => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1));
   const nextMonth = () => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
@@ -178,47 +153,6 @@ export default function Dashboard() {
     setShowConflicts(false);
     setTimeout(() => handleEventClick(event), 200);
   };
-
-  const handleDragStart = useCallback((e: DragEvent<HTMLElement>, event: AppEvent) => {
-    e.dataTransfer.setData('text/plain', event.id);
-    e.dataTransfer.effectAllowed = 'move';
-  }, []);
-
-  const handleDragOver = useCallback((e: DragEvent<HTMLElement>, dateStr: string) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverDate(dateStr);
-  }, []);
-
-  const handleDragLeave = useCallback(() => {
-    setDragOverDate(null);
-  }, []);
-
-  const handleDrop = useCallback((e: DragEvent<HTMLElement>, targetDate: Date) => {
-    e.preventDefault();
-    setDragOverDate(null);
-    const eventId = e.dataTransfer.getData('text/plain');
-    const event = events.find(ev => ev.id === eventId);
-    if (!event) return;
-
-    const oldStart = new Date(event.start_datetime);
-    const oldEnd = new Date(event.end_datetime);
-    const durationMs = oldEnd.getTime() - oldStart.getTime();
-
-    const newStart = new Date(targetDate);
-    newStart.setHours(oldStart.getHours(), oldStart.getMinutes(), oldStart.getSeconds());
-    const newEnd = new Date(newStart.getTime() + durationMs);
-
-    const updatedEvent: AppEvent = {
-      ...event,
-      start_datetime: newStart.toISOString(),
-      end_datetime: newEnd.toISOString(),
-      updated_at: new Date().toISOString(),
-      updated_by: userName || 'Usuário'
-    };
-
-    updateEvent(updatedEvent);
-  }, [events, updateEvent, userName]);
 
 
   const statCards = [
@@ -372,180 +306,47 @@ export default function Dashboard() {
       </div>
 
 
-      {/* Seção de Visualização de Eventos */}
-      <Tabs value={calendarView} onValueChange={(v) => setCalendarView(v as 'month' | 'week' | 'list')} className="w-full">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList>
-            <TabsTrigger value="month" className="gap-1.5 h-8">
-              <LayoutGrid className="h-4 w-4" /> <span className="hidden sm:inline">Mensal</span>
-            </TabsTrigger>
-            <TabsTrigger value="week" className="gap-1.5 h-8">
-              <CalendarIcon className="h-4 w-4" /> <span className="hidden sm:inline">Semanal</span>
-            </TabsTrigger>
-            <TabsTrigger value="list" className="gap-1.5 h-8">
-              <List className="h-4 w-4" /> <span className="hidden sm:inline">Lista / Timeline</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            {UNITS.map(u => (
-              <div key={u} className="flex items-center gap-1.5">
-                <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <TabsContent value="month" className="m-0 focus-visible:ring-0">
-          <Card>
-            <CardContent className="p-2">
-              <div className="grid grid-cols-7 text-center">
-                {dayNames.map(d => (
-                  <div key={d} className="p-1 text-[10px] font-semibold text-muted-foreground sm:p-2 sm:text-xs">{d}</div>
-                ))}
-                {days.map(day => {
-                  const dayEvents = getEventsForDay(day);
-                  const isCurrentMonth = isSameMonth(day, selectedMonth);
-                  const isToday = isSameDay(day, new Date());
-                  const dateStr = format(day, 'yyyy-MM-dd');
-                  const isDragOver = dragOverDate === dateStr;
-                  const hasConflict = conflictDates.has(dateStr);
-                  return (
-                    <div
-                      key={day.toISOString()}
-                      onDragOver={(e) => handleDragOver(e, dateStr)}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, day)}
-                      className={cn(
-                        "min-h-[80px] sm:min-h-[120px] border border-border p-0.5 sm:p-1 transition-colors relative",
-                        !isCurrentMonth ? 'opacity-30 bg-muted/20' : '',
-                        isToday ? 'bg-primary/5' : '',
-                        isDragOver ? 'bg-accent/50 border-primary/50' : '',
-                        hasConflict ? 'bg-muted/10 border-border/50' : '',
-                      )}
-                    >
-                      <span className={cn(
-                        "inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] sm:h-6 sm:w-6 sm:text-xs mb-1",
-                        isToday ? 'bg-primary text-primary-foreground font-bold' : hasConflict ? 'bg-muted text-muted-foreground' : 'text-foreground'
-                      )}>
-                        {format(day, 'd')}
-                      </span>
-                      <div className="flex flex-col gap-0.5">
-                        {dayEvents.slice(0, isMobile ? 2 : 4).map(e => (
-                          <button
-                            key={e.id}
-                            draggable
-                            onDragStart={(ev) => handleDragStart(ev, e)}
-                            onClick={() => handleEventClick(e)}
-                            className={cn(
-                              "flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[8px] sm:text-[10px] leading-tight cursor-grab active:cursor-grabbing hover:opacity-80 border-l-2",
-                              unitDotColors[e.unit], "bg-opacity-10",
-                              unitBorderColors[e.unit]
-                            )}
-                          >
-                            <span className="truncate text-foreground flex-1">{e.title}</span>
-                          </button>
-                        ))}
-                        {dayEvents.length > (isMobile ? 2 : 4) && (
-                          <span className="block text-center text-[8px] font-medium text-muted-foreground sm:text-[10px]">
-                            +{dayEvents.length - (isMobile ? 2 : 4)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="week" className="m-0 focus-visible:ring-0">
-          <Card>
-            <CardContent className="p-2 sm:p-4">
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-7 sm:gap-3">
-                {eachDayOfInterval({ 
-                  start: startOfWeek(selectedMonth, { weekStartsOn: 1 }), 
-                  end: endOfWeek(selectedMonth, { weekStartsOn: 1 }) 
-                }).map(day => {
-                  const dayEvents = getEventsForDay(day);
-                  const isToday = isSameDay(day, new Date());
-                  const dateStr = format(day, 'yyyy-MM-dd');
-                  return (
-                    <div
-                      key={day.toISOString()}
-                      className={cn(
-                        "min-h-[150px] rounded-lg border border-border p-2 sm:p-3 transition-colors",
-                        isToday ? 'bg-primary/5 border-primary/20' : 'bg-card'
-                      )}
-                    >
-                      <div className="mb-2 border-b border-border pb-1 text-center">
-                        <span className="block text-[10px] font-medium text-muted-foreground uppercase">{format(day, 'eee', { locale: ptBR })}</span>
-                        <span className={cn(
-                          "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
-                          isToday ? 'bg-primary text-primary-foreground' : 'text-foreground'
-                        )}>
-                          {format(day, 'd')}
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        {dayEvents.map(e => (
-                          <button
-                            key={e.id}
-                            onClick={() => handleEventClick(e)}
-                            className={cn(
-                              "group flex w-full flex-col gap-1 rounded-md border-l-2 p-1.5 text-left text-[10px] transition-all hover:translate-x-0.5",
-                              unitDotColors[e.unit], "bg-opacity-10",
-                              unitBorderColors[e.unit]
-                            )}
-                          >
-                            <span className="font-semibold text-foreground line-clamp-2">{e.title}</span>
-                            <span className="text-[8px] text-muted-foreground">{format(new Date(e.start_datetime), 'HH:mm')}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="list" className="m-0 focus-visible:ring-0">
-          <Card>
-            <CardContent className="p-4 sm:p-5">
-              <div className="mb-4 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <h2 className="text-sm font-semibold text-foreground">Timeline de Eventos</h2>
-              </div>
-              {filtered.length === 0 ? (
-                <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento encontrado</p>
-              ) : (
-                <div className="space-y-1.5 sm:space-y-2">
-                  {filtered.slice(0, 20).map(e => (
-                    <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
-                      <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
-                        <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                        <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
-                        <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
-                          <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
-                            {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
-                          </span>
-                          <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
-                            {e.status}
-                          </Badge>
-                        </div>
-                      </button>
-                    </div>
-                  ))}
+      {/* Timeline da Semana */}
+      <Card>
+        <CardContent className="p-4 sm:p-5">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold text-foreground">Timeline da Semana</h2>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              {UNITS.map(u => (
+                <div key={u} className="flex items-center gap-1.5">
+                  <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                  <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              ))}
+            </div>
+          </div>
+          {weekEvents.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento nesta semana</p>
+          ) : (
+            <div className="space-y-1.5 sm:space-y-2">
+              {weekEvents.slice(0, 6).map(e => (
+                <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
+                  <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
+                    <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                    <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
+                    <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
+                        {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
+                      </span>
+                      <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
+                        {e.status}
+                      </Badge>
+                    </div>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
 
       <EventFormDialog open={showNewEvent} onOpenChange={setShowNewEvent} />

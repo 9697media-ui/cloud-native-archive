@@ -276,7 +276,7 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
           <div className="flex flex-col items-start text-left">
             <span className="font-semibold text-foreground">{content.title}</span>
             <span className="text-xs text-muted-foreground">
-              {expanded ? "Clique para recolher o guia" : "(Clique para ver dicas e informações desta página)"}
+              {expanded ? "Clique para recolher o guia" : "Clique para ver dicas e informações desta página"}
             </span>
           </div>
         </div>

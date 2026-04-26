@@ -8,7 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { TestViewProvider } from "@/contexts/TestViewContext";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "./pages/Dashboard";
-// CalendarPage removed
+import CalendarPage from "./pages/CalendarPage";
 import UsersPage from "./pages/UsersPage";
 import AuditPage from "./pages/AuditPage";
 import LoginPage from "./pages/LoginPage";
@@ -51,6 +51,7 @@ const App = () => (
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<Dashboard />} />
+                  <Route path="/calendario" element={<CalendarPage />} />
                   <Route path="/usuarios" element={
                     <ProtectedRoute><UsersPage /></ProtectedRoute>
                   } />

@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown, HelpCircle } from 'lucide-react';
+import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
@@ -946,12 +946,12 @@ export default function UsersPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-full bg-primary/10">
-                        <HelpCircle className="h-5 w-5 text-primary" />
+                        <Clock className="h-5 w-5 text-primary" />
                       </div>
                       <div className="flex flex-col items-start">
-                        <span className="font-semibold text-foreground">Configurações de Visualização</span>
+                        <span className="font-semibold text-foreground">Legenda e Funcionamento do Sistema</span>
                         <span className="text-xs text-muted-foreground">
-                          (Clique para ver dicas e informações desta página)
+                          Clique para ver como funciona o sistema de restrições e os níveis de permissão
                         </span>
                       </div>
                     </div>
