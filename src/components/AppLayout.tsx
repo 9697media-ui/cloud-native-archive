@@ -65,6 +65,7 @@ export default function AppLayout() {
     <>
       {navItems.filter(item => {
         if (item.adminOnly) return isAdmin;
+        if (item.managerOnly) return isAdmin || isManager;
         if (item.requireAuth) return isAuthenticated;
         return true;
       }).map(item => {
