@@ -32,23 +32,33 @@ const EMBED_PAGES = [
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
-  editor: 'Editor',
-  viewer: 'Visualizador',
   admin_geral: 'Admin Geral',
+  diretor: 'Diretor',
+  editor: 'Editor',
   gestor_unidade: 'Gestor de Unidade',
+  coordenador: 'Coordenador',
+  analista: 'Analista',
   usuario_padrao: 'Usuário Padrão',
+  assistente: 'Assistente',
+  estagiario: 'Estagiário',
+  viewer: 'Visualizador',
   visualizador: 'Visualizador',
   usuario_padrao_admin: 'Admin',
 };
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
-  admin: <ShieldCheck className="h-3.5 w-3.5" />,
-  admin_geral: <ShieldCheck className="h-3.5 w-3.5" />,
-  editor: <Shield className="h-3.5 w-3.5" />,
-  gestor_unidade: <Shield className="h-3.5 w-3.5" />,
-  viewer: <Eye className="h-3.5 w-3.5" />,
-  visualizador: <Eye className="h-3.5 w-3.5" />,
+  admin: <ShieldCheck className="h-3.5 w-3.5 text-primary" />,
+  admin_geral: <ShieldCheck className="h-3.5 w-3.5 text-primary" />,
+  diretor: <ShieldCheck className="h-3.5 w-3.5 text-purple-600" />,
+  editor: <Shield className="h-3.5 w-3.5 text-blue-600" />,
+  gestor_unidade: <Shield className="h-3.5 w-3.5 text-blue-600" />,
+  coordenador: <Shield className="h-3.5 w-3.5 text-amber-600" />,
+  analista: <Shield className="h-3.5 w-3.5 text-slate-600" />,
   usuario_padrao: <Shield className="h-3.5 w-3.5 opacity-50" />,
+  assistente: <Shield className="h-3.5 w-3.5 opacity-40" />,
+  estagiario: <Shield className="h-3.5 w-3.5 opacity-30" />,
+  viewer: <Eye className="h-3.5 w-3.5 text-slate-400" />,
+  visualizador: <Eye className="h-3.5 w-3.5 text-slate-400" />,
 };
 
 export default function UsersPage() {
