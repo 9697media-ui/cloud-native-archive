@@ -295,6 +295,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_unit: { Args: { target_unit: string }; Returns: boolean }
       get_user_role: { Args: { _user_id: string }; Returns: string }
       get_user_unit: { Args: { _user_id: string }; Returns: string }
       has_role: {
@@ -312,7 +313,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "editor" | "viewer"
+      app_role: "admin" | "editor" | "viewer" | "usuario_padrao"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -440,7 +441,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "editor", "viewer"],
+      app_role: ["admin", "editor", "viewer", "usuario_padrao"],
     },
   },
 } as const
