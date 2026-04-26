@@ -263,7 +263,7 @@ export default function PageGuide({ activeTab }: PageGuideProps) {
     <div className="mt-8 space-y-4">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-4 rounded-lg border border-primary/20 bg-card hover:bg-accent/50 transition-all duration-200"
+        className="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-all duration-200"
       >
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-full bg-primary/10">
