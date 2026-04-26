@@ -51,7 +51,6 @@ const App = () => (
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<Dashboard />} />
-                  <Route path="/calendario" element={<CalendarPage />} />
                   <Route path="/usuarios" element={
                     <ProtectedRoute><UsersPage /></ProtectedRoute>
                   } />
