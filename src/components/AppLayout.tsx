@@ -32,8 +32,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
   { to: '/calendario', label: 'Calendário', icon: Calendar },
-  { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true },
-  
+  { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
 ];
 
 export default function AppLayout() {
