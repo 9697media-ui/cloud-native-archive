@@ -118,7 +118,9 @@ export function useUserRole() {
 
   const isAdmin = role === 'admin' || permissionLevel === 'admin_geral';
   const isManager = role === 'editor' || role === 'admin' || permissionLevel === 'gestor_unidade' || permissionLevel === 'admin_geral';
+  const hasDelegatedAccess = delegatedUnits && delegatedUnits.length > 0;
   const canEdit = isAdmin || isManager;
+  const canViewAuditoria = isAdmin || isManager || hasDelegatedAccess;
   const canView = true; // System is public
 
   return { 
