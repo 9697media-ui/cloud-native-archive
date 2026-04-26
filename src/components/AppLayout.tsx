@@ -108,10 +108,8 @@ export default function AppLayout() {
                 <SheetContent side="left" className="w-[280px] p-0">
                   <SheetHeader className="p-6 text-left">
                     <SheetTitle className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                        <LayoutDashboard className="h-4 w-4 text-primary-foreground" />
-                      </div>
-                      <span className="font-bold tracking-tighter text-lg">anabrasil</span>
+                      <img src={logoImg} alt="anabrasil" className="h-8 w-8 rounded-lg object-cover" />
+                      <span className="font-bold tracking-tighter text-lg lowercase">anabrasil</span>
                     </SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col gap-1 px-2">
