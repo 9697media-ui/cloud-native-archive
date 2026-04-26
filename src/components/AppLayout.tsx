@@ -73,10 +73,10 @@ export default function AppLayout() {
             to={`${item.to}${location.search}`}
             onClick={onClick}
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              "flex items-center gap-2.5 rounded-lg px-4 py-2 text-sm font-bold transition-all duration-200",
               active
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                ? "bg-background text-primary shadow-sm ring-1 ring-border/50"
+                : "text-muted-foreground hover:text-foreground hover:bg-background/50",
               isMobile && "px-4 py-3 text-base"
             )}
           >
