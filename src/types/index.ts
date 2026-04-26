@@ -4,7 +4,7 @@ export type EventStatus = 'confirmado' | 'pendente' | 'cancelado';
 
 export type EventType = 'reunião' | 'evento institucional' | 'apresentação' | 'cobertura' | 'ação externa' | 'programação interna' | 'outro';
 
-export type PermissionLevel = 'admin_geral' | 'gestor_unidade' | 'usuario_padrao' | 'visualizador';
+export type PermissionLevel = 'admin_geral' | 'gestor_unidade' | 'coordenador' | 'analista' | 'usuario_padrao' | 'visualizador' | 'diretor' | 'assistente' | 'estagiario';
 
 export type PartnerType = 'padrinho' | 'doador' | 'empresa' | 'figura_publica' | 'outro' | '';
 
@@ -78,7 +78,12 @@ export const PARTNER_TYPES: { value: PartnerType; label: string }[] = [
 
 export const PERMISSION_LEVELS: { value: PermissionLevel; label: string }[] = [
   { value: 'admin_geral', label: 'Admin Geral' },
+  { value: 'diretor', label: 'Diretor' },
   { value: 'gestor_unidade', label: 'Gestor de Unidade' },
+  { value: 'coordenador', label: 'Coordenador' },
+  { value: 'analista', label: 'Analista' },
   { value: 'usuario_padrao', label: 'Usuário Padrão' },
+  { value: 'assistente', label: 'Assistente' },
+  { value: 'estagiario', label: 'Estagiário' },
   { value: 'visualizador', label: 'Visualizador' },
 ];

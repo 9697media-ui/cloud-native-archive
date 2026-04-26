@@ -32,23 +32,33 @@ const EMBED_PAGES = [
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
-  editor: 'Editor',
-  viewer: 'Visualizador',
   admin_geral: 'Admin Geral',
+  diretor: 'Diretor',
+  editor: 'Editor',
   gestor_unidade: 'Gestor de Unidade',
+  coordenador: 'Coordenador',
+  analista: 'Analista',
   usuario_padrao: 'Usuário Padrão',
+  assistente: 'Assistente',
+  estagiario: 'Estagiário',
+  viewer: 'Visualizador',
   visualizador: 'Visualizador',
   usuario_padrao_admin: 'Admin',
 };
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
-  admin: <ShieldCheck className="h-3.5 w-3.5" />,
-  admin_geral: <ShieldCheck className="h-3.5 w-3.5" />,
-  editor: <Shield className="h-3.5 w-3.5" />,
-  gestor_unidade: <Shield className="h-3.5 w-3.5" />,
-  viewer: <Eye className="h-3.5 w-3.5" />,
-  visualizador: <Eye className="h-3.5 w-3.5" />,
-  usuario_padrao: <Shield className="h-3.5 w-3.5 opacity-50" />,
+  admin: <ShieldCheck className="h-3.5 w-3.5 text-primary" />,
+  admin_geral: <ShieldCheck className="h-3.5 w-3.5 text-primary" />,
+  diretor: <ShieldCheck className="h-3.5 w-3.5 text-purple-500" />,
+  editor: <Shield className="h-3.5 w-3.5 text-blue-500" />,
+  gestor_unidade: <Shield className="h-3.5 w-3.5 text-blue-500" />,
+  coordenador: <Shield className="h-3.5 w-3.5 text-amber-500" />,
+  analista: <Shield className="h-3.5 w-3.5 text-slate-500" />,
+  usuario_padrao: <Shield className="h-3.5 w-3.5 text-slate-400 opacity-70" />,
+  assistente: <Shield className="h-3.5 w-3.5 text-slate-400 opacity-60" />,
+  estagiario: <Shield className="h-3.5 w-3.5 text-slate-400 opacity-50" />,
+  viewer: <Eye className="h-3.5 w-3.5 text-slate-400" />,
+  visualizador: <Eye className="h-3.5 w-3.5 text-slate-400" />,
 };
 
 export default function UsersPage() {
@@ -313,8 +323,7 @@ export default function UsersPage() {
         // Gestor pode ver gestores, editores, usuários, visualizadores e viewers
         // Garantindo que níveis administrativos NUNCA apareçam para gestores
         baseUsers = baseUsers.filter(u => 
-          ['gestor_unidade', 'editor', 'usuario_padrao', 'visualizador', 'viewer'].includes(u.permission_level as string) &&
-          u.permission_level !== 'admin_geral'
+          !['admin_geral', 'diretor', 'admin'].includes(u.permission_level as string)
         );
       } else {
         // Usuário e visualizador podem ver somente o seu próprio perfil
@@ -330,9 +339,9 @@ export default function UsersPage() {
   }, [combinedUsers, search, isAdmin, isManager, currentUser]);
 
   const groupedUsers = useMemo(() => {
-    const admins = filtered.filter(u => (u.permission_level as string) === 'admin' || (u.permission_level as string) === 'admin_geral');
-    const gestores = filtered.filter(u => (u.permission_level as string) === 'gestor_unidade');
-    const normalUsers = filtered.filter(u => !['admin', 'admin_geral', 'gestor_unidade'].includes(u.permission_level as string));
+    const admins = filtered.filter(u => ['admin', 'admin_geral', 'diretor'].includes(u.permission_level as string));
+    const gestores = filtered.filter(u => ['gestor_unidade', 'coordenador', 'analista'].includes(u.permission_level as string));
+    const normalUsers = filtered.filter(u => !['admin', 'admin_geral', 'diretor', 'gestor_unidade', 'coordenador', 'analista'].includes(u.permission_level as string));
     
     return [
       { id: 'admins', title: 'Administradores', users: admins, icon: <ShieldCheck className="h-5 w-5 text-primary" /> },
@@ -392,8 +401,11 @@ export default function UsersPage() {
 
         // 2. Sincroniza com a tabela user_roles
         let mappedRole: 'admin' | 'editor' | 'viewer' = 'viewer';
-        if (editForm.permission_level === 'admin_geral') mappedRole = 'admin';
-        else if (editForm.permission_level === 'gestor_unidade') mappedRole = 'editor';
+        if (['admin_geral', 'diretor'].includes(editForm.permission_level)) {
+          mappedRole = 'admin';
+        } else if (['gestor_unidade', 'coordenador', 'analista'].includes(editForm.permission_level)) {
+          mappedRole = 'editor';
+        }
 
         const { error: roleError } = await supabase
           .from('user_roles')

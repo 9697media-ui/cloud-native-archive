@@ -86,9 +86,13 @@ export function useUserRole() {
       let effectiveRole = roleData?.role;
       
       if (!effectiveRole && profileData?.permission_level) {
-        if (profileData.permission_level === 'admin_geral') effectiveRole = 'admin';
-        else if (profileData.permission_level === 'gestor_unidade') effectiveRole = 'editor';
-        else effectiveRole = 'viewer';
+        if (['admin_geral', 'diretor'].includes(profileData.permission_level)) {
+          effectiveRole = 'admin';
+        } else if (['gestor_unidade', 'coordenador', 'analista'].includes(profileData.permission_level)) {
+          effectiveRole = 'editor';
+        } else {
+          effectiveRole = 'viewer';
+        }
       }
 
       if (effectiveRole) {
