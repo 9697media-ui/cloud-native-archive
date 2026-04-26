@@ -40,7 +40,8 @@ const unitBorderColors: Record<Unit, string> = {
 type View = 'month' | 'week' | 'list';
 
 export default function CalendarPage() {
-  const { events, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
+  const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent, detectConflicts } = useApp();
+  const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
   const { canEdit, userName } = useUserRole();
   const isMobile = useIsMobile();
