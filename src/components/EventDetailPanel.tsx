@@ -131,6 +131,26 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
               </div>
             )}
 
+            {event.attachments && event.attachments.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground">Anexos</p>
+                <div className="flex flex-wrap gap-2">
+                  {event.attachments.map((url, idx) => (
+                    <a
+                      key={idx}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 bg-muted/50 border border-border rounded-md px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+                    >
+                      <Paperclip className="h-3 w-3 text-muted-foreground" />
+                      <span className="max-w-[120px] truncate text-foreground">Anexo {idx + 1}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
 
           {(onEdit || onDelete) && (
