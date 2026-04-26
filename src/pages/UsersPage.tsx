@@ -1394,10 +1394,10 @@ export default function UsersPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {showRoleToggleConfirm === true 
-                ? "Ao habilitar a restrição por perfil, todos os usuários passarão a ver apenas as unidades definidas por padrão para seus cargos. Isso afeta a visibilidade global do sistema imediatamente."
-                : "Ao desabilitar a restrição por perfil, todos os usuários voltarão a ver todas as unidades do sistema. Deseja prosseguir?"
+                ? "Você está prestes a ATIVAR as restrições globais. Os usuários deixarão de ver todas as unidades e passarão a ver apenas o que está configurado para seu cargo ou perfil individual."
+                : "Você está prestes a DESATIVAR as restrições globais. Todos os usuários terão acesso irrestrito a todas as unidades do sistema, independente das configurações abaixo."
               }
             </p>
           </div>
