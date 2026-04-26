@@ -119,45 +119,44 @@ export default function Dashboard() {
   return (
     <div className="animate-fade-in space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-        {!hideTitle && (
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Visão Geral</h1>
-            <p className="text-sm text-muted-foreground">Programação institucional de todas as unidades</p>
-          </div>
-        )}
-        <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center", hideTitle && "ml-auto")}>
-          {canEdit && (
-            <Button onClick={() => setShowNewEvent(true)} className="w-full gap-2 sm:w-auto shadow-sm">
-              <Plus className="h-4 w-4" /> Nova Programação
-            </Button>
-          )}
-          <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm">
-            <button onClick={prevMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
-                  <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-sm font-medium capitalize text-foreground">
-                    {format(selectedMonth, isMobile ? 'MMM yyyy' : 'MMMM yyyy', { locale: ptBR })}
-                  </span>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="single"
-                  selected={selectedMonth}
-                  onSelect={(date) => date && setSelectedMonth(date)}
-                  defaultMonth={selectedMonth}
-                  className={cn("p-3 pointer-events-auto")}
-                  locale={ptBR}
-                />
-              </PopoverContent>
-            </Popover>
-            <button onClick={nextMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Visão Geral"
+        description="Programação institucional de todas as unidades"
+        hidden={hideTitle}
+        actions={
+          <>
+            {canEdit && (
+              <Button onClick={() => setShowNewEvent(true)} className="gap-2 shadow-sm">
+                <Plus className="h-4 w-4" /> Nova Programação
+              </Button>
+            )}
+            <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2 shadow-sm">
+              <button onClick={prevMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center justify-center gap-1.5 rounded px-2 py-0.5 hover:bg-accent transition-colors min-w-[120px] sm:min-w-[160px]">
+                    <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="text-sm font-medium capitalize text-foreground">
+                      {format(selectedMonth, isMobile ? 'MMM yyyy' : 'MMMM yyyy', { locale: ptBR })}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={selectedMonth}
+                    onSelect={(date) => date && setSelectedMonth(date)}
+                    defaultMonth={selectedMonth}
+                    className={cn("p-3 pointer-events-auto")}
+                    locale={ptBR}
+                  />
+                </PopoverContent>
+              </Popover>
+              <button onClick={nextMonth} className="p-1 hover:bg-accent rounded transition-colors"><ChevronRight className="h-4 w-4 text-muted-foreground" /></button>
+            </div>
+          </>
+        }
+      />
 
       {/* Stats cards */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 sm:gap-4">
