@@ -909,7 +909,8 @@ export default function UsersPage() {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            className="h-7 px-2 text-[10px] font-semibold hover:text-destructive hover:bg-destructive/5"
+                            disabled={!configs?.enable_role_based_view}
+                            className="h-7 px-2 text-[10px] font-semibold hover:text-destructive hover:bg-destructive/5 disabled:opacity-50"
                             onClick={() => {
                               const newValue = { ...configs?.role_defaults, [role]: [] };
                               updateConfig.mutate({ key: 'role_defaults', value: newValue });
@@ -920,7 +921,8 @@ export default function UsersPage() {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-7 w-7 text-muted-foreground hover:text-primary"
+                            disabled={!configs?.enable_role_based_view}
+                            className="h-7 w-7 text-muted-foreground hover:text-primary disabled:opacity-50"
                             title="Resetar usuários deste perfil"
                             onClick={async () => {
                               const usersToReset = combinedUsers.filter(u => u.permission_level === role && u.view_restrictions !== null);
