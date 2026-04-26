@@ -591,10 +591,13 @@ export default function UsersPage() {
   if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="animate-fade-in space-y-8">
       {!hideTitleParam && (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-bold text-foreground">Painel</h1>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Painel de Controle</h1>
+            <p className="text-sm text-muted-foreground">Gerencie usuários, permissões e configurações de visualização</p>
+          </div>
         </div>
       )}
 
