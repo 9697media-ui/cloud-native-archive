@@ -49,7 +49,7 @@ export default function Dashboard() {
   const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
-  const { canEdit, canCreate, unit } = useUserRole();
+  const { canEdit, canCreate, unit, userName } = useUserRole();
   const isMobile = useIsMobile();
   const [showNewEvent, setShowNewEvent] = useState(false);
   const [detailEvent, setDetailEvent] = useState<AppEvent | null>(null);
@@ -62,6 +62,10 @@ export default function Dashboard() {
   const [conflictOnly, setConflictOnly] = useState(false);
   const [showConflicts, setShowConflicts] = useState(false);
   const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
+
+  // Calendar specific state
+  const [calendarView, setCalendarView] = useState<'month' | 'week' | 'list'>('month');
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
 
   // Sync filter unit with user unit when it changes (useful for test mode)
   useEffect(() => {
@@ -135,6 +139,20 @@ export default function Dashboard() {
     }, { total: 0, confirmed: 0, pending: 0, conflict: 0, marketing: 0, partners: 0 });
   }, [monthEvents]);
 
+  // Calendar specific calculations
+  const calStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const calEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  const days = eachDayOfInterval({ start: calStart, end: calEnd });
+  const dayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  const getEventsForDay = (day: Date) => filtered.filter(e => isSameDay(new Date(e.start_datetime), day));
+  
+  const conflictDates = useMemo(() => {
+    const dates = new Set<string>();
+    events.filter(e => e.has_conflict).forEach(e => {
+      dates.add(format(new Date(e.start_datetime), 'yyyy-MM-dd'));
+    });
+    return dates;
+  }, [events]);
 
   const prevMonth = () => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1));
   const nextMonth = () => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
@@ -160,6 +178,47 @@ export default function Dashboard() {
     setShowConflicts(false);
     setTimeout(() => handleEventClick(event), 200);
   };
+
+  const handleDragStart = useCallback((e: DragEvent<HTMLElement>, event: AppEvent) => {
+    e.dataTransfer.setData('text/plain', event.id);
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
+
+  const handleDragOver = useCallback((e: DragEvent<HTMLElement>, dateStr: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverDate(dateStr);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverDate(null);
+  }, []);
+
+  const handleDrop = useCallback((e: DragEvent<HTMLElement>, targetDate: Date) => {
+    e.preventDefault();
+    setDragOverDate(null);
+    const eventId = e.dataTransfer.getData('text/plain');
+    const event = events.find(ev => ev.id === eventId);
+    if (!event) return;
+
+    const oldStart = new Date(event.start_datetime);
+    const oldEnd = new Date(event.end_datetime);
+    const durationMs = oldEnd.getTime() - oldStart.getTime();
+
+    const newStart = new Date(targetDate);
+    newStart.setHours(oldStart.getHours(), oldStart.getMinutes(), oldStart.getSeconds());
+    const newEnd = new Date(newStart.getTime() + durationMs);
+
+    const updatedEvent: AppEvent = {
+      ...event,
+      start_datetime: newStart.toISOString(),
+      end_datetime: newEnd.toISOString(),
+      updated_at: new Date().toISOString(),
+      updated_by: userName || 'Usuário'
+    };
+
+    updateEvent(updatedEvent);
+  }, [events, updateEvent, userName]);
 
 
   const statCards = [
