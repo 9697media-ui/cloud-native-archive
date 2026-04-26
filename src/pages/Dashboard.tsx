@@ -50,6 +50,10 @@ export default function Dashboard() {
   const [showEdit, setShowEdit] = useState(false);
   const [search, setSearch] = useState('');
   const [filterUnit, setFilterUnit] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [conflictOnly, setConflictOnly] = useState(false);
+  const [showConflicts, setShowConflicts] = useState(false);
+  const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
 
   // Sync filter unit with user unit when it changes (useful for test mode)
   useEffect(() => {
@@ -59,12 +63,6 @@ export default function Dashboard() {
       setFilterUnit('all');
     }
   }, [unit]);
-
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [conflictOnly, setConflictOnly] = useState(false);
-  
-  const [showConflicts, setShowConflicts] = useState(false);
-  const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
 
   const monthStart = startOfMonth(selectedMonth);
   const monthEnd = endOfMonth(selectedMonth);
