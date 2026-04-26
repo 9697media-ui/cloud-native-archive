@@ -323,8 +323,7 @@ export default function UsersPage() {
         // Gestor pode ver gestores, editores, usuários, visualizadores e viewers
         // Garantindo que níveis administrativos NUNCA apareçam para gestores
         baseUsers = baseUsers.filter(u => 
-          ['gestor_unidade', 'editor', 'usuario_padrao', 'visualizador', 'viewer'].includes(u.permission_level as string) &&
-          u.permission_level !== 'admin_geral'
+          !['admin_geral', 'diretor', 'admin'].includes(u.permission_level as string)
         );
       } else {
         // Usuário e visualizador podem ver somente o seu próprio perfil
