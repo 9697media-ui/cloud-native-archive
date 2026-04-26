@@ -854,8 +854,8 @@ export default function UsersPage() {
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge variant="outline" className="text-[10px]">{user.unit}</Badge>
                             <Badge variant="secondary" className="text-[10px]">{permLabel(user.permission_level)}</Badge>
-                            <Badge variant={user.is_active ? 'default' : 'destructive'} className="text-[10px]">
-                              {user.is_active ? 'Ativo' : 'Inativo'}
+                            <Badge variant={user.status === 'pre-registered' ? 'outline' : user.is_active ? 'default' : 'destructive'} className={cn("text-[10px]", user.status === 'pre-registered' && "border-primary text-primary bg-primary/5")}>
+                              {user.status === 'pre-registered' ? 'Pré-cadastro' : user.is_active ? 'Ativo' : 'Inativo'}
                             </Badge>
                           </div>
                         </CardContent>
