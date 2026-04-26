@@ -10,6 +10,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { useNavigate } from 'react-router-dom';
+import FooterLegend from '@/components/FooterLegend';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
