@@ -66,6 +66,8 @@ export function useUserRole() {
       if (profileData) {
         setUserName(profileData.name);
         setIsActive(profileData.is_active !== false);
+        setViewRestrictions(profileData.view_restrictions);
+        setPermissionLevel(profileData.permission_level);
       } else if (user.user_metadata?.name) {
         setUserName(user.user_metadata.name);
       } else {
