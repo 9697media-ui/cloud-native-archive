@@ -130,13 +130,21 @@ export default function AppLayout() {
               </Sheet>
             )}
 
-            <Link to={`/${location.search}`} className="flex items-center gap-2 shrink-0">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Calendar className="h-4 w-4 text-primary-foreground" />
+            <Link to={`/${location.search}`} className="flex items-center gap-2 shrink-0 group transition-transform active:scale-95">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm group-hover:shadow-md transition-all">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
               </div>
-              <span className={cn("text-sm font-semibold text-foreground", isMobile ? "inline" : "hidden sm:inline")}>
-                Central ANA
-              </span>
+              <div className="flex flex-col">
+                <span className={cn("text-sm font-bold leading-tight text-foreground tracking-tight", isMobile ? "inline" : "hidden sm:inline")}>
+                  ANA Brasil
+                </span>
+                <span className={cn("text-[10px] font-medium leading-tight text-muted-foreground uppercase tracking-widest", isMobile ? "inline" : "hidden sm:inline")}>
+                  Institucional
+                </span>
+              </div>
             </Link>
 
             {!isMobile && (
