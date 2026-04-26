@@ -232,7 +232,8 @@ export default function LoginPage() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="viewer">Visualizador</SelectItem>
-                    <SelectItem value="editor">Editor</SelectItem>
+                    <SelectItem value="editor">Editor (Apenas Edição)</SelectItem>
+                    <SelectItem value="criador">Criador (Cria e Edita)</SelectItem>
                   </SelectContent>
                 </Select>
                 {requestedRole === 'editor' && (
