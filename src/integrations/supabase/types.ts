@@ -179,9 +179,11 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          delegated_units: string[] | null
           email: string | null
           id: string
           is_active: boolean | null
+          modules: string[] | null
           name: string | null
           permission_level: string | null
           unit: string | null
@@ -191,9 +193,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          delegated_units?: string[] | null
           email?: string | null
           id?: string
           is_active?: boolean | null
+          modules?: string[] | null
           name?: string | null
           permission_level?: string | null
           unit?: string | null
@@ -203,9 +207,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          delegated_units?: string[] | null
           email?: string | null
           id?: string
           is_active?: boolean | null
+          modules?: string[] | null
           name?: string | null
           permission_level?: string | null
           unit?: string | null
@@ -305,6 +311,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_unit_access: { Args: { target_unit: string }; Returns: boolean }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_manager: { Args: { _user_id: string }; Returns: boolean }
       is_manager_of_unit: {
@@ -313,7 +320,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "editor" | "viewer" | "usuario_padrao"
+      app_role: "admin" | "editor" | "viewer" | "usuario_padrao" | "criador"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -441,7 +448,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "editor", "viewer", "usuario_padrao"],
+      app_role: ["admin", "editor", "viewer", "usuario_padrao", "criador"],
     },
   },
 } as const
