@@ -363,7 +363,7 @@ export default function Dashboard() {
           onEventClick={(e) => { setShowFiltered(null); setTimeout(() => handleEventClick(e), 200); }}
         />
       )}
-      <PageGuide />
+      
     </div>
   );
 }
