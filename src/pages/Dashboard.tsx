@@ -306,13 +306,13 @@ export default function Dashboard() {
       </div>
 
 
-      {/* Timeline da Semana Atual */}
+      {/* Timeline da Semana */}
       <Card>
         <CardContent className="p-4 sm:p-5">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">Timeline da Semana Atual</h2>
+              <h2 className="text-sm font-semibold text-foreground">Timeline da Semana</h2>
             </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               {UNITS.map(u => (
