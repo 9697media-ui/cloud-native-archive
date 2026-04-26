@@ -83,6 +83,7 @@ export default function UsersPage() {
   const [hideTitle, setHideTitle] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bulkDelete, setBulkDelete] = useState(false);
+  const [showRoleToggleConfirm, setShowRoleToggleConfirm] = useState<boolean | null>(null);
 
   // Reset password dialog
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -813,25 +814,54 @@ export default function UsersPage() {
                   <Switch 
                     id="enable-role-view" 
                     checked={configs?.enable_role_based_view || false} 
-                    onCheckedChange={(v) => updateConfig.mutate({ key: 'enable_role_based_view', value: v })}
+                    onCheckedChange={(v) => setShowRoleToggleConfirm(v)}
                   />
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
                   {Object.entries(configs?.role_defaults || {}).map(([role, allowedUnits]) => (
-                    <div key={role} className="space-y-3 p-4 border rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <Label className="font-bold capitalize">{ROLE_LABELS[role] || role}</Label>
-                        <div className="flex items-center gap-2">
+                    <div key={role} className="space-y-3 p-4 border rounded-lg bg-card shadow-sm">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="space-y-1">
+                          <Label className="font-bold capitalize">{ROLE_LABELS[role] || role}</Label>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="text-[10px] font-medium h-5">
+                              {allowedUnits.length} de {UNITS.length} unidades
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-7 px-2 text-[10px] font-semibold hover:text-primary hover:bg-primary/5"
+                            onClick={() => {
+                              const newValue = { ...configs?.role_defaults, [role]: UNITS };
+                              updateConfig.mutate({ key: 'role_defaults', value: newValue });
+                            }}
+                          >
+                            Tudo
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-7 px-2 text-[10px] font-semibold hover:text-destructive hover:bg-destructive/5"
+                            onClick={() => {
+                              const newValue = { ...configs?.role_defaults, [role]: [] };
+                              updateConfig.mutate({ key: 'role_defaults', value: newValue });
+                            }}
+                          >
+                            Limpar
+                          </Button>
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-8 w-8 text-muted-foreground hover:text-primary"
-                            title="Resetar todos os usuários deste perfil para este padrão"
+                            className="h-7 w-7 text-muted-foreground hover:text-primary"
+                            title="Resetar usuários deste perfil"
                             onClick={async () => {
                               const usersToReset = combinedUsers.filter(u => u.permission_level === role && u.view_restrictions !== null);
                               if (usersToReset.length === 0) {
-                                toast({ title: "Nenhum usuário com restrição customizada encontrada para este perfil" });
+                                toast({ title: "Nenhum usuário com restrição customizada" });
                                 return;
                               }
                               
@@ -841,22 +871,22 @@ export default function UsersPage() {
                                 .eq('permission_level', role);
                               
                               if (!error) {
-                                toast({ title: `${usersToReset.length} usuários resetados para o padrão` });
+                                toast({ title: `${usersToReset.length} usuários resetados` });
                                 refetch();
                               }
                             }}
                           >
-                            <RefreshCw className="h-4 w-4" />
+                            <RefreshCw className="h-3.5 w-3.5" />
                           </Button>
-                          <Badge variant="outline">{allowedUnits.length} unidades</Badge>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-1.5 max-h-[180px] overflow-y-auto pr-1">
                         {UNITS.map(unit => (
-                          <div key={unit} className="flex items-center justify-between p-2 border rounded-md bg-background/50">
-                            <Label htmlFor={`role-${role}-${unit}`} className="text-sm cursor-pointer font-medium">{unit}</Label>
+                          <div key={unit} className="flex items-center justify-between p-1.5 border rounded-md bg-background/50 hover:bg-accent/50 transition-colors">
+                            <Label htmlFor={`role-${role}-${unit}`} className="text-[11px] cursor-pointer font-medium truncate flex-1">{unit}</Label>
                             <Switch 
                               id={`role-${role}-${unit}`}
+                              className="scale-[0.7] origin-right"
                               checked={allowedUnits.includes(unit)}
                               onCheckedChange={(checked) => {
                                 const newUnits = checked 
@@ -1310,6 +1340,35 @@ export default function UsersPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowApprovalConfirm(null)}>Cancelar</Button>
             <Button onClick={() => handleApprove(showApprovalConfirm?.req)}>Confirmar Aprovação</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Role toggle confirmation dialog */}
+      <Dialog open={showRoleToggleConfirm !== null} onOpenChange={(v) => { if (!v) setShowRoleToggleConfirm(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-warning" />
+              Confirmar Alteração de Restrição
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              {showRoleToggleConfirm === true 
+                ? "Ao habilitar a restrição por perfil, todos os usuários passarão a ver apenas as unidades definidas por padrão para seus cargos. Isso afeta a visibilidade global do sistema imediatamente."
+                : "Ao desabilitar a restrição por perfil, todos os usuários voltarão a ver todas as unidades do sistema. Deseja prosseguir?"
+              }
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRoleToggleConfirm(null)}>Cancelar</Button>
+            <Button onClick={() => {
+              updateConfig.mutate({ key: 'enable_role_based_view', value: showRoleToggleConfirm });
+              setShowRoleToggleConfirm(null);
+            }}>
+              Confirmar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
