@@ -211,19 +211,19 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
                 <Select value={filterUnit} onValueChange={setFilterUnit}>
-                  <SelectTrigger className="h-10 w-[130px] shadow-sm bg-background"><SelectValue placeholder="Unidade" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Unidades</SelectItem>
-                    {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Status" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Status</SelectItem>
-                    {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <SelectTrigger className="h-10 w-[130px] shadow-sm bg-background"><SelectValue placeholder="Unidade" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as Unidades</SelectItem>
+                  {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Status</SelectItem>
+                  {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
                 
                 <Button 
                   variant={conflictOnly ? 'destructive' : 'outline'} 
@@ -306,13 +306,13 @@ export default function Dashboard() {
       </div>
 
 
-      {/* Timeline da Semana Atual */}
+      {/* Timeline da Semana */}
       <Card>
         <CardContent className="p-4 sm:p-5">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">Timeline da Semana Atual</h2>
+              <h2 className="text-sm font-semibold text-foreground">Timeline da Semana</h2>
             </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               {UNITS.map(u => (

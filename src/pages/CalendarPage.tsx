@@ -273,14 +273,14 @@ export default function CalendarPage() {
                 <Select value={filterUnit} onValueChange={setFilterUnit}>
                   <SelectTrigger className="h-10 w-[130px] shadow-sm bg-background"><SelectValue placeholder="Unidade" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Unidades</SelectItem>
+                    <SelectItem value="all">Todas as Unidades</SelectItem>
                     {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger className="h-10 w-[110px] shadow-sm bg-background"><SelectValue placeholder="Status" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Status</SelectItem>
+                    <SelectItem value="all">Todos os Status</SelectItem>
                     {EVENT_STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
                   </SelectContent>
                 </Select>
