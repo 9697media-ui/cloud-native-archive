@@ -438,9 +438,12 @@ export default function UsersPage() {
     if (req.requested_role === 'admin') {
       level = 'admin_geral';
       unit = 'Evento Geral do Grupo';
-    } else if (req.requested_role === 'editor') {
+    } else if (req.requested_role === 'criador') {
       level = 'gestor_unidade';
-      unit = req.requested_unit || 'DIC'; // Fallback para uma unidade específica
+      unit = req.requested_unit || 'DIC';
+    } else if (req.requested_role === 'editor') {
+      level = 'editor';
+      unit = req.requested_unit || 'DIC';
     }
     
     try {
