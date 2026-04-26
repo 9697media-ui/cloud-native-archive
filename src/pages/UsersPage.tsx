@@ -1611,6 +1611,7 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <PageGuide activeTab={activeTab} />
     </div>
   );
 }
