@@ -27,7 +27,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
 export default function AuditPage() {
-  const { isManager, isAdmin, unit: userUnit, delegatedUnits } = useUserRole();
+  const { isManager, isAdmin, unit: userUnit, delegatedUnits, canViewAuditoria } = useUserRole();
   const [filterUnit, setFilterUnit] = useState<string>(isAdmin ? 'all' : (userUnit || 'all'));
   const [searchTerm, setSearchTerm] = useState('');
 
