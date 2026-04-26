@@ -71,7 +71,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
         end_datetime: formatDate(event.end_datetime),
       });
     } else {
-      setForm(emptyEvent());
+      setForm({ ...emptyEvent(), unit: (unit as Unit) || 'DIC' });
     }
     setConflicts([]);
     setShowConflictAlert(false);
