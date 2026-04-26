@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 import { UNITS } from '@/types';
 import PageHeader from '@/components/PageHeader';
-
+import PageGuide from '@/components/PageGuide';
 import { History, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -167,7 +167,7 @@ export default function AuditPage() {
           </div>
         </CardContent>
       </Card>
-      
+      <PageGuide />
     </div>
   );
 }
