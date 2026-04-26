@@ -132,7 +132,7 @@ export default function AppLayout() {
 
             <Link to={`/${location.search}`} className="flex items-center gap-2.5 shrink-0 group transition-all active:scale-95">
               <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-all" />
-              <span className={cn("text-xl leading-none text-foreground tracking-tighter lowercase", isMobile ? "inline" : "hidden sm:inline")} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 500 }}>
+              <span className={cn("text-xl leading-none text-foreground tracking-tighter lowercase", isMobile ? "inline" : "hidden sm:inline")} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
                 anabrasil
               </span>
             </Link>
