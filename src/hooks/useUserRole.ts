@@ -67,7 +67,7 @@ export function useUserRole() {
       // Also check profile for permission_level and name
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('permission_level, name, is_active, view_restrictions')
+        .select('permission_level, name, is_active, view_restrictions, unit')
         .eq('user_id', user.id)
         .maybeSingle();
       
