@@ -315,14 +315,6 @@ export default function Dashboard() {
               <Clock className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold text-foreground">Timeline da Semana Atual</h2>
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              {UNITS.map(u => (
-                <div key={u} className="flex items-center gap-1.5">
-                  <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                  <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
-                </div>
-              ))}
-            </div>
           </div>
           {weekEvents.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento nesta semana</p>
