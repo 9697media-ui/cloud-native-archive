@@ -1563,6 +1563,93 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Pre-register dialog */}
+      <Dialog open={showPreRegister} onOpenChange={setShowPreRegister}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-primary" />
+              Pré-cadastro de Usuário
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="pre-name">Nome Completo</Label>
+              <Input 
+                id="pre-name" 
+                placeholder="Ex: João Silva" 
+                value={preRegisterForm.name} 
+                onChange={e => setPreRegisterForm({ ...preRegisterForm, name: e.target.value })} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pre-email">E-mail</Label>
+              <Input 
+                id="pre-email" 
+                type="email" 
+                placeholder="exemplo@email.com" 
+                value={preRegisterForm.email} 
+                onChange={e => setPreRegisterForm({ ...preRegisterForm, email: e.target.value })} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pre-password">Senha Provisória</Label>
+              <Input 
+                id="pre-password" 
+                type="text" 
+                placeholder="Mínimo 6 caracteres" 
+                value={preRegisterForm.password} 
+                onChange={e => setPreRegisterForm({ ...preRegisterForm, password: e.target.value })} 
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Informe esta senha ao usuário. Ele poderá alterá-la depois.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Nível de Acesso</Label>
+                <Select 
+                  value={preRegisterForm.permission_level} 
+                  onValueChange={v => {
+                    const newLevel = v as any;
+                    let newUnit = preRegisterForm.unit;
+                    if (newLevel === 'admin_geral') newUnit = 'Evento Geral do Grupo';
+                    else if (newLevel === 'gestor_unidade' && newUnit === 'Evento Geral do Grupo') newUnit = 'DIC';
+                    setPreRegisterForm({ ...preRegisterForm, permission_level: newLevel, unit: newUnit });
+                  }}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PERMISSION_LEVELS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Unidade</Label>
+                <Select 
+                  disabled={preRegisterForm.permission_level === 'admin_geral'}
+                  value={preRegisterForm.unit} 
+                  onValueChange={v => setPreRegisterForm({ ...preRegisterForm, unit: v as any })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {UNITS.filter(u => {
+                      if (preRegisterForm.permission_level === 'gestor_unidade') return u !== 'Evento Geral do Grupo';
+                      return true;
+                    }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPreRegister(false)} disabled={preRegisterSubmitting}>Cancelar</Button>
+            <Button onClick={handlePreRegister} disabled={preRegisterSubmitting}>
+              {preRegisterSubmitting ? 'Cadastrando...' : 'Finalizar Cadastro'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
