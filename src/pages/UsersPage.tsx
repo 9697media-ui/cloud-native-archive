@@ -934,6 +934,7 @@ export default function UsersPage() {
                       </span>
                     </div>
                   </div>
+                </div>
 
                 <Card className="bg-muted/30 border-dashed">
                   <CardHeader className="py-4">
