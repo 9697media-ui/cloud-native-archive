@@ -249,7 +249,7 @@ export default function Dashboard() {
                 />
               </div>
 
-              {canEdit && (
+              {canCreate && (
                 <Button 
                   onClick={() => setShowNewEvent(true)} 
                   className="gap-2 h-10 shadow-sm"
