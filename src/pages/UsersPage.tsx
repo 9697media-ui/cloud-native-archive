@@ -681,7 +681,23 @@ export default function UsersPage() {
                 <span className="sm:hidden">Novo</span>
               </Button>
             )}
-            {/* Tabs removidas para unificar conteúdo no rodapé */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
+              <TabsList className="h-10">
+                <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
+                {isAdmin && (
+                  <TabsTrigger value="view-configs" className="gap-1.5 h-8">
+                    <Eye className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Visualização</span>
+                  </TabsTrigger>
+                )}
+                {isAdmin && (
+                  <TabsTrigger value="embed" className="gap-1.5 h-8">
+                    <Code2 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Embed</span>
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            </Tabs>
 
             <div className="flex items-center gap-2">
               <div className="relative w-40 sm:w-64">
@@ -698,8 +714,9 @@ export default function UsersPage() {
         }
       />
 
-      <div className="space-y-8">
-        <div className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+
+        <TabsContent value="users" className="space-y-6">
           {isAdmin && (
             <BulkActionBar
               type="users"
@@ -865,36 +882,21 @@ export default function UsersPage() {
               )}
             </div>
           )}
-        </div>
+        </TabsContent>
 
         {isAdmin && (
-          <Card className="border-t-4 border-t-primary shadow-lg overflow-hidden mt-12 mb-8">
-            <CardHeader className="bg-muted/30 pb-4">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <UserCog className="h-6 w-6 text-primary" />
-                Configurações do Sistema e Visualização
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Gerencie permissões globais, restrições individuais e integrações.
-              </p>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Tabs defaultValue="visualizacao" className="w-full">
-                <div className="border-b px-6 pt-2 bg-muted/10">
-                  <TabsList className="h-10">
-                    <TabsTrigger value="visualizacao" className="gap-2">
-                      <ShieldCheck className="h-4 w-4" /> Visualização por Perfil
-                    </TabsTrigger>
-                    <TabsTrigger value="personalizado" className="gap-2">
-                      <Search className="h-4 w-4" /> Restrições Personalizadas
-                    </TabsTrigger>
-                    <TabsTrigger value="embed" className="gap-2">
-                      <Code2 className="h-4 w-4" /> Links Embed
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-
-                <TabsContent value="visualizacao" className="p-6 space-y-6">
+          <TabsContent value="view-configs" className="mt-4 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ShieldCheck className="h-5 w-5 text-primary" />
+                  Configuração de Visualização por Perfil
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Defina quais unidades cada tipo de usuário pode visualizar por padrão.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
                 <div className={`p-4 rounded-lg border transition-all duration-200 ${
                   configs?.enable_role_based_view 
                     ? "bg-primary/5 border-primary/20 shadow-sm" 
@@ -1122,10 +1124,32 @@ export default function UsersPage() {
                     </div>
                   ))}
                 </div>
-                </TabsContent>
+              </CardContent>
+            </Card>
 
-                <TabsContent value="personalizado" className="p-6 space-y-6">
-                  <div className={`space-y-6 transition-opacity duration-300 ${configs?.enable_role_based_view ? "opacity-50 pointer-events-none grayscale-[0.5]" : ""}`}>
+            <Card className={configs?.enable_role_based_view ? "border-primary/20 bg-muted/5" : ""}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Search className="h-5 w-5 text-primary" />
+                      Restrições Personalizadas
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {configs?.enable_role_based_view 
+                        ? "As restrições individuais estão desabilitadas pois o Sistema por Cargo está ativo." 
+                        : "Busque um usuário para definir restrições específicas ou veja quem já possui configurações customizadas."}
+                    </p>
+                  </div>
+                  {configs?.enable_role_based_view && (
+                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 gap-1.5 py-1 px-3">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      Sistema por Cargo Ativo
+                    </Badge>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className={`space-y-6 transition-opacity duration-300 ${configs?.enable_role_based_view ? "opacity-50 pointer-events-none grayscale-[0.5]" : ""}`}>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input 
@@ -1262,98 +1286,118 @@ export default function UsersPage() {
                       <p className="text-xs text-muted-foreground text-center col-span-full py-4">Nenhum usuário com restrições customizadas.</p>
                     )}
                   </div>
+                </div>
+          </CardContent>
+        </Card>
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="embed" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Code2 className="h-5 w-5 text-primary" />
+                Links e Códigos Embed
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Use estes links para incorporar páginas em sites externos.
+              </p>
+              {window.location.origin.includes('-preview--') && (
+                <Alert className="bg-primary/5 border-primary/10">
+                  <Eye className="h-4 w-4 text-primary" />
+                  <AlertTitle className="text-primary text-xs font-semibold">Nota de Publicação</AlertTitle>
+                  <AlertDescription className="text-muted-foreground text-[11px]">
+                    Detectamos que você está no ambiente de visualização. Os links abaixo já foram 
+                    ajustados para usar o domínio público <strong>r2-vault-craft.lovable.app</strong> para que 
+                    não peçam login do Lovable ao serem incorporados.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
+                    <Label htmlFor="show-header" className="text-sm font-medium cursor-pointer">Habilitar Cabeçalho e Menu</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-11">
+                    Exibe a barra de navegação superior e links de acesso.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
+                    <Label htmlFor="show-title" className="text-sm font-medium cursor-pointer">Habilitar Título da Página</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-11">
+                    Exibe o título principal no topo do conteúdo.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
+                    <Label htmlFor="hide-login" className="text-sm font-medium cursor-pointer">Ocultar Botão de Login</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-11">
+                    Remove o botão de login para visualização externa segura.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
+                    <Label htmlFor="hide-footer" className="text-sm font-medium cursor-pointer">Ocultar Rodapé</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-11">
+                    Remove o rodapé do Lovable da página.
+                  </p>
+                </div>
+              </div>
+              {EMBED_PAGES.map((page, idx) => (
+                <div key={idx} className="rounded-lg border border-border p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-foreground">{page.name}</h3>
+                    <Badge variant="outline" className="text-xs">{page.path}</Badge>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Link direto</Label>
+                    <div className="flex items-center gap-2">
+                      <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-muted/50" />
+                      <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyLink(idx, page.path)}>
+                        {copiedIdx === 100 + idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Código embed (iframe)</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        readOnly
+                        value={getEmbedCode(page.path)}
+                        className="font-mono text-xs bg-muted/50"
+                      />
+                      <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyEmbed(idx, page.path)} title="Copiar embed">
+                        {copiedIdx === idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                      <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyFixedEmbed(idx, page.path)} title="Copiar embed tela cheia">
+                        {copiedIdx === 200 + idx ? <Check className="h-4 w-4 text-primary" /> : <RefreshCw className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Use <RefreshCw className="h-3 w-3 inline" /> para gerar embed que ocupa 100% da tela.
+                    </p>
                   </div>
                 </div>
-                </TabsContent>
-
-                <TabsContent value="embed" className="p-6 space-y-6">
-                  <div className="space-y-1 mb-4">
-                    <p className="text-sm text-muted-foreground">
-                      Use estes links para incorporar páginas em sites externos.
-                    </p>
-                    {window.location.origin.includes('-preview--') && (
-                      <Alert className="bg-primary/5 border-primary/10 mt-2">
-                        <Eye className="h-4 w-4 text-primary" />
-                        <AlertTitle className="text-primary text-xs font-semibold">Nota de Publicação</AlertTitle>
-                        <AlertDescription className="text-muted-foreground text-[11px]">
-                          Detectamos que você está no ambiente de visualização. Os links abaixo já foram 
-                          ajustados para usar o domínio público para que não peçam login do Lovable.
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-6 border-b">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <Switch id="show-header" checked={!hideHeader} onCheckedChange={(v) => setHideHeader(!v)} />
-                        <Label htmlFor="show-header" className="text-sm font-medium cursor-pointer">Habilitar Cabeçalho e Menu</Label>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <Switch id="show-title" checked={!hideTitle} onCheckedChange={(v) => setHideTitle(!v)} />
-                        <Label htmlFor="show-title" className="text-sm font-medium cursor-pointer">Habilitar Título da Página</Label>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <Switch id="hide-login" checked={hideLogin} onCheckedChange={setHideLogin} />
-                        <Label htmlFor="hide-login" className="text-sm font-medium cursor-pointer">Ocultar Botão de Login</Label>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <Switch id="hide-footer" checked={hideFooter} onCheckedChange={setHideFooter} />
-                        <Label htmlFor="hide-footer" className="text-sm font-medium cursor-pointer">Ocultar Rodapé</Label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 mt-6">
-                    {EMBED_PAGES.map((page, idx) => (
-                      <div key={idx} className="rounded-lg border border-border p-4 space-y-3 bg-muted/20">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-medium text-foreground">{page.name}</h3>
-                          <Badge variant="outline" className="text-xs">{page.path}</Badge>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label className="text-xs text-muted-foreground">Link direto</Label>
-                          <div className="flex items-center gap-2">
-                            <Input readOnly value={getUrl(page.path)} className="font-mono text-xs bg-background" />
-                            <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyLink(idx, page.path)}>
-                              {copiedIdx === 100 + idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label className="text-xs text-muted-foreground">Código embed (iframe)</Label>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              readOnly
-                              value={getEmbedCode(page.path)}
-                              className="font-mono text-xs bg-background"
-                            />
-                            <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyEmbed(idx, page.path)} title="Copiar embed">
-                              {copiedIdx === idx ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-                            </Button>
-                            <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleCopyFixedEmbed(idx, page.path)} title="Copiar embed tela cheia">
-                              {copiedIdx === 200 + idx ? <Check className="h-4 w-4 text-primary" /> : <RefreshCw className="h-4 w-4" />}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </TabsContent>
-              </Tabs>
+              ))}
             </CardContent>
           </Card>
-        )}
-      </div>
+        </TabsContent>
+      )}
+    </Tabs>
 
       {/* Edit dialog */}
       <Dialog open={showEdit} onOpenChange={(v) => { setShowEdit(v); if (!v) setSelectedUser(null); }}>
