@@ -1157,8 +1157,8 @@ export default function UsersPage() {
           </TabsContent>
         )}
 
-        {isAdmin && (
-          <TabsContent value="embed" className="mt-4">
+        <TabsContent value="embed" className="mt-4">
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
