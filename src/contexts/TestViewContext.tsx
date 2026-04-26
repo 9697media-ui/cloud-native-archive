@@ -5,7 +5,7 @@ export type TestPersona = {
   id: string;
   name: string;
   email: string;
-  permission_level: 'admin_geral' | 'gestor_unidade' | 'usuario_padrao' | 'visualizador';
+  permission_level: 'admin_geral' | 'diretor' | 'gestor_unidade' | 'coordenador' | 'analista' | 'usuario_padrao' | 'assistente' | 'estagiario' | 'visualizador';
   role: 'admin' | 'editor' | 'viewer' | null;
   unit: string;
   is_active: boolean;
