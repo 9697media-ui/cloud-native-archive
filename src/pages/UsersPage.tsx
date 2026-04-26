@@ -1343,6 +1343,35 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Role toggle confirmation dialog */}
+      <Dialog open={showRoleToggleConfirm !== null} onOpenChange={(v) => { if (!v) setShowRoleToggleConfirm(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-warning" />
+              Confirmar Alteração de Restrição
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              {showRoleToggleConfirm === true 
+                ? "Ao habilitar a restrição por perfil, todos os usuários passarão a ver apenas as unidades definidas por padrão para seus cargos. Isso afeta a visibilidade global do sistema imediatamente."
+                : "Ao desabilitar a restrição por perfil, todos os usuários voltarão a ver todas as unidades do sistema. Deseja prosseguir?"
+              }
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRoleToggleConfirm(null)}>Cancelar</Button>
+            <Button onClick={() => {
+              updateConfig.mutate({ key: 'enable_role_based_view', value: showRoleToggleConfirm });
+              setShowRoleToggleConfirm(null);
+            }}>
+              Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
