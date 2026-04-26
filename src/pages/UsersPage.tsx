@@ -630,15 +630,14 @@ export default function UsersPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
 
         <TabsContent value="users" className="space-y-6">
-          {isAdmin && (
-            <BulkActionBar
-              type="users"
-              count={selectedUsers.size}
-              onClearSelection={() => setSelectedUsers(new Set())}
-              onDelete={handleBulkDeleteUsers}
-              onToggleActive={handleBulkToggleActive}
-            />
-          )}
+          <BulkActionBar
+            type="users"
+            count={selectedUsers.size}
+            onClearSelection={() => setSelectedUsers(new Set())}
+            onDelete={handleBulkDeleteUsers}
+            onToggleActive={handleBulkToggleActive}
+          />
+
 
           <div className="space-y-4">
             <button
