@@ -268,13 +268,17 @@ export default function CalendarPage() {
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center gap-3">
-        <Button variant="outline" size="icon" onClick={prev}><ChevronLeft className="h-4 w-4" /></Button>
+      <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-xl border border-border/50">
+        <div className="flex items-center gap-1">
+          <Button variant="outline" size="icon" onClick={prev} className="h-9 w-9 shadow-sm"><ChevronLeft className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={next} className="h-9 w-9 shadow-sm"><ChevronRight className="h-4 w-4" /></Button>
+        </div>
+        
         <Popover>
           <PopoverTrigger asChild>
-            <button className="flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 hover:bg-accent transition-colors border border-transparent hover:border-border min-w-[200px]">
-              <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-              <span className="text-sm font-semibold capitalize text-foreground">
+            <button className="flex items-center justify-center gap-2 rounded-lg px-4 py-2 hover:bg-accent transition-all border border-transparent hover:border-border min-w-[220px]">
+              <CalendarIcon className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-sm font-bold capitalize text-foreground">
                 {view === 'week'
                   ? `${format(weekStart, 'dd MMM', { locale: ptBR })} - ${format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}`
                   : format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
@@ -292,8 +296,8 @@ export default function CalendarPage() {
             />
           </PopoverContent>
         </Popover>
-        <Button variant="outline" size="icon" onClick={next}><ChevronRight className="h-4 w-4" /></Button>
-        <Button variant="outline" size="sm" onClick={() => setSelectedMonth(new Date())}>Hoje</Button>
+
+        <Button variant="ghost" size="sm" onClick={() => setSelectedMonth(new Date())} className="ml-auto font-medium">Hoje</Button>
       </div>
 
       {/* Month view */}
