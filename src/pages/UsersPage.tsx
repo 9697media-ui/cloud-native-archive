@@ -705,10 +705,12 @@ export default function UsersPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="users" className="space-y-4 mt-4">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Buscar usuário..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+        <TabsContent value="users" className="space-y-6 mt-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full sm:max-w-md">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Buscar usuário por nome ou email..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10 shadow-sm" />
+            </div>
           </div>
 
           {isAdmin && (
