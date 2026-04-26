@@ -70,7 +70,11 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
         { title: 'Confirmado', content: 'Evento validado e pronto para realização.', color: 'bg-green-500' },
         { title: 'Pendente', content: 'Aguardando aprovação ou detalhes finais.', color: 'bg-amber-500' },
         { title: 'Conflito', content: 'Horários sobrepostos em uma mesma unidade.', color: 'bg-destructive' },
-        { title: 'Marketing', content: 'Eventos que possuem solicitação de cobertura.', color: 'bg-blue-500' }
+        { title: 'Marketing', content: 'Eventos que possuem solicitação de cobertura.', color: 'bg-blue-500' },
+        { title: 'DIC', content: 'Unidade DIC do grupo.', color: 'bg-unit-dic' },
+        { title: 'Nilópolis', content: 'Unidade Nilópolis do grupo.', color: 'bg-unit-nilopolis' },
+        { title: 'Santana', content: 'Unidade Santana do grupo.', color: 'bg-unit-santana' },
+        { title: 'Evento Geral', content: 'Evento que abrange todas as unidades do grupo.', color: 'bg-unit-geral' }
       ]
     }
   },
