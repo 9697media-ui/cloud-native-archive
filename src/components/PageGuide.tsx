@@ -186,7 +186,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
     }
     },
     'embed': {
-      title: 'Integração e Embed',
+      title: 'Guia de Integração e Embed',
       description: 'Incorpore o calendário em portais externos ou intranets.',
       sections: [
         {
