@@ -210,7 +210,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
     }
   },
   '/auditoria': {
-    title: 'Logs de Auditoria',
+    title: 'Guia da Auditoria',
     description: 'Rastreabilidade completa de todas as ações importantes no sistema.',
     sections: [
       {
