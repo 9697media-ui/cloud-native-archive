@@ -161,7 +161,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
     }
     },
     'view-configs': {
-      title: 'Configurações de Visualização',
+      title: 'Guia de Configurações de Visualização',
       description: 'Personalize as restrições de acesso padrão por cargo.',
       sections: [
         {
