@@ -164,14 +164,7 @@ export default function AppLayout() {
                     </Button>
                   )}
                 </>
-              ) : (
-                <Link to="/login">
-                  <Button variant="outline" size="sm" className="gap-1.5">
-                    <LogIn className="h-4 w-4" />
-                    <span className="hidden sm:inline">Login Admin</span>
-                  </Button>
-                </Link>
-              )}
+              ) : null}
             </div>
           </div>
         </header>
@@ -228,6 +221,7 @@ export default function AppLayout() {
                 variant="default" 
                 size="icon" 
                 className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 border-2 border-primary-foreground/20"
+                title="Login Admin"
               >
                 <LogIn className="h-7 w-7" />
               </Button>
