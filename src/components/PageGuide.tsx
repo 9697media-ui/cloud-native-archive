@@ -136,7 +136,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
   },
   '/usuarios': {
     'users': {
-      title: 'Gerenciamento de Usuários',
+      title: 'Guia de Usuários',
       description: 'Administre o acesso e as permissões de todos os colaboradores.',
       sections: [
         {
@@ -161,7 +161,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
     }
     },
     'view-configs': {
-      title: 'Configurações de Visualização',
+      title: 'Guia de Configurações de Visualização',
       description: 'Personalize as restrições de acesso padrão por cargo.',
       sections: [
         {
@@ -186,7 +186,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
     }
     },
     'embed': {
-      title: 'Integração e Embed',
+      title: 'Guia de Integração e Embed',
       description: 'Incorpore o calendário em portais externos ou intranets.',
       sections: [
         {
@@ -210,7 +210,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
     }
   },
   '/auditoria': {
-    title: 'Logs de Auditoria',
+    title: 'Guia da Auditoria',
     description: 'Rastreabilidade completa de todas as ações importantes no sistema.',
     sections: [
       {

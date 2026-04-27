@@ -949,7 +949,7 @@ export default function UsersPage() {
                         <Clock className="h-5 w-5 text-primary" />
                       </div>
                       <div className="flex flex-col items-start">
-                        <span className="font-semibold text-foreground">Legenda e Funcionamento do Sistema</span>
+                        <span className="font-semibold text-foreground">Guia das Configurações de Visualização</span>
                         <span className="text-xs text-muted-foreground">
                           Clique para ver como funciona o sistema de restrições e os níveis de permissão
                         </span>
