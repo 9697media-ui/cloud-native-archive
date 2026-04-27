@@ -151,7 +151,6 @@ export default function AppLayout() {
             )}
 
             <div className="flex items-center gap-3 shrink-0 ml-auto">
-              <TestModeTrigger />
               {isAuthenticated ? (
                 <>
                   <div className="flex flex-col items-end hidden md:flex">
