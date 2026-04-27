@@ -77,7 +77,7 @@ export function TestViewProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [activePersona, setActivePersonaState] = useState<TestPersona | null>(null);
 
-  const canUseTestMode = !user || (!!user?.email && ALLOWED_TESTERS.includes(user.email));
+  const canUseTestMode = !!user?.email && ALLOWED_TESTERS.includes(user.email);
 
   // Load persona from sessionStorage on mount / user change
   useEffect(() => {
