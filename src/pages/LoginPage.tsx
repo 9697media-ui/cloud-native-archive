@@ -11,6 +11,7 @@ import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction,
 } from '@/components/ui/alert-dialog';
+import { TestModeTrigger } from '@/components/TestModeBanner';
 import { UNITS, Unit } from '@/types';
 
 export default function LoginPage() {
