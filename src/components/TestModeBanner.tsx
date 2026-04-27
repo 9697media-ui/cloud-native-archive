@@ -84,7 +84,7 @@ export default function TestModeBanner() {
 }
 
 // Standalone trigger button to put in the header
-export function TestModeTrigger() {
+export function TestModeTrigger({ floating = false }: { floating?: boolean }) {
   const { canUseTestMode, activePersona, setActivePersona } = useTestView();
 
   if (!canUseTestMode || activePersona) return null;
@@ -96,6 +96,35 @@ export function TestModeTrigger() {
       toast.success(`Visualizando como ${persona.name}`);
     }
   };
+
+  if (floating) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="secondary" 
+            size="icon" 
+            className="h-14 w-14 rounded-full shadow-2xl border-2 border-primary/20 hover:bg-secondary/90 transition-transform active:scale-95"
+            title="Modo Teste"
+          >
+            <FlaskConical className="h-7 w-7 text-primary" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" side="top" className="w-64 mb-2">
+          <DropdownMenuLabel>Visualizar como (modo teste)</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {TEST_PERSONAS.map(p => (
+            <DropdownMenuItem key={p.id} onClick={() => handleSelect(p.id)}>
+              <div className="flex flex-col">
+                <span className="font-medium">{p.name}</span>
+                <span className="text-xs text-muted-foreground">{p.permission_level} · {p.unit}</span>
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
   return (
     <DropdownMenu>
