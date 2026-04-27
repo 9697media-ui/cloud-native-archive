@@ -11,6 +11,7 @@ import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction,
 } from '@/components/ui/alert-dialog';
+import { TestModeTrigger } from '@/components/TestModeBanner';
 import { UNITS, Unit } from '@/types';
 
 export default function LoginPage() {
@@ -273,6 +274,10 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
+      
+      <div className="fixed bottom-6 right-6 z-[60]">
+        <TestModeTrigger floating />
+      </div>
     </div>
     </>
   );
