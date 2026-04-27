@@ -136,7 +136,7 @@ const GUIDES: Record<string, GuideContent | Record<string, GuideContent>> = {
   },
   '/usuarios': {
     'users': {
-      title: 'Gerenciamento de Usuários',
+      title: 'Guia de Usuários',
       description: 'Administre o acesso e as permissões de todos os colaboradores.',
       sections: [
         {
