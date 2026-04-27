@@ -189,7 +189,7 @@ export default function AppLayout() {
           "fixed bottom-6 right-6 z-[60] duration-500 flex items-center gap-3",
           isFirstRender && "animate-in fade-in slide-in-from-bottom-4"
         )}>
-          {!isAuthenticated && <TestModeTrigger floating />}
+          <TestModeTrigger floating />
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
