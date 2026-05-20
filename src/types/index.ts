@@ -18,6 +18,7 @@ export interface AppEvent {
   end_datetime: string;
   location: string;
   status: EventStatus;
+  visibility: 'publico' | 'interno';
   has_conflict: boolean;
   created_by: string;
   updated_by?: string;

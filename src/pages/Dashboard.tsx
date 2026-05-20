@@ -7,7 +7,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AppEvent, EventStatus, UNITS, EVENT_STATUSES, Unit } from '@/types';
-import { CalendarDays, CheckCircle2, Clock, AlertCircle, Plus, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Camera, Handshake, Search, LayoutGrid, List, Calendar as CalendarIcon } from 'lucide-react';
+import { CalendarDays, CheckCircle2, Clock, AlertCircle, Plus, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Camera, Handshake, Search, LayoutGrid, List, Calendar as CalendarIcon, Globe, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -330,8 +330,15 @@ export default function Dashboard() {
               {weekEvents.slice(0, 6).map(e => (
                 <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
                   <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
-                    <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                    <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
+                      {e.visibility === 'publico' ? (
+                        <Globe className="h-3 w-3 text-info shrink-0" />
+                      ) : (
+                        <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+                      )}
+                      <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
+                    </div>
                     <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
                       <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
                         {format(new Date(e.start_datetime), 'dd/MM HH:mm')}

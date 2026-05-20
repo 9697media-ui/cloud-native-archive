@@ -6,7 +6,7 @@ import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash2, Megaphone, Users, Paperclip } from 'lucide-react';
+import { Pencil, Trash2, Megaphone, Users, Paperclip, Globe, Lock } from 'lucide-react';
 
 const unitBadgeColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic text-primary-foreground',
@@ -41,6 +41,17 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
           <div className="flex flex-wrap gap-2">
             <Badge className={unitBadgeColors[event.unit]}>{event.unit}</Badge>
             <Badge variant="outline" className={`capitalize ${statusClass}`}>{event.status}</Badge>
+            <Badge variant="secondary" className="gap-1.5 py-0.5">
+              {event.visibility === 'publico' ? (
+                <>
+                  <Globe className="h-3 w-3" /> Público
+                </>
+              ) : (
+                <>
+                  <Lock className="h-3 w-3" /> Interno
+                </>
+              )}
+            </Badge>
           </div>
 
           {/* Details */}
