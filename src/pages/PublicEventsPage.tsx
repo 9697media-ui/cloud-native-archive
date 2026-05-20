@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useFilteredEvents } from '@/hooks/useFilteredEvents';
-import { AppEvent, UNIT_BG_COLORS, UNIT_COLORS } from '@/types';
+import { AppEvent, UNIT_BG_COLORS } from '@/types';
 import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
