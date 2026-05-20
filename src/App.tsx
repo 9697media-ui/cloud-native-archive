@@ -12,6 +12,7 @@ import CalendarPage from "./pages/CalendarPage";
 import UsersPage from "./pages/UsersPage";
 import AuditPage from "./pages/AuditPage";
 import LoginPage from "./pages/LoginPage";
+import PublicEventsPage from "./pages/PublicEventsPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
@@ -48,10 +49,15 @@ const App = () => (
                 <Route path="/login" element={
                   <AuthRedirect><LoginPage /></AuthRedirect>
                 } />
+                <Route path="/eventos" element={<PublicEventsPage />} />
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route element={<AppLayout />}>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/calendario" element={<CalendarPage />} />
+                  <Route path="/" element={
+                    <ProtectedRoute><Dashboard /></ProtectedRoute>
+                  } />
+                  <Route path="/calendario" element={
+                    <ProtectedRoute><CalendarPage /></ProtectedRoute>
+                  } />
                   <Route path="/usuarios" element={
                     <ProtectedRoute><UsersPage /></ProtectedRoute>
                   } />
