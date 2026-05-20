@@ -31,6 +31,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   end_datetime: '',
   location: '',
   status: 'pendente',
+  visibility: 'interno',
   notes: '',
   marketing_request: false,
   partner_involved: false,
@@ -104,6 +105,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       end_datetime: new Date(form.end_datetime!).toISOString(),
       location: form.location!.trim(),
       status: form.status as EventStatus,
+      visibility: (form.visibility as 'publico' | 'interno') || 'interno',
       has_conflict: false,
       created_by: event?.created_by || userName || 'Usuário',
       updated_by: isEditing ? (userName || 'Usuário') : undefined,
@@ -157,6 +159,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       end_datetime: new Date(form.end_datetime!).toISOString(),
       location: form.location!.trim(),
       status: form.status as EventStatus,
+      visibility: (form.visibility as 'publico' | 'interno') || 'interno',
       has_conflict: true,
       created_by: event?.created_by || userName || 'Usuário',
       updated_by: isEditing ? (userName || 'Usuário') : undefined,
@@ -281,6 +284,19 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label>Visibilidade</Label>
+              <div className="flex items-center gap-3 rounded-lg border border-border p-3 mt-1">
+                <Switch
+                  id="visibility"
+                  checked={form.visibility === 'publico'}
+                  onCheckedChange={v => setForm({ ...form, visibility: v ? 'publico' : 'interno' })}
+                />
+                <Label htmlFor="visibility" className="cursor-pointer flex-1">
+                  {form.visibility === 'publico' ? 'Público (Visível para todos)' : 'Interno (Apenas para equipe)'}
+                </Label>
+              </div>
             </div>
             <div>
               <Label>Observações internas</Label>
