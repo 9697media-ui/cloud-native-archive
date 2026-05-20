@@ -33,7 +33,9 @@ export const mockEvents: AppEvent[] = [
     has_unit_collaboration: false,
     collaborating_units: [],
     external_collaborators: [],
-    attachments: []
+    attachments: [],
+    banner_url_desktop: 'https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&q=80&w=2070',
+    banner_url_mobile: 'https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&q=80&w=1080&h=1440',
   },
   {
     id: 'e2',
