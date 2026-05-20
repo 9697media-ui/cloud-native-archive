@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN custom_color TEXT;
