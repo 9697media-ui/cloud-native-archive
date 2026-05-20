@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useFilteredEvents } from '@/hooks/useFilteredEvents';
-import { AppEvent, UNIT_BG_COLORS } from '@/types';
-import { CalendarDays, MapPin, Clock, Search, ExternalLink } from 'lucide-react';
+import { AppEvent, UNIT_BG_COLORS, UNIT_COLORS } from '@/types';
+import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PageHeader from '@/components/PageHeader';
@@ -13,6 +14,7 @@ import { Link } from 'react-router-dom';
 
 export default function PublicEventsPage() {
   const [search, setSearch] = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
   // Only confirmed events for public view
   const events = useFilteredEvents(true);
 
