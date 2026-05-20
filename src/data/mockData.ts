@@ -87,7 +87,9 @@ export const mockEvents: AppEvent[] = [
     has_unit_collaboration: true,
     collaborating_units: ['DIC', 'Santana'],
     external_collaborators: ['Universidade Federal'],
-    attachments: []
+    attachments: [],
+    banner_url_desktop: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=2070',
+    banner_url_mobile: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=1080&h=1440',
   },
   {
     id: 'e4',
