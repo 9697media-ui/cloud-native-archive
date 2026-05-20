@@ -35,6 +35,8 @@ export interface AppEvent {
   collaborating_units: Unit[];
   external_collaborators: string[];
   attachments: string[]; // URLs of uploaded files
+  banner_url_desktop?: string;
+  banner_url_mobile?: string;
 }
 
 export interface AppUser {
