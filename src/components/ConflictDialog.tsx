@@ -7,7 +7,7 @@ import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Maximize2 } from 'lucide-react';
+import { AlertTriangle, Maximize2, Globe, Lock } from 'lucide-react';
 
 const unitDotColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic',
@@ -84,6 +84,11 @@ export default function ConflictDialog({ events, selectedMonth, open, onOpenChan
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${unitDotColors[e.unit]}`} />
+                          {e.visibility === 'publico' ? (
+                            <Globe className="h-3 w-3 text-info shrink-0" />
+                          ) : (
+                            <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+                          )}
                           <p className="font-medium text-foreground truncate">{e.title}</p>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
