@@ -69,38 +69,54 @@ export function FileUpload({ attachments = [], url = '', onChange, mode = 'multi
 
   return (
     <div className="space-y-3">
-      <Label className="text-sm font-medium">Anexos</Label>
+      <Label className="text-sm font-medium">{label}</Label>
       
-      <div className="flex flex-wrap gap-2">
-        {attachments.map((url, idx) => (
-          <div 
-            key={idx} 
-            className="flex items-center gap-2 bg-muted/50 border border-border rounded-md px-3 py-1.5 text-xs group"
+      {mode === 'multiple' && (
+        <div className="flex flex-wrap gap-2">
+          {attachments.map((url, idx) => (
+            <div 
+              key={idx} 
+              className="flex items-center gap-2 bg-muted/50 border border-border rounded-md px-3 py-1.5 text-xs group"
+            >
+              <Paperclip className="h-3 w-3 text-muted-foreground" />
+              <a 
+                href={url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="max-w-[150px] truncate hover:underline text-foreground"
+              >
+                Anexo {idx + 1}
+              </a>
+              <button
+                type="button"
+                onClick={() => removeAttachment(url)}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {mode === 'single' && url && (
+        <div className="relative aspect-video rounded-lg overflow-hidden border border-border group">
+          <img src={url} alt="Preview" className="w-full h-full object-cover" />
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
           >
-            <Paperclip className="h-3 w-3 text-muted-foreground" />
-            <a 
-              href={url} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="max-w-[150px] truncate hover:underline text-foreground"
-            >
-              Anexo {idx + 1}
-            </a>
-            <button
-              type="button"
-              onClick={() => removeAttachment(url)}
-              className="text-muted-foreground hover:text-destructive"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </div>
-        ))}
-      </div>
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       <div className="relative">
         <Input
           type="file"
-          multiple
+          multiple={mode === 'multiple'}
+          accept="image/*"
           onChange={handleFileChange}
           disabled={isUploading}
           className="cursor-pointer"
