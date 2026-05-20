@@ -2,14 +2,18 @@ import { useMemo } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useViewConfigs } from '@/hooks/useViewConfigs';
-import { AppEvent } from '@/types';
 
-export function useFilteredEvents() {
+export function useFilteredEvents(isPublicView: boolean = false) {
   const { events } = useApp();
   const { viewRestrictions, permissionLevel, isAdmin } = useUserRole();
   const { configs } = useViewConfigs();
 
   const filteredEvents = useMemo(() => {
+    // Se for visão pública, aplica filtro simplificado
+    if (isPublicView) {
+      return events.filter(event => event.status === 'confirmado');
+    }
+
     // Admins sempre veem tudo
     if (isAdmin) return events;
 
@@ -18,7 +22,6 @@ export function useFilteredEvents() {
 
     if (configs?.enable_role_based_view) {
       // 1. MODO CARGO ATIVO: O padrão do cargo tem precedência TOTAL e ignora personalizações individuais
-      // Isso garante conformidade com a regra do sistema
       if (permissionLevel && configs?.role_defaults?.[permissionLevel]) {
         allowedUnits = configs.role_defaults[permissionLevel];
       } else {
@@ -39,7 +42,7 @@ export function useFilteredEvents() {
 
     // Filtra os eventos pelas unidades permitidas
     return events.filter(event => allowedUnits.includes(event.unit));
-  }, [events, viewRestrictions, permissionLevel, configs, isAdmin]);
+  }, [events, viewRestrictions, permissionLevel, configs, isAdmin, isPublicView]);
 
   return filteredEvents;
 }

@@ -1,0 +1,135 @@
+import { useMemo, useState } from 'react';
+import { useFilteredEvents } from '@/hooks/useFilteredEvents';
+import { AppEvent, UNIT_BG_COLORS } from '@/types';
+import { CalendarDays, MapPin, Clock, Search, ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import PageHeader from '@/components/PageHeader';
+import logoImg from '@/assets/logo.png';
+import { Link } from 'react-router-dom';
+
+export default function PublicEventsPage() {
+  const [search, setSearch] = useState('');
+  // Only confirmed events for public view
+  const events = useFilteredEvents(true);
+
+  const filtered = useMemo(() => {
+    const searchTerm = search.toLowerCase().trim();
+    if (!searchTerm) return events;
+
+    return events.filter(e => 
+      e.title.toLowerCase().includes(searchTerm) || 
+      (e.location || '').toLowerCase().includes(searchTerm) ||
+      (e.description || '').toLowerCase().includes(searchTerm)
+    );
+  }, [events, search]);
+
+  // Sort by date (nearest first)
+  const sortedEvents = useMemo(() => {
+    return [...filtered].sort((a, b) => 
+      new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime()
+    );
+  }, [filtered]);
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl" />
+            <h1 className="text-xl font-bold tracking-tighter lowercase text-slate-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+              anabrasil eventos
+            </h1>
+          </div>
+          <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors flex items-center gap-1">
+            Área Restrita <ExternalLink className="h-3 w-3" />
+          </Link>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="mb-8">
+          <PageHeader 
+            title="Programação de Eventos" 
+            description="Confira os próximos eventos confirmados em todas as nossas unidades."
+          />
+          
+          <div className="mt-6 relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input 
+              placeholder="Buscar por título, local ou descrição..." 
+              className="pl-10 h-12 shadow-sm border-slate-200 focus-visible:ring-primary bg-white"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {sortedEvents.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
+            <CalendarDays className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900">Nenhum evento encontrado</h3>
+            <p className="text-slate-500">Tente ajustar sua busca ou volte mais tarde.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedEvents.map(event => (
+              <Card key={event.id} className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col">
+                <div className={`h-2 ${UNIT_BG_COLORS[event.unit]}`} />
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start mb-2">
+                    <Badge variant="secondary" className="font-semibold text-[10px] uppercase tracking-wider">
+                      {event.unit}
+                    </Badge>
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium">
+                      Confirmado
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-xl line-clamp-2 leading-tight text-slate-900">{event.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-1">
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-2">
+                      <CalendarDays className="h-4 w-4 text-slate-400 shrink-0" />
+                      <span>{format(new Date(event.start_datetime), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-slate-400 shrink-0" />
+                      <span>
+                        {format(new Date(event.start_datetime), 'HH:mm')} às {format(new Date(event.end_datetime), 'HH:mm')}
+                      </span>
+                    </div>
+                    {event.location && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
+                        <span className="line-clamp-1">{event.location}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {event.description && (
+                    <p className="text-sm text-slate-500 line-clamp-3 italic border-t border-slate-100 pt-4">
+                      "{event.description}"
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </main>
+
+      <footer className="bg-white border-t border-slate-200 py-12 px-6 mt-12">
+        <div className="max-w-7xl mx-auto text-center">
+          <img src={logoImg} alt="anabrasil" className="h-8 w-8 rounded-lg mx-auto mb-4 opacity-50 grayscale" />
+          <p className="text-slate-400 text-sm">
+            © {new Date().getFullYear()} anabrasil. Todos os direitos reservados.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}

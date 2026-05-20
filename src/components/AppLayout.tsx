@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -31,8 +31,9 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
-  { to: '/calendario', label: 'Calendário', icon: Calendar },
+  { to: '/', label: 'Visão Geral', icon: LayoutDashboard, requireAuth: true },
+  { to: '/calendario', label: 'Calendário', icon: Calendar, requireAuth: true },
+  { to: '/eventos', label: 'Página Pública', icon: Globe },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
   { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, auditoriaOnly: true },
 ];
