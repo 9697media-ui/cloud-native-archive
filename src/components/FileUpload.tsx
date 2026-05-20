@@ -7,8 +7,11 @@ import { Loader2, Paperclip, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
-  attachments: string[];
-  onChange: (attachments: string[]) => void;
+  attachments?: string[];
+  url?: string;
+  onChange: (value: any) => void;
+  mode?: 'multiple' | 'single';
+  label?: string;
 }
 
 export function FileUpload({ attachments, onChange }: Props) {
