@@ -179,6 +179,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       collaborating_units: form.collaborating_units || [],
       external_collaborators: form.external_collaborators || [],
       attachments: form.attachments || [],
+      banner_url_desktop: form.banner_url_desktop || '',
+      banner_url_mobile: form.banner_url_mobile || '',
     };
 
     // Mark all conflicting events as well
