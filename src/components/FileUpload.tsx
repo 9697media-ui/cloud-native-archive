@@ -41,17 +41,24 @@ export function FileUpload({ attachments = [], url = '', onChange, mode = 'multi
           .from('event-attachments')
           .getPublicUrl(data.path);
 
-        newAttachments.push(publicUrl);
+        if (mode === 'single') {
+          onChange(publicUrl);
+          toast.success('Upload realizado com sucesso!');
+          break; // Only one file for single mode
+        } else {
+          newAttachments.push(publicUrl);
+        }
       }
 
-      onChange(newAttachments);
-      toast.success('Arquivos enviados com sucesso!');
+      if (mode === 'multiple') {
+        onChange(newAttachments);
+        toast.success('Arquivos enviados com sucesso!');
+      }
     } catch (error: any) {
       console.error('Error uploading file:', error);
       toast.error(`Erro no upload: ${error.message}`);
     } finally {
       setIsUploading(false);
-      // Reset input
       e.target.value = '';
     }
   };
