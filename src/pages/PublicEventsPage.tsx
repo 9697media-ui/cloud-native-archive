@@ -171,18 +171,33 @@ export default function PublicEventsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedEvents.map(event => (
-              <Card key={event.id} className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col">
-                <div className={`h-2 ${UNIT_BG_COLORS[event.unit]}`} />
+              <Card key={event.id} className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group">
+                <div className="relative aspect-video overflow-hidden bg-slate-100">
+                  {event.banner_url_desktop || event.banner_url_mobile ? (
+                    <img 
+                      src={event.banner_url_desktop || event.banner_url_mobile} 
+                      alt={event.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
+                      <CalendarDays className="h-10 w-10 opacity-20" />
+                    </div>
+                  )}
+                  <div className={`absolute top-0 left-0 h-1 w-full ${UNIT_BG_COLORS[event.unit]}`} />
+                  <Badge className={`absolute top-3 left-3 ${UNIT_BG_COLORS[event.unit]} text-white border-none shadow-sm`}>
+                    {event.unit}
+                  </Badge>
+                </div>
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
-                    <Badge variant="secondary" className="font-semibold text-[10px] uppercase tracking-wider">
-                      {event.unit}
-                    </Badge>
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium">
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium text-[10px]">
                       Confirmado
                     </Badge>
                   </div>
-                  <CardTitle className="text-xl line-clamp-2 leading-tight text-slate-900">{event.title}</CardTitle>
+                  <CardTitle className="text-xl line-clamp-2 leading-tight text-slate-900 group-hover:text-primary transition-colors">
+                    {event.title}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-1">
                   <div className="space-y-2 text-sm text-slate-600">
