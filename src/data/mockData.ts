@@ -33,7 +33,9 @@ export const mockEvents: AppEvent[] = [
     has_unit_collaboration: false,
     collaborating_units: [],
     external_collaborators: [],
-    attachments: []
+    attachments: [],
+    banner_url_desktop: 'https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&q=80&w=2070',
+    banner_url_mobile: 'https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&q=80&w=1080&h=1440',
   },
   {
     id: 'e2',
@@ -85,7 +87,9 @@ export const mockEvents: AppEvent[] = [
     has_unit_collaboration: true,
     collaborating_units: ['DIC', 'Santana'],
     external_collaborators: ['Universidade Federal'],
-    attachments: []
+    attachments: [],
+    banner_url_desktop: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=2070',
+    banner_url_mobile: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=1080&h=1440',
   },
   {
     id: 'e4',
@@ -137,7 +141,9 @@ export const mockEvents: AppEvent[] = [
     has_unit_collaboration: false,
     collaborating_units: [],
     external_collaborators: [],
-    attachments: []
+    attachments: [],
+    banner_url_desktop: 'https://images.unsplash.com/photo-1531058021387-32369520b77b?auto=format&fit=crop&q=80&w=2070',
+    banner_url_mobile: 'https://images.unsplash.com/photo-1531058021387-32369520b77b?auto=format&fit=crop&q=80&w=1080&h=1440',
   },
   {
     id: 'e6',

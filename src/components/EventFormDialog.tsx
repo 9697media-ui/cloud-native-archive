@@ -42,6 +42,8 @@ const emptyEvent = (): Partial<AppEvent> => ({
   collaborating_units: [],
   external_collaborators: [],
   attachments: [],
+  banner_url_desktop: '',
+  banner_url_mobile: '',
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -121,6 +123,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       collaborating_units: form.collaborating_units || [],
       external_collaborators: form.external_collaborators || [],
       attachments: form.attachments || [],
+      banner_url_desktop: form.banner_url_desktop || '',
+      banner_url_mobile: form.banner_url_mobile || '',
     };
 
     const found = detectConflicts(fullEvent);
@@ -175,6 +179,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       collaborating_units: form.collaborating_units || [],
       external_collaborators: form.external_collaborators || [],
       attachments: form.attachments || [],
+      banner_url_desktop: form.banner_url_desktop || '',
+      banner_url_mobile: form.banner_url_mobile || '',
     };
 
     // Mark all conflicting events as well
@@ -298,6 +304,31 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 </Label>
               </div>
             </div>
+            {form.visibility === 'publico' && (
+              <div className="space-y-3 rounded-lg border border-border p-3 bg-muted/20">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Banners para Página Pública</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="banner_desktop">Capa Desktop/Tablet (16:9)</Label>
+                  <Input 
+                    id="banner_desktop"
+                    value={form.banner_url_desktop} 
+                    onChange={e => setForm({ ...form, banner_url_desktop: e.target.value })} 
+                    placeholder="URL da imagem (ex: 1920x1080)" 
+                  />
+                  <p className="text-[10px] text-muted-foreground">HD, FHD ou UHD recomendado.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="banner_mobile">Capa Mobile (4:3)</Label>
+                  <Input 
+                    id="banner_mobile"
+                    value={form.banner_url_mobile} 
+                    onChange={e => setForm({ ...form, banner_url_mobile: e.target.value })} 
+                    placeholder="URL da imagem (ex: 1080x1440)" 
+                  />
+                  <p className="text-[10px] text-muted-foreground">1080x1440 recomendado.</p>
+                </div>
+              </div>
+            )}
             <div>
               <Label>Observações internas</Label>
               <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Notas internas..." rows={2} />

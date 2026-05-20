@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { AppEvent, UNIT_BG_COLORS } from '@/types';
-import { CalendarDays, MapPin, Clock, Search, ExternalLink } from 'lucide-react';
+import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PageHeader from '@/components/PageHeader';
@@ -13,6 +14,7 @@ import { Link } from 'react-router-dom';
 
 export default function PublicEventsPage() {
   const [search, setSearch] = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
   // Only confirmed events for public view
   const events = useFilteredEvents(true);
 
@@ -34,6 +36,23 @@ export default function PublicEventsPage() {
     );
   }, [filtered]);
 
+  const bannerEvents = useMemo(() => {
+    return events.filter(e => e.banner_url_desktop || e.banner_url_mobile);
+  }, [events]);
+
+  useEffect(() => {
+    if (bannerEvents.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % bannerEvents.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [bannerEvents.length]);
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % bannerEvents.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + bannerEvents.length) % bannerEvents.length);
+
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10">
@@ -49,6 +68,81 @@ export default function PublicEventsPage() {
           </Link>
         </div>
       </header>
+
+      {bannerEvents.length > 0 && (
+        <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden bg-slate-900">
+          {bannerEvents.map((event, index) => (
+            <div 
+              key={event.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+            >
+              {/* Desktop Banner (16:9) */}
+              <img 
+                src={event.banner_url_desktop || event.banner_url_mobile} 
+                alt={event.title}
+                className="hidden md:block w-full h-full object-cover opacity-60"
+              />
+              {/* Mobile Banner (4:3) */}
+              <img 
+                src={event.banner_url_mobile || event.banner_url_desktop} 
+                alt={event.title}
+                className="block md:hidden w-full h-full object-cover opacity-60"
+              />
+              
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
+              
+              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto">
+                <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none mb-4`}>
+                  {event.unit}
+                </Badge>
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 max-w-2xl leading-tight">
+                  {event.title}
+                </h2>
+                <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="h-5 w-5" />
+                    <span>{format(new Date(event.start_datetime), "dd 'de' MMMM", { locale: ptBR })}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    <span>{event.location}</span>
+                  </div>
+                </div>
+                <Button size="lg" className="rounded-full px-8 shadow-xl">
+                  Saber mais
+                </Button>
+              </div>
+            </div>
+          ))}
+
+          {bannerEvents.length > 1 && (
+            <>
+              <button 
+                onClick={prevSlide}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all z-20"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <button 
+                onClick={nextSlide}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all z-20"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+              
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                {bannerEvents.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentSlide(i)}
+                    className={`h-1.5 transition-all rounded-full ${i === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/30'}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      )}
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-8">
