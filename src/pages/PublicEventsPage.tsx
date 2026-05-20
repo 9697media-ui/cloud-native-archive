@@ -36,6 +36,23 @@ export default function PublicEventsPage() {
     );
   }, [filtered]);
 
+  const bannerEvents = useMemo(() => {
+    return events.filter(e => e.banner_url_desktop || e.banner_url_mobile);
+  }, [events]);
+
+  useEffect(() => {
+    if (bannerEvents.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % bannerEvents.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [bannerEvents.length]);
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % bannerEvents.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + bannerEvents.length) % bannerEvents.length);
+
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10">
