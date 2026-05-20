@@ -305,28 +305,24 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
               </div>
             </div>
             {form.visibility === 'publico' && (
-              <div className="space-y-3 rounded-lg border border-border p-3 bg-muted/20">
+              <div className="space-y-4 rounded-lg border border-border p-3 bg-muted/20">
                 <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Banners para Página Pública</Label>
-                <div className="space-y-2">
-                  <Label htmlFor="banner_desktop">Capa Desktop/Tablet (16:9)</Label>
-                  <Input 
-                    id="banner_desktop"
-                    value={form.banner_url_desktop} 
-                    onChange={e => setForm({ ...form, banner_url_desktop: e.target.value })} 
-                    placeholder="URL da imagem (ex: 1920x1080)" 
-                  />
-                  <p className="text-[10px] text-muted-foreground">HD, FHD ou UHD recomendado.</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="banner_mobile">Capa Mobile (4:3)</Label>
-                  <Input 
-                    id="banner_mobile"
-                    value={form.banner_url_mobile} 
-                    onChange={e => setForm({ ...form, banner_url_mobile: e.target.value })} 
-                    placeholder="URL da imagem (ex: 1080x1440)" 
-                  />
-                  <p className="text-[10px] text-muted-foreground">1080x1440 recomendado.</p>
-                </div>
+                
+                <FileUpload 
+                  label="Capa Desktop/Tablet (16:9)"
+                  mode="single"
+                  url={form.banner_url_desktop}
+                  onChange={(url) => setForm({ ...form, banner_url_desktop: url })}
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">HD, FHD ou UHD recomendado.</p>
+
+                <FileUpload 
+                  label="Capa Mobile (4:3)"
+                  mode="single"
+                  url={form.banner_url_mobile}
+                  onChange={(url) => setForm({ ...form, banner_url_mobile: url })}
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">1080x1440 recomendado.</p>
               </div>
             )}
             <div>
