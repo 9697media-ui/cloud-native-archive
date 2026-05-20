@@ -42,6 +42,8 @@ const emptyEvent = (): Partial<AppEvent> => ({
   collaborating_units: [],
   external_collaborators: [],
   attachments: [],
+  banner_url_desktop: '',
+  banner_url_mobile: '',
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
