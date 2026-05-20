@@ -11,7 +11,7 @@ export function useFilteredEvents(isPublicView: boolean = false) {
   const filteredEvents = useMemo(() => {
     // Se for visão pública, aplica filtro simplificado
     if (isPublicView) {
-      return events.filter(event => event.status === 'confirmado');
+      return events.filter(event => event.status === 'confirmado' && event.visibility === 'publico');
     }
 
     // Admins sempre veem tudo

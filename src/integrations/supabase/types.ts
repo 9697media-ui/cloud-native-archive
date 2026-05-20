@@ -119,6 +119,7 @@ export type Database = {
           unit: string
           updated_at: string
           updated_by: string | null
+          visibility: string | null
         }
         Insert: {
           attachments?: Json | null
@@ -146,6 +147,7 @@ export type Database = {
           unit: string
           updated_at?: string
           updated_by?: string | null
+          visibility?: string | null
         }
         Update: {
           attachments?: Json | null
@@ -173,6 +175,7 @@ export type Database = {
           unit?: string
           updated_at?: string
           updated_by?: string | null
+          visibility?: string | null
         }
         Relationships: []
       }
