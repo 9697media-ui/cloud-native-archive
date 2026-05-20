@@ -101,7 +101,7 @@ export default function AppLayout() {
       {!hideHeaderParam && <TestModeBanner />}
       {!hideHeaderParam && (
         <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
-          <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-8">
+          <div className="flex h-16 w-full items-center gap-4 px-4 lg:px-8">
             {isMobile && (
               <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                 <SheetTrigger asChild>
@@ -172,7 +172,7 @@ export default function AppLayout() {
 
       <main className={cn(
         "flex-1 overflow-auto p-4",
-        !isCleanView && "lg:p-8 mx-auto w-full max-w-7xl"
+        !isCleanView && "lg:p-8 mx-auto w-full"
       )}>
         <Outlet />
       </main>
