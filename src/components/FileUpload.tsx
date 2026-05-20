@@ -14,7 +14,7 @@ interface Props {
   label?: string;
 }
 
-export function FileUpload({ attachments, onChange }: Props) {
+export function FileUpload({ attachments = [], url = '', onChange, mode = 'multiple', label = 'Anexos' }: Props) {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
