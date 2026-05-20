@@ -333,9 +333,9 @@ export default function Dashboard() {
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
                       {e.visibility === 'publico' ? (
-                        <Globe className="h-3 w-3 text-info shrink-0" title="Evento Público" />
+                        <Globe className="h-3 w-3 text-info shrink-0" />
                       ) : (
-                        <Lock className="h-3 w-3 text-muted-foreground shrink-0" title="Evento Interno" />
+                        <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
                       )}
                       <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
                     </div>
