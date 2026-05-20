@@ -100,6 +100,7 @@ export type Database = {
           collaborating_units: Json | null
           created_at: string
           created_by: string | null
+          custom_color: string | null
           description: string | null
           end_datetime: string
           event_type: string
@@ -130,6 +131,7 @@ export type Database = {
           collaborating_units?: Json | null
           created_at?: string
           created_by?: string | null
+          custom_color?: string | null
           description?: string | null
           end_datetime: string
           event_type: string
@@ -160,6 +162,7 @@ export type Database = {
           collaborating_units?: Json | null
           created_at?: string
           created_by?: string | null
+          custom_color?: string | null
           description?: string | null
           end_datetime?: string
           event_type?: string

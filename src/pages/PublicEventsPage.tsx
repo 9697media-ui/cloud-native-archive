@@ -180,8 +180,11 @@ export default function PublicEventsPage() {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
-                      <CalendarDays className="h-10 w-10 opacity-20" />
+                    <div 
+                      className="w-full h-full flex items-center justify-center text-white/50"
+                      style={{ backgroundColor: event.custom_color || '#94a3b8' }}
+                    >
+                      <CalendarDays className="h-12 w-12 opacity-30" />
                     </div>
                   )}
                   <div className={`absolute top-0 left-0 h-1 w-full ${UNIT_BG_COLORS[event.unit]}`} />
