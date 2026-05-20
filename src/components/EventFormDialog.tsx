@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApp } from '@/contexts/AppContext';
 import { useUserRole } from '@/hooks/useUserRole';
-import { AppEvent, UNITS, EVENT_TYPES, EVENT_STATUSES, PARTNER_TYPES, Unit, EventType, EventStatus, PartnerType } from '@/types';
+import { AppEvent, UNITS, EVENT_TYPES, EVENT_STATUSES, PARTNER_TYPES, Unit, EventType, EventStatus, PartnerType, SYSTEM_COLORS } from '@/types';
 import { getStatusDotClass } from '@/lib/statusColors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   attachments: [],
   banner_url_desktop: '',
   banner_url_mobile: '',
+  custom_color: SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -125,6 +126,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       attachments: form.attachments || [],
       banner_url_desktop: form.banner_url_desktop || '',
       banner_url_mobile: form.banner_url_mobile || '',
+      custom_color: form.custom_color || SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
     };
 
     const found = detectConflicts(fullEvent);
@@ -181,6 +183,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       attachments: form.attachments || [],
       banner_url_desktop: form.banner_url_desktop || '',
       banner_url_mobile: form.banner_url_mobile || '',
+      custom_color: form.custom_color || SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
     };
 
     // Mark all conflicting events as well
@@ -323,6 +326,21 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   onChange={(url) => setForm({ ...form, banner_url_mobile: url })}
                 />
                 <p className="text-[10px] text-muted-foreground mt-1">1080x1440 recomendado.</p>
+
+                <div className="pt-2">
+                  <Label className="text-xs mb-2 block">Cor do Card (caso não tenha capa)</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {SYSTEM_COLORS.map(color => (
+                      <button
+                        key={color}
+                        type="button"
+                        className={`h-6 w-6 rounded-full border border-white/20 transition-transform ${form.custom_color === color ? 'scale-125 ring-2 ring-primary ring-offset-2 ring-offset-background' : 'hover:scale-110'}`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => setForm({ ...form, custom_color: color })}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
             <div>
