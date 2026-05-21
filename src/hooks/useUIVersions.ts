@@ -156,7 +156,7 @@ export function useUIVersions() {
   };
 
   // Determine if the user should see the Beta UI
-  const showBetaUI = isBetaTester || isAdmin;
+  const showBetaUI = betaEnabled;
 
   return {
     currentVersion,
@@ -167,6 +167,8 @@ export function useUIVersions() {
     setActiveBeta,
     promoteVersionToProduction,
     showBetaUI,
+    betaEligible,
+    toggleBeta,
     refresh: fetchConfig,
   };
 }
