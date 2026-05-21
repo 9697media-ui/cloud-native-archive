@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, X, CheckSquare } from 'lucide-react';
+import { Trash2, X, CheckSquare, Rocket } from 'lucide-react';
 import { EventStatus, EVENT_STATUSES } from '@/types';
 
 interface BulkEventActionBarProps {
@@ -17,7 +17,9 @@ interface BulkUserActionBarProps {
   onClearSelection: () => void;
   onDelete: () => void;
   onToggleActive: (active: boolean) => void;
+  onToggleBeta?: (beta: boolean) => void;
 }
+
 
 type BulkActionBarProps = BulkEventActionBarProps | BulkUserActionBarProps;
 
@@ -55,7 +57,15 @@ export default function BulkActionBar(props: BulkActionBarProps) {
             <Button size="sm" variant="outline" className="flex-1 h-9 text-xs sm:h-8 sm:px-3" onClick={() => (props as BulkUserActionBarProps).onToggleActive(true)}>
               Ativar
             </Button>
+            <Button size="sm" variant="outline" className="flex-1 h-9 text-xs sm:h-8 sm:px-3 gap-1.5" onClick={() => (props as BulkUserActionBarProps).onToggleBeta?.(true)}>
+              <Rocket className="h-3.5 w-3.5 text-primary" />
+              Beta ON
+            </Button>
+            <Button size="sm" variant="outline" className="flex-1 h-9 text-xs sm:h-8 sm:px-3" onClick={() => (props as BulkUserActionBarProps).onToggleBeta?.(false)}>
+              Beta OFF
+            </Button>
           </div>
+
         )}
 
         <Button size="sm" variant="destructive" className="h-9 text-xs gap-1 sm:h-8" onClick={props.onDelete}>
