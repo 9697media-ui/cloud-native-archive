@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CalendarDays, MapPin, Clock, Share2, X, Instagram, MessageCircle, Copy, Megaphone, CheckCircle2 } from 'lucide-react';
 import { AppEvent, UNIT_BG_COLORS } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function EventDetailDialog({ open, onOpenChange, event }: Props) {
+  const { user } = useAuth();
   if (!event) return null;
 
   const eventUrl = `${window.location.origin}/eventos?slug=${event.slug || event.id}`;
@@ -173,7 +175,7 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                 </div>
               )}
 
-              {event.marketing_request && (
+              {event.marketing_request && user && (
                 <div className="pt-6 border-t border-slate-100 space-y-4">
                   <div className="flex items-center gap-2">
                     <Megaphone className="h-5 w-5 text-blue-500" />
