@@ -178,7 +178,7 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                 </div>
               )}
 
-              {event.marketing_request && user && (
+              {event.marketing_request && isInternalView && (
                 <div className="pt-6 border-t border-slate-100 space-y-4">
                   <div className="flex items-center gap-2">
                     <Megaphone className="h-5 w-5 text-blue-500" />
