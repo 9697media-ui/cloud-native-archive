@@ -306,14 +306,30 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
+                  <div className="relative group">
                     <Label className="text-sm font-semibold mb-1.5 block">Início *</Label>
-                    <Input type="datetime-local" value={form.start_datetime} onChange={e => setForm({ ...form, start_datetime: e.target.value })} />
+                    <div className="relative">
+                      <Input 
+                        type="datetime-local" 
+                        value={form.start_datetime} 
+                        onChange={e => setForm({ ...form, start_datetime: e.target.value })}
+                        className="pl-10 pr-4 h-11 border-border focus-visible:ring-primary/20 focus-visible:border-primary transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
+                    </div>
                     {errors.start_datetime && <p className="mt-1 text-xs text-destructive">{errors.start_datetime}</p>}
                   </div>
-                  <div>
+                  <div className="relative group">
                     <Label className="text-sm font-semibold mb-1.5 block">Término *</Label>
-                    <Input type="datetime-local" value={form.end_datetime} onChange={e => setForm({ ...form, end_datetime: e.target.value })} />
+                    <div className="relative">
+                      <Input 
+                        type="datetime-local" 
+                        value={form.end_datetime} 
+                        onChange={e => setForm({ ...form, end_datetime: e.target.value })}
+                        className="pl-10 pr-4 h-11 border-border focus-visible:ring-primary/20 focus-visible:border-primary transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
+                    </div>
                     {errors.end_datetime && <p className="mt-1 text-xs text-destructive">{errors.end_datetime}</p>}
                   </div>
                 </div>
