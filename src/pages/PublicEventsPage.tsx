@@ -76,23 +76,33 @@ export default function PublicEventsPage() {
 
   const bannerEvents = useMemo(() => {
     // Show confirmed events that are in banner, sorted by start date
-    // For regular users, only show those with show_in_banner = true
-    // For admins, show ALL but push disabled ones to the end
+    // For regular users, only show those with show_in_banner = true AND not yet passed
+    // For admins, show ALL but push disabled or passed ones to the end
     const confirmedEvents = events;
+    const now = new Date();
+    // Reset hours to compare only date if needed, but usually banner should hide as soon as it starts or finishes.
+    // The requirement is "eventos que já acontece automaticamente oculte do banner" (events already happening or past).
+    // Let's hide events whose start date is before now (meaning they started or are in the past).
     
     if (isAdmin) {
       return [...confirmedEvents].sort((a, b) => {
-        // First priority: show_in_banner status
-        if (a.show_in_banner && !b.show_in_banner) return -1;
-        if (!a.show_in_banner && b.show_in_banner) return 1;
+        const aStarted = new Date(a.start_datetime) < now;
+        const bStarted = new Date(b.start_datetime) < now;
+
+        // First priority: show_in_banner status AND not started
+        const aActive = a.show_in_banner && !aStarted;
+        const bActive = b.show_in_banner && !bStarted;
+
+        if (aActive && !bActive) return -1;
+        if (!aActive && bActive) return 1;
         
-        // Second priority: start date (even if hidden)
+        // Second priority: start date
         return new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime();
       });
     }
 
     return confirmedEvents
-      .filter(e => e.show_in_banner)
+      .filter(e => e.show_in_banner && new Date(e.start_datetime) >= now)
       .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
   }, [events, isAdmin]);
 
