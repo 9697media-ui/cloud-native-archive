@@ -277,17 +277,17 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <Label>Título *</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Título *</Label>
                   <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Nome do evento" />
                   {errors.title && <p className="mt-1 text-xs text-destructive">{errors.title}</p>}
                 </div>
                 <div>
-                  <Label>Descrição</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Descrição</Label>
                   <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Descrição do evento" rows={2} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label>Unidade *</Label>
+                    <Label className="text-sm font-semibold mb-1.5 block">Unidade *</Label>
                     <Select value={form.unit} onValueChange={v => setForm({ ...form, unit: v as Unit })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -296,7 +296,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     </Select>
                   </div>
                   <div>
-                    <Label>Tipo *</Label>
+                    <Label className="text-sm font-semibold mb-1.5 block">Tipo *</Label>
                     <Select value={form.event_type} onValueChange={v => setForm({ ...form, event_type: v as EventType })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -307,31 +307,31 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label>Início *</Label>
+                    <Label className="text-sm font-semibold mb-1.5 block">Início *</Label>
                     <Input type="datetime-local" value={form.start_datetime} onChange={e => setForm({ ...form, start_datetime: e.target.value })} />
                     {errors.start_datetime && <p className="mt-1 text-xs text-destructive">{errors.start_datetime}</p>}
                   </div>
                   <div>
-                    <Label>Término *</Label>
+                    <Label className="text-sm font-semibold mb-1.5 block">Término *</Label>
                     <Input type="datetime-local" value={form.end_datetime} onChange={e => setForm({ ...form, end_datetime: e.target.value })} />
                     {errors.end_datetime && <p className="mt-1 text-xs text-destructive">{errors.end_datetime}</p>}
                   </div>
                 </div>
                 <div>
-                  <Label>Localização *</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Localização *</Label>
                   <Input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder="Local do evento" />
                   {errors.location && <p className="mt-1 text-xs text-destructive">{errors.location}</p>}
                 </div>
 
                 {isAdmin && (
                   <div className="space-y-4 border-t pt-4">
-                    <Label className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-primary" /> Configurações de Compartilhamento (Publico)
+                    <Label className="flex items-center gap-2 text-sm font-semibold text-primary">
+                      <Globe className="h-4 w-4" /> Configurações de Compartilhamento (Público)
                     </Label>
                     <div>
-                      <Label htmlFor="slug" className="text-xs">Link Personalizado (Slug)</Label>
+                      <Label htmlFor="slug" className="text-xs font-medium mb-1 block">Link personalizado (Slug)</Label>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-muted-foreground">anabrasil.com/eventos/</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">anabrasil.com/eventos/</span>
                         <Input 
                           id="slug"
                           value={form.slug} 
@@ -339,13 +339,13 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                           placeholder="meu-evento-especial"
                         />
                       </div>
-                      <p className="text-[10px] text-muted-foreground mt-1">Deixe em branco para usar o ID padrão.</p>
+                      <p className="text-[11px] text-muted-foreground mt-1">Deixe em branco para usar o ID padrão.</p>
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <Label>Status</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Status</Label>
                   <Select value={form.status} onValueChange={v => setForm({ ...form, status: v as EventStatus })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -360,7 +360,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     </SelectContent>
                   </Select>
                   {form.status === 'concluido' && (
-                    <p className="text-[10px] text-muted-foreground mt-1 italic">
+                    <p className="text-[11px] text-muted-foreground mt-1 italic">
                       Este evento será mantido no histórico como concluído.
                     </p>
                   )}
@@ -392,7 +392,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     >
                       <Lock className={`h-6 w-6 mb-2 ${form.visibility === 'interno' ? 'text-primary' : 'text-muted-foreground'}`} />
                       <span className="text-sm font-bold">Privado / Interno</span>
-                      <span className="text-[10px] opacity-70">Apenas para equipe</span>
+                      <span className="text-[11px] opacity-70">Apenas para equipe</span>
                     </button>
                     
                     <button
@@ -406,7 +406,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     >
                       <Globe className={`h-6 w-6 mb-2 ${form.visibility === 'publico' ? 'text-blue-500' : 'text-muted-foreground'}`} />
                       <span className="text-sm font-bold">Público / Site</span>
-                      <span className="text-[10px] opacity-70">Visível para todos</span>
+                      <span className="text-[11px] opacity-70">Visível para todos</span>
                     </button>
                   </div>
                 </div>
@@ -416,15 +416,15 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     <div className="flex justify-between items-center border-b border-blue-100 pb-3">
                       <div className="flex items-center gap-2">
                         <Share2 className="h-4 w-4 text-blue-600" />
-                        <Label className="text-sm font-bold text-blue-800 uppercase tracking-wider">Checklist de Publicação</Label>
+                        <Label className="text-sm font-semibold text-blue-800 uppercase tracking-wider">Checklist de publicação</Label>
                       </div>
                       {!isAdmin && <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-600 border-amber-200">Apenas Admin</Badge>}
                     </div>
                     
                     <div className="flex items-center justify-between gap-3 p-2 bg-primary/5 rounded-md border border-primary/10">
                       <div className="flex flex-col">
-                        <Label htmlFor="show_in_banner" className="text-sm font-medium">Exibir no Banner Superior</Label>
-                        <p className="text-[10px] text-muted-foreground">Destacar no carrossel da página pública.</p>
+                        <Label htmlFor="show_in_banner" className="text-sm font-semibold text-slate-900">Exibir no banner superior</Label>
+                        <p className="text-[11px] text-muted-foreground">Destacar no carrossel da página pública.</p>
                       </div>
                       <Switch
                         id="show_in_banner"
@@ -436,8 +436,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
-                        <Label htmlFor="use_logo_as_title" className="text-sm font-medium">Usar Logo como Título</Label>
-                        <p className="text-[10px] text-muted-foreground">Estilo streaming: substitui o texto por uma imagem da logo.</p>
+                        <Label htmlFor="use_logo_as_title" className="text-sm font-semibold text-slate-900">Usar logo como título</Label>
+                        <p className="text-[11px] text-muted-foreground">Estilo streaming: substitui o texto por uma imagem da logo.</p>
                       </div>
                       <Switch
                         id="use_logo_as_title"
@@ -449,8 +449,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
-                        <Label htmlFor="show_banner_overlay" className="text-sm font-medium">Cortina de Opacidade</Label>
-                        <p className="text-[10px] text-muted-foreground">Escurece levemente a imagem para destacar o texto.</p>
+                        <Label htmlFor="show_banner_overlay" className="text-sm font-semibold text-slate-900">Cortina de opacidade</Label>
+                        <p className="text-[11px] text-muted-foreground">Escurece levemente a imagem para destacar o texto.</p>
                       </div>
                       <Switch
                         id="show_banner_overlay"
@@ -462,8 +462,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
-                        <Label htmlFor="show_banner_fade" className="text-sm font-medium">Efeito de Sombreamento (Fade)</Label>
-                        <p className="text-[10px] text-muted-foreground">Adiciona um degradê na base do banner para melhorar a leitura.</p>
+                        <Label htmlFor="show_banner_fade" className="text-sm font-semibold text-slate-900">Efeito de sombreamento (Fade)</Label>
+                        <p className="text-[11px] text-muted-foreground">Adiciona um degradê na base do banner para melhorar a leitura.</p>
                       </div>
                       <Switch
                         id="show_banner_fade"
@@ -475,8 +475,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
-                        <Label htmlFor="full_height_title" className="text-sm font-medium">Ocupar Toda a Altura</Label>
-                        <p className="text-[10px] text-muted-foreground">O título ou logo cresce para preencher o banner (estilo cinema).</p>
+                        <Label htmlFor="full_height_title" className="text-sm font-semibold text-slate-900">Ocupar toda a altura</Label>
+                        <p className="text-[11px] text-muted-foreground">O título ou logo cresce para preencher o banner (estilo cinema).</p>
                       </div>
                       <Switch
                         id="full_height_title"
@@ -488,8 +488,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex flex-col gap-2 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="banner_display_time" className="text-sm font-medium">Tempo de Exibição</Label>
-                        <Badge variant="secondary" className="text-[10px] font-mono">{form.banner_display_time || 5}s</Badge>
+                        <Label htmlFor="banner_display_time" className="text-sm font-semibold text-slate-900">Tempo de exibição</Label>
+                        <Badge variant="secondary" className="text-[11px] font-mono">{form.banner_display_time || 5}s</Badge>
                       </div>
                       <input 
                         type="range"
@@ -580,43 +580,50 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-xs font-semibold">O EVENTO SERÁ VOLTADO PARA: *</Label>
-                      <div className="grid grid-cols-1 gap-2 mt-2">
+                      <Label className="text-sm font-semibold mb-2 block">Público-alvo *</Label>
+                      <div className="space-y-2">
                         {[
                           "Os funcionários",
                           "Os atendidos",
                           "Os atendidos e suas famílias",
                           "Será aberto para a comunidade"
                         ].map((option) => (
-                          <label key={option} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
-                            <input
-                              type="radio"
-                              name="target_audience"
-                              value={option}
+                          <div key={option} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card shadow-sm">
+                            <Label htmlFor={`target-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
+                            <Switch
+                              id={`target-${option}`}
                               checked={form.target_audience === option}
-                              onChange={e => setForm({ ...form, target_audience: e.target.value })}
-                              className="h-4 w-4 text-primary accent-primary"
+                              onCheckedChange={checked => {
+                                if (checked) {
+                                  setForm({ ...form, target_audience: option });
+                                } else if (form.target_audience === option) {
+                                  setForm({ ...form, target_audience: "" });
+                                }
+                              }}
                             />
-                            {option}
-                          </label>
+                          </div>
                         ))}
-                        <div className="flex items-center gap-2 p-2 rounded-md border border-transparent">
-                          <input
-                            type="radio"
-                            name="target_audience"
-                            id="target_other"
-                            value="Outro"
-                            checked={form.target_audience !== "" && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience || "")}
-                            onChange={() => setForm({ ...form, target_audience: "Outro: " })}
-                            className="h-4 w-4 text-primary accent-primary"
-                          />
-                          <Label htmlFor="target_other" className="text-sm cursor-pointer">Outro:</Label>
+                        <div className="space-y-2 p-3 rounded-lg border border-border bg-card shadow-sm">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="target-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outro público</Label>
+                            <Switch
+                              id="target-other-switch"
+                              checked={!!form.target_audience && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience)}
+                              onCheckedChange={checked => {
+                                if (checked) {
+                                  setForm({ ...form, target_audience: "Outro: " });
+                                } else {
+                                  setForm({ ...form, target_audience: "" });
+                                }
+                              }}
+                            />
+                          </div>
                           {(form.target_audience?.startsWith("Outro: ") || (form.target_audience !== "" && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience || ""))) && (
                             <Input 
-                              className="h-8 flex-1 ml-2"
+                              className="h-9 mt-2"
                               value={form.target_audience?.replace("Outro: ", "")}
                               onChange={e => setForm({ ...form, target_audience: `Outro: ${e.target.value}` })}
-                              placeholder="Especifique..."
+                              placeholder="Especifique o público..."
                             />
                           )}
                         </div>
@@ -624,12 +631,14 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       {errors.target_audience && <p className="mt-1 text-xs text-destructive">{errors.target_audience}</p>}
                     </div>
 
-                    <div>
-                      <Label className="text-xs font-semibold">IRÃO AUXILIAR NO EVENTO: *</Label>
-                      <div className="grid grid-cols-1 gap-2 mt-2">
+                    <div className="pt-2">
+                      <Label className="text-sm font-semibold mb-2 block">Equipe de apoio (Auxílio) *</Label>
+                      <div className="space-y-2">
                         {["Funcionários", "Voluntários"].map((option) => (
-                          <label key={option} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
-                            <Checkbox 
+                          <div key={option} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card shadow-sm">
+                            <Label htmlFor={`support-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
+                            <Switch
+                              id={`support-${option}`}
                               checked={form.support_team?.includes(option)}
                               onCheckedChange={(checked) => {
                                 const current = form.support_team ? form.support_team.split(", ") : [];
@@ -642,40 +651,46 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 setForm({ ...form, support_team: next.join(", ") });
                               }}
                             />
-                            {option}
-                          </label>
+                          </div>
                         ))}
-                        <div className="flex items-center gap-2 p-2 rounded-md">
-                          <Checkbox 
-                            checked={!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))}
-                            onCheckedChange={(checked) => {
-                              if (!checked) {
-                                const next = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
-                                setForm({ ...form, support_team: next.join(", ") });
-                              }
-                            }}
-                          />
-                          <Label className="text-sm cursor-pointer">Outro:</Label>
-                          <Input 
-                            className="h-8 flex-1 ml-2"
-                            value={(form.support_team?.split(", ") || []).filter(val => !["Funcionários", "Voluntários"].includes(val)).join(", ")}
-                            onChange={e => {
-                              const base = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
-                              if (e.target.value.trim()) {
-                                setForm({ ...form, support_team: [...base, e.target.value].join(", ") });
-                              } else {
-                                setForm({ ...form, support_team: base.join(", ") });
-                              }
-                            }}
-                            placeholder="Especifique..."
-                          />
+                        <div className="space-y-2 p-3 rounded-lg border border-border bg-card shadow-sm">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="support-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outra equipe</Label>
+                            <Switch
+                              id="support-other-switch"
+                              checked={!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))}
+                              onCheckedChange={(checked) => {
+                                if (!checked) {
+                                  const next = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
+                                  setForm({ ...form, support_team: next.join(", ") });
+                                } else {
+                                  // No action needed here, user will type in input
+                                }
+                              }}
+                            />
+                          </div>
+                          {(!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))) && (
+                            <Input 
+                              className="h-9 mt-2"
+                              value={(form.support_team?.split(", ") || []).filter(val => !["Funcionários", "Voluntários"].includes(val)).join(", ")}
+                              onChange={e => {
+                                const base = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
+                                if (e.target.value.trim()) {
+                                  setForm({ ...form, support_team: [...base, e.target.value].join(", ") });
+                                } else {
+                                  setForm({ ...form, support_team: base.join(", ") });
+                                }
+                              }}
+                              placeholder="Especifique a equipe..."
+                            />
+                          )}
                         </div>
                       </div>
                       {errors.support_team && <p className="mt-1 text-xs text-destructive">{errors.support_team}</p>}
                     </div>
 
                     <div>
-                      <Label className="text-xs font-semibold">Logística de Alimentação *</Label>
+                      <Label className="text-sm font-semibold mb-1.5 block">Logística de alimentação *</Label>
                       <Textarea 
                         value={form.food_logistics} 
                         onChange={e => setForm({ ...form, food_logistics: e.target.value })} 
@@ -687,7 +702,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     </div>
 
                     <div>
-                      <Label className="text-xs font-semibold">Equipamentos Necessários *</Label>
+                      <Label className="text-sm font-semibold mb-1.5 block">Equipamentos necessários *</Label>
                       <Input 
                         value={form.equipment_needed} 
                         onChange={e => setForm({ ...form, equipment_needed: e.target.value })} 
@@ -700,7 +715,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 </div>
 
                 <div className="space-y-4 pt-4 border-t">
-                  <Label>Observações internas</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Observações internas</Label>
                   <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Notas internas gerais..." rows={2} />
                 </div>
 
@@ -711,14 +726,14 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       checked={form.marketing_request || false}
                       onCheckedChange={v => setForm({ ...form, marketing_request: v })}
                     />
-                    <Label htmlFor="marketing_request" className="cursor-pointer flex-1 text-sm font-medium">Solicitação de Marketing</Label>
+                    <Label htmlFor="marketing_request" className="cursor-pointer flex-1 text-sm font-semibold">Solicitação de Marketing</Label>
                   </div>
 
                   {form.marketing_request && (
                     <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-4 space-y-4 animate-in fade-in slide-in-from-top-1">
                       <div className="flex items-center justify-between">
-                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Itens de Marketing *</Label>
-                        <Badge variant="outline" className="text-[10px] bg-blue-100 text-blue-700 border-blue-200">Briefing / Materiais</Badge>
+                        <Label className="text-sm font-semibold text-blue-900">Itens de marketing *</Label>
+                        <Badge variant="outline" className="text-[11px] bg-blue-100 text-blue-700 border-blue-200 uppercase font-bold tracking-tight">Briefing / Materiais</Badge>
                       </div>
                       
                       <div className="space-y-4">
@@ -823,7 +838,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     checked={form.partner_involved || false}
                     onCheckedChange={v => setForm({ ...form, partner_involved: v, ...(!v ? { partner_type: '', partner_name: '', partners: [] } : {}) })}
                   />
-                  <Label htmlFor="partner_involved" className="cursor-pointer flex-1 text-sm">Parceiro Envolvido</Label>
+                  <Label htmlFor="partner_involved" className="cursor-pointer flex-1 text-sm font-semibold">Parceiro envolvido</Label>
                 </div>
 
                 {form.partner_involved && (
@@ -887,13 +902,13 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     checked={form.has_unit_collaboration || false}
                     onCheckedChange={v => setForm({ ...form, has_unit_collaboration: v, ...(!v ? { collaborating_units: [], external_collaborators: [] } : {}) })}
                   />
-                  <Label htmlFor="unit_collaboration" className="cursor-pointer flex-1 text-sm">Parceria com outra Unidade/Instituição</Label>
+                  <Label htmlFor="unit_collaboration" className="cursor-pointer flex-1 text-sm font-semibold">Parceria com unidade ou instituição</Label>
                 </div>
 
                 {form.has_unit_collaboration && (
                   <div className="space-y-3 rounded-lg border border-border p-3">
                     <div>
-                      <Label className="text-sm font-medium">Unidades Parceiras</Label>
+                      <Label className="text-sm font-semibold mb-2 block">Unidades parceiras</Label>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {UNITS.filter(u => u !== form.unit).map(u => (
                           <label key={u} className="flex items-center gap-1.5 text-sm cursor-pointer">
@@ -915,7 +930,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       </div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">Instituições Externas</Label>
+                      <Label className="text-sm font-semibold mb-2 block">Instituições externas</Label>
                       <div className="space-y-2 mt-2">
                         {(form.external_collaborators || []).map((ext, idx) => (
                           <div key={idx} className="space-y-2 p-3 bg-muted/30 rounded-md border border-border">
@@ -982,7 +997,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 )}
 
                 <div className="rounded-lg border border-border p-3">
-                  <Label className="text-sm font-medium mb-2 block">Anexos</Label>
+                  <Label className="text-sm font-semibold mb-2 block">Anexos</Label>
                   <FileUpload
                     mode="multiple"
                     attachments={form.attachments || []}
@@ -1004,7 +1019,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
           {isAdmin && (
             <div className="hidden lg:block border-l pl-8 space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Preview Público (Banner)</Label>
+                <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Preview público (Banner)</Label>
                 <Badge variant="outline" className="text-[10px] text-amber-600 bg-amber-50">Exclusivo Banner</Badge>
               </div>
               <div className="rounded-2xl border bg-slate-50 overflow-hidden shadow-inner h-full flex flex-col">
@@ -1072,9 +1087,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     <div className="p-6 border-t bg-slate-50/50">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Detalhes do Evento (Card/Modal)</span>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Detalhes do evento (Card/Modal)</span>
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900 mb-1">{form.title || 'Título do Evento'}</h4>
+                      <h4 className="text-sm font-bold text-slate-900 mb-1">{form.title || 'Título do evento'}</h4>
                       <p className="text-[11px] text-slate-500 line-clamp-3 leading-relaxed">{form.description || 'Sem descrição.'}</p>
                     </div>
                   </div>
