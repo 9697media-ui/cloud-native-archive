@@ -114,9 +114,19 @@ export default function PublicEventsPage() {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
-    return confirmedEvents
-      .filter(e => e.show_in_banner && new Date(e.start_datetime) >= startOfToday)
+    // DEBUG: console.log("bannerEvents calc start", confirmedEvents.length);
+    const result = confirmedEvents
+      .filter(e => {
+        const isBanner = e.show_in_banner;
+        const eventDate = new Date(e.start_datetime);
+        const isNotPast = eventDate >= startOfToday;
+        // console.log(`Event ${e.title}: isBanner=${isBanner}, date=${e.start_datetime}, isNotPast=${isNotPast}`);
+        return isBanner && isNotPast;
+      })
       .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
+    
+    // console.log("Banner Events (Public) final:", result);
+    return result;
   }, [events, isAdmin]);
 
   const handleToggleBanner = (event: AppEvent) => {
@@ -242,10 +252,10 @@ export default function PublicEventsPage() {
                 </>
               ) : (
                 <div 
-                  className="w-full h-full flex items-center justify-start px-8 md:px-16"
+                  className="w-full h-full flex items-center justify-center px-8 md:px-16"
                   style={{ backgroundColor: event.custom_color || '#1e293b' }}
                 >
-                  {/* Fundo colorido sólido sem conteúdo centralizado */}
+                  {/* Fallback content if no image */}
                 </div>
               )}
               
