@@ -197,7 +197,9 @@ export default function PublicEventsPage() {
                 </div>
               )}
               
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+              {event.show_banner_fade !== false && (
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+              )}
               
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto">
                 <div className="flex flex-wrap gap-2 mb-4">
