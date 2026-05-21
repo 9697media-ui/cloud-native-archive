@@ -54,6 +54,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   slug: '',
   use_logo_as_title: false,
   event_logo_url: '',
+  show_banner_fade: true,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
