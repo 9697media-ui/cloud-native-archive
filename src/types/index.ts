@@ -42,6 +42,8 @@ export interface AppEvent {
   custom_color?: string;
   show_in_banner?: boolean;
   slug?: string;
+  use_logo_as_title?: boolean;
+  event_logo_url?: string;
 }
 
 export const SYSTEM_COLORS = [
