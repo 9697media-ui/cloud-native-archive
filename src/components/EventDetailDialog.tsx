@@ -180,19 +180,18 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                     <h3 className="text-sm font-bold uppercase tracking-wider text-blue-500">Solicitação de Marketing</h3>
                   </div>
                   <div className="grid grid-cols-1 gap-6">
-                    {event.marketing_items && event.marketing_items.length > 0 ? (
+                    {(event.marketing_coverage || (event.marketing_items && event.marketing_items.length > 0)) ? (
                       <div className="space-y-6">
                         {/* Cobertura */}
-                        {event.marketing_items.some(i => i.type === 'cobertura') && (
+                        {event.marketing_coverage && (
                           <div className="space-y-3">
-                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Cobertura do Evento</p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {event.marketing_items.filter(i => i.type === 'cobertura').map((item, idx) => (
-                                <div key={idx} className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                                  <p className="text-xs font-bold text-blue-700 uppercase tracking-tighter mb-1">{item.item}</p>
-                                  <p className="text-blue-900 text-sm whitespace-pre-wrap leading-relaxed opacity-80">{item.description}</p>
-                                </div>
-                              ))}
+                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest flex items-center gap-1.5">
+                              <CheckCircle2 className="h-3 w-3 text-blue-500" /> Cobertura do Evento Solicitada
+                            </p>
+                            <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                              <p className="text-blue-900 text-sm font-medium italic opacity-80">
+                                Foi solicitada a cobertura fotográfica e de vídeo para este evento.
+                              </p>
                             </div>
                           </div>
                         )}

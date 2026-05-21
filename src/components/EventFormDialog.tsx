@@ -65,6 +65,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   printed_materials: '',
   equipment_needed: '',
   marketing_items: [],
+  marketing_coverage: false,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -119,10 +120,13 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     
     // Condicional para marketing
     if (form.marketing_request) {
-      if (!form.marketing_items || form.marketing_items.length === 0) {
-        errs.marketing_items = 'Adicione ao menos um item de marketing';
-      } else if (form.marketing_items.some(item => !item.item.trim())) {
-        errs.marketing_items = 'Preencha todos os campos dos itens de marketing';
+      const hasCoverage = form.marketing_coverage;
+      const hasGraphics = (form.marketing_items || []).some(i => i.type === 'demanda_grafica');
+      
+      if (!hasCoverage && !hasGraphics) {
+        errs.marketing_items = 'Selecione ao menos um tipo de solicitação (Cobertura ou Demanda Gráfica)';
+      } else if (hasGraphics && (form.marketing_items || []).filter(i => i.type === 'demanda_grafica').some(item => !item.item.trim())) {
+        errs.marketing_items = 'Preencha todos os campos das demandas gráficas';
       }
     }
 
@@ -180,6 +184,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       printed_materials: form.printed_materials || '',
       equipment_needed: form.equipment_needed || '',
       marketing_items: form.marketing_items || [],
+      marketing_coverage: form.marketing_coverage || false,
     };
   };
 
@@ -721,73 +726,19 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                           <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-white p-3 shadow-sm">
                             <Switch
                               id="marketing_cobertura"
-                              checked={(form.marketing_items || []).some(i => i.type === 'cobertura')}
-                              onCheckedChange={v => {
-                                const current = form.marketing_items || [];
-                                if (v) {
-                                  setForm({ ...form, marketing_items: [...current, { type: 'cobertura', item: '', description: '' }] });
-                                } else {
-                                  setForm({ ...form, marketing_items: current.filter(i => i.type !== 'cobertura') });
-                                }
-                              }}
+                              checked={form.marketing_coverage || false}
+                              onCheckedChange={v => setForm({ ...form, marketing_coverage: v })}
                             />
-                            <Label htmlFor="marketing_cobertura" className="cursor-pointer flex-1 text-sm font-medium text-blue-900">Cobertura do Evento</Label>
+                            <Label htmlFor="marketing_cobertura" className="cursor-pointer flex-1 text-sm font-medium text-blue-900">Solicitar Cobertura do Evento</Label>
                           </div>
                           
-                          {(form.marketing_items || []).filter(i => i.type === 'cobertura').map((item, idx) => {
-                            const originalIdx = (form.marketing_items || []).findIndex(mi => mi === item);
-                            return (
-                              <div key={`cobertura-${idx}`} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm animate-in fade-in slide-in-from-top-1">
-                                <div className="flex items-center gap-2">
-                                  <Input 
-                                    value={item.item} 
-                                    onChange={e => {
-                                      const updated = [...(form.marketing_items || [])];
-                                      updated[originalIdx] = { ...updated[originalIdx], item: e.target.value };
-                                      setForm({ ...form, marketing_items: updated });
-                                    }} 
-                                    placeholder="Ex: Fotos, Vídeo..." 
-                                    className="flex-1 bg-white border-blue-200 focus-visible:ring-blue-500 h-8 text-sm"
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="shrink-0 h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50"
-                                    onClick={() => {
-                                      const updated = (form.marketing_items || []).filter((_, i) => i !== originalIdx);
-                                      setForm({ ...form, marketing_items: updated });
-                                    }}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <Textarea 
-                                  value={item.description} 
-                                  onChange={e => {
-                                    const updated = [...(form.marketing_items || [])];
-                                    updated[originalIdx] = { ...updated[originalIdx], description: e.target.value };
-                                    setForm({ ...form, marketing_items: updated });
-                                  }} 
-                                  placeholder="Detalhes da cobertura..." 
-                                  rows={2}
-                                  className="bg-slate-50 border-blue-100 focus-visible:ring-blue-500 text-xs"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="w-full h-7 text-[10px] text-blue-600 hover:bg-blue-50 gap-1"
-                                  onClick={() => setForm({ 
-                                    ...form, 
-                                    marketing_items: [...(form.marketing_items || []), { type: 'cobertura', item: '', description: '' }] 
-                                  })}
-                                >
-                                  <Plus className="h-3 w-3" /> Adicionar mais um item de cobertura
-                                </Button>
-                              </div>
-                            );
-                          })}
+                          {form.marketing_coverage && (
+                            <div className="px-3 py-2 bg-blue-50/50 rounded-md border border-dashed border-blue-200 animate-in fade-in zoom-in-95 duration-200">
+                              <p className="text-[11px] text-blue-600 flex items-center gap-1.5 font-medium">
+                                <CheckCircle2 className="h-3 w-3" /> Cobertura fotográfica e/ou vídeo solicitada
+                              </p>
+                            </div>
+                          )}
 
                           <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-white p-3 shadow-sm">
                             <Switch
