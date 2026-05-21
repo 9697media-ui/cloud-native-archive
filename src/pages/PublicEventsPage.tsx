@@ -30,8 +30,24 @@ export default function PublicEventsPage() {
   const [eventToToggleBanner, setEventToToggleBanner] = useState<AppEvent | null>(null);
   const { isAdmin } = useUserRole();
   const { updateEvent, setSelectedEvent, selectedEvent } = useApp();
-  // Only confirmed events for public view
+  
+  // Stats should be calculated from ALL events if logged in, to match dashboard
+  const allEvents = useFilteredEvents(false);
+  // But display events are only confirmed/public
   const events = useFilteredEvents(true);
+
+  const stats = useMemo(() => {
+    return allEvents.reduce((acc, e) => {
+      acc.total++;
+      if (e.status === 'confirmado') acc.confirmed++;
+      if (e.status === 'pendente') acc.pending++;
+      if (e.has_conflict) acc.conflict++;
+      if (e.marketing_request) acc.marketing++;
+      if (e.partner_involved) acc.partners++;
+      return acc;
+    }, { total: 0, confirmed: 0, pending: 0, conflict: 0, marketing: 0, partners: 0 });
+  }, [allEvents]);
+
 
   const filtered = useMemo(() => {
     const searchTerm = search.toLowerCase().trim();
