@@ -214,21 +214,7 @@ export default function PublicEventsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {!isAuthenticated && (
-        <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl" />
-              <h1 className="text-xl font-bold tracking-tighter lowercase text-slate-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                anabrasil eventos
-              </h1>
-            </div>
-            <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors flex items-center gap-1">
-              Área Restrita <ExternalLink className="h-3 w-3" />
-            </Link>
-          </div>
-        </header>
-      )}
+
 
       {bannerEvents.length > 0 && (
         <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden bg-slate-900">
@@ -470,22 +456,8 @@ export default function PublicEventsPage() {
           </div>
         </div>
 
-        {!isAuthenticated && (
-          <div className="mb-6 p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Globe className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-slate-900">Esta é a visualização pública</p>
-                <p className="text-xs text-slate-500">Apenas eventos confirmados e marcados como públicos aparecem aqui.</p>
-              </div>
-            </div>
-            <Link to="/login">
-              <Button size="sm" variant="outline">Acessar Área Restrita</Button>
-            </Link>
-          </div>
-        )}
+
+
 
         {sortedEvents.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
