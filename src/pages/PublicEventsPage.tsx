@@ -133,13 +133,7 @@ export default function PublicEventsPage() {
 
   const handleCardClick = (event: AppEvent) => {
     if (isAuthenticated && isAdmin) {
-      // If event is not in banner and missing desktop image, show warning first
-      if (!event.show_in_banner && !event.banner_image_desktop) {
-        setEventToToggleBanner(event);
-        setShowBannerMissingDialog(true);
-      } else {
-        setSelectedEvent(event);
-      }
+      setSelectedEvent(event);
     } else {
       setSelectedEventForDetail(event);
       // Update URL without full refresh to support sharing the specific open state

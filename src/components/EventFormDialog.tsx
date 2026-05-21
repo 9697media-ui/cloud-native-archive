@@ -16,6 +16,7 @@ import { CheckCircle2, Plus, X, Globe, Eye, Layout, CalendarDays, Lock, Share2, 
 import { Checkbox } from '@/components/ui/checkbox';
 import { FileUpload } from './FileUpload';
 import { EventDetailDialog } from './EventDetailDialog';
+import { BannerMissingDialog } from './BannerMissingDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Props {
@@ -146,6 +147,13 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     if (!validate()) return;
 
     const fullEvent = getFullEvent();
+
+    // Check if banner is enabled but image is missing
+    if (fullEvent.show_in_banner && !fullEvent.banner_image_desktop && !showBannerWarning) {
+      setShowBannerWarning(true);
+      return;
+    }
+
     const found = detectConflicts(fullEvent);
     if (found.length > 0 && !showConflictAlert) {
       setConflicts(found);
@@ -546,6 +554,28 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
           )}
         </div>
       </DialogContent>
+
+      <BannerMissingDialog 
+        open={showBannerWarning}
+        onOpenChange={setShowBannerWarning}
+        onConfirm={() => {
+          setShowBannerWarning(false);
+          // Small delay to ensure state update before submit
+          setTimeout(() => {
+            const fullEvent = getFullEvent();
+            const found = detectConflicts(fullEvent);
+            if (found.length > 0 && !showConflictAlert) {
+              setConflicts(found);
+              setShowConflictAlert(true);
+              return;
+            }
+            if (isEditing) updateEvent(fullEvent); else addEvent(fullEvent);
+            setSelectedEvent(null);
+            onOpenChange(false);
+          }, 10);
+        }}
+        onAddImage={() => setShowBannerWarning(false)}
+      />
     </Dialog>
   );
 }
