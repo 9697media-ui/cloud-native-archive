@@ -45,6 +45,8 @@ const emptyEvent = (): Partial<AppEvent> => ({
   attachments: [],
   banner_url_desktop: '',
   banner_url_mobile: '',
+  banner_image_desktop: '',
+  banner_image_mobile: '',
   custom_color: SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
   show_in_banner: false,
 });
