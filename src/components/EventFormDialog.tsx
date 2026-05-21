@@ -277,17 +277,17 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <Label>Título *</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Título *</Label>
                   <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Nome do evento" />
                   {errors.title && <p className="mt-1 text-xs text-destructive">{errors.title}</p>}
                 </div>
                 <div>
-                  <Label>Descrição</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Descrição</Label>
                   <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Descrição do evento" rows={2} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label>Unidade *</Label>
+                    <Label className="text-sm font-semibold mb-1.5 block">Unidade *</Label>
                     <Select value={form.unit} onValueChange={v => setForm({ ...form, unit: v as Unit })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -296,7 +296,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     </Select>
                   </div>
                   <div>
-                    <Label>Tipo *</Label>
+                    <Label className="text-sm font-semibold mb-1.5 block">Tipo *</Label>
                     <Select value={form.event_type} onValueChange={v => setForm({ ...form, event_type: v as EventType })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -307,18 +307,18 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label>Início *</Label>
+                    <Label className="text-sm font-semibold mb-1.5 block">Início *</Label>
                     <Input type="datetime-local" value={form.start_datetime} onChange={e => setForm({ ...form, start_datetime: e.target.value })} />
                     {errors.start_datetime && <p className="mt-1 text-xs text-destructive">{errors.start_datetime}</p>}
                   </div>
                   <div>
-                    <Label>Término *</Label>
+                    <Label className="text-sm font-semibold mb-1.5 block">Término *</Label>
                     <Input type="datetime-local" value={form.end_datetime} onChange={e => setForm({ ...form, end_datetime: e.target.value })} />
                     {errors.end_datetime && <p className="mt-1 text-xs text-destructive">{errors.end_datetime}</p>}
                   </div>
                 </div>
                 <div>
-                  <Label>Localização *</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Localização *</Label>
                   <Input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder="Local do evento" />
                   {errors.location && <p className="mt-1 text-xs text-destructive">{errors.location}</p>}
                 </div>
