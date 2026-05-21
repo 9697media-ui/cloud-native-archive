@@ -45,10 +45,17 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
             />
           ) : (
             <div 
-              className="w-full h-full flex items-center justify-center opacity-40"
+              className="w-full h-full flex items-center justify-center p-8 text-center overflow-hidden"
               style={{ backgroundColor: event.custom_color || '#1e293b' }}
             >
-              <CalendarDays className="h-20 w-20 text-white/20" />
+              <span 
+                className="font-bold text-white leading-[1.1] break-words uppercase drop-shadow-lg select-none"
+                style={{ 
+                  fontSize: event.title.length < 15 ? '4rem' : event.title.length < 30 ? '3rem' : event.title.length < 50 ? '2rem' : '1.5rem',
+                }}
+              >
+                {event.title}
+              </span>
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
