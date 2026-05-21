@@ -82,6 +82,7 @@ export interface AppUser {
   updated_at: string;
   view_restrictions?: Unit[] | null;
   delegated_units?: Unit[] | null;
+  is_beta_tester?: boolean;
 }
 
 export const UNITS: Unit[] = ['DIC', 'Nilópolis', 'Santana', 'Evento Geral do Grupo'];

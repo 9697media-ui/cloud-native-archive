@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
+import { useUIVersions } from '@/hooks/useUIVersions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole, useAccessRequests } from '@/hooks/useUserRole';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -18,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown } from 'lucide-react';
+import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown, History, Rocket, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
@@ -61,7 +62,7 @@ export default function UsersPage() {
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
   const [showApprovalConfirm, setShowApprovalConfirm] = useState<{ req: any } | null>(null);
   const [viewSearch, setViewSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState(urlSearchParams.get('tab') || 'users');
   const [selectedViewUser, setSelectedViewUser] = useState<AppUser | null>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -653,6 +654,120 @@ export default function UsersPage() {
     );
   };
 
+  const BetaManager = () => {
+    const { currentVersion, versions, loading: vLoading, promoteToProduction, rollback } = useUIVersions();
+    const [name, setName] = useState('');
+    const [desc, setDesc] = useState('');
+    const [showPromote, setShowPromote] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handlePromote = async () => {
+      if (!name) return;
+      setIsSubmitting(true);
+      try {
+        await promoteToProduction(name, desc, { published_at: new Date().toISOString() });
+        toast({ title: "Versão publicada para todos!" });
+        setShowPromote(false);
+        setName('');
+        setDesc('');
+      } catch (err: any) {
+        toast({ title: "Erro ao publicar", description: err.message, variant: "destructive" });
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row gap-6">
+          <Card className="flex-1 border-primary/20 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Rocket className="h-5 w-5 text-primary" />
+                Versão Atual em Produção
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {vLoading ? <p>Carregando...</p> : (
+                <div className="space-y-4">
+                  <div className="p-4 bg-background rounded-lg border">
+                    <p className="font-bold text-xl">{currentVersion?.name || 'Versão Inicial'}</p>
+                    <p className="text-sm text-muted-foreground">ID: {currentVersion?.id || 'stable'}</p>
+                    {currentVersion?.config?.published_at && (
+                      <p className="text-xs text-muted-foreground">Publicada em: {new Date(currentVersion.config.published_at).toLocaleString('pt-BR')}</p>
+                    )}
+                  </div>
+                  <Button onClick={() => setShowPromote(true)} className="w-full gap-2">
+                    <Rocket className="h-4 w-4" />
+                    Publicar Versão Atual para Todos
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="flex-1">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <History className="h-5 w-5 text-primary" />
+                Histórico de Versões
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Últimas 30 versões publicadas.</p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                {versions.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma versão anterior.</p> : 
+                  versions.map(v => (
+                    <div key={v.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{v.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{new Date(v.created_at).toLocaleString('pt-BR')}</p>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => rollback(v)}
+                        disabled={currentVersion?.id === v.id}
+                        className="h-8 text-xs"
+                      >
+                        Reverter
+                      </Button>
+                    </div>
+                  ))
+                }
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Dialog open={showPromote} onOpenChange={setShowPromote}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Publicar Versão de Produção</DialogTitle>
+              <p className="text-sm text-muted-foreground">Isso tornará a interface atual visível para TODOS os usuários imediatamente.</p>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Nome da Versão</Label>
+                <Input placeholder="Ex: Redesign v2.0" value={name} onChange={e => setName(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Descrição (Opcional)</Label>
+                <Input placeholder="O que mudou nesta versão?" value={desc} onChange={e => setDesc(e.target.value)} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowPromote(false)}>Cancelar</Button>
+              <Button onClick={handlePromote} disabled={!name || isSubmitting}>
+                {isSubmitting ? 'Publicando...' : 'Publicar Agora'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  };
+
   if (roleLoading) return <div className="p-8 text-center">Carregando permissões...</div>;
 
   // Redireciona se o usuário não for admin ou gestor
@@ -685,6 +800,12 @@ export default function UsersPage() {
               <TabsList className="h-10">
                 <TabsTrigger value="users" className="h-8">Usuários</TabsTrigger>
                 {isAdmin && (
+                  <TabsTrigger value="beta-configs" className="gap-1.5 h-8">
+                    <History className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Beta/Histórico</span>
+                  </TabsTrigger>
+                )}
+                {isAdmin && (
                   <TabsTrigger value="view-configs" className="gap-1.5 h-8">
                     <Eye className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">Visualização</span>
@@ -700,6 +821,17 @@ export default function UsersPage() {
             </Tabs>
 
             <div className="flex items-center gap-2">
+              {isAdmin && (
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  title="Ambiente de Testes / Beta"
+                  onClick={() => setActiveTab('beta-configs')}
+                  className={`h-10 w-10 ${activeTab === 'beta-configs' ? 'bg-primary/10 text-primary border-primary' : ''}`}
+                >
+                  <History className="h-4 w-4" />
+                </Button>
+              )}
               <div className="relative w-40 sm:w-64">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input 
@@ -883,6 +1015,12 @@ export default function UsersPage() {
             </div>
           )}
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="beta-configs" className="mt-4 space-y-6">
+            <BetaManager />
+          </TabsContent>
+        )}
 
         {isAdmin && (
           <TabsContent value="view-configs" className="mt-4 space-y-6">
@@ -1111,6 +1249,31 @@ export default function UsersPage() {
                         </div>
                       </div>
                       <Button variant="ghost" size="sm" onClick={() => setSelectedViewUser(null)}>Fechar</Button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 border rounded-lg bg-primary/5">
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-semibold flex items-center gap-2">
+                          <Code2 className="h-4 w-4 text-primary" />
+                          Acesso Beta Tester
+                        </Label>
+                        <p className="text-xs text-muted-foreground">Permite que este usuário veja novas funcionalidades antes do lançamento.</p>
+                      </div>
+                      <Switch 
+                        checked={selectedViewUser.is_beta_tester}
+                        onCheckedChange={async (checked) => {
+                          const { error } = await supabase
+                            .from('profiles')
+                            .update({ is_beta_tester: checked })
+                            .eq('user_id', selectedViewUser.id);
+                          
+                          if (!error) {
+                            toast({ title: checked ? "Beta Tester habilitado" : "Beta Tester desabilitado" });
+                            refetch();
+                            setSelectedViewUser({ ...selectedViewUser, is_beta_tester: checked });
+                          }
+                        }}
+                      />
                     </div>
 
                     <div className="space-y-3">
