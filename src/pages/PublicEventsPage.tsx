@@ -344,12 +344,16 @@ export default function PublicEventsPage() {
         {isAuthenticated && (
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 sm:gap-4 mb-8">
             {[
-              { label: 'Total de Eventos', value: stats.total, icon: CalendarDays, color: 'text-blue-500' },
-              { label: 'Confirmados', value: stats.confirmed, icon: CheckCircle2, color: 'text-emerald-500' },
-              { label: 'Pendentes', value: stats.pending, icon: Clock, color: 'text-amber-500' },
-              { label: 'Com Conflito', value: stats.conflict, icon: AlertCircle, color: 'text-rose-500' },
+              { label: 'Total de Eventos', value: stats.total, icon: CalendarDays, color: 'text-blue-500', onClick: undefined },
+              { label: 'Confirmados', value: stats.confirmed, icon: CheckCircle2, color: 'text-emerald-500', onClick: () => setShowFiltered('confirmed') },
+              { label: 'Pendentes', value: stats.pending, icon: Clock, color: 'text-amber-500', onClick: () => setShowFiltered('pending') },
+              { label: 'Com Conflito', value: stats.conflict, icon: AlertCircle, color: 'text-rose-500', onClick: () => setShowConflicts(true) },
             ].map(s => (
-              <Card key={s.label} className="border-slate-200 shadow-sm transition-shadow hover:shadow-md">
+              <Card
+                key={s.label}
+                className={`border-slate-200 shadow-sm transition-shadow hover:shadow-md ${s.onClick ? 'cursor-pointer' : ''}`}
+                onClick={s.onClick}
+              >
                 <CardContent className="p-4 sm:p-5">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-medium text-slate-500 sm:text-xs uppercase tracking-wider">{s.label}</p>
@@ -358,14 +362,22 @@ export default function PublicEventsPage() {
                   <p className="mt-1 text-2xl font-bold text-slate-900 sm:mt-2 sm:text-3xl">{s.value}</p>
                   {s.label === 'Total de Eventos' && (
                     <div className="mt-2 flex items-center gap-3 border-t border-slate-100 pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
-                      <div className="flex items-center gap-1" title="Solicitações de Marketing">
+                      <button
+                        className="flex items-center gap-1 hover:opacity-70 transition-opacity"
+                        title="Solicitações de Marketing"
+                        onClick={(ev) => { ev.stopPropagation(); setShowFiltered('marketing'); }}
+                      >
                         <Camera className="h-3.5 w-3.5 text-blue-500 sm:h-4 sm:w-4" />
                         <span className="text-xs font-semibold text-slate-700 sm:text-sm">{stats.marketing}</span>
-                      </div>
-                      <div className="flex items-center gap-1" title="Parceiros Envolvidos">
+                      </button>
+                      <button
+                        className="flex items-center gap-1 hover:opacity-70 transition-opacity"
+                        title="Parceiros Envolvidos"
+                        onClick={(ev) => { ev.stopPropagation(); setShowFiltered('partners'); }}
+                      >
                         <Handshake className="h-3.5 w-3.5 text-blue-500 sm:h-4 sm:w-4" />
                         <span className="text-xs font-semibold text-slate-700 sm:text-sm">{stats.partners}</span>
-                      </div>
+                      </button>
                     </div>
                   )}
                 </CardContent>
@@ -373,6 +385,7 @@ export default function PublicEventsPage() {
             ))}
           </div>
         )}
+
 
 
         <div className="mb-8">
