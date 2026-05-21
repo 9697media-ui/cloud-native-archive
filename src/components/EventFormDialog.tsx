@@ -733,7 +733,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-4 space-y-4 animate-in fade-in slide-in-from-top-1">
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-semibold text-blue-900">Itens de marketing *</Label>
-                        <Badge variant="outline" className="text-[10px] bg-blue-100 text-blue-700 border-blue-200 uppercase font-bold tracking-tight">Briefing / Materiais</Badge>
+                        <Badge variant="outline" className="text-[11px] bg-blue-100 text-blue-700 border-blue-200 uppercase font-bold tracking-tight">Briefing / Materiais</Badge>
                       </div>
                       
                       <div className="space-y-4">
