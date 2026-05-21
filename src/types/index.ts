@@ -49,6 +49,12 @@ export interface AppEvent {
   banner_display_time?: number;
   show_banner_overlay?: boolean;
   deleted_at?: string;
+  target_audience?: string;
+  support_team?: string;
+  food_logistics?: string;
+  marketing_info?: string;
+  printed_materials?: string;
+  equipment_needed?: string;
 }
 
 export const SYSTEM_COLORS = [
