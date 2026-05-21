@@ -340,6 +340,33 @@ export default function UsersPage() {
       description: `${successCount} usuário(s) ${active ? 'ativado(s)' : 'desativado(s)'}.` 
     });
   };
+  
+  const handleBulkToggleBeta = async (beta: boolean) => {
+    const ids = Array.from(selectedUsers);
+    setProcessingId('bulk-beta');
+    
+    let successCount = 0;
+    
+    for (const id of ids) {
+      const isDbUser = dbUsers.some(u => u.user_id === id);
+      if (isDbUser) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ is_beta_tester: beta, updated_at: new Date().toISOString() })
+          .eq('user_id', id);
+        if (!error) successCount++;
+      }
+    }
+    
+    setSelectedUsers(new Set());
+    setProcessingId(null);
+    refetch();
+    toast({ 
+      title: beta ? 'Beta ativado' : 'Beta desativado', 
+      description: `${successCount} usuário(s) atualizado(s).` 
+    });
+  };
+
 
   const combinedUsers = useMemo(() => {
     const mappedDbUsers: AppUser[] = dbUsers.map(dbu => ({
@@ -871,7 +898,9 @@ export default function UsersPage() {
               onClearSelection={() => setSelectedUsers(new Set())}
               onDelete={handleBulkDeleteUsers}
               onToggleActive={handleBulkToggleActive}
+              onToggleBeta={handleBulkToggleBeta}
             />
+
           )}
 
           <div className="space-y-4">
