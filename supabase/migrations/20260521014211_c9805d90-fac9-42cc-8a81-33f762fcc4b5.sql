@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS banner_display_time INTEGER DEFAULT 5;
