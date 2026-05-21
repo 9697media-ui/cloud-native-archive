@@ -585,22 +585,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         <div className={`p-6 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'mt-0' : '-mt-8'} relative z-10`}>
                           <Badge className="bg-primary text-white mb-2 text-[10px]">{form.unit}</Badge>
                           
-                          {form.use_logo_as_title && form.event_logo_url ? (
-                            <div className={`mb-2 ${form.full_height_title ? 'max-w-[250px] h-[150px]' : 'max-w-[150px]'}`}>
-                              <img 
-                                src={form.event_logo_url} 
-                                alt="Logo Preview" 
-                                className={`object-contain filter drop-shadow-md ${form.full_height_title ? 'h-full' : 'max-h-12'}`} 
-                              />
-                            </div>
-                          ) : (
-                            <h3 
-                              className={`font-bold mb-2 line-clamp-3 ${form.full_height_title ? 'text-4xl md:text-5xl text-white drop-shadow-xl' : (!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}
-                              dangerouslySetInnerHTML={{ 
-                                __html: (form.title || 'Título do Evento').replace(/<br\s*\/?>/gi, '<br/>') 
-                              }}
-                            />
-                          )}
+                          <h3 className={`font-bold mb-2 line-clamp-2 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}>
+                            {form.title || 'Título do Evento'}
+                          </h3>
                           
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
                             <CalendarDays className="h-3 w-3" />
