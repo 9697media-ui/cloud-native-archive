@@ -1019,7 +1019,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
           {isAdmin && (
             <div className="hidden lg:block border-l pl-8 space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Preview Público (Banner)</Label>
+                <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Preview público (Banner)</Label>
                 <Badge variant="outline" className="text-[10px] text-amber-600 bg-amber-50">Exclusivo Banner</Badge>
               </div>
               <div className="rounded-2xl border bg-slate-50 overflow-hidden shadow-inner h-full flex flex-col">
