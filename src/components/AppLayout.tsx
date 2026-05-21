@@ -172,11 +172,12 @@ export default function AppLayout() {
       )}
 
       <main className={cn(
-        "flex-1 overflow-auto p-4",
-        !isCleanView && "lg:p-8 mx-auto w-full"
+        "flex-1 overflow-auto",
+        !isCleanView && "mx-auto w-full"
       )}>
         <Outlet />
       </main>
+
 
       {!hideHeaderParam && (
         <div className={cn(
