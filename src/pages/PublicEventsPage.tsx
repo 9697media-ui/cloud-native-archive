@@ -343,14 +343,14 @@ export default function PublicEventsPage() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         {isAuthenticated && (
           <div className="w-full flex flex-wrap items-center gap-2 mb-8">
-            <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-600 text-white border border-blue-700 text-[10px] sm:text-xs font-medium justify-center whitespace-nowrap">
+            <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-info text-info-foreground border border-info/20 text-[10px] sm:text-xs font-medium justify-center whitespace-nowrap">
               <CalendarDays className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">Eventos: <span className="font-bold">{stats.total}</span></span>
             </div>
             
             <button 
               onClick={() => setShowFiltered('confirmed')}
-              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-600 text-white border border-emerald-700 text-[10px] sm:text-xs font-medium hover:bg-emerald-700 transition-colors justify-center whitespace-nowrap"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-success text-success-foreground border border-success/20 text-[10px] sm:text-xs font-medium hover:opacity-90 transition-opacity justify-center whitespace-nowrap"
             >
               <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">Confirmados: <span className="font-bold">{stats.confirmed}</span></span>
@@ -358,7 +358,7 @@ export default function PublicEventsPage() {
 
             <button 
               onClick={() => setShowFiltered('pending')}
-              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-600 text-white border border-amber-700 text-[10px] sm:text-xs font-medium hover:bg-amber-700 transition-colors justify-center whitespace-nowrap"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-warning text-warning-foreground border border-warning/20 text-[10px] sm:text-xs font-medium hover:opacity-90 transition-opacity justify-center whitespace-nowrap"
             >
               <Clock className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">Pendentes: <span className="font-bold">{stats.pending}</span></span>
@@ -366,7 +366,7 @@ export default function PublicEventsPage() {
 
             <button 
               onClick={() => setShowConflicts(true)}
-              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-600 text-white border border-rose-700 text-[10px] sm:text-xs font-medium hover:bg-rose-700 transition-colors justify-center whitespace-nowrap"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive text-destructive-foreground border border-destructive/20 text-[10px] sm:text-xs font-medium hover:opacity-90 transition-opacity justify-center whitespace-nowrap"
             >
               <AlertCircle className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">Conflitos: <span className="font-bold">{stats.conflict}</span></span>
@@ -374,7 +374,7 @@ export default function PublicEventsPage() {
 
             <button 
               onClick={() => setShowFiltered('marketing')}
-              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-600 text-white border border-indigo-700 text-[10px] sm:text-xs font-medium hover:bg-indigo-700 transition-colors justify-center whitespace-nowrap"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-info text-info-foreground border border-info/20 text-[10px] sm:text-xs font-medium hover:opacity-90 transition-opacity justify-center whitespace-nowrap"
             >
               <Camera className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">Marketing: <span className="font-bold">{stats.marketing}</span></span>
@@ -382,7 +382,7 @@ export default function PublicEventsPage() {
 
             <button 
               onClick={() => setShowFiltered('partners')}
-              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-600 text-white border border-purple-700 text-[10px] sm:text-xs font-medium hover:bg-purple-700 transition-colors justify-center whitespace-nowrap"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-info text-info-foreground border border-info/20 text-[10px] sm:text-xs font-medium hover:opacity-90 transition-opacity justify-center whitespace-nowrap"
             >
               <Handshake className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">Parceiros: <span className="font-bold">{stats.partners}</span></span>
