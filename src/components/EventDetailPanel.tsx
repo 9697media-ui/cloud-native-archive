@@ -171,9 +171,23 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
                   </p>
                 )}
                 {event.external_collaborators.length > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    Instituições: <span className="font-medium text-foreground">{event.external_collaborators.filter(e => e).join(', ')}</span>
-                  </p>
+                  <div className="pt-1">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Instituições Externas:</p>
+                    <div className="space-y-1.5">
+                      {event.external_collaborators.map((ext, idx) => (
+                        <div key={idx} className="text-xs">
+                          <span className="font-bold text-foreground">
+                            {typeof ext === 'string' ? ext : ext.name}
+                          </span>
+                          {typeof ext !== 'string' && ext.details && (
+                            <span className="text-muted-foreground block">
+                               {ext.details}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
