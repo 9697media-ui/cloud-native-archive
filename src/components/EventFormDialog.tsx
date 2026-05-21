@@ -156,6 +156,12 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       full_height_title: form.full_height_title || false,
       banner_display_time: form.banner_display_time || 5,
       show_banner_overlay: form.show_banner_overlay !== undefined ? form.show_banner_overlay : true,
+      target_audience: form.target_audience || '',
+      support_team: form.support_team || '',
+      food_logistics: form.food_logistics || '',
+      marketing_info: form.marketing_info || '',
+      printed_materials: form.printed_materials || '',
+      equipment_needed: form.equipment_needed || '',
     };
   };
 
