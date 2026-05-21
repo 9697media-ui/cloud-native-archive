@@ -409,6 +409,19 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
+                        <Label htmlFor="show_banner_overlay" className="text-sm font-medium">Cortina de Opacidade</Label>
+                        <p className="text-[10px] text-muted-foreground">Escurece levemente a imagem para destacar o texto.</p>
+                      </div>
+                      <Switch
+                        id="show_banner_overlay"
+                        checked={form.show_banner_overlay !== undefined ? form.show_banner_overlay : true}
+                        onCheckedChange={v => setForm({ ...form, show_banner_overlay: v })}
+                        disabled={!isAdmin}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                      <div className="flex flex-col">
                         <Label htmlFor="show_banner_fade" className="text-sm font-medium">Efeito de Sombreamento (Fade)</Label>
                         <p className="text-[10px] text-muted-foreground">Adiciona um degradê na base do banner para melhorar a leitura.</p>
                       </div>
