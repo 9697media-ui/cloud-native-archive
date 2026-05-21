@@ -45,6 +45,7 @@ export interface AppEvent {
   use_logo_as_title?: boolean;
   event_logo_url?: string;
   show_banner_fade?: boolean;
+  full_height_title?: boolean;
 }
 
 export const SYSTEM_COLORS = [
