@@ -179,18 +179,18 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                     <Megaphone className="h-5 w-5 text-blue-500" />
                     <h3 className="text-sm font-bold uppercase tracking-wider text-blue-500">Solicitação de Marketing</h3>
                   </div>
-                  <div className=\"grid grid-cols-1 gap-6\">
+                  <div className="grid grid-cols-1 gap-6">
                     {event.marketing_items && event.marketing_items.length > 0 ? (
-                      <div className=\"space-y-6\">
+                      <div className="space-y-6">
                         {/* Cobertura */}
                         {event.marketing_items.some(i => i.type === 'cobertura') && (
-                          <div className=\"space-y-3\">
-                            <p className=\"text-[10px] text-muted-foreground uppercase font-bold tracking-widest\">Cobertura do Evento</p>
-                            <div className=\"grid grid-cols-1 md:grid-cols-2 gap-4\">
+                          <div className="space-y-3">
+                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Cobertura do Evento</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {event.marketing_items.filter(i => i.type === 'cobertura').map((item, idx) => (
-                                <div key={idx} className=\"bg-blue-50 rounded-xl p-4 border border-blue-100\">
-                                  <p className=\"text-xs font-bold text-blue-700 uppercase tracking-tighter mb-1\">{item.item}</p>
-                                  <p className=\"text-blue-900 text-sm whitespace-pre-wrap leading-relaxed opacity-80\">{item.description}</p>
+                                <div key={idx} className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                                  <p className="text-xs font-bold text-blue-700 uppercase tracking-tighter mb-1">{item.item}</p>
+                                  <p className="text-blue-900 text-sm whitespace-pre-wrap leading-relaxed opacity-80">{item.description}</p>
                                 </div>
                               ))}
                             </div>
@@ -199,13 +199,13 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
 
                         {/* Demanda Gráfica */}
                         {event.marketing_items.some(i => i.type === 'demanda_grafica') && (
-                          <div className=\"space-y-3\">
-                            <p className=\"text-[10px] text-muted-foreground uppercase font-bold tracking-widest\">Demanda Gráfica (Arte/Impressão)</p>
-                            <div className=\"grid grid-cols-1 md:grid-cols-2 gap-4\">
+                          <div className="space-y-3">
+                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Demanda Gráfica (Arte/Impressão)</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {event.marketing_items.filter(i => i.type === 'demanda_grafica').map((item, idx) => (
-                                <div key={idx} className=\"bg-indigo-50 rounded-xl p-4 border border-indigo-100\">
-                                  <p className=\"text-xs font-bold text-indigo-700 uppercase tracking-tighter mb-1\">{item.item}</p>
-                                  <p className=\"text-indigo-900 text-sm whitespace-pre-wrap leading-relaxed opacity-80\">{item.description}</p>
+                                <div key={idx} className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+                                  <p className="text-xs font-bold text-indigo-700 uppercase tracking-tighter mb-1">{item.item}</p>
+                                  <p className="text-indigo-900 text-sm whitespace-pre-wrap leading-relaxed opacity-80">{item.description}</p>
                                 </div>
                               ))}
                             </div>
@@ -215,15 +215,15 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                     ) : (
                       <>
                         {event.marketing_info && (
-                          <div className=\"bg-blue-50 rounded-xl p-4 border border-blue-100\">
-                            <p className=\"text-xs font-bold text-blue-700 uppercase tracking-tighter mb-2\">Minuta / Briefing da Arte</p>
-                            <p className=\"text-blue-900 text-sm whitespace-pre-wrap leading-relaxed\">{event.marketing_info}</p>
+                          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                            <p className="text-xs font-bold text-blue-700 uppercase tracking-tighter mb-2">Minuta / Briefing da Arte</p>
+                            <p className="text-blue-900 text-sm whitespace-pre-wrap leading-relaxed">{event.marketing_info}</p>
                           </div>
                         )}
                         {event.printed_materials && (
-                          <div className=\"bg-slate-50 rounded-xl p-4 border border-slate-100\">
-                            <p className=\"text-xs font-bold text-slate-500 uppercase tracking-tighter mb-1\">Materiais Impressos Necessários</p>
-                            <p className=\"text-slate-900 text-sm\">{event.printed_materials}</p>
+                          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-tighter mb-1">Materiais Impressos Necessários</p>
+                            <p className="text-slate-900 text-sm">{event.printed_materials}</p>
                           </div>
                         )}
                       </>
