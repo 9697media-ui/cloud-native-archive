@@ -14,6 +14,15 @@ export type TestPersona = {
 
 export const TEST_PERSONAS: TestPersona[] = [
   {
+    id: 'test-nao-logado',
+    name: 'Visitante (Público)',
+    email: 'visitante@publico.local',
+    permission_level: 'usuario_padrao',
+    role: null,
+    unit: 'Público',
+    is_active: false,
+  },
+  {
     id: 'test-admin',
     name: 'Admin Geral (Teste)',
     email: 'admin.teste@lovable.local',
