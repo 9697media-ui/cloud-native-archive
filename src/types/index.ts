@@ -50,7 +50,6 @@ export const SYSTEM_COLORS = [
   '#f0eee4',
   '#000000',
   '#1f2322',
-  '#a78bfa', // +1 complementar
 ];
 
 export interface AppUser {
