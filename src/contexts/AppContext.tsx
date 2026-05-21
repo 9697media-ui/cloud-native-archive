@@ -1,84 +1,122 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { AppEvent, AppUser, Unit } from '@/types';
-import { mockEvents, mockUsers } from '@/data/mockData';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { AppEvent, AppUser } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AppContextType {
   events: AppEvent[];
   users: AppUser[];
+  loading: boolean;
   selectedEvent: AppEvent | null;
   selectedUser: AppUser | null;
   selectedMonth: Date;
   setSelectedEvent: (event: AppEvent | null) => void;
   setSelectedUser: (user: AppUser | null) => void;
   setSelectedMonth: (date: Date) => void;
-  addEvent: (event: AppEvent) => void;
-  updateEvent: (event: AppEvent) => void;
-  deleteEvent: (id: string) => void;
-  updateUser: (user: AppUser) => void;
-  deleteUser: (id: string) => void;
+  addEvent: (event: Partial<AppEvent>) => Promise<void>;
+  updateEvent: (event: AppEvent) => Promise<void>;
+  deleteEvent: (id: string) => Promise<void>;
+  updateUser: (user: AppUser) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
   detectConflicts: (event: AppEvent) => AppEvent[];
+  refetchEvents: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-function hasOverlap(a: AppEvent, b: AppEvent): boolean {
-  if (a.id === b.id) return false;
-  if (a.status === 'cancelado' || b.status === 'cancelado') return false;
-  const aStart = new Date(a.start_datetime).getTime();
-  const aEnd = new Date(a.end_datetime).getTime();
-  const bStart = new Date(b.start_datetime).getTime();
-  const bEnd = new Date(b.end_datetime).getTime();
-  const sameScope = a.unit === b.unit || a.unit === 'Evento Geral do Grupo' || b.unit === 'Evento Geral do Grupo';
-  return sameScope && aStart < bEnd && aEnd > bStart;
-}
-
-function recalculateAllConflicts(events: AppEvent[]): AppEvent[] {
-  // For each event, check if it has ANY overlap with another event
-  return events.map(ev => {
-    const hasConflict = events.some(other => hasOverlap(ev, other));
-    if (ev.has_conflict !== hasConflict) {
-      return { ...ev, has_conflict: hasConflict, updated_at: new Date().toISOString() };
-    }
-    return ev;
-  });
-}
-
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [events, setEvents] = useState<AppEvent[]>(() => recalculateAllConflicts(mockEvents));
-  const [users, setUsers] = useState<AppUser[]>(mockUsers);
+  const [events, setEvents] = useState<AppEvent[]>([]);
+  const [users, setUsers] = useState<AppUser[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<AppEvent | null>(null);
   const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
 
+  const fetchEvents = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*');
+      
+      if (error) throw error;
+      
+      // Adapt DB events to AppEvent type
+      const adaptedEvents: AppEvent[] = (data || []).map((e: any) => ({
+        ...e,
+        attachments: Array.isArray(e.attachments) ? e.attachments : [],
+        collaborating_units: Array.isArray(e.collaborating_units) ? e.collaborating_units : [],
+        external_collaborators: Array.isArray(e.external_collaborators) ? e.external_collaborators : [],
+        partners: Array.isArray(e.partners) ? e.partners : [],
+      }));
+      
+      setEvents(adaptedEvents);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
   const detectConflicts = useCallback((event: AppEvent): AppEvent[] => {
-    return events.filter(e => hasOverlap(event, e));
+    return events.filter(e => {
+      if (e.id === event.id) return false;
+      if (e.status === 'cancelado' || event.status === 'cancelado') return false;
+      const eStart = new Date(e.start_datetime).getTime();
+      const eEnd = new Date(e.end_datetime).getTime();
+      const eventStart = new Date(event.start_datetime).getTime();
+      const eventEnd = new Date(event.end_datetime).getTime();
+      const sameScope = e.unit === event.unit || e.unit === 'Evento Geral do Grupo' || event.unit === 'Evento Geral do Grupo';
+      return sameScope && eStart < eventEnd && eEnd > eventStart;
+    });
   }, [events]);
 
-  const addEvent = useCallback((event: AppEvent) => {
-    setEvents(prev => recalculateAllConflicts([...prev, event]));
-  }, []);
+  const addEvent = async (event: Partial<AppEvent>) => {
+    const { error } = await supabase.from('events').insert(event);
+    if (error) {
+      toast.error('Erro ao adicionar evento');
+      throw error;
+    }
+    await fetchEvents();
+  };
 
-  const updateEvent = useCallback((event: AppEvent) => {
-    setEvents(prev => recalculateAllConflicts(prev.map(e => e.id === event.id ? event : e)));
-  }, []);
+  const updateEvent = async (event: AppEvent) => {
+    const { error } = await supabase.from('events').update(event).eq('id', event.id);
+    if (error) {
+      toast.error('Erro ao atualizar evento');
+      throw error;
+    }
+    await fetchEvents();
+  };
 
-  const deleteEvent = useCallback((id: string) => {
-    setEvents(prev => recalculateAllConflicts(prev.filter(e => e.id !== id)));
-  }, []);
+  const deleteEvent = async (id: string) => {
+    const { error } = await supabase.from('events').delete().eq('id', id);
+    if (error) {
+      toast.error('Erro ao excluir evento');
+      throw error;
+    }
+    await fetchEvents();
+  };
 
-  const updateUser = useCallback((user: AppUser) => {
-    setUsers(prev => prev.map(u => u.id === user.id ? user : u));
-  }, []);
+  const updateUser = async (user: AppUser) => {
+    // Logic for updating user in DB
+    await fetchEvents();
+  };
 
-  const deleteUser = useCallback((id: string) => {
-    setUsers(prev => prev.filter(u => u.id !== id));
-  }, []);
+  const deleteUser = async (id: string) => {
+    // Logic for deleting user in DB
+    await fetchEvents();
+  };
 
   return (
     <AppContext.Provider value={{
-      events, users, selectedEvent, selectedUser, selectedMonth,
+      events, users, loading, selectedEvent, selectedUser, selectedMonth,
       setSelectedEvent, setSelectedUser, setSelectedMonth,
       addEvent, updateEvent, deleteEvent, updateUser, deleteUser, detectConflicts,
+      refetchEvents: fetchEvents
     }}>
       {children}
     </AppContext.Provider>
