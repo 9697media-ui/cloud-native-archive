@@ -62,6 +62,7 @@ export default function AppLayout() {
   
   const { isAuthenticated, signOut, user } = useAuth();
   const { isAdmin, isManager, userName, unit, canViewAuditoria } = useUserRole();
+  const { eligible: betaEligible, rawEnabled: betaOn, toggleBeta } = useBetaPreference();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
   const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
