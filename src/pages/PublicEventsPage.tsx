@@ -416,28 +416,29 @@ export default function PublicEventsPage() {
 
 
 
-        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="flex-1 min-w-0">
-            <PageHeader 
-              title={showTrash ? "Lixeira de Eventos" : "Programação de Eventos"} 
-              description={showTrash ? "Eventos excluídos que podem ser recuperados ou removidos permanentemente." : "Confira os próximos eventos confirmados em todas as nossas unidades."}
-              className="mb-0"
-            />
-          </div>
-          {isAuthenticated && isAdmin && (
-            <div className="flex items-center gap-2 shrink-0">
-              <Button
-                variant={showTrash ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowTrash(!showTrash)}
-                className="rounded-full gap-2"
-              >
-                <Eye className="h-4 w-4" />
-                {showTrash ? "Ver Eventos Ativos" : "Ver Lixeira"}
-              </Button>
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              <PageHeader 
+                title={showTrash ? "Lixeira de Eventos" : "Programação de Eventos"} 
+                description={showTrash ? "Eventos excluídos que podem ser recuperados ou removidos permanentemente." : "Confira os próximos eventos confirmados em todas as nossas unidades."}
+                className="mb-0"
+              />
             </div>
-          )}
-        </div>
+            {isAuthenticated && isAdmin && (
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  variant={showTrash ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowTrash(!showTrash)}
+                  className="rounded-full gap-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  {showTrash ? "Ver Eventos Ativos" : "Ver Lixeira"}
+                </Button>
+              </div>
+            )}
+          </div>
           
           <div className="mt-6 relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
