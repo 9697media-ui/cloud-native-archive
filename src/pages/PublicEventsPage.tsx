@@ -189,11 +189,9 @@ export default function PublicEventsPage() {
                 <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none mb-4`}>
                   {event.unit}
                 </Badge>
-                {(event.banner_image_desktop || event.banner_url_desktop || event.banner_url_mobile) && (
-                  <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 max-w-2xl leading-tight">
-                    {event.title}
-                  </h2>
-                )}
+                <h2 className="text-3xl md:text-6xl font-bold text-white mb-4 max-w-3xl leading-tight drop-shadow-lg">
+                  {event.title}
+                </h2>
                 <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5" />
