@@ -202,7 +202,7 @@ export default function PublicEventsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {!isAuthenticated && (
+      {( !isAuthenticated || user?.email === 'visitante@publico.local') && (
         <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -451,7 +451,7 @@ export default function PublicEventsPage() {
           </div>
         </div>
 
-        {!isAuthenticated && (
+        {(!isAuthenticated || user?.email === 'visitante@publico.local') && (
           <div className="mb-6 p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -571,7 +571,7 @@ export default function PublicEventsPage() {
         )}
       </main>
 
-      {!isAuthenticated && (
+      {(!isAuthenticated || user?.email === 'visitante@publico.local') && (
         <footer className="bg-white border-t border-slate-200 py-12 px-6 mt-12">
           <div className="max-w-7xl mx-auto text-center">
             <img src={logoImg} alt="anabrasil" className="h-8 w-8 rounded-lg mx-auto mb-4 opacity-50 grayscale" />
