@@ -12,10 +12,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle2, Plus, X, Globe, Eye, Layout, CalendarDays } from 'lucide-react';
+import { CheckCircle2, Plus, X, Globe, Eye, Layout, CalendarDays, Lock, Share2, Info } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FileUpload } from './FileUpload';
 import { EventDetailDialog } from './EventDetailDialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Props {
   open: boolean;
@@ -309,23 +310,58 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   </Select>
                 </div>
                 <div>
-                  <Label>Visibilidade</Label>
-                  <div className="flex items-center gap-3 rounded-lg border border-border p-3 mt-1">
-                    <Switch
-                      id="visibility"
-                      checked={form.visibility === 'publico'}
-                      onCheckedChange={v => setForm({ ...form, visibility: v ? 'publico' : 'interno' })}
-                    />
-                    <Label htmlFor="visibility" className="cursor-pointer flex-1">
-                      {form.visibility === 'publico' ? 'Público (Visível para todos)' : 'Interno (Apenas para equipe)'}
-                    </Label>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Label className="text-sm font-semibold">Onde este evento deve aparecer?</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs">Eventos públicos ficam visíveis para visitantes sem login em anabrasil.com/eventos. Eventos internos aparecem apenas para a equipe no calendário restrito.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, visibility: 'interno' })}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                        form.visibility === 'interno' 
+                          ? 'border-primary bg-primary/5 text-primary shadow-sm' 
+                          : 'border-border bg-card text-muted-foreground hover:border-muted-foreground/30'
+                      }`}
+                    >
+                      <Lock className={`h-6 w-6 mb-2 ${form.visibility === 'interno' ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <span className="text-sm font-bold">Privado / Interno</span>
+                      <span className="text-[10px] opacity-70">Apenas para equipe</span>
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, visibility: 'publico' })}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                        form.visibility === 'publico' 
+                          ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' 
+                          : 'border-border bg-card text-muted-foreground hover:border-muted-foreground/30'
+                      }`}
+                    >
+                      <Globe className={`h-6 w-6 mb-2 ${form.visibility === 'publico' ? 'text-blue-500' : 'text-muted-foreground'}`} />
+                      <span className="text-sm font-bold">Público / Site</span>
+                      <span className="text-[10px] opacity-70">Visível para todos</span>
+                    </button>
                   </div>
                 </div>
 
                 {form.visibility === 'publico' && (
-                  <div className={`space-y-4 rounded-lg border border-border p-3 bg-muted/20 ${!isAdmin ? 'opacity-70 pointer-events-none grayscale-[0.5]' : ''}`}>
-                    <div className="flex justify-between items-center">
-                      <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Banners para Página Pública</Label>
+                  <div className={`space-y-6 rounded-2xl border-2 border-blue-200 p-5 bg-blue-50/30 ${!isAdmin ? 'opacity-70 pointer-events-none grayscale-[0.5]' : ''}`}>
+                    <div className="flex justify-between items-center border-b border-blue-100 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Share2 className="h-4 w-4 text-blue-600" />
+                        <Label className="text-sm font-bold text-blue-800 uppercase tracking-wider">Checklist de Publicação</Label>
+                      </div>
                       {!isAdmin && <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-600 border-amber-200">Apenas Admin</Badge>}
                     </div>
                     
