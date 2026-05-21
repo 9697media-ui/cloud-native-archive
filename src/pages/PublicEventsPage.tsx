@@ -19,6 +19,10 @@ import { toast } from 'sonner';
 import { EventDetailDialog } from '@/components/EventDetailDialog';
 import EventFormDialog from '@/components/EventFormDialog';
 import { BannerMissingDialog } from '@/components/BannerMissingDialog';
+import ConflictDialog from '@/components/ConflictDialog';
+import FilteredEventsDialog from '@/components/FilteredEventsDialog';
+import EventDetailPanel from '@/components/EventDetailPanel';
+import { useUserRole as _ur } from '@/hooks/useUserRole';
 
 export default function PublicEventsPage() {
   const { isAuthenticated } = useAuth();
@@ -28,13 +32,16 @@ export default function PublicEventsPage() {
   const [selectedEventForDetail, setSelectedEventForDetail] = useState<AppEvent | null>(null);
   const [showBannerMissingDialog, setShowBannerMissingDialog] = useState(false);
   const [eventToToggleBanner, setEventToToggleBanner] = useState<AppEvent | null>(null);
-  const { isAdmin } = useUserRole();
-  const { updateEvent, setSelectedEvent, selectedEvent } = useApp();
+  const [showConflicts, setShowConflicts] = useState(false);
+  const [showFiltered, setShowFiltered] = useState<'marketing' | 'partners' | 'confirmed' | 'pending' | null>(null);
+  const [detailEvent, setDetailEvent] = useState<AppEvent | null>(null);
+  const [showDetail, setShowDetail] = useState(false);
+  const { isAdmin, canEdit } = useUserRole();
+  const { updateEvent, setSelectedEvent, selectedEvent, deleteEvent } = useApp();
   
-  // Stats should be calculated from ALL events if logged in, to match dashboard
   const allEvents = useFilteredEvents(false);
-  // But display events are only confirmed/public
   const events = useFilteredEvents(true);
+
 
   const stats = useMemo(() => {
     return allEvents.reduce((acc, e) => {
