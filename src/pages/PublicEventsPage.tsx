@@ -42,8 +42,6 @@ export default function PublicEventsPage() {
   const [showTrash, setShowTrash] = useState(false);
   const allEvents = useFilteredEvents(false, showTrash);
   const events = useFilteredEvents(true, false); // Public view never shows trash
-  
-  console.log("PublicEventsPage - Raw Events from Hook:", events);
 
 
   const stats = useMemo(() => {
@@ -232,7 +230,6 @@ export default function PublicEventsPage() {
 
       {bannerEvents.length > 0 && (
         <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden bg-slate-900">
-          {/* Debug: {bannerEvents.length} eventos no banner */}
           {bannerEvents.map((event, index) => (
             <div 
               key={event.id}
@@ -255,10 +252,10 @@ export default function PublicEventsPage() {
                 </>
               ) : (
                 <div 
-                  className="w-full h-full flex items-center justify-start px-8 md:px-16"
+                  className="w-full h-full flex items-center justify-center px-8 md:px-16"
                   style={{ backgroundColor: event.custom_color || '#1e293b' }}
                 >
-                  {/* Fundo colorido sólido sem conteúdo centralizado */}
+                  {/* Fallback content if no image */}
                 </div>
               )}
               
