@@ -4,7 +4,7 @@ import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useApp } from '@/contexts/AppContext';
 import { AppEvent, UNIT_BG_COLORS } from '@/types';
-import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight, LayoutPanelTop, Eye, EyeOff, Globe } from 'lucide-react';
+import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight, LayoutPanelTop, Eye, EyeOff, Globe, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -318,6 +318,27 @@ export default function PublicEventsPage() {
       )}
 
       <main className="max-w-7xl mx-auto px-6 py-8">
+        {isAuthenticated && (
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 sm:gap-4 mb-8">
+            {[
+              { label: 'Confirmados', value: events.filter(e => e.status === 'confirmado').length, icon: CheckCircle2, color: 'text-emerald-500' },
+              { label: 'Pendentes', value: events.filter(e => e.status === 'pendente').length, icon: Clock, color: 'text-amber-500' },
+              { label: 'Com Conflito', value: events.filter(e => e.has_conflict).length, icon: AlertCircle, color: 'text-rose-500' },
+              { label: 'Total Geral', value: events.length, icon: CalendarDays, color: 'text-blue-500' },
+            ].map(s => (
+              <Card key={s.label} className="border-slate-200 shadow-sm">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-medium text-slate-500 sm:text-xs uppercase tracking-wider">{s.label}</p>
+                    <s.icon className={`h-5 w-5 ${s.color} opacity-70 shrink-0 sm:h-6 sm:w-6`} />
+                  </div>
+                  <p className="mt-1 text-2xl font-bold text-slate-900 sm:mt-2 sm:text-3xl">{s.value}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
         <div className="mb-8">
           <PageHeader 
             title="Programação de Eventos" 
