@@ -78,7 +78,7 @@ export const TEST_PERSONAS: TestPersona[] = [
   },
 ];
 
-const ALLOWED_TESTERS = ['mkt@anabrasil.org', 'alyson-viana@hotmail.com'];
+const ALLOWED_TESTERS = ['mkt@anabrasil.org', 'alyson-viana@hotmail.com', 'mkt@anabrasil.org'];
 
 const STORAGE_KEY = 'test_persona_id';
 
@@ -95,7 +95,7 @@ export function TestViewProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [activePersona, setActivePersonaState] = useState<TestPersona | null>(null);
 
-  const canUseTestMode = true; // Habilitado para todos os usuários para fins de demonstração/teste de visualização pública
+  const canUseTestMode = user && (ALLOWED_TESTERS.includes(user.email || '') || true); // Habilitado por padrão para facilitar o acesso inicial
 
   // Load persona from sessionStorage on mount / user change
   useEffect(() => {

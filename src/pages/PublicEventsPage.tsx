@@ -4,7 +4,7 @@ import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useApp } from '@/contexts/AppContext';
 import { AppEvent, UNIT_BG_COLORS } from '@/types';
-import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight, LayoutPanelTop, Eye, EyeOff, Globe, CheckCircle2, AlertCircle, Camera, Handshake } from 'lucide-react';
+import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight, LayoutPanelTop, Eye, EyeOff, Globe, CheckCircle2, AlertCircle, Camera, Handshake, Rocket } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -300,6 +300,13 @@ export default function PublicEventsPage() {
                   />
                 )}
                 <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
+                  {showBetaUI && (
+                    <div className="flex items-center gap-2 bg-primary px-3 py-1 rounded-full text-white text-xs font-bold animate-pulse">
+                      <Rocket className="h-3 w-3" />
+                      BETA Ativo
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5" />
                     <span>{format(new Date(event.start_datetime), "dd 'de' MMMM", { locale: ptBR })}</span>
@@ -491,9 +498,10 @@ export default function PublicEventsPage() {
             {sortedEvents.map(event => (
               <Card 
                 key={event.id} 
-                className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer"
+                className={`overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer ${showBetaUI ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                 onClick={() => handleCardClick(event)}
               >
+
                 <div className="relative aspect-video overflow-hidden bg-slate-100">
                   {event.banner_url_desktop || event.banner_url_mobile ? (
                     <img 
