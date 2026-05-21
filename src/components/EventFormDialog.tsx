@@ -136,6 +136,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       banner_image_mobile: form.banner_image_mobile || '',
       custom_color: form.custom_color || SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
       show_in_banner: form.show_in_banner || false,
+      slug: form.slug || '',
     };
 
     const found = detectConflicts(fullEvent);
