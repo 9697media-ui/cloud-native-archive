@@ -342,52 +342,50 @@ export default function PublicEventsPage() {
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         {isAuthenticated && (
-          <div className="flex flex-wrap items-center gap-2 mb-8">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] sm:text-xs font-medium">
-              <CalendarDays className="h-3.5 w-3.5" />
-              <span>Eventos: <span className="font-bold">{stats.total}</span></span>
+          <div className="w-full flex flex-wrap items-center gap-2 mb-8">
+            <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] sm:text-xs font-medium justify-center whitespace-nowrap">
+              <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Eventos: <span className="font-bold">{stats.total}</span></span>
             </div>
             
             <button 
               onClick={() => setShowFiltered('confirmed')}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] sm:text-xs font-medium hover:bg-emerald-100 transition-colors"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] sm:text-xs font-medium hover:bg-emerald-100 transition-colors justify-center whitespace-nowrap"
             >
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              <span>Confirmados: <span className="font-bold">{stats.confirmed}</span></span>
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Confirmados: <span className="font-bold">{stats.confirmed}</span></span>
             </button>
 
             <button 
               onClick={() => setShowFiltered('pending')}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 text-[10px] sm:text-xs font-medium hover:bg-amber-100 transition-colors"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 text-[10px] sm:text-xs font-medium hover:bg-amber-100 transition-colors justify-center whitespace-nowrap"
             >
-              <Clock className="h-3.5 w-3.5" />
-              <span>Pendentes: <span className="font-bold">{stats.pending}</span></span>
+              <Clock className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Pendentes: <span className="font-bold">{stats.pending}</span></span>
             </button>
 
             <button 
               onClick={() => setShowConflicts(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-100 text-[10px] sm:text-xs font-medium hover:bg-rose-100 transition-colors"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-100 text-[10px] sm:text-xs font-medium hover:bg-rose-100 transition-colors justify-center whitespace-nowrap"
             >
-              <AlertCircle className="h-3.5 w-3.5" />
-              <span>Conflitos: <span className="font-bold">{stats.conflict}</span></span>
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Conflitos: <span className="font-bold">{stats.conflict}</span></span>
             </button>
-
-            <div className="h-4 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
 
             <button 
               onClick={() => setShowFiltered('marketing')}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] sm:text-xs font-medium hover:bg-indigo-100 transition-colors"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] sm:text-xs font-medium hover:bg-indigo-100 transition-colors justify-center whitespace-nowrap"
             >
-              <Camera className="h-3.5 w-3.5" />
-              <span>Marketing: <span className="font-bold">{stats.marketing}</span></span>
+              <Camera className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Marketing: <span className="font-bold">{stats.marketing}</span></span>
             </button>
 
             <button 
               onClick={() => setShowFiltered('partners')}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 border border-purple-100 text-[10px] sm:text-xs font-medium hover:bg-purple-100 transition-colors"
+              className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 border border-purple-100 text-[10px] sm:text-xs font-medium hover:bg-purple-100 transition-colors justify-center whitespace-nowrap"
             >
-              <Handshake className="h-3.5 w-3.5" />
-              <span>Parceiros: <span className="font-bold">{stats.partners}</span></span>
+              <Handshake className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Parceiros: <span className="font-bold">{stats.partners}</span></span>
             </button>
           </div>
         )}
