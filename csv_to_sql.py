@@ -24,8 +24,12 @@ with open('spreadsheet.csv', mode='r', encoding='utf-8') as f:
                 parts = date_str.split('/')
                 if len(parts) == 3:
                     day, month, year = parts
-                    time = time_str if time_str and ':' in time_str else '08:00'
-                    start_datetime = f"'{year}-{month}-{day}T{time}:00Z'"
+                    time = time_str.strip() if time_str and ':' in time_str else '08:00:00'
+                    if time.count(':') == 1:
+                        time += ':00'
+                    elif time.count(':') >= 2:
+                        time = ":".join(time.split(':')[:3])
+                    start_datetime = f"'{year}-{month}-{day}T{time}Z'"
             except:
                 pass
         
