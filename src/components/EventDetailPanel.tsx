@@ -100,13 +100,22 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
               </div>
             )}
             {(event.target_audience || event.support_team || event.food_logistics || event.equipment_needed || event.printed_materials) && (
-              <div className="rounded-lg border border-border p-3 space-y-2 bg-muted/20">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Logística e Apoio</p>
-                {event.target_audience && <DetailRow label="Público-Alvo" value={event.target_audience} />}
-                {event.support_team && <DetailRow label="Equipe" value={event.support_team} />}
-                {event.food_logistics && <DetailRow label="Alimentação" value={event.food_logistics} />}
-                {event.equipment_needed && <DetailRow label="Equipamentos" value={event.equipment_needed} />}
-                {event.printed_materials && <DetailRow label="Materiais Impressos" value={event.printed_materials} />}
+              <div className="rounded-xl border border-border p-4 space-y-3 bg-muted/10">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 mb-2">
+                   Detalhes Logísticos
+                </p>
+                <div className="grid grid-cols-1 gap-3">
+                  {event.target_audience && <DetailRow label="Público-Alvo" value={event.target_audience} />}
+                  {event.support_team && <DetailRow label="Equipe de Apoio" value={event.support_team} />}
+                  {event.food_logistics && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground">Logística de Alimentação</p>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{event.food_logistics}</p>
+                    </div>
+                  )}
+                  {event.equipment_needed && <DetailRow label="Equipamentos" value={event.equipment_needed} />}
+                  {event.printed_materials && <DetailRow label="Materiais Impressos" value={event.printed_materials} />}
+                </div>
               </div>
             )}
             {event.marketing_request && (

@@ -109,6 +109,19 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     if (!form.start_datetime) errs.start_datetime = 'Data/hora início obrigatória';
     if (!form.end_datetime) errs.end_datetime = 'Data/hora término obrigatória';
     if (!form.location?.trim()) errs.location = 'Localização obrigatória';
+    
+    // Novos campos obrigatórios
+    if (!form.target_audience?.trim()) errs.target_audience = 'Selecione o público-alvo';
+    if (!form.support_team?.trim()) errs.support_team = 'Informe a equipe de apoio';
+    if (!form.food_logistics?.trim()) errs.food_logistics = 'Informe a logística de alimentação';
+    if (!form.equipment_needed?.trim()) errs.equipment_needed = 'Informe os equipamentos necessários';
+    
+    // Condicional para marketing
+    if (form.marketing_request) {
+      if (!form.marketing_info?.trim()) errs.marketing_info = 'Descreva os detalhes para o marketing';
+      if (!form.printed_materials?.trim()) errs.printed_materials = 'Informe os materiais impressos';
+    }
+
     if (form.start_datetime && form.end_datetime && new Date(form.start_datetime) >= new Date(form.end_datetime)) {
       errs.end_datetime = 'Término deve ser após o início';
     }
@@ -550,56 +563,128 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   </div>
                 )}
                 
-                <div className="space-y-4 pt-4 border-t">
+                <div className="space-y-6 pt-4 border-t">
                   <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                    <Layout className="h-4 w-4" /> Detalhes Logísticos (Planilha)
+                    <Layout className="h-4 w-4" /> Detalhes Logísticos e Público-Alvo
                   </Label>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-4">
                     <div>
-                      <Label className="text-xs">Público-Alvo Específico</Label>
-                      <Input 
-                        value={form.target_audience} 
-                        onChange={e => setForm({ ...form, target_audience: e.target.value })} 
-                        placeholder="Ex: Atendidos, Comunidade..." 
-                      />
+                      <Label className="text-xs font-semibold">O EVENTO SERÁ VOLTADO PARA: *</Label>
+                      <div className="grid grid-cols-1 gap-2 mt-2">
+                        {[
+                          "Os funcionários",
+                          "Os atendidos",
+                          "Os atendidos e suas famílias",
+                          "Será aberto para a comunidade"
+                        ].map((option) => (
+                          <label key={option} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
+                            <input
+                              type="radio"
+                              name="target_audience"
+                              value={option}
+                              checked={form.target_audience === option}
+                              onChange={e => setForm({ ...form, target_audience: e.target.value })}
+                              className="h-4 w-4 text-primary accent-primary"
+                            />
+                            {option}
+                          </label>
+                        ))}
+                        <div className="flex items-center gap-2 p-2 rounded-md border border-transparent">
+                          <input
+                            type="radio"
+                            name="target_audience"
+                            id="target_other"
+                            value="Outro"
+                            checked={form.target_audience !== "" && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience || "")}
+                            onChange={() => setForm({ ...form, target_audience: "Outro: " })}
+                            className="h-4 w-4 text-primary accent-primary"
+                          />
+                          <Label htmlFor="target_other" className="text-sm cursor-pointer">Outro:</Label>
+                          {(form.target_audience?.startsWith("Outro: ") || (form.target_audience !== "" && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience || ""))) && (
+                            <Input 
+                              className="h-8 flex-1 ml-2"
+                              value={form.target_audience?.replace("Outro: ", "")}
+                              onChange={e => setForm({ ...form, target_audience: `Outro: ${e.target.value}` })}
+                              placeholder="Especifique..."
+                            />
+                          )}
+                        </div>
+                      </div>
+                      {errors.target_audience && <p className="mt-1 text-xs text-destructive">{errors.target_audience}</p>}
                     </div>
+
                     <div>
-                      <Label className="text-xs">Equipe de Apoio</Label>
-                      <Input 
-                        value={form.support_team} 
-                        onChange={e => setForm({ ...form, support_team: e.target.value })} 
-                        placeholder="Ex: Funcionários, Voluntários..." 
-                      />
+                      <Label className="text-xs font-semibold">IRÃO AUXILIAR NO EVENTO: *</Label>
+                      <div className="grid grid-cols-1 gap-2 mt-2">
+                        {["Funcionários", "Voluntários"].map((option) => (
+                          <label key={option} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
+                            <Checkbox 
+                              checked={form.support_team?.includes(option)}
+                              onCheckedChange={(checked) => {
+                                const current = form.support_team ? form.support_team.split(", ") : [];
+                                let next;
+                                if (checked) {
+                                  next = [...current, option];
+                                } else {
+                                  next = current.filter(c => c !== option);
+                                }
+                                setForm({ ...form, support_team: next.join(", ") });
+                              }}
+                            />
+                            {option}
+                          </label>
+                        ))}
+                        <div className="flex items-center gap-2 p-2 rounded-md">
+                          <Checkbox 
+                            checked={form.support_team !== undefined && form.support_team !== "" && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))}
+                            onCheckedChange={(checked) => {
+                              if (!checked) {
+                                const next = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
+                                setForm({ ...form, support_team: next.join(", ") });
+                              }
+                            }}
+                          />
+                          <Label className="text-sm cursor-pointer">Outro:</Label>
+                          <Input 
+                            className="h-8 flex-1 ml-2"
+                            value={(form.support_team?.split(", ") || []).filter(val => !["Funcionários", "Voluntários"].includes(val)).join(", ")}
+                            onChange={e => {
+                              const base = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
+                              if (e.target.value.trim()) {
+                                setForm({ ...form, support_team: [...base, e.target.value].join(", ") });
+                              } else {
+                                setForm({ ...form, support_team: base.join(", ") });
+                              }
+                            }}
+                            placeholder="Especifique..."
+                          />
+                        </div>
+                      </div>
+                      {errors.support_team && <p className="mt-1 text-xs text-destructive">{errors.support_team}</p>}
                     </div>
-                  </div>
 
-                  <div>
-                    <Label className="text-xs">Logística de Alimentação</Label>
-                    <Textarea 
-                      value={form.food_logistics} 
-                      onChange={e => setForm({ ...form, food_logistics: e.target.value })} 
-                      placeholder="Detalhes sobre ingredientes, horários..." 
-                      rows={2} 
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-xs">Equipamentos Necessários</Label>
+                      <Label className="text-xs font-semibold">Logística de Alimentação *</Label>
+                      <Textarea 
+                        value={form.food_logistics} 
+                        onChange={e => setForm({ ...form, food_logistics: e.target.value })} 
+                        placeholder="Ex: Almoço para 30 pessoas, coffee break às 10h..." 
+                        rows={2} 
+                        className={errors.food_logistics ? "border-destructive" : ""}
+                      />
+                      {errors.food_logistics && <p className="mt-1 text-xs text-destructive">{errors.food_logistics}</p>}
+                    </div>
+
+                    <div>
+                      <Label className="text-xs font-semibold">Equipamentos Necessários *</Label>
                       <Input 
                         value={form.equipment_needed} 
                         onChange={e => setForm({ ...form, equipment_needed: e.target.value })} 
-                        placeholder="Ex: Som, Microfone, Pula-pula..." 
+                        placeholder="Ex: Som, Microfone, Projetor..." 
+                        className={errors.equipment_needed ? "border-destructive" : ""}
                       />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Materiais Impressos (Qtd/Tipo)</Label>
-                      <Input 
-                        value={form.printed_materials} 
-                        onChange={e => setForm({ ...form, printed_materials: e.target.value })} 
-                        placeholder="Ex: 50 Panfletos, 2 Banners..." 
-                      />
+                      {errors.equipment_needed && <p className="mt-1 text-xs text-destructive">{errors.equipment_needed}</p>}
                     </div>
                   </div>
                 </div>
@@ -620,15 +705,29 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   </div>
 
                   {form.marketing_request && (
-                    <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-3 space-y-2 animate-in fade-in slide-in-from-top-1">
-                      <Label className="text-xs font-semibold text-blue-800">Informações para a Arte</Label>
-                      <Textarea 
-                        value={form.marketing_info} 
-                        onChange={e => setForm({ ...form, marketing_info: e.target.value })} 
-                        placeholder="Descreva o que deve conter na arte (textos, logos, referências)..." 
-                        rows={3}
-                        className="bg-white border-blue-200 focus-visible:ring-blue-500"
-                      />
+                    <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-4 space-y-4 animate-in fade-in slide-in-from-top-1">
+                      <div>
+                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Minuta / Briefing para Marketing *</Label>
+                        <Textarea 
+                          value={form.marketing_info} 
+                          onChange={e => setForm({ ...form, marketing_info: e.target.value })} 
+                          placeholder="Objetivo da arte, peças desejadas, prazo, canais de divulgação..." 
+                          rows={4}
+                          className={`mt-1 bg-white border-blue-200 focus-visible:ring-blue-500 ${errors.marketing_info ? "border-destructive" : ""}`}
+                        />
+                        {errors.marketing_info && <p className="mt-1 text-xs text-destructive">{errors.marketing_info}</p>}
+                      </div>
+
+                      <div>
+                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Materiais Impressos Necessários *</Label>
+                        <Input 
+                          value={form.printed_materials} 
+                          onChange={e => setForm({ ...form, printed_materials: e.target.value })} 
+                          placeholder="Ex: 100 folders, 2 banners 1x2m, certificados..." 
+                          className={`mt-1 bg-white border-blue-200 focus-visible:ring-blue-500 ${errors.printed_materials ? "border-destructive" : ""}`}
+                        />
+                        {errors.printed_materials && <p className="mt-1 text-xs text-destructive">{errors.printed_materials}</p>}
+                      </div>
                     </div>
                   )}
                 </div>
