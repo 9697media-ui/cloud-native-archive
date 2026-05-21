@@ -352,7 +352,9 @@ export default function UsersPage() {
       created_at: dbu.created_at,
       updated_at: dbu.created_at,
       view_restrictions: dbu.view_restrictions,
+      is_beta_tester: dbu.is_beta_tester,
     }));
+
 
     const dbEmails = new Set(mappedDbUsers.map(u => u.email.toLowerCase()));
     const uniqueMockUsers = users.filter(u => !dbEmails.has(u.email.toLowerCase()));
@@ -429,8 +431,10 @@ export default function UsersPage() {
             unit: editForm.unit,
             permission_level: editForm.permission_level,
             is_active: editForm.is_active,
+            is_beta_tester: editForm.is_beta_tester,
             updated_at: new Date().toISOString(),
           })
+
           .eq('user_id', selectedUser.id);
           
         if (profileError) {
@@ -988,8 +992,14 @@ export default function UsersPage() {
                                 {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                               </div>
                               <div className="min-w-0">
-                                <p className="font-medium text-foreground truncate">{user.name}</p>
+                                <div className="flex items-center gap-1.5">
+                                  <p className="font-medium text-foreground truncate">{user.name}</p>
+                                  {user.is_beta_tester && (
+                                    <Badge variant="outline" className="text-[9px] bg-primary/10 text-primary border-primary/20 h-4 px-1">BETA</Badge>
+                                  )}
+                                </div>
                                 <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+
                               </div>
                             </div>
                             {renderActions(user)}
@@ -1535,7 +1545,23 @@ export default function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-4 p-4 border rounded-lg bg-primary/5">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-semibold flex items-center gap-2">
+                      <Rocket className="h-4 w-4 text-primary" />
+                      Acesso Beta Tester
+                    </Label>
+                    <p className="text-xs text-muted-foreground">Este usuário verá o ambiente de testes/beta.</p>
+                  </div>
+                  <Switch 
+                    checked={!!editForm.is_beta_tester}
+                    onCheckedChange={checked => setEditForm({ ...editForm, is_beta_tester: checked })}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2 px-1">
+
                 <Switch checked={editForm.is_active} onCheckedChange={v => setEditForm({ ...editForm, is_active: v })} />
                 <Label>Usuário ativo</Label>
               </div>
