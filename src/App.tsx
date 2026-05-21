@@ -49,7 +49,6 @@ const App = () => (
                 <Route path="/login" element={
                   <AuthRedirect><LoginPage /></AuthRedirect>
                 } />
-                <Route path="/eventos" element={<PublicEventsPage />} />
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={
@@ -58,6 +57,7 @@ const App = () => (
                   <Route path="/calendario" element={
                     <ProtectedRoute><CalendarPage /></ProtectedRoute>
                   } />
+                  <Route path="/eventos" element={<PublicEventsPage />} />
                   <Route path="/usuarios" element={
                     <ProtectedRoute><UsersPage /></ProtectedRoute>
                   } />
