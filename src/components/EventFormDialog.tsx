@@ -422,6 +422,19 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       />
                     </div>
 
+                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                      <div className="flex flex-col">
+                        <Label htmlFor="full_height_title" className="text-sm font-medium">Ocupar Toda a Altura</Label>
+                        <p className="text-[10px] text-muted-foreground">O título ou logo cresce para preencher o banner (estilo cinema).</p>
+                      </div>
+                      <Switch
+                        id="full_height_title"
+                        checked={form.full_height_title || false}
+                        onCheckedChange={v => setForm({ ...form, full_height_title: v })}
+                        disabled={!isAdmin}
+                      />
+                    </div>
+
                     {form.use_logo_as_title && (
                       <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300">
                         <FileUpload 
