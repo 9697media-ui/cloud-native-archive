@@ -64,6 +64,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   marketing_info: '',
   printed_materials: '',
   equipment_needed: '',
+  marketing_items: [],
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
