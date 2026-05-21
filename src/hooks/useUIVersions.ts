@@ -23,6 +23,7 @@ export interface UIVersion {
 export function useUIVersions() {
   const { user } = useAuth();
   const { isAdmin, isBetaTester } = useUserRole();
+  const { betaEnabled, eligible: betaEligible, toggleBeta } = useBetaPreference();
   const [currentVersion, setCurrentVersion] = useState<any>(null);
   const [versions, setVersions] = useState<UIVersion[]>([]);
   const [loading, setLoading] = useState(true);
