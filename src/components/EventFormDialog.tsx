@@ -57,6 +57,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   show_banner_fade: true,
   full_height_title: false,
   banner_display_time: 5,
+  show_banner_overlay: true,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -148,6 +149,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       show_banner_fade: form.show_banner_fade !== undefined ? form.show_banner_fade : true,
       full_height_title: form.full_height_title || false,
       banner_display_time: form.banner_display_time || 5,
+      show_banner_overlay: form.show_banner_overlay !== undefined ? form.show_banner_overlay : true,
     };
   };
 
@@ -407,6 +409,19 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
+                        <Label htmlFor="show_banner_overlay" className="text-sm font-medium">Cortina de Opacidade</Label>
+                        <p className="text-[10px] text-muted-foreground">Escurece levemente a imagem para destacar o texto.</p>
+                      </div>
+                      <Switch
+                        id="show_banner_overlay"
+                        checked={form.show_banner_overlay !== undefined ? form.show_banner_overlay : true}
+                        onCheckedChange={v => setForm({ ...form, show_banner_overlay: v })}
+                        disabled={!isAdmin}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                      <div className="flex flex-col">
                         <Label htmlFor="show_banner_fade" className="text-sm font-medium">Efeito de Sombreamento (Fade)</Label>
                         <p className="text-[10px] text-muted-foreground">Adiciona um degradê na base do banner para melhorar a leitura.</p>
                       </div>
@@ -564,6 +579,10 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   <div className="bg-white h-full">
                     {/* Visualização de Slide do Banner */}
                     <div className={`relative ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'aspect-[21/12]' : 'aspect-[21/9]'} bg-slate-900 overflow-hidden`}>
+                      {form.show_banner_overlay !== false && (
+                        <div className="absolute inset-0 z-0 bg-slate-950/40" />
+                      )}
+                      
                       {form.show_banner_fade !== false && (
                         <div className="absolute inset-0 z-10 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                       )}

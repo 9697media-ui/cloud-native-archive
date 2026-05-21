@@ -122,6 +122,7 @@ export type Database = {
           partner_type: string | null
           partners: Json | null
           show_banner_fade: boolean | null
+          show_banner_overlay: boolean | null
           show_in_banner: boolean | null
           slug: string | null
           start_datetime: string
@@ -162,6 +163,7 @@ export type Database = {
           partner_type?: string | null
           partners?: Json | null
           show_banner_fade?: boolean | null
+          show_banner_overlay?: boolean | null
           show_in_banner?: boolean | null
           slug?: string | null
           start_datetime: string
@@ -202,6 +204,7 @@ export type Database = {
           partner_type?: string | null
           partners?: Json | null
           show_banner_fade?: boolean | null
+          show_banner_overlay?: boolean | null
           show_in_banner?: boolean | null
           slug?: string | null
           start_datetime?: string
