@@ -908,7 +908,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 {form.has_unit_collaboration && (
                   <div className="space-y-3 rounded-lg border border-border p-3">
                     <div>
-                      <Label className="text-sm font-medium">Unidades Parceiras</Label>
+                      <Label className="text-sm font-semibold mb-2 block">Unidades parceiras</Label>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {UNITS.filter(u => u !== form.unit).map(u => (
                           <label key={u} className="flex items-center gap-1.5 text-sm cursor-pointer">
@@ -930,7 +930,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       </div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">Instituições Externas</Label>
+                      <Label className="text-sm font-semibold mb-2 block">Instituições externas</Label>
                       <div className="space-y-2 mt-2">
                         {(form.external_collaborators || []).map((ext, idx) => (
                           <div key={idx} className="space-y-2 p-3 bg-muted/30 rounded-md border border-border">
