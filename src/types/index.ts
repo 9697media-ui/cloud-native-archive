@@ -37,6 +37,8 @@ export interface AppEvent {
   attachments: string[]; // URLs of uploaded files
   banner_url_desktop?: string;
   banner_url_mobile?: string;
+  banner_image_desktop?: string;
+  banner_image_mobile?: string;
   custom_color?: string;
   show_in_banner?: boolean;
 }
