@@ -580,11 +580,11 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     {/* Visualização de Slide do Banner */}
                     <div className={`relative ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'aspect-[21/12]' : 'aspect-[21/9]'} bg-slate-900 overflow-hidden`}>
                       {form.show_banner_overlay !== false && (
-                        <div className="absolute inset-0 z-0 bg-slate-950/40" />
+                        <div className="absolute inset-0 z-[5] bg-slate-950/40" />
                       )}
                       
                       {form.show_banner_fade !== false && (
-                        <div className="absolute inset-0 z-10 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                        <div className="absolute inset-0 z-[10] bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                       )}
                       
                       {(form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile) ? (
@@ -599,7 +599,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         </div>
                       )}
 
-                      <div className="absolute bottom-0 left-0 right-0 p-4 z-20 flex flex-col items-start justify-end h-full">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 z-[20] flex flex-col items-start justify-end h-full">
                         <Badge className="bg-primary/80 text-white mb-2 text-[10px] border-none backdrop-blur-sm shrink-0">{form.unit || 'UNIDADE'}</Badge>
                         
                         {form.use_logo_as_title && form.event_logo_url ? (
