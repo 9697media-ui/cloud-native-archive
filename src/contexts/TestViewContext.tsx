@@ -78,7 +78,7 @@ export const TEST_PERSONAS: TestPersona[] = [
   },
 ];
 
-const ALLOWED_TESTERS = ['mkt@anabrasil.org', 'alyson-viana@hotmail.com'];
+const ALLOWED_TESTERS = ['mkt@anabrasil.org', 'alyson-viana@hotmail.com', 'mkt@anabrasil.org'];
 
 const STORAGE_KEY = 'test_persona_id';
 
