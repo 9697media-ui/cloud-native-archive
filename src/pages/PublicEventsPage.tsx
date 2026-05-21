@@ -39,6 +39,7 @@ export default function PublicEventsPage() {
   const [showDetail, setShowDetail] = useState(false);
   const { isAdmin, canEdit } = useUserRole();
   const { updateEvent, setSelectedEvent, selectedEvent, deleteEvent } = useApp();
+  const { showBetaUI } = useUIVersions();
   
   const [showTrash, setShowTrash] = useState(false);
   const allEvents = useFilteredEvents(false, showTrash);
@@ -553,8 +554,8 @@ export default function PublicEventsPage() {
                       )}
                     </div>
                   </div>
-                  <CardTitle className="text-xl line-clamp-2 leading-tight text-slate-900 group-hover:text-primary transition-colors">
-                    {event.title}
+                  <CardTitle className={`text-xl line-clamp-2 leading-tight group-hover:text-primary transition-colors ${showBetaUI ? 'text-primary font-black' : 'text-slate-900'}`}>
+                    {event.title} {showBetaUI && <Badge className="ml-2">BETA</Badge>}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-1">
