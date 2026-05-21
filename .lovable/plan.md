@@ -1,56 +1,84 @@
-## Objetivo
+# Plano: Sistema de Beta Agnóstico de Hospedagem
 
-Reintroduzir o quadro **"Legenda e Funcionamento do Sistema"** (mostrado na imagem de referência) dentro da aba **Configurações de Visualização** (`/usuarios` → aba "Visualização"), no formato **card expansível**, seguindo o mesmo padrão visual do card "Solicitações de Aprovação" já existente na página.
+Objetivo: fazer o sistema de Beta/Snapshot funcionar identicamente no Lovable e na Cloudflare Pages, com o Supabase como fonte única da verdade.
 
-## Onde inserir
+## 1. Migration no Supabase
 
-Arquivo: `src/pages/UsersPage.tsx`
+Adicionar campos na tabela `ui_versions`:
+- `commit_sha` (text) — hash do commit do Git
+- `environment` (text) — `lovable` | `cloudflare-preview` | `cloudflare-production`
+- `is_active_beta` (boolean) — versão ativa para beta testers
+- `is_active_production` (boolean) — versão ativa para usuários finais
+- `deployed_at` (timestamp)
+- `deployed_by` (text)
 
-Posição: dentro do `<CardContent>` do card **"Configuração de Visualização por Perfil"** (linha 898), logo **após o bloco do toggle "Sistema de Restrição por Cargo"** (que termina na linha 937) e **antes do Alert "Configurações Inativas"** (linha 940).
+Criar índices para busca rápida por `is_active_beta` e `is_active_production`.
 
-Assim a legenda aparece junto às configurações que ela explica, dentro do mesmo card.
+## 2. Detecção de versão no frontend
 
-## Formato — card expansível (padrão "Solicitações de Aprovação")
+Criar `src/lib/version.ts`:
+- Lê `__APP_VERSION__` injetado pelo Vite no build
+- Lê `__APP_ENV__` (lovable/cloudflare/local)
+- Configurar `vite.config.ts` para injetar `VITE_COMMIT_SHA` e `VITE_ENVIRONMENT`
 
-Seguir exatamente o padrão usado nas linhas 730-753:
+Cloudflare Pages já expõe `CF_PAGES_COMMIT_SHA` automaticamente. No Lovable, usar fallback timestamp.
 
-1. **Botão de cabeçalho** (`<button>`) com:
-   - Ícone à esquerda (`Clock` em círculo `bg-primary/10`)
-   - Título: "Legenda e Funcionamento do Sistema"
-   - Subtítulo: "Clique para ver como funciona o sistema de restrições e os níveis de permissão"
-   - `ChevronDown` à direita com rotação animada (`rotate-180` quando expandido)
-   - Estado controlado por novo `useState` → `legendExpanded` (default `false`)
+## 3. Hook `useActiveVersion`
 
-2. **Conteúdo expandido** (renderizado quando `legendExpanded === true`):
-   - `<Card className="border-primary/20 bg-primary/5 animate-in slide-in-from-top-2 duration-300">`
-   - Conteúdo idêntico ao da imagem de referência:
+Criar `src/hooks/useActiveVersion.ts`:
+- Consulta `ui_versions` pelo `is_active_beta` ou `is_active_production`
+- Cruza com `profile.is_beta_tester` para decidir qual versão o usuário deve ver
+- Compara com `__APP_VERSION__` atual e mostra aviso se houver mismatch
 
-     **Bloco superior — grid 2 colunas:**
-     - **Sistema por Cargo ATIVO** (bullet verde):
-       - "O acesso às unidades é determinado **exclusivamente** pelo cargo do usuário."
-       - "Qualquer restrição personalizada individual será **ignorada** enquanto este modo estiver ativo."
-       - *Exemplo*: Um "Gestor de Unidade" da DIC terá acesso apenas à DIC, mesmo que tenha restrições manuais.
-     - **Sistema por Cargo INATIVO** (bullet laranja):
-       - "O sistema prioriza as **Restrições Personalizadas** de cada usuário."
-       - "Caso o usuário não possua restrição manual, o acesso é total ou padrão do sistema."
-       - *Exemplo*: Um "Visualizador" pode ser configurado para ver especificamente as unidades DIC e DIP simultaneamente.
+## 4. Edge Function `register-deploy`
 
-     **Bloco inferior — Definição dos Níveis de Permissão** (separador + grid 4 colunas):
-     - **Admin Geral**: Acesso total e irrestrito. Único com poder de gerenciar usuários e aprovar novos acessos.
-     - **Gestor de Unidade**: Responsável pela gestão da sua unidade. Pode criar/editar eventos e aprovar usuários (com aviso).
-     - **Usuário Padrão**: Perfil operacional focado na visualização e acompanhamento dos eventos de sua unidade de atuação.
-     - **Visualizador**: Acesso somente leitura (Read-only). Destinado apenas para consulta de informações e calendário.
+Cria `supabase/functions/register-deploy/index.ts`:
+- Recebe: `{ commit_sha, environment, deployed_by }`
+- Insere nova linha em `ui_versions`
+- Marca automaticamente como `is_active_beta = true` no ambiente correspondente
+- Protegida por token (secret `DEPLOY_WEBHOOK_TOKEN`)
 
-## Estado adicional
+## 5. Painel admin de Versões
 
-Adicionar perto dos outros `useState` da página:
-```ts
-const [legendExpanded, setLegendExpanded] = useState(false);
+Atualizar a aba de Histórico em `UsersPage.tsx`:
+- Mostrar coluna `environment` (badge colorido: Lovable/Cloudflare)
+- Mostrar `commit_sha` (7 chars)
+- Botões: "Ativar como Beta" e "Promover para Produção"
+- Filtros por ambiente
+
+## 6. GitHub Action para Cloudflare
+
+Criar `.github/workflows/register-deploy.yml`:
+- Roda após deploy do Cloudflare Pages
+- Chama a edge function `register-deploy` com o `CF_PAGES_COMMIT_SHA`
+
+## 7. Documentação
+
+Adicionar `docs/DEPLOY.md` explicando:
+- Como publicar no Lovable (continua igual)
+- Como configurar Cloudflare Pages
+- Como o fluxo Beta → Snapshot funciona em ambos
+
+## Detalhes técnicos
+
+```text
+┌──────────────────────────────────────────────┐
+│           SUPABASE (ui_versions)             │
+│  ┌────────────────────────────────────────┐  │
+│  │ commit_sha │ env      │ beta │ prod    │  │
+│  │ a3f9...    │ lovable  │ ✓    │         │  │
+│  │ b8c2...    │ cf-prod  │      │ ✓       │  │
+│  └────────────────────────────────────────┘  │
+└──────────────────┬───────────────────────────┘
+                   │ Frontend consulta
+        ┌──────────┴──────────┐
+        │                     │
+   Beta tester?           Usuário comum?
+   → mostra beta          → mostra prod
 ```
 
-## Garantias
+## Notas
 
-- **Não duplicar** — verifico que não existe outro bloco "Legenda e Funcionamento do Sistema" remanescente no arquivo (foi removido na iteração anterior).
-- **Sem alterar lógica** — apenas inserção de UI estática informativa.
-- **Ícones** já importados: `Clock`, `ChevronDown`, `ShieldCheck` — não precisa de novos imports.
-- **Mantém estrutura JSX** balanceada do `CardContent` existente.
+- Não há quebra do fluxo atual no Lovable — apenas adicionamos campos opcionais.
+- Mantém o campo `is_beta_tester` em `profiles` (já existe).
+- Cloudflare Pages é opcional: o sistema funciona 100% sem ele.
