@@ -31,9 +31,9 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { to: '/', label: 'Eventos', icon: Globe },
-  { to: '/visao-geral', label: 'Visão Geral', icon: LayoutDashboard, requireAuth: true },
+  { to: '/', label: 'Visão Geral', icon: LayoutDashboard, requireAuth: true },
   { to: '/calendario', label: 'Calendário', icon: Calendar, requireAuth: true },
+  { to: '/eventos', label: 'Página Pública', icon: Globe },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
   { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, auditoriaOnly: true },
 ];
