@@ -630,8 +630,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       <Label className="text-sm font-semibold mb-2 block">Equipe de apoio (Auxílio) *</Label>
                       <div className="space-y-2">
                         {["Funcionários", "Voluntários"].map((option) => (
-                          <div key={option} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card shadow-sm">
-                            <Label htmlFor={`support-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
+                          <div key={option} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card shadow-sm">
                             <Switch
                               id={`support-${option}`}
                               checked={form.support_team?.includes(option)}
@@ -646,11 +645,11 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 setForm({ ...form, support_team: next.join(", ") });
                               }}
                             />
+                            <Label htmlFor={`support-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
                           </div>
                         ))}
                         <div className="space-y-2 p-3 rounded-lg border border-border bg-card shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor="support-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outra equipe</Label>
+                          <div className="flex items-center gap-3">
                             <Switch
                               id="support-other-switch"
                               checked={!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))}
@@ -658,11 +657,10 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 if (!checked) {
                                   const next = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
                                   setForm({ ...form, support_team: next.join(", ") });
-                                } else {
-                                  // No action needed here, user will type in input
                                 }
                               }}
                             />
+                            <Label htmlFor="support-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outra equipe</Label>
                           </div>
                           {(!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))) && (
                             <Input 
