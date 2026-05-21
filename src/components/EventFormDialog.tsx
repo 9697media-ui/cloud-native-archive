@@ -156,12 +156,6 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
     const fullEvent = getFullEvent();
 
-    // Check if banner is enabled but image is missing
-    if (fullEvent.show_in_banner && !fullEvent.banner_image_desktop && !showBannerWarning) {
-      setShowBannerWarning(true);
-      return;
-    }
-
     const found = detectConflicts(fullEvent);
     if (found.length > 0 && !showConflictAlert) {
       setConflicts(found);
