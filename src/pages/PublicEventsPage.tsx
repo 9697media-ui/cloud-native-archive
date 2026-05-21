@@ -60,6 +60,20 @@ export default function PublicEventsPage() {
   };
 
   useEffect(() => {
+    const slug = searchParams.get('slug');
+    if (slug && events.length > 0) {
+      const found = events.find(e => e.slug === slug || e.id === slug);
+      if (found) {
+        if (isAuthenticated && isAdmin) {
+          setSelectedEvent(found);
+        } else {
+          setSelectedEventForDetail(found);
+        }
+      }
+    }
+  }, [searchParams, events, isAuthenticated, isAdmin, setSelectedEvent]);
+
+  useEffect(() => {
     if (bannerEvents.length <= 1) return;
     
     const interval = setInterval(() => {
