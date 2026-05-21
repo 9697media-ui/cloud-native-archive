@@ -141,6 +141,40 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                   </div>
                 </div>
               )}
+              
+              {event.has_unit_collaboration && (
+                <div className="pt-6 border-t border-slate-100 space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Parcerias e Colaborações</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {event.collaborating_units.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Unidades Internas</p>
+                        <p className="text-slate-700">{event.collaborating_units.join(', ')}</p>
+                      </div>
+                    )}
+                    {event.external_collaborators.length > 0 && (
+                      <div className="col-span-1 md:col-span-2">
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Instituições Externas</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
+                          {event.external_collaborators.map((ext, idx) => (
+                            <div key={idx} className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                              <p className="font-bold text-slate-900 text-sm">
+                                {typeof ext === 'string' ? ext : ext.name}
+                              </p>
+                              {typeof ext !== 'string' && ext.details && (
+                                <p className="text-xs text-slate-500 mt-0.5">{ext.details}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) (
+                /* The original code ended here with a close brace for the conditional block above, 
+                   but I need to be careful with the context. */
+
 
               {event.marketing_request && (
                 <div className="pt-6 border-t border-slate-100 space-y-4">
