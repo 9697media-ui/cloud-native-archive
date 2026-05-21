@@ -4,7 +4,7 @@ import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useApp } from '@/contexts/AppContext';
 import { AppEvent, UNIT_BG_COLORS } from '@/types';
-import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight, LayoutPanelTop, Eye, EyeOff, Globe, CheckCircle2, AlertCircle } from 'lucide-react';
+import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight, LayoutPanelTop, Eye, EyeOff, Globe, CheckCircle2, AlertCircle, Camera, Handshake } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -30,8 +30,24 @@ export default function PublicEventsPage() {
   const [eventToToggleBanner, setEventToToggleBanner] = useState<AppEvent | null>(null);
   const { isAdmin } = useUserRole();
   const { updateEvent, setSelectedEvent, selectedEvent } = useApp();
-  // Only confirmed events for public view
+  
+  // Stats should be calculated from ALL events if logged in, to match dashboard
+  const allEvents = useFilteredEvents(false);
+  // But display events are only confirmed/public
   const events = useFilteredEvents(true);
+
+  const stats = useMemo(() => {
+    return allEvents.reduce((acc, e) => {
+      acc.total++;
+      if (e.status === 'confirmado') acc.confirmed++;
+      if (e.status === 'pendente') acc.pending++;
+      if (e.has_conflict) acc.conflict++;
+      if (e.marketing_request) acc.marketing++;
+      if (e.partner_involved) acc.partners++;
+      return acc;
+    }, { total: 0, confirmed: 0, pending: 0, conflict: 0, marketing: 0, partners: 0 });
+  }, [allEvents]);
+
 
   const filtered = useMemo(() => {
     const searchTerm = search.toLowerCase().trim();
@@ -321,23 +337,36 @@ export default function PublicEventsPage() {
         {isAuthenticated && (
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 sm:gap-4 mb-8">
             {[
-              { label: 'Confirmados', value: events.filter(e => e.status === 'confirmado').length, icon: CheckCircle2, color: 'text-emerald-500' },
-              { label: 'Pendentes', value: events.filter(e => e.status === 'pendente').length, icon: Clock, color: 'text-amber-500' },
-              { label: 'Com Conflito', value: events.filter(e => e.has_conflict).length, icon: AlertCircle, color: 'text-rose-500' },
-              { label: 'Total Geral', value: events.length, icon: CalendarDays, color: 'text-blue-500' },
+              { label: 'Total de Eventos', value: stats.total, icon: CalendarDays, color: 'text-blue-500' },
+              { label: 'Confirmados', value: stats.confirmed, icon: CheckCircle2, color: 'text-emerald-500' },
+              { label: 'Pendentes', value: stats.pending, icon: Clock, color: 'text-amber-500' },
+              { label: 'Com Conflito', value: stats.conflict, icon: AlertCircle, color: 'text-rose-500' },
             ].map(s => (
-              <Card key={s.label} className="border-slate-200 shadow-sm">
+              <Card key={s.label} className="border-slate-200 shadow-sm transition-shadow hover:shadow-md">
                 <CardContent className="p-4 sm:p-5">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-medium text-slate-500 sm:text-xs uppercase tracking-wider">{s.label}</p>
                     <s.icon className={`h-5 w-5 ${s.color} opacity-70 shrink-0 sm:h-6 sm:w-6`} />
                   </div>
                   <p className="mt-1 text-2xl font-bold text-slate-900 sm:mt-2 sm:text-3xl">{s.value}</p>
+                  {s.label === 'Total de Eventos' && (
+                    <div className="mt-2 flex items-center gap-3 border-t border-slate-100 pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
+                      <div className="flex items-center gap-1" title="Solicitações de Marketing">
+                        <Camera className="h-3.5 w-3.5 text-blue-500 sm:h-4 sm:w-4" />
+                        <span className="text-xs font-semibold text-slate-700 sm:text-sm">{stats.marketing}</span>
+                      </div>
+                      <div className="flex items-center gap-1" title="Parceiros Envolvidos">
+                        <Handshake className="h-3.5 w-3.5 text-blue-500 sm:h-4 sm:w-4" />
+                        <span className="text-xs font-semibold text-slate-700 sm:text-sm">{stats.partners}</span>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
+
 
         <div className="mb-8">
           <PageHeader 
