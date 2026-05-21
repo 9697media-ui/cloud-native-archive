@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
+import { useUIVersions } from '@/hooks/useUIVersions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole, useAccessRequests } from '@/hooks/useUserRole';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -18,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown } from 'lucide-react';
+import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown, History, Rocket, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
@@ -61,7 +62,7 @@ export default function UsersPage() {
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
   const [showApprovalConfirm, setShowApprovalConfirm] = useState<{ req: any } | null>(null);
   const [viewSearch, setViewSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState(urlSearchParams.get('tab') || 'users');
   const [selectedViewUser, setSelectedViewUser] = useState<AppUser | null>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -1111,6 +1112,31 @@ export default function UsersPage() {
                         </div>
                       </div>
                       <Button variant="ghost" size="sm" onClick={() => setSelectedViewUser(null)}>Fechar</Button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 border rounded-lg bg-primary/5">
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-semibold flex items-center gap-2">
+                          <Code2 className="h-4 w-4 text-primary" />
+                          Acesso Beta Tester
+                        </Label>
+                        <p className="text-xs text-muted-foreground">Permite que este usuário veja novas funcionalidades antes do lançamento.</p>
+                      </div>
+                      <Switch 
+                        checked={selectedViewUser.is_beta_tester}
+                        onCheckedChange={async (checked) => {
+                          const { error } = await supabase
+                            .from('profiles')
+                            .update({ is_beta_tester: checked })
+                            .eq('user_id', selectedViewUser.id);
+                          
+                          if (!error) {
+                            toast({ title: checked ? "Beta Tester habilitado" : "Beta Tester desabilitado" });
+                            refetch();
+                            setSelectedViewUser({ ...selectedViewUser, is_beta_tester: checked });
+                          }
+                        }}
+                      />
                     </div>
 
                     <div className="space-y-3">
