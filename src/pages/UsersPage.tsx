@@ -651,6 +651,7 @@ export default function UsersPage() {
           </Button>
         )}
       </div>
+    );
   };
 
   const BetaManager = () => {
