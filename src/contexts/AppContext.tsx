@@ -47,6 +47,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         collaborating_units: Array.isArray(e.collaborating_units) ? e.collaborating_units : [],
         external_collaborators: Array.isArray(e.external_collaborators) ? e.external_collaborators : [],
         partners: Array.isArray(e.partners) ? e.partners : [],
+        marketing_items: Array.isArray(e.marketing_items) ? e.marketing_items : [],
       }));
       
       setEvents(adaptedEvents);

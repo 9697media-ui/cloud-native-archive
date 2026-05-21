@@ -141,6 +141,39 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                   </div>
                 </div>
               )}
+              
+              {event.has_unit_collaboration && (
+                <div className="pt-6 border-t border-slate-100 space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Parcerias e Colaborações</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {event.collaborating_units.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Unidades Internas</p>
+                        <p className="text-slate-700">{event.collaborating_units.join(', ')}</p>
+                      </div>
+                    )}
+                    {event.external_collaborators.length > 0 && (
+                      <div className="col-span-1 md:col-span-2">
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Instituições Externas</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
+                          {event.external_collaborators.map((ext, idx) => (
+                            <div key={idx} className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                              <p className="font-bold text-slate-900 text-sm">
+                                {typeof ext === 'string' ? ext : ext.name}
+                              </p>
+                              {typeof ext !== 'string' && ext.details && (
+                                <p className="text-xs text-slate-500 mt-0.5">{ext.details}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+
 
               {event.marketing_request && (
                 <div className="pt-6 border-t border-slate-100 space-y-4">
@@ -149,17 +182,30 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                     <h3 className="text-sm font-bold uppercase tracking-wider text-blue-500">Solicitação de Marketing</h3>
                   </div>
                   <div className="grid grid-cols-1 gap-4">
-                    {event.marketing_info && (
-                      <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                        <p className="text-xs font-bold text-blue-700 uppercase tracking-tighter mb-2">Minuta / Briefing da Arte</p>
-                        <p className="text-blue-900 text-sm whitespace-pre-wrap leading-relaxed">{event.marketing_info}</p>
+                    {event.marketing_items && event.marketing_items.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {event.marketing_items.map((item, idx) => (
+                          <div key={idx} className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                            <p className="text-xs font-bold text-blue-700 uppercase tracking-tighter mb-1">{item.item}</p>
+                            <p className="text-blue-900 text-sm whitespace-pre-wrap leading-relaxed opacity-80">{item.description}</p>
+                          </div>
+                        ))}
                       </div>
-                    )}
-                    {event.printed_materials && (
-                      <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-tighter mb-1">Materiais Impressos Necessários</p>
-                        <p className="text-slate-900 text-sm">{event.printed_materials}</p>
-                      </div>
+                    ) : (
+                      <>
+                        {event.marketing_info && (
+                          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                            <p className="text-xs font-bold text-blue-700 uppercase tracking-tighter mb-2">Minuta / Briefing da Arte</p>
+                            <p className="text-blue-900 text-sm whitespace-pre-wrap leading-relaxed">{event.marketing_info}</p>
+                          </div>
+                        )}
+                        {event.printed_materials && (
+                          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-tighter mb-1">Materiais Impressos Necessários</p>
+                            <p className="text-slate-900 text-sm">{event.printed_materials}</p>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

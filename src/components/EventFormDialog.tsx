@@ -64,6 +64,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   marketing_info: '',
   printed_materials: '',
   equipment_needed: '',
+  marketing_items: [],
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -118,8 +119,11 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     
     // Condicional para marketing
     if (form.marketing_request) {
-      if (!form.marketing_info?.trim()) errs.marketing_info = 'Descreva os detalhes para o marketing';
-      if (!form.printed_materials?.trim()) errs.printed_materials = 'Informe os materiais impressos';
+      if (!form.marketing_items || form.marketing_items.length === 0) {
+        errs.marketing_items = 'Adicione ao menos um item de marketing';
+      } else if (form.marketing_items.some(item => !item.item.trim())) {
+        errs.marketing_items = 'Preencha todos os itens de marketing';
+      }
     }
 
     if (form.start_datetime && form.end_datetime && new Date(form.start_datetime) >= new Date(form.end_datetime)) {
@@ -175,6 +179,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       marketing_info: form.marketing_info || '',
       printed_materials: form.printed_materials || '',
       equipment_needed: form.equipment_needed || '',
+      marketing_items: form.marketing_items || [],
     };
   };
 
@@ -706,27 +711,66 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                   {form.marketing_request && (
                     <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-4 space-y-4 animate-in fade-in slide-in-from-top-1">
-                      <div>
-                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Minuta / Briefing para Marketing *</Label>
-                        <Textarea 
-                          value={form.marketing_info} 
-                          onChange={e => setForm({ ...form, marketing_info: e.target.value })} 
-                          placeholder="Objetivo da arte, peças desejadas, prazo, canais de divulgação..." 
-                          rows={4}
-                          className={`mt-1 bg-white border-blue-200 focus-visible:ring-blue-500 ${errors.marketing_info ? "border-destructive" : ""}`}
-                        />
-                        {errors.marketing_info && <p className="mt-1 text-xs text-destructive">{errors.marketing_info}</p>}
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Itens de Marketing *</Label>
+                        <Badge variant="outline" className="text-[10px] bg-blue-100 text-blue-700 border-blue-200">Briefing / Materiais</Badge>
                       </div>
-
-                      <div>
-                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Materiais Impressos Necessários *</Label>
-                        <Input 
-                          value={form.printed_materials} 
-                          onChange={e => setForm({ ...form, printed_materials: e.target.value })} 
-                          placeholder="Ex: 100 folders, 2 banners 1x2m, certificados..." 
-                          className={`mt-1 bg-white border-blue-200 focus-visible:ring-blue-500 ${errors.printed_materials ? "border-destructive" : ""}`}
-                        />
-                        {errors.printed_materials && <p className="mt-1 text-xs text-destructive">{errors.printed_materials}</p>}
+                      
+                      <div className="space-y-3">
+                        {(form.marketing_items || []).map((item, idx) => (
+                          <div key={idx} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm">
+                            <div className="flex items-center gap-2">
+                              <Input 
+                                value={item.item} 
+                                onChange={e => {
+                                  const updated = [...(form.marketing_items || [])];
+                                  updated[idx] = { ...updated[idx], item: e.target.value };
+                                  setForm({ ...form, marketing_items: updated });
+                                }} 
+                                placeholder="O que você precisa? (Ex: Arte Instagram, Banner...)" 
+                                className="flex-1 bg-white border-blue-200 focus-visible:ring-blue-500 h-8 text-sm"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0 h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50"
+                                onClick={() => {
+                                  const updated = (form.marketing_items || []).filter((_, i) => i !== idx);
+                                  setForm({ ...form, marketing_items: updated });
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <Textarea 
+                              value={item.description} 
+                              onChange={e => {
+                                const updated = [...(form.marketing_items || [])];
+                                updated[idx] = { ...updated[idx], description: e.target.value };
+                                setForm({ ...form, marketing_items: updated });
+                              }} 
+                              placeholder="Detalhes: formato, texto, referências, prazo..." 
+                              rows={2}
+                              className="bg-slate-50 border-blue-100 focus-visible:ring-blue-500 text-xs"
+                            />
+                          </div>
+                        ))}
+                        
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-2 border-dashed border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
+                          onClick={() => setForm({ 
+                            ...form, 
+                            marketing_items: [...(form.marketing_items || []), { item: '', description: '' }] 
+                          })}
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Adicionar Item de Marketing
+                        </Button>
+                        {errors.marketing_items && <p className="mt-1 text-xs text-destructive">{errors.marketing_items}</p>}
                       </div>
                     </div>
                   )}
@@ -833,37 +877,60 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       <Label className="text-sm font-medium">Instituições Externas</Label>
                       <div className="space-y-2 mt-2">
                         {(form.external_collaborators || []).map((ext, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
+                          <div key={idx} className="space-y-2 p-3 bg-muted/30 rounded-md border border-border">
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={typeof ext === 'string' ? ext : (ext as any).name}
+                                onChange={e => {
+                                  const updated = [...(form.external_collaborators || [])];
+                                  if (typeof ext === 'string') {
+                                    updated[idx] = { name: e.target.value, details: '' };
+                                  } else {
+                                    updated[idx] = { ...(ext as any), name: e.target.value };
+                                  }
+                                  setForm({ ...form, external_collaborators: updated });
+                                }}
+                                placeholder="Nome da instituição"
+                                className="flex-1 h-8 text-sm"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0 h-8 w-8"
+                                onClick={() => {
+                                  const updated = (form.external_collaborators || []).filter((_, i) => i !== idx);
+                                  setForm({ ...form, external_collaborators: updated });
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
                             <Input
-                              value={ext}
+                              value={typeof ext === 'string' ? '' : (ext as any).details}
                               onChange={e => {
                                 const updated = [...(form.external_collaborators || [])];
-                                updated[idx] = e.target.value;
+                                if (typeof ext === 'string') {
+                                  updated[idx] = { name: ext, details: e.target.value };
+                                } else {
+                                  updated[idx] = { ...(ext as any), details: e.target.value };
+                                }
                                 setForm({ ...form, external_collaborators: updated });
                               }}
-                              placeholder="Nome da instituição"
-                              className="flex-1"
+                              placeholder="Tipo de parceria / Detalhes..."
+                              className="h-8 text-xs bg-white/50"
                             />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="shrink-0 h-8 w-8"
-                              onClick={() => {
-                                const updated = (form.external_collaborators || []).filter((_, i) => i !== idx);
-                                setForm({ ...form, external_collaborators: updated });
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
                           </div>
                         ))}
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="gap-1"
-                          onClick={() => setForm({ ...form, external_collaborators: [...(form.external_collaborators || []), ''] })}
+                          className="w-full gap-1 border-dashed"
+                          onClick={() => setForm({ 
+                            ...form, 
+                            external_collaborators: [...(form.external_collaborators || []), { name: '', details: '' }] 
+                          })}
                         >
                           <Plus className="h-3.5 w-3.5" />
                           Adicionar Instituição

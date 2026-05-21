@@ -124,7 +124,16 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
                   <Megaphone className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium text-foreground">Solicitação de Marketing</span>
                 </div>
-                {event.marketing_info && (
+                {event.marketing_items && event.marketing_items.length > 0 ? (
+                  <div className="space-y-2">
+                    {event.marketing_items.map((item, idx) => (
+                      <div key={idx} className="rounded-lg border border-blue-100 bg-blue-50/30 p-2 text-[11px] text-blue-900">
+                        <p className="font-bold mb-0.5">{item.item}</p>
+                        <p className="whitespace-pre-wrap opacity-80">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : event.marketing_info && (
                   <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-2 text-xs text-blue-900">
                     <p className="font-semibold mb-1">Detalhes da Arte:</p>
                     <p className="whitespace-pre-wrap">{event.marketing_info}</p>
@@ -162,9 +171,23 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
                   </p>
                 )}
                 {event.external_collaborators.length > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    Instituições: <span className="font-medium text-foreground">{event.external_collaborators.filter(e => e).join(', ')}</span>
-                  </p>
+                  <div className="pt-1">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Instituições Externas:</p>
+                    <div className="space-y-1.5">
+                      {event.external_collaborators.map((ext, idx) => (
+                        <div key={idx} className="text-xs">
+                          <span className="font-bold text-foreground">
+                            {typeof ext === 'string' ? ext : ext.name}
+                          </span>
+                          {typeof ext !== 'string' && ext.details && (
+                            <span className="text-muted-foreground block">
+                               {ext.details}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
