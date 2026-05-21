@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useBetaPreference } from '@/hooks/useBetaPreference';
 import { APP_VERSION, APP_ENV } from '@/lib/version';
 
 export interface UIVersion {
