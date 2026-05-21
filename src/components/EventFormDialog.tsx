@@ -58,6 +58,12 @@ const emptyEvent = (): Partial<AppEvent> => ({
   full_height_title: false,
   banner_display_time: 5,
   show_banner_overlay: true,
+  target_audience: '',
+  support_team: '',
+  food_logistics: '',
+  marketing_info: '',
+  printed_materials: '',
+  equipment_needed: '',
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
