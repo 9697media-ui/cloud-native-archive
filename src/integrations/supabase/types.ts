@@ -95,6 +95,7 @@ export type Database = {
       events: {
         Row: {
           attachments: Json | null
+          banner_display_time: number | null
           banner_image_desktop: string | null
           banner_image_mobile: string | null
           banner_url_desktop: string | null
@@ -134,6 +135,7 @@ export type Database = {
         }
         Insert: {
           attachments?: Json | null
+          banner_display_time?: number | null
           banner_image_desktop?: string | null
           banner_image_mobile?: string | null
           banner_url_desktop?: string | null
@@ -173,6 +175,7 @@ export type Database = {
         }
         Update: {
           attachments?: Json | null
+          banner_display_time?: number | null
           banner_image_desktop?: string | null
           banner_image_mobile?: string | null
           banner_url_desktop?: string | null

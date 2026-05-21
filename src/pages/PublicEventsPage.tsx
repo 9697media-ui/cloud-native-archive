@@ -121,12 +121,16 @@ export default function PublicEventsPage() {
   useEffect(() => {
     if (bannerEvents.length <= 1) return;
     
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % bannerEvents.length);
-    }, 5000);
+    // Use dynamic display time for current slide
+    const currentEvent = bannerEvents[currentSlide];
+    const displayTime = (currentEvent?.banner_display_time || 5) * 1000;
 
-    return () => clearInterval(interval);
-  }, [bannerEvents.length]);
+    const timeout = setTimeout(() => {
+      setCurrentSlide((prev) => (prev + 1) % bannerEvents.length);
+    }, displayTime);
+
+    return () => clearTimeout(timeout);
+  }, [bannerEvents, currentSlide]);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % bannerEvents.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + bannerEvents.length) % bannerEvents.length);
