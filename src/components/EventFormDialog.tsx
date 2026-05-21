@@ -325,13 +325,13 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                 {isAdmin && (
                   <div className="space-y-4 border-t pt-4">
-                    <Label className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-primary" /> Configurações de Compartilhamento (Publico)
+                    <Label className="flex items-center gap-2 text-sm font-semibold text-primary">
+                      <Globe className="h-4 w-4" /> Configurações de Compartilhamento (Público)
                     </Label>
                     <div>
-                      <Label htmlFor="slug" className="text-xs">Link Personalizado (Slug)</Label>
+                      <Label htmlFor="slug" className="text-xs font-medium mb-1 block">Link personalizado (Slug)</Label>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-muted-foreground">anabrasil.com/eventos/</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">anabrasil.com/eventos/</span>
                         <Input 
                           id="slug"
                           value={form.slug} 
@@ -339,13 +339,13 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                           placeholder="meu-evento-especial"
                         />
                       </div>
-                      <p className="text-[10px] text-muted-foreground mt-1">Deixe em branco para usar o ID padrão.</p>
+                      <p className="text-[11px] text-muted-foreground mt-1">Deixe em branco para usar o ID padrão.</p>
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <Label>Status</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Status</Label>
                   <Select value={form.status} onValueChange={v => setForm({ ...form, status: v as EventStatus })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -360,7 +360,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     </SelectContent>
                   </Select>
                   {form.status === 'concluido' && (
-                    <p className="text-[10px] text-muted-foreground mt-1 italic">
+                    <p className="text-[11px] text-muted-foreground mt-1 italic">
                       Este evento será mantido no histórico como concluído.
                     </p>
                   )}
