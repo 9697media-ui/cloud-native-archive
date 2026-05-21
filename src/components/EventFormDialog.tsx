@@ -54,6 +54,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   slug: '',
   use_logo_as_title: false,
   event_logo_url: '',
+  show_banner_fade: true,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -142,6 +143,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       slug: form.slug || '',
       use_logo_as_title: form.use_logo_as_title || false,
       event_logo_url: form.event_logo_url || '',
+      show_banner_fade: form.show_banner_fade !== undefined ? form.show_banner_fade : true,
     };
   };
 
@@ -405,6 +407,19 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       />
                     </div>
 
+                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                      <div className="flex flex-col">
+                        <Label htmlFor="show_banner_fade" className="text-sm font-medium">Efeito de Sombreamento (Fade)</Label>
+                        <p className="text-[10px] text-muted-foreground">Adiciona um degradê na base do banner para melhorar a leitura.</p>
+                      </div>
+                      <Switch
+                        id="show_banner_fade"
+                        checked={form.show_banner_fade !== undefined ? form.show_banner_fade : true}
+                        onCheckedChange={v => setForm({ ...form, show_banner_fade: v })}
+                        disabled={!isAdmin}
+                      />
+                    </div>
+
                     {form.use_logo_as_title && (
                       <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300">
                         <FileUpload 
@@ -516,6 +531,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       {/* Inline version of Detail Dialog */}
                       <div className="bg-white">
                         <div className={`relative ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'aspect-[21/12]' : 'aspect-[21/9]'} bg-slate-900 overflow-hidden`}>
+                          {form.show_banner_fade !== false && (
+                            <div className="absolute inset-0 z-10 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                          )}
                           {(form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile) ? (
                             <img 
                               src={form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile} 
