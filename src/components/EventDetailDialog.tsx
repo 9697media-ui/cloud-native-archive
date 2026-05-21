@@ -45,11 +45,11 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
             />
           ) : (
             <div 
-              className="w-full h-full flex items-center justify-center p-8 text-center overflow-hidden"
+              className="w-full h-full flex items-center justify-start p-8 text-left overflow-hidden"
               style={{ backgroundColor: event.custom_color || '#1e293b' }}
             >
               <span 
-                className="font-bold text-white leading-[1.1] break-words uppercase drop-shadow-lg select-none"
+                className="font-bold text-white leading-[1.1] break-words uppercase select-none"
                 style={{ 
                   fontSize: event.title.length < 15 ? '4rem' : event.title.length < 30 ? '3rem' : event.title.length < 50 ? '2rem' : '1.5rem',
                 }}
