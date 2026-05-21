@@ -42,6 +42,8 @@ export default function PublicEventsPage() {
   const [showTrash, setShowTrash] = useState(false);
   const allEvents = useFilteredEvents(false, showTrash);
   const events = useFilteredEvents(true, false); // Public view never shows trash
+  
+  console.log("PublicEventsPage - Raw Events from Hook:", events);
 
 
   const stats = useMemo(() => {
