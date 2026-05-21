@@ -14,15 +14,19 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PageHeader from '@/components/PageHeader';
 import logoImg from '@/assets/logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { EventDetailDialog } from '@/components/EventDetailDialog';
+import EventFormDialog from '@/components/EventFormDialog';
 
 export default function PublicEventsPage() {
   const { isAuthenticated } = useAuth();
   const [search, setSearch] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedEventForDetail, setSelectedEventForDetail] = useState<AppEvent | null>(null);
   const { isAdmin } = useUserRole();
-  const { updateEvent } = useApp();
+  const { updateEvent, setSelectedEvent, selectedEvent } = useApp();
   // Only confirmed events for public view
   const events = useFilteredEvents(true);
 
@@ -56,6 +60,20 @@ export default function PublicEventsPage() {
   };
 
   useEffect(() => {
+    const slug = searchParams.get('slug');
+    if (slug && events.length > 0) {
+      const found = events.find(e => e.slug === slug || e.id === slug);
+      if (found) {
+        if (isAuthenticated && isAdmin) {
+          setSelectedEvent(found);
+        } else {
+          setSelectedEventForDetail(found);
+        }
+      }
+    }
+  }, [searchParams, events, isAuthenticated, isAdmin, setSelectedEvent]);
+
+  useEffect(() => {
     if (bannerEvents.length <= 1) return;
     
     const interval = setInterval(() => {
@@ -67,6 +85,23 @@ export default function PublicEventsPage() {
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % bannerEvents.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + bannerEvents.length) % bannerEvents.length);
+
+  const handleCardClick = (event: AppEvent) => {
+    if (isAuthenticated && isAdmin) {
+      setSelectedEvent(event);
+    } else {
+      setSelectedEventForDetail(event);
+      // Update URL without full refresh to support sharing the specific open state
+      setSearchParams({ slug: event.slug || event.id });
+    }
+  };
+
+  const closeDetail = () => {
+    setSelectedEventForDetail(null);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('slug');
+    setSearchParams(newParams);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -231,7 +266,11 @@ export default function PublicEventsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedEvents.map(event => (
-              <Card key={event.id} className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group">
+              <Card 
+                key={event.id} 
+                className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer"
+                onClick={() => handleCardClick(event)}
+              >
                 <div className="relative aspect-video overflow-hidden bg-slate-100">
                   {event.banner_url_desktop || event.banner_url_mobile ? (
                     <img 
@@ -326,6 +365,17 @@ export default function PublicEventsPage() {
           </div>
         </footer>
       )}
+      <EventDetailDialog 
+        open={!!selectedEventForDetail} 
+        onOpenChange={(open) => !open && closeDetail()} 
+        event={selectedEventForDetail} 
+      />
+
+      <EventFormDialog 
+        open={!!selectedEvent} 
+        onOpenChange={(open) => !open && setSelectedEvent(null)} 
+        event={selectedEvent} 
+      />
     </div>
   );
 }

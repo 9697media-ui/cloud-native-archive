@@ -41,6 +41,7 @@ export interface AppEvent {
   banner_image_mobile?: string;
   custom_color?: string;
   show_in_banner?: boolean;
+  slug?: string;
 }
 
 export const SYSTEM_COLORS = [
