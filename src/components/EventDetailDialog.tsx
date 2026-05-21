@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { CalendarDays, MapPin, Clock, Share2, X, Instagram, MessageCircle, Copy, Megaphone } from 'lucide-react';
+import { CalendarDays, MapPin, Clock, Share2, X, Instagram, MessageCircle, Copy, Megaphone, CheckCircle2 } from 'lucide-react';
 import { AppEvent, UNIT_BG_COLORS } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
