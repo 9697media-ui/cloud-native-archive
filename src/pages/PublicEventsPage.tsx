@@ -266,7 +266,11 @@ export default function PublicEventsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedEvents.map(event => (
-              <Card key={event.id} className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group">
+              <Card 
+                key={event.id} 
+                className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer"
+                onClick={() => handleCardClick(event)}
+              >
                 <div className="relative aspect-video overflow-hidden bg-slate-100">
                   {event.banner_url_desktop || event.banner_url_mobile ? (
                     <img 
