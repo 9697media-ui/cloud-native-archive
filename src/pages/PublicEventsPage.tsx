@@ -491,9 +491,10 @@ export default function PublicEventsPage() {
             {sortedEvents.map(event => (
               <Card 
                 key={event.id} 
-                className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer"
+                className={`overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer ${showBetaUI ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                 onClick={() => handleCardClick(event)}
               >
+
                 <div className="relative aspect-video overflow-hidden bg-slate-100">
                   {event.banner_url_desktop || event.banner_url_mobile ? (
                     <img 
