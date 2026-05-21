@@ -3,19 +3,22 @@ import { useApp } from '@/contexts/AppContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useViewConfigs } from '@/hooks/useViewConfigs';
 
-export function useFilteredEvents(isPublicView: boolean = false) {
+export function useFilteredEvents(isPublicView: boolean = false, showTrash: boolean = false) {
   const { events } = useApp();
   const { viewRestrictions, permissionLevel, isAdmin } = useUserRole();
   const { configs } = useViewConfigs();
 
   const filteredEvents = useMemo(() => {
+    // Basic filter to exclude deleted events unless showing trash
+    const baseEvents = events.filter(e => showTrash ? !!e.deleted_at : !e.deleted_at);
+
     // Se for visão pública, aplica filtro simplificado
     if (isPublicView) {
-      return events.filter(event => event.status === 'confirmado' && event.visibility === 'publico');
+      return baseEvents.filter(event => event.status === 'confirmado' && event.visibility === 'publico');
     }
 
-    // Admins sempre veem tudo
-    if (isAdmin) return events;
+    // Admins sempre veem tudo (respeitando o filtro de lixeira)
+    if (isAdmin) return baseEvents;
 
     // Determinar unidades permitidas seguindo lógica de mercado
     let allowedUnits: string[] | null = null;
@@ -41,8 +44,8 @@ export function useFilteredEvents(isPublicView: boolean = false) {
     if (allowedUnits === null) return [];
 
     // Filtra os eventos pelas unidades permitidas
-    return events.filter(event => allowedUnits.includes(event.unit));
-  }, [events, viewRestrictions, permissionLevel, configs, isAdmin, isPublicView]);
+    return baseEvents.filter(event => allowedUnits.includes(event.unit));
+  }, [events, viewRestrictions, permissionLevel, configs, isAdmin, isPublicView, showTrash]);
 
   return filteredEvents;
 }

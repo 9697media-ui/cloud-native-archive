@@ -104,6 +104,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           custom_color: string | null
+          deleted_at: string | null
           description: string | null
           end_datetime: string
           event_logo_url: string | null
@@ -145,6 +146,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           custom_color?: string | null
+          deleted_at?: string | null
           description?: string | null
           end_datetime: string
           event_logo_url?: string | null
@@ -186,6 +188,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           custom_color?: string | null
+          deleted_at?: string | null
           description?: string | null
           end_datetime?: string
           event_logo_url?: string | null

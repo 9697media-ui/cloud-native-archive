@@ -39,8 +39,9 @@ export default function PublicEventsPage() {
   const { isAdmin, canEdit } = useUserRole();
   const { updateEvent, setSelectedEvent, selectedEvent, deleteEvent } = useApp();
   
-  const allEvents = useFilteredEvents(false);
-  const events = useFilteredEvents(true);
+  const [showTrash, setShowTrash] = useState(false);
+  const allEvents = useFilteredEvents(false, showTrash);
+  const events = useFilteredEvents(true, false); // Public view never shows trash
 
 
   const stats = useMemo(() => {
@@ -80,29 +81,41 @@ export default function PublicEventsPage() {
     // For admins, show ALL but push disabled or passed ones to the end
     const confirmedEvents = events;
     const now = new Date();
-    // Reset hours to compare only date if needed, but usually banner should hide as soon as it starts or finishes.
-    // The requirement is "eventos que já acontece automaticamente oculte do banner" (events already happening or past).
-    // Let's hide events whose start date is before now (meaning they started or are in the past).
+    // For the banner, hide events starting tomorrow (00:00 of the next day)
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
     
     if (isAdmin) {
       return [...confirmedEvents].sort((a, b) => {
-        const aStarted = new Date(a.start_datetime) < now;
-        const bStarted = new Date(b.start_datetime) < now;
+        const aStart = new Date(a.start_datetime);
+        const bStart = new Date(b.start_datetime);
+        const aPassed = aStart > endOfToday; // Wait, requirement says "if today is 01, stay until 23:59 of 01"
+        // Correct logic: hide if start_datetime is on a previous day.
+        
+        // Let's use start of today for comparison
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        
+        const aIsPast = aStart < startOfToday;
+        const bIsPast = bStart < startOfToday;
 
-        // First priority: show_in_banner status AND not started
-        const aActive = a.show_in_banner && !aStarted;
-        const bActive = b.show_in_banner && !bStarted;
+        // First priority: show_in_banner status AND not past
+        const aActive = a.show_in_banner && !aIsPast;
+        const bActive = b.show_in_banner && !bIsPast;
 
         if (aActive && !bActive) return -1;
         if (!aActive && bActive) return 1;
         
         // Second priority: start date
-        return new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime();
+        return aStart.getTime() - bStart.getTime();
       });
     }
 
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
     return confirmedEvents
-      .filter(e => e.show_in_banner && new Date(e.start_datetime) >= now)
+      .filter(e => e.show_in_banner && new Date(e.start_datetime) >= startOfToday)
       .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
   }, [events, isAdmin]);
 
@@ -170,6 +183,7 @@ export default function PublicEventsPage() {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + bannerEvents.length) % bannerEvents.length);
 
   const handleCardClick = (event: AppEvent) => {
+    if (showTrash) return; // Don't open detail for trash items, or we could add a restore action
     if (isAuthenticated && isAdmin) {
       setSelectedEvent(event);
     } else {
@@ -403,10 +417,28 @@ export default function PublicEventsPage() {
 
 
         <div className="mb-8">
-          <PageHeader 
-            title="Programação de Eventos" 
-            description="Confira os próximos eventos confirmados em todas as nossas unidades."
-          />
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              <PageHeader 
+                title={showTrash ? "Lixeira de Eventos" : "Programação de Eventos"} 
+                description={showTrash ? "Eventos excluídos que podem ser recuperados ou removidos permanentemente." : "Confira os próximos eventos confirmados em todas as nossas unidades."}
+                className="mb-0"
+              />
+            </div>
+            {isAuthenticated && isAdmin && (
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  variant={showTrash ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowTrash(!showTrash)}
+                  className="rounded-full gap-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  {showTrash ? "Ver Eventos Ativos" : "Ver Lixeira"}
+                </Button>
+              </div>
+            )}
+          </div>
           
           <div className="mt-6 relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />

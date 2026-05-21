@@ -324,6 +324,11 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       ))}
                     </SelectContent>
                   </Select>
+                  {form.status === 'concluido' && (
+                    <p className="text-[10px] text-muted-foreground mt-1 italic">
+                      Este evento será mantido no histórico como concluído.
+                    </p>
+                  )}
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-3">

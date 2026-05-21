@@ -95,10 +95,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteEvent = async (id: string) => {
-    const { error } = await supabase.from('events').delete().eq('id', id);
-    if (error) {
-      toast.error('Erro ao excluir evento');
-      throw error;
+    const eventToDelete = events.find(e => e.id === id);
+    
+    // If already in trash, delete permanently
+    if (eventToDelete?.deleted_at) {
+      const { error } = await supabase.from('events').delete().eq('id', id);
+      if (error) {
+        toast.error('Erro ao excluir permanentemente');
+        throw error;
+      }
+      toast.success('Evento excluído permanentemente');
+    } else {
+      // Move to trash
+      const { error } = await supabase.from('events').update({ 
+        deleted_at: new Date().toISOString() 
+      }).eq('id', id);
+      
+      if (error) {
+        toast.error('Erro ao mover para a lixeira');
+        throw error;
+      }
+      toast.success('Evento movido para a lixeira');
     }
     await fetchEvents();
   };
