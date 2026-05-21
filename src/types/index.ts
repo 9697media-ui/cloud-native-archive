@@ -38,6 +38,7 @@ export interface AppEvent {
   banner_url_desktop?: string;
   banner_url_mobile?: string;
   custom_color?: string;
+  show_in_banner?: boolean;
 }
 
 export const SYSTEM_COLORS = [

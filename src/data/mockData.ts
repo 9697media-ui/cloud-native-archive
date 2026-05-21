@@ -37,6 +37,7 @@ export const mockEvents: AppEvent[] = [
     banner_url_desktop: '',
     banner_url_mobile: '',
     custom_color: '#484848',
+    show_in_banner: true,
   },
   {
     id: 'e2',
@@ -92,6 +93,7 @@ export const mockEvents: AppEvent[] = [
     banner_url_desktop: '',
     banner_url_mobile: '',
     custom_color: '#fbce00',
+    show_in_banner: true,
   },
   {
     id: 'e4',

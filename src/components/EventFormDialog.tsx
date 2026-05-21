@@ -46,6 +46,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   banner_url_desktop: '',
   banner_url_mobile: '',
   custom_color: SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
+  show_in_banner: false,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -128,6 +129,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       banner_url_desktop: form.banner_url_desktop || '',
       banner_url_mobile: form.banner_url_mobile || '',
       custom_color: form.custom_color || SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
+      show_in_banner: form.show_in_banner || false,
     };
 
     const found = detectConflicts(fullEvent);
@@ -185,6 +187,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       banner_url_desktop: form.banner_url_desktop || '',
       banner_url_mobile: form.banner_url_mobile || '',
       custom_color: form.custom_color || SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
+      show_in_banner: form.show_in_banner || false,
     };
 
     // Mark all conflicting events as well
@@ -315,7 +318,21 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   {!isAdmin && <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-600 border-amber-200">Apenas Admin</Badge>}
                 </div>
                 
+                <div className="flex items-center justify-between gap-3 p-2 bg-primary/5 rounded-md border border-primary/10">
+                  <div className="flex flex-col">
+                    <Label htmlFor="show_in_banner" className="text-sm font-medium">Exibir no Banner Superior</Label>
+                    <p className="text-[10px] text-muted-foreground">Destacar este evento no carrossel da página pública.</p>
+                  </div>
+                  <Switch
+                    id="show_in_banner"
+                    checked={form.show_in_banner || false}
+                    onCheckedChange={v => setForm({ ...form, show_in_banner: v })}
+                    disabled={!isAdmin}
+                  />
+                </div>
+                
                 <FileUpload 
+
                   label="Capa Desktop/Tablet (16:9)"
                   mode="single"
                   url={form.banner_url_desktop}
