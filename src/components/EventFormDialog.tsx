@@ -520,9 +520,17 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         </div>
                         <div className={`p-6 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'mt-0' : '-mt-8'} relative z-10`}>
                           <Badge className="bg-primary text-white mb-2 text-[10px]">{form.unit}</Badge>
-                          <h3 className={`font-bold mb-2 line-clamp-2 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}>
-                            {form.title || 'Título do Evento'}
-                          </h3>
+                          
+                          {form.use_logo_as_title && form.event_logo_url ? (
+                            <div className="mb-2 max-w-[150px]">
+                              <img src={form.event_logo_url} alt="Logo Preview" className="max-h-12 object-contain filter drop-shadow-md" />
+                            </div>
+                          ) : (
+                            <h3 className={`font-bold mb-2 line-clamp-2 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}>
+                              {form.title || 'Título do Evento'}
+                            </h3>
+                          )}
+                          
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
                             <CalendarDays className="h-3 w-3" />
                             <span>{form.start_datetime ? new Date(form.start_datetime).toLocaleDateString() : 'Data'}</span>
