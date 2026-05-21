@@ -1087,9 +1087,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     <div className="p-6 border-t bg-slate-50/50">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Detalhes do Evento (Card/Modal)</span>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Detalhes do evento (Card/Modal)</span>
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900 mb-1">{form.title || 'Título do Evento'}</h4>
+                      <h4 className="text-sm font-bold text-slate-900 mb-1">{form.title || 'Título do evento'}</h4>
                       <p className="text-[11px] text-slate-500 line-clamp-3 leading-relaxed">{form.description || 'Sem descrição.'}</p>
                     </div>
                   </div>
