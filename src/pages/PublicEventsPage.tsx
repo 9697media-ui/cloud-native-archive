@@ -23,6 +23,7 @@ import ConflictDialog from '@/components/ConflictDialog';
 import FilteredEventsDialog from '@/components/FilteredEventsDialog';
 import EventDetailPanel from '@/components/EventDetailPanel';
 import { useUserRole as _ur } from '@/hooks/useUserRole';
+import { useUIVersions } from '@/hooks/useUIVersions';
 
 export default function PublicEventsPage() {
   const { isAuthenticated } = useAuth();
