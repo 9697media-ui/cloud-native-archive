@@ -205,8 +205,8 @@ export default function PublicEventsPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
               )}
               
-              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto">
-                <div className="flex flex-wrap gap-2 mb-4">
+              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto flex flex-col items-start justify-end h-full">
+                <div className="flex flex-wrap gap-2 mb-4 shrink-0">
                   <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none shadow-lg`}>
                     {event.unit}
                   </Badge>
@@ -218,11 +218,11 @@ export default function PublicEventsPage() {
                 </div>
                 
                 {event.use_logo_as_title && event.event_logo_url ? (
-                  <div className={`mb-6 animate-in slide-in-from-left duration-700 ${event.full_height_title ? 'max-w-md md:max-w-2xl h-[250px] md:h-[350px]' : 'max-w-xs md:max-w-md'}`}>
+                  <div className={`mb-6 animate-in slide-in-from-left duration-700 w-full flex items-center justify-start ${event.full_height_title ? 'h-1/2' : 'h-24 md:h-40'}`}>
                     <img 
                       src={event.event_logo_url} 
                       alt={event.title} 
-                      className={`w-auto object-contain filter drop-shadow-2xl ${event.full_height_title ? 'h-full max-h-full' : 'max-h-24 md:max-h-40'}`} 
+                      className={`object-contain object-left h-full max-w-full filter drop-shadow-2xl`} 
                     />
                   </div>
                 ) : (

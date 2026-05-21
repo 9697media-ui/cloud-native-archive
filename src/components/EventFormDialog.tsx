@@ -586,20 +586,20 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         </div>
                       )}
 
-                      <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-                        <Badge className="bg-primary/80 text-white mb-2 text-[10px] border-none backdrop-blur-sm">{form.unit || 'UNIDADE'}</Badge>
+                      <div className="absolute bottom-0 left-0 right-0 p-4 z-20 flex flex-col items-start justify-end h-full">
+                        <Badge className="bg-primary/80 text-white mb-2 text-[10px] border-none backdrop-blur-sm shrink-0">{form.unit || 'UNIDADE'}</Badge>
                         
                         {form.use_logo_as_title && form.event_logo_url ? (
-                          <div className={`mb-2 ${form.full_height_title ? 'max-h-[120px] md:max-h-[160px]' : 'max-h-12'}`}>
+                          <div className={`flex items-center justify-start ${form.full_height_title ? 'h-1/2 w-full mb-2' : 'h-12 w-full mb-1'}`}>
                             <img 
                               src={form.event_logo_url} 
                               alt="Logo Preview" 
-                              className={`object-contain filter drop-shadow-md ${form.full_height_title ? 'h-full' : 'max-h-12'}`} 
+                              className={`object-contain object-left h-full max-w-full filter drop-shadow-md`} 
                             />
                           </div>
                         ) : (
                           <h3 
-                            className={`font-bold text-white drop-shadow-xl ${form.full_height_title ? 'text-3xl md:text-5xl lg:text-6xl' : 'text-xl md:text-2xl'}`}
+                            className={`font-bold text-white drop-shadow-xl line-clamp-3 ${form.full_height_title ? 'text-3xl md:text-5xl' : 'text-xl'}`}
                             dangerouslySetInnerHTML={{ 
                               __html: (form.title || 'Título do Evento').replace(/<br\s*\/?>/gi, '<br/>') 
                             }}
