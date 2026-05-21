@@ -33,7 +33,7 @@ export interface AppEvent {
   // Unit collaboration
   has_unit_collaboration: boolean;
   collaborating_units: Unit[];
-  external_collaborators: string[];
+  external_collaborators: Array<string | { name: string; details: string }>;
   attachments: string[]; // URLs of uploaded files
   banner_url_desktop?: string;
   banner_url_mobile?: string;
