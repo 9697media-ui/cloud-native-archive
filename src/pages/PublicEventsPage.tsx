@@ -116,11 +116,18 @@ export default function PublicEventsPage() {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
+    // DEBUG: console.log("bannerEvents calc start", confirmedEvents.length);
     const result = confirmedEvents
-      .filter(e => e.show_in_banner && new Date(e.start_datetime) >= startOfToday)
+      .filter(e => {
+        const isBanner = e.show_in_banner;
+        const eventDate = new Date(e.start_datetime);
+        const isNotPast = eventDate >= startOfToday;
+        // console.log(`Event ${e.title}: isBanner=${isBanner}, date=${e.start_datetime}, isNotPast=${isNotPast}`);
+        return isBanner && isNotPast;
+      })
       .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
     
-    console.log("Banner Events (Public):", result);
+    // console.log("Banner Events (Public) final:", result);
     return result;
   }, [events, isAdmin]);
 
