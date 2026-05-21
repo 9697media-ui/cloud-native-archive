@@ -86,6 +86,23 @@ export default function PublicEventsPage() {
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % bannerEvents.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + bannerEvents.length) % bannerEvents.length);
 
+  const handleCardClick = (event: AppEvent) => {
+    if (isAuthenticated && isAdmin) {
+      setSelectedEvent(event);
+    } else {
+      setSelectedEventForDetail(event);
+      // Update URL without full refresh to support sharing the specific open state
+      setSearchParams({ slug: event.slug || event.id });
+    }
+  };
+
+  const closeDetail = () => {
+    setSelectedEventForDetail(null);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('slug');
+    setSearchParams(newParams);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {!isAuthenticated && (
