@@ -416,15 +416,15 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     <div className="flex justify-between items-center border-b border-blue-100 pb-3">
                       <div className="flex items-center gap-2">
                         <Share2 className="h-4 w-4 text-blue-600" />
-                        <Label className="text-sm font-bold text-blue-800 uppercase tracking-wider">Checklist de Publicação</Label>
+                        <Label className="text-sm font-semibold text-blue-800 uppercase tracking-wider">Checklist de publicação</Label>
                       </div>
                       {!isAdmin && <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-600 border-amber-200">Apenas Admin</Badge>}
                     </div>
                     
                     <div className="flex items-center justify-between gap-3 p-2 bg-primary/5 rounded-md border border-primary/10">
                       <div className="flex flex-col">
-                        <Label htmlFor="show_in_banner" className="text-sm font-medium">Exibir no Banner Superior</Label>
-                        <p className="text-[10px] text-muted-foreground">Destacar no carrossel da página pública.</p>
+                        <Label htmlFor="show_in_banner" className="text-sm font-semibold text-slate-900">Exibir no banner superior</Label>
+                        <p className="text-[11px] text-muted-foreground">Destacar no carrossel da página pública.</p>
                       </div>
                       <Switch
                         id="show_in_banner"
@@ -436,8 +436,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
-                        <Label htmlFor="use_logo_as_title" className="text-sm font-medium">Usar Logo como Título</Label>
-                        <p className="text-[10px] text-muted-foreground">Estilo streaming: substitui o texto por uma imagem da logo.</p>
+                        <Label htmlFor="use_logo_as_title" className="text-sm font-semibold text-slate-900">Usar logo como título</Label>
+                        <p className="text-[11px] text-muted-foreground">Estilo streaming: substitui o texto por uma imagem da logo.</p>
                       </div>
                       <Switch
                         id="use_logo_as_title"
@@ -449,8 +449,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
-                        <Label htmlFor="show_banner_overlay" className="text-sm font-medium">Cortina de Opacidade</Label>
-                        <p className="text-[10px] text-muted-foreground">Escurece levemente a imagem para destacar o texto.</p>
+                        <Label htmlFor="show_banner_overlay" className="text-sm font-semibold text-slate-900">Cortina de opacidade</Label>
+                        <p className="text-[11px] text-muted-foreground">Escurece levemente a imagem para destacar o texto.</p>
                       </div>
                       <Switch
                         id="show_banner_overlay"
@@ -462,8 +462,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
-                        <Label htmlFor="show_banner_fade" className="text-sm font-medium">Efeito de Sombreamento (Fade)</Label>
-                        <p className="text-[10px] text-muted-foreground">Adiciona um degradê na base do banner para melhorar a leitura.</p>
+                        <Label htmlFor="show_banner_fade" className="text-sm font-semibold text-slate-900">Efeito de sombreamento (Fade)</Label>
+                        <p className="text-[11px] text-muted-foreground">Adiciona um degradê na base do banner para melhorar a leitura.</p>
                       </div>
                       <Switch
                         id="show_banner_fade"
@@ -475,8 +475,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex flex-col">
-                        <Label htmlFor="full_height_title" className="text-sm font-medium">Ocupar Toda a Altura</Label>
-                        <p className="text-[10px] text-muted-foreground">O título ou logo cresce para preencher o banner (estilo cinema).</p>
+                        <Label htmlFor="full_height_title" className="text-sm font-semibold text-slate-900">Ocupar toda a altura</Label>
+                        <p className="text-[11px] text-muted-foreground">O título ou logo cresce para preencher o banner (estilo cinema).</p>
                       </div>
                       <Switch
                         id="full_height_title"
@@ -488,8 +488,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                     <div className="flex flex-col gap-2 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="banner_display_time" className="text-sm font-medium">Tempo de Exibição</Label>
-                        <Badge variant="secondary" className="text-[10px] font-mono">{form.banner_display_time || 5}s</Badge>
+                        <Label htmlFor="banner_display_time" className="text-sm font-semibold text-slate-900">Tempo de exibição</Label>
+                        <Badge variant="secondary" className="text-[11px] font-mono">{form.banner_display_time || 5}s</Badge>
                       </div>
                       <input 
                         type="range"
