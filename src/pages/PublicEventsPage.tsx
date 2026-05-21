@@ -206,12 +206,30 @@ export default function PublicEventsPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
               
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto">
-                <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none mb-4`}>
-                  {event.unit}
-                </Badge>
-                <h2 className="text-3xl md:text-6xl font-bold text-white mb-4 max-w-3xl leading-tight drop-shadow-lg">
-                  {event.title}
-                </h2>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none shadow-lg`}>
+                    {event.unit}
+                  </Badge>
+                  {!event.show_in_banner && isAdmin && (
+                    <Badge variant="outline" className="bg-slate-900/80 text-slate-200 border-slate-700 backdrop-blur-sm">
+                      Oculto para o Público
+                    </Badge>
+                  )}
+                </div>
+                
+                {event.use_logo_as_title && event.event_logo_url ? (
+                  <div className="mb-6 max-w-xs md:max-w-md animate-in slide-in-from-left duration-700">
+                    <img 
+                      src={event.event_logo_url} 
+                      alt={event.title} 
+                      className="max-h-24 md:max-h-40 w-auto object-contain filter drop-shadow-2xl" 
+                    />
+                  </div>
+                ) : (
+                  <h2 className="text-3xl md:text-6xl font-bold text-white mb-4 max-w-3xl leading-tight drop-shadow-lg">
+                    {event.title}
+                  </h2>
+                )}
                 <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5" />
