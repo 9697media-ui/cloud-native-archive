@@ -3,6 +3,7 @@ import { ptBR } from 'date-fns/locale';
 import { CalendarDays, MapPin, Clock, Share2, X, Instagram, MessageCircle, Copy, Megaphone, CheckCircle2 } from 'lucide-react';
 import { AppEvent, UNIT_BG_COLORS } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTestView } from '@/contexts/TestViewContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,8 @@ interface Props {
 
 export function EventDetailDialog({ open, onOpenChange, event }: Props) {
   const { user } = useAuth();
+  const { activePersona } = useTestView();
+  const isInternalView = activePersona ? activePersona.id !== 'test-nao-logado' : !!user;
   if (!event) return null;
 
   const eventUrl = `${window.location.origin}/eventos?slug=${event.slug || event.id}`;
@@ -175,7 +178,7 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                 </div>
               )}
 
-              {event.marketing_request && user && (
+              {event.marketing_request && isInternalView && (
                 <div className="pt-6 border-t border-slate-100 space-y-4">
                   <div className="flex items-center gap-2">
                     <Megaphone className="h-5 w-5 text-blue-500" />
