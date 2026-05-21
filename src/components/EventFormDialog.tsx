@@ -546,6 +546,156 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   />
                   <Label htmlFor="marketing_request" className="cursor-pointer flex-1 text-sm">Solicitação de Marketing</Label>
                 </div>
+
+                <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                  <Switch
+                    id="partner_involved"
+                    checked={form.partner_involved || false}
+                    onCheckedChange={v => setForm({ ...form, partner_involved: v, ...(!v ? { partner_type: '', partner_name: '', partners: [] } : {}) })}
+                  />
+                  <Label htmlFor="partner_involved" className="cursor-pointer flex-1 text-sm">Parceiro Envolvido</Label>
+                </div>
+
+                {form.partner_involved && (
+                  <div className="space-y-2 rounded-lg border border-border p-3">
+                    <Label className="text-sm font-medium">Parceiros</Label>
+                    {(form.partners || []).map((partner, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <Select
+                          value={partner.type || ''}
+                          onValueChange={v => {
+                            const updated = [...(form.partners || [])];
+                            updated[idx] = { ...updated[idx], type: v as PartnerType };
+                            setForm({ ...form, partners: updated });
+                          }}
+                        >
+                          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Tipo..." /></SelectTrigger>
+                          <SelectContent>
+                            {PARTNER_TYPES.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          value={partner.name}
+                          onChange={e => {
+                            const updated = [...(form.partners || [])];
+                            updated[idx] = { ...updated[idx], name: e.target.value };
+                            setForm({ ...form, partners: updated });
+                          }}
+                          placeholder="Nome do parceiro"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="shrink-0 h-8 w-8"
+                          onClick={() => {
+                            const updated = (form.partners || []).filter((_, i) => i !== idx);
+                            setForm({ ...form, partners: updated });
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-1"
+                      onClick={() => setForm({ ...form, partners: [...(form.partners || []), { type: '' as PartnerType, name: '' }] })}
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      Adicionar Parceiro
+                    </Button>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                  <Switch
+                    id="unit_collaboration"
+                    checked={form.has_unit_collaboration || false}
+                    onCheckedChange={v => setForm({ ...form, has_unit_collaboration: v, ...(!v ? { collaborating_units: [], external_collaborators: [] } : {}) })}
+                  />
+                  <Label htmlFor="unit_collaboration" className="cursor-pointer flex-1 text-sm">Parceria com outra Unidade/Instituição</Label>
+                </div>
+
+                {form.has_unit_collaboration && (
+                  <div className="space-y-3 rounded-lg border border-border p-3">
+                    <div>
+                      <Label className="text-sm font-medium">Unidades Parceiras</Label>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {UNITS.filter(u => u !== form.unit).map(u => (
+                          <label key={u} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                            <Checkbox
+                              checked={(form.collaborating_units || []).includes(u)}
+                              onCheckedChange={(checked) => {
+                                const current = form.collaborating_units || [];
+                                setForm({
+                                  ...form,
+                                  collaborating_units: checked
+                                    ? [...current, u]
+                                    : current.filter(cu => cu !== u),
+                                });
+                              }}
+                            />
+                            {u}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Instituições Externas</Label>
+                      <div className="space-y-2 mt-2">
+                        {(form.external_collaborators || []).map((ext, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <Input
+                              value={ext}
+                              onChange={e => {
+                                const updated = [...(form.external_collaborators || [])];
+                                updated[idx] = e.target.value;
+                                setForm({ ...form, external_collaborators: updated });
+                              }}
+                              placeholder="Nome da instituição"
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="shrink-0 h-8 w-8"
+                              onClick={() => {
+                                const updated = (form.external_collaborators || []).filter((_, i) => i !== idx);
+                                setForm({ ...form, external_collaborators: updated });
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                          onClick={() => setForm({ ...form, external_collaborators: [...(form.external_collaborators || []), ''] })}
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Adicionar Instituição
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-lg border border-border p-3">
+                  <Label className="text-sm font-medium mb-2 block">Anexos</Label>
+                  <FileUpload
+                    mode="multiple"
+                    attachments={form.attachments || []}
+                    onChange={(urls) => setForm({ ...form, attachments: urls as string[] })}
+                  />
+                </div>
               </div>
             )}
             
