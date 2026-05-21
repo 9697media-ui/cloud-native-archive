@@ -718,11 +718,26 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       
                       <div className="space-y-4">
                         <div className="space-y-3">
-                          <Label className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Cobertura do Evento</Label>
+                          <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-white p-3 shadow-sm">
+                            <Switch
+                              id="marketing_cobertura"
+                              checked={(form.marketing_items || []).some(i => i.type === 'cobertura')}
+                              onCheckedChange={v => {
+                                const current = form.marketing_items || [];
+                                if (v) {
+                                  setForm({ ...form, marketing_items: [...current, { type: 'cobertura', item: '', description: '' }] });
+                                } else {
+                                  setForm({ ...form, marketing_items: current.filter(i => i.type !== 'cobertura') });
+                                }
+                              }}
+                            />
+                            <Label htmlFor="marketing_cobertura" className="cursor-pointer flex-1 text-sm font-medium text-blue-900">Cobertura do Evento</Label>
+                          </div>
+                          
                           {(form.marketing_items || []).filter(i => i.type === 'cobertura').map((item, idx) => {
                             const originalIdx = (form.marketing_items || []).findIndex(mi => mi === item);
                             return (
-                              <div key={`cobertura-${idx}`} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm">
+                              <div key={`cobertura-${idx}`} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm animate-in fade-in slide-in-from-top-1">
                                 <div className="flex items-center gap-2">
                                   <Input 
                                     value={item.item} 
@@ -758,30 +773,42 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                   rows={2}
                                   className="bg-slate-50 border-blue-100 focus-visible:ring-blue-500 text-xs"
                                 />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full h-7 text-[10px] text-blue-600 hover:bg-blue-50 gap-1"
+                                  onClick={() => setForm({ 
+                                    ...form, 
+                                    marketing_items: [...(form.marketing_items || []), { type: 'cobertura', item: '', description: '' }] 
+                                  })}
+                                >
+                                  <Plus className="h-3 w-3" /> Adicionar mais um item de cobertura
+                                </Button>
                               </div>
                             );
                           })}
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="w-full gap-2 border-dashed border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 h-8 text-xs font-medium"
-                            onClick={() => setForm({ 
-                              ...form, 
-                              marketing_items: [...(form.marketing_items || []), { type: 'cobertura', item: '', description: '' }] 
-                            })}
-                          >
-                            <Plus className="h-3.5 w-3.5" />
-                            Adicionar Cobertura
-                          </Button>
-                        </div>
 
-                        <div className="space-y-3 pt-2">
-                          <Label className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Demanda Gráfica (Arte/Impressão)</Label>
+                          <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-white p-3 shadow-sm">
+                            <Switch
+                              id="marketing_grafica"
+                              checked={(form.marketing_items || []).some(i => i.type === 'demanda_grafica')}
+                              onCheckedChange={v => {
+                                const current = form.marketing_items || [];
+                                if (v) {
+                                  setForm({ ...form, marketing_items: [...current, { type: 'demanda_grafica', item: '', description: '' }] });
+                                } else {
+                                  setForm({ ...form, marketing_items: current.filter(i => i.type !== 'demanda_grafica') });
+                                }
+                              }}
+                            />
+                            <Label htmlFor="marketing_grafica" className="cursor-pointer flex-1 text-sm font-medium text-blue-900">Demanda Gráfica (Arte/Impressão)</Label>
+                          </div>
+
                           {(form.marketing_items || []).filter(i => i.type === 'demanda_grafica').map((item, idx) => {
                             const originalIdx = (form.marketing_items || []).findIndex(mi => mi === item);
                             return (
-                              <div key={`grafica-${idx}`} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm">
+                              <div key={`grafica-${idx}`} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm animate-in fade-in slide-in-from-top-1">
                                 <div className="flex items-center gap-2">
                                   <Input 
                                     value={item.item} 
@@ -817,22 +844,21 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                   rows={2}
                                   className="bg-slate-50 border-blue-100 focus-visible:ring-blue-500 text-xs"
                                 />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full h-7 text-[10px] text-blue-600 hover:bg-blue-50 gap-1"
+                                  onClick={() => setForm({ 
+                                    ...form, 
+                                    marketing_items: [...(form.marketing_items || []), { type: 'demanda_grafica', item: '', description: '' }] 
+                                  })}
+                                >
+                                  <Plus className="h-3 w-3" /> Adicionar mais um item gráfico
+                                </Button>
                               </div>
                             );
                           })}
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="w-full gap-2 border-dashed border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 h-8 text-xs font-medium"
-                            onClick={() => setForm({ 
-                              ...form, 
-                              marketing_items: [...(form.marketing_items || []), { type: 'demanda_grafica', item: '', description: '' }] 
-                            })}
-                          >
-                            <Plus className="h-3.5 w-3.5" />
-                            Adicionar Demanda Gráfica
-                          </Button>
                         </div>
                         {errors.marketing_items && <p className="mt-1 text-xs text-destructive">{errors.marketing_items}</p>}
                       </div>
