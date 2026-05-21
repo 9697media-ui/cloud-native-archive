@@ -456,22 +456,8 @@ export default function PublicEventsPage() {
           </div>
         </div>
 
-        {!isAuthenticated && (
-          <div className="mb-6 p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Globe className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-slate-900">Esta é a visualização pública</p>
-                <p className="text-xs text-slate-500">Apenas eventos confirmados e marcados como públicos aparecem aqui.</p>
-              </div>
-            </div>
-            <Link to="/login">
-              <Button size="sm" variant="outline">Acessar Área Restrita</Button>
-            </Link>
-          </div>
-        )}
+
+
 
         {sortedEvents.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
