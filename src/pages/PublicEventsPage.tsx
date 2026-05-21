@@ -382,11 +382,12 @@ export default function PublicEventsPage() {
                     {event.unit}
                   </Badge>
                   
-                  {isAdmin && (
+                  {isAdmin && isAuthenticated && (
                     <div className="absolute top-3 right-3 flex gap-2">
                       <button 
                         onClick={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           handleToggleBanner(event);
                         }}
                         className={`p-1.5 rounded-full shadow-lg backdrop-blur-md transition-colors ${event.show_in_banner ? 'bg-primary text-white' : 'bg-white/80 text-slate-600 hover:bg-white'}`}
