@@ -45,6 +45,8 @@ const emptyEvent = (): Partial<AppEvent> => ({
   attachments: [],
   banner_url_desktop: '',
   banner_url_mobile: '',
+  banner_image_desktop: '',
+  banner_image_mobile: '',
   custom_color: SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
   show_in_banner: false,
 });
@@ -128,6 +130,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       attachments: form.attachments || [],
       banner_url_desktop: form.banner_url_desktop || '',
       banner_url_mobile: form.banner_url_mobile || '',
+      banner_image_desktop: form.banner_image_desktop || '',
+      banner_image_mobile: form.banner_image_mobile || '',
       custom_color: form.custom_color || SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
       show_in_banner: form.show_in_banner || false,
     };
@@ -186,6 +190,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       attachments: form.attachments || [],
       banner_url_desktop: form.banner_url_desktop || '',
       banner_url_mobile: form.banner_url_mobile || '',
+      banner_image_desktop: form.banner_image_desktop || '',
+      banner_image_mobile: form.banner_image_mobile || '',
       custom_color: form.custom_color || SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
       show_in_banner: form.show_in_banner || false,
     };
@@ -331,22 +337,56 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   />
                 </div>
                 
-                <FileUpload 
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-xs font-semibold mb-2 block">Capas do Card (Miniatura)</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <FileUpload 
+                          label="Capa Desktop (16:9)"
+                          mode="single"
+                          url={form.banner_url_desktop}
+                          onChange={(url) => setForm({ ...form, banner_url_desktop: url })}
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1">Usada no card em telas grandes.</p>
+                      </div>
+                      <div>
+                        <FileUpload 
+                          label="Capa Mobile (4:3)"
+                          mode="single"
+                          url={form.banner_url_mobile}
+                          onChange={(url) => setForm({ ...form, banner_url_mobile: url })}
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1">Usada no card em celulares.</p>
+                      </div>
+                    </div>
+                  </div>
 
-                  label="Capa Desktop/Tablet (16:9)"
-                  mode="single"
-                  url={form.banner_url_desktop}
-                  onChange={(url) => setForm({ ...form, banner_url_desktop: url })}
-                />
-                <p className="text-[10px] text-muted-foreground mt-1">HD, FHD ou UHD recomendado.</p>
-
-                <FileUpload 
-                  label="Capa Mobile (4:3)"
-                  mode="single"
-                  url={form.banner_url_mobile}
-                  onChange={(url) => setForm({ ...form, banner_url_mobile: url })}
-                />
-                <p className="text-[10px] text-muted-foreground mt-1">1080x1440 recomendado.</p>
+                  <div className="border-t border-border pt-4">
+                    <Label className="text-xs font-semibold mb-2 block text-primary">Artes do Banner Superior (Destaque)</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <FileUpload 
+                          label="Banner Desktop (21:9)"
+                          mode="single"
+                          url={form.banner_image_desktop}
+                          onChange={(url) => setForm({ ...form, banner_image_desktop: url })}
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1">Otimizado para o carrossel (Ultra-wide).</p>
+                      </div>
+                      <div>
+                        <FileUpload 
+                          label="Banner Mobile (9:16)"
+                          mode="single"
+                          url={form.banner_image_mobile}
+                          onChange={(url) => setForm({ ...form, banner_image_mobile: url })}
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1">Otimizado para o carrossel em celulares.</p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-2 italic">Dica: Use artes com respiro lateral para não cobrir o texto.</p>
+                  </div>
+                </div>
 
                 <div className="pt-2">
                   <Label className="text-xs mb-2 block">Cor do Card (caso não tenha capa)</Label>
