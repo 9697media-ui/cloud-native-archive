@@ -579,6 +579,10 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   <div className="bg-white h-full">
                     {/* Visualização de Slide do Banner */}
                     <div className={`relative ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'aspect-[21/12]' : 'aspect-[21/9]'} bg-slate-900 overflow-hidden`}>
+                      {form.show_banner_overlay !== false && (
+                        <div className="absolute inset-0 z-0 bg-slate-950/40" />
+                      )}
+                      
                       {form.show_banner_fade !== false && (
                         <div className="absolute inset-0 z-10 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                       )}
