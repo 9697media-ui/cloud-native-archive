@@ -365,6 +365,17 @@ export default function PublicEventsPage() {
           </div>
         </footer>
       )}
+      <EventDetailDialog 
+        open={!!selectedEventForDetail} 
+        onOpenChange={(open) => !open && closeDetail()} 
+        event={selectedEventForDetail} 
+      />
+
+      <EventFormDialog 
+        open={!!selectedEvent} 
+        onOpenChange={(open) => !open && setSelectedEvent(null)} 
+        event={selectedEvent} 
+      />
     </div>
   );
 }
