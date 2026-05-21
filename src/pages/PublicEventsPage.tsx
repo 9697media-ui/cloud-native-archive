@@ -501,10 +501,17 @@ export default function PublicEventsPage() {
                     />
                   ) : (
                     <div 
-                      className="w-full h-full flex items-center justify-center text-white/50"
+                      className="w-full h-full flex items-center justify-center p-6 text-center overflow-hidden"
                       style={{ backgroundColor: event.custom_color || '#94a3b8' }}
                     >
-                      <CalendarDays className="h-12 w-12 opacity-30" />
+                      <span 
+                        className="font-bold text-white leading-[1.1] break-words uppercase drop-shadow-md select-none"
+                        style={{ 
+                          fontSize: event.title.length < 15 ? '2.5rem' : event.title.length < 30 ? '1.75rem' : event.title.length < 50 ? '1.25rem' : '1rem',
+                        }}
+                      >
+                        {event.title}
+                      </span>
                     </div>
                   )}
                   <div className={`absolute top-0 left-0 h-1 w-full ${UNIT_BG_COLORS[event.unit]}`} />
