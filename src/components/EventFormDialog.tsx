@@ -49,7 +49,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   const { addEvent, updateEvent, detectConflicts, setSelectedEvent } = useApp();
-  const { userName, unit } = useUserRole();
+  const { userName, unit, isAdmin } = useUserRole();
   const [form, setForm] = useState<Partial<AppEvent>>(emptyEvent());
   const [conflicts, setConflicts] = useState<AppEvent[]>([]);
   const [showConflictAlert, setShowConflictAlert] = useState(false);
