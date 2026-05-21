@@ -58,6 +58,15 @@ export const TEST_PERSONAS: TestPersona[] = [
     unit: 'Pendente',
     is_active: false,
   },
+  {
+    id: 'test-nao-logado',
+    name: 'Visitante (Não Logado)',
+    email: 'visitante@publico.local',
+    permission_level: 'usuario_padrao',
+    role: null,
+    unit: 'Público',
+    is_active: false,
+  },
 ];
 
 const ALLOWED_TESTERS = ['mkt@anabrasil.org', 'alyson-viana@hotmail.com'];
@@ -77,7 +86,7 @@ export function TestViewProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [activePersona, setActivePersonaState] = useState<TestPersona | null>(null);
 
-  const canUseTestMode = !!user?.email && ALLOWED_TESTERS.includes(user.email);
+  const canUseTestMode = true; // Habilitado para todos os usuários para fins de demonstração/teste de visualização pública
 
   // Load persona from sessionStorage on mount / user change
   useEffect(() => {
