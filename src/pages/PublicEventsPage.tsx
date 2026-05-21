@@ -14,8 +14,10 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PageHeader from '@/components/PageHeader';
 import logoImg from '@/assets/logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { EventDetailDialog } from '@/components/EventDetailDialog';
+import EventFormDialog from '@/components/EventFormDialog';
 
 export default function PublicEventsPage() {
   const { isAuthenticated } = useAuth();
