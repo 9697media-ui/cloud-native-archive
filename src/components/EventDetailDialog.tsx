@@ -62,9 +62,15 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
           
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="flex-1 space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
-                {event.title}
-              </h2>
+              {event.use_logo_as_title && event.event_logo_url ? (
+                <div className="mb-4 max-w-xs">
+                  <img src={event.event_logo_url} alt={event.title} className="max-h-24 object-contain filter drop-shadow-md" />
+                </div>
+              ) : (
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+                  {event.title}
+                </h2>
+              )}
               
               <div className="flex flex-wrap gap-6 text-slate-600">
                 <div className="flex items-center gap-2">

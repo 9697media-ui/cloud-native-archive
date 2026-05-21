@@ -105,6 +105,7 @@ export type Database = {
           custom_color: string | null
           description: string | null
           end_datetime: string
+          event_logo_url: string | null
           event_type: string
           external_collaborators: Json | null
           external_id: string | null
@@ -126,6 +127,7 @@ export type Database = {
           unit: string
           updated_at: string
           updated_by: string | null
+          use_logo_as_title: boolean | null
           visibility: string | null
         }
         Insert: {
@@ -140,6 +142,7 @@ export type Database = {
           custom_color?: string | null
           description?: string | null
           end_datetime: string
+          event_logo_url?: string | null
           event_type: string
           external_collaborators?: Json | null
           external_id?: string | null
@@ -161,6 +164,7 @@ export type Database = {
           unit: string
           updated_at?: string
           updated_by?: string | null
+          use_logo_as_title?: boolean | null
           visibility?: string | null
         }
         Update: {
@@ -175,6 +179,7 @@ export type Database = {
           custom_color?: string | null
           description?: string | null
           end_datetime?: string
+          event_logo_url?: string | null
           event_type?: string
           external_collaborators?: Json | null
           external_id?: string | null
@@ -196,6 +201,7 @@ export type Database = {
           unit?: string
           updated_at?: string
           updated_by?: string | null
+          use_logo_as_title?: boolean | null
           visibility?: string | null
         }
         Relationships: []

@@ -51,6 +51,8 @@ const emptyEvent = (): Partial<AppEvent> => ({
   custom_color: SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
   show_in_banner: false,
   slug: '',
+  use_logo_as_title: false,
+  event_logo_url: '',
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -135,6 +137,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       custom_color: form.custom_color || SYSTEM_COLORS[0],
       show_in_banner: form.show_in_banner || false,
       slug: form.slug || '',
+      use_logo_as_title: form.use_logo_as_title || false,
+      event_logo_url: form.event_logo_url || '',
     };
   };
 
@@ -377,6 +381,31 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         disabled={!isAdmin}
                       />
                     </div>
+
+                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                      <div className="flex flex-col">
+                        <Label htmlFor="use_logo_as_title" className="text-sm font-medium">Usar Logo como Título</Label>
+                        <p className="text-[10px] text-muted-foreground">Estilo streaming: substitui o texto por uma imagem da logo.</p>
+                      </div>
+                      <Switch
+                        id="use_logo_as_title"
+                        checked={form.use_logo_as_title || false}
+                        onCheckedChange={v => setForm({ ...form, use_logo_as_title: v })}
+                        disabled={!isAdmin}
+                      />
+                    </div>
+
+                    {form.use_logo_as_title && (
+                      <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300">
+                        <FileUpload 
+                          label="Logo/ID Visual do Evento"
+                          mode="single"
+                          url={form.event_logo_url}
+                          onChange={(url) => setForm({ ...form, event_logo_url: url })}
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1 italic text-center">Recomendado: PNG com fundo transparente.</p>
+                      </div>
+                    )}
                     
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -491,9 +520,17 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         </div>
                         <div className={`p-6 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'mt-0' : '-mt-8'} relative z-10`}>
                           <Badge className="bg-primary text-white mb-2 text-[10px]">{form.unit}</Badge>
-                          <h3 className={`font-bold mb-2 line-clamp-2 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}>
-                            {form.title || 'Título do Evento'}
-                          </h3>
+                          
+                          {form.use_logo_as_title && form.event_logo_url ? (
+                            <div className="mb-2 max-w-[150px]">
+                              <img src={form.event_logo_url} alt="Logo Preview" className="max-h-12 object-contain filter drop-shadow-md" />
+                            </div>
+                          ) : (
+                            <h3 className={`font-bold mb-2 line-clamp-2 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}>
+                              {form.title || 'Título do Evento'}
+                            </h3>
+                          )}
+                          
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
                             <CalendarDays className="h-3 w-3" />
                             <span>{form.start_datetime ? new Date(form.start_datetime).toLocaleDateString() : 'Data'}</span>

@@ -52,9 +52,26 @@ export default function PublicEventsPage() {
   }, [filtered]);
 
   const bannerEvents = useMemo(() => {
-    // Show events that have show_in_banner explicitly enabled by admin
-    return events.filter(e => e.show_in_banner);
-  }, [events]);
+    // Show confirmed events that are in banner, sorted by start date
+    // For regular users, only show those with show_in_banner = true
+    // For admins, show ALL but push disabled ones to the end
+    const confirmedEvents = events;
+    
+    if (isAdmin) {
+      return [...confirmedEvents].sort((a, b) => {
+        // First priority: show_in_banner status
+        if (a.show_in_banner && !b.show_in_banner) return -1;
+        if (!a.show_in_banner && b.show_in_banner) return 1;
+        
+        // Second priority: start date
+        return new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime();
+      });
+    }
+
+    return confirmedEvents
+      .filter(e => e.show_in_banner)
+      .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
+  }, [events, isAdmin]);
 
   const handleToggleBanner = (event: AppEvent) => {
     // If adding to banner and missing desktop image
@@ -189,12 +206,30 @@ export default function PublicEventsPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
               
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto">
-                <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none mb-4`}>
-                  {event.unit}
-                </Badge>
-                <h2 className="text-3xl md:text-6xl font-bold text-white mb-4 max-w-3xl leading-tight drop-shadow-lg">
-                  {event.title}
-                </h2>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none shadow-lg`}>
+                    {event.unit}
+                  </Badge>
+                  {!event.show_in_banner && isAdmin && (
+                    <Badge variant="outline" className="bg-slate-900/80 text-slate-200 border-slate-700 backdrop-blur-sm">
+                      Oculto para o Público
+                    </Badge>
+                  )}
+                </div>
+                
+                {event.use_logo_as_title && event.event_logo_url ? (
+                  <div className="mb-6 max-w-xs md:max-w-md animate-in slide-in-from-left duration-700">
+                    <img 
+                      src={event.event_logo_url} 
+                      alt={event.title} 
+                      className="max-h-24 md:max-h-40 w-auto object-contain filter drop-shadow-2xl" 
+                    />
+                  </div>
+                ) : (
+                  <h2 className="text-3xl md:text-6xl font-bold text-white mb-4 max-w-3xl leading-tight drop-shadow-lg">
+                    {event.title}
+                  </h2>
+                )}
                 <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5" />
@@ -206,20 +241,36 @@ export default function PublicEventsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4 mt-6">
-                  <Button size="lg" className="rounded-full px-8 shadow-xl">
+                  <Button 
+                    size="lg" 
+                    className="rounded-full px-8 shadow-xl"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCardClick(event);
+                    }}
+                  >
                     Saber mais
                   </Button>
                   {isAdmin && (
                     <Button 
                       variant="outline" 
                       size="lg"
-                      className="rounded-full bg-white/10 hover:bg-white/20 text-white border-white/30 backdrop-blur-md"
+                      className={`rounded-full backdrop-blur-md border-white/30 ${event.show_in_banner ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-primary text-white hover:bg-primary/90'}`}
                       onClick={(e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         handleToggleBanner(event);
                       }}
                     >
-                      <EyeOff className="h-5 w-5 mr-2" /> Remover do Banner
+                      {event.show_in_banner ? (
+                        <>
+                          <EyeOff className="h-5 w-5 mr-2" /> Ocultar Banner
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-5 w-5 mr-2" /> Ativar Banner
+                        </>
+                      )}
                     </Button>
                   )}
                 </div>
