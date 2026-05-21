@@ -122,7 +122,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       if (!form.marketing_items || form.marketing_items.length === 0) {
         errs.marketing_items = 'Adicione ao menos um item de marketing';
       } else if (form.marketing_items.some(item => !item.item.trim())) {
-        errs.marketing_items = 'Preencha todos os itens de marketing';
+        errs.marketing_items = 'Preencha todos os campos dos itens de marketing';
       }
     }
 
@@ -716,60 +716,124 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         <Badge variant="outline" className="text-[10px] bg-blue-100 text-blue-700 border-blue-200">Briefing / Materiais</Badge>
                       </div>
                       
-                      <div className="space-y-3">
-                        {(form.marketing_items || []).map((item, idx) => (
-                          <div key={idx} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm">
-                            <div className="flex items-center gap-2">
-                              <Input 
-                                value={item.item} 
-                                onChange={e => {
-                                  const updated = [...(form.marketing_items || [])];
-                                  updated[idx] = { ...updated[idx], item: e.target.value };
-                                  setForm({ ...form, marketing_items: updated });
-                                }} 
-                                placeholder="O que você precisa? (Ex: Arte Instagram, Banner...)" 
-                                className="flex-1 bg-white border-blue-200 focus-visible:ring-blue-500 h-8 text-sm"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="shrink-0 h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50"
-                                onClick={() => {
-                                  const updated = (form.marketing_items || []).filter((_, i) => i !== idx);
-                                  setForm({ ...form, marketing_items: updated });
-                                }}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <Textarea 
-                              value={item.description} 
-                              onChange={e => {
-                                const updated = [...(form.marketing_items || [])];
-                                updated[idx] = { ...updated[idx], description: e.target.value };
-                                setForm({ ...form, marketing_items: updated });
-                              }} 
-                              placeholder="Detalhes: formato, texto, referências, prazo..." 
-                              rows={2}
-                              className="bg-slate-50 border-blue-100 focus-visible:ring-blue-500 text-xs"
-                            />
-                          </div>
-                        ))}
-                        
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="w-full gap-2 border-dashed border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
-                          onClick={() => setForm({ 
-                            ...form, 
-                            marketing_items: [...(form.marketing_items || []), { item: '', description: '' }] 
+                      <div className="space-y-4">
+                        <div className="space-y-3">
+                          <Label className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Cobertura do Evento</Label>
+                          {(form.marketing_items || []).filter(i => i.type === 'cobertura').map((item, idx) => {
+                            const originalIdx = (form.marketing_items || []).findIndex(mi => mi === item);
+                            return (
+                              <div key={`cobertura-${idx}`} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm">
+                                <div className="flex items-center gap-2">
+                                  <Input 
+                                    value={item.item} 
+                                    onChange={e => {
+                                      const updated = [...(form.marketing_items || [])];
+                                      updated[originalIdx] = { ...updated[originalIdx], item: e.target.value };
+                                      setForm({ ...form, marketing_items: updated });
+                                    }} 
+                                    placeholder="Ex: Fotos, Vídeo..." 
+                                    className="flex-1 bg-white border-blue-200 focus-visible:ring-blue-500 h-8 text-sm"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="shrink-0 h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50"
+                                    onClick={() => {
+                                      const updated = (form.marketing_items || []).filter((_, i) => i !== originalIdx);
+                                      setForm({ ...form, marketing_items: updated });
+                                    }}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                <Textarea 
+                                  value={item.description} 
+                                  onChange={e => {
+                                    const updated = [...(form.marketing_items || [])];
+                                    updated[originalIdx] = { ...updated[originalIdx], description: e.target.value };
+                                    setForm({ ...form, marketing_items: updated });
+                                  }} 
+                                  placeholder="Detalhes da cobertura..." 
+                                  rows={2}
+                                  className="bg-slate-50 border-blue-100 focus-visible:ring-blue-500 text-xs"
+                                />
+                              </div>
+                            );
                           })}
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                          Adicionar Item de Marketing
-                        </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="w-full gap-2 border-dashed border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 h-8 text-xs font-medium"
+                            onClick={() => setForm({ 
+                              ...form, 
+                              marketing_items: [...(form.marketing_items || []), { type: 'cobertura', item: '', description: '' }] 
+                            })}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            Adicionar Cobertura
+                          </Button>
+                        </div>
+
+                        <div className="space-y-3 pt-2">
+                          <Label className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Demanda Gráfica (Arte/Impressão)</Label>
+                          {(form.marketing_items || []).filter(i => i.type === 'demanda_grafica').map((item, idx) => {
+                            const originalIdx = (form.marketing_items || []).findIndex(mi => mi === item);
+                            return (
+                              <div key={`grafica-${idx}`} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm">
+                                <div className="flex items-center gap-2">
+                                  <Input 
+                                    value={item.item} 
+                                    onChange={e => {
+                                      const updated = [...(form.marketing_items || [])];
+                                      updated[originalIdx] = { ...updated[originalIdx], item: e.target.value };
+                                      setForm({ ...form, marketing_items: updated });
+                                    }} 
+                                    placeholder="Ex: Card Instagram, Banner..." 
+                                    className="flex-1 bg-white border-blue-200 focus-visible:ring-blue-500 h-8 text-sm"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="shrink-0 h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50"
+                                    onClick={() => {
+                                      const updated = (form.marketing_items || []).filter((_, i) => i !== originalIdx);
+                                      setForm({ ...form, marketing_items: updated });
+                                    }}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                <Textarea 
+                                  value={item.description} 
+                                  onChange={e => {
+                                    const updated = [...(form.marketing_items || [])];
+                                    updated[originalIdx] = { ...updated[originalIdx], description: e.target.value };
+                                    setForm({ ...form, marketing_items: updated });
+                                  }} 
+                                  placeholder="Detalhes: formato, arte, impressão..." 
+                                  rows={2}
+                                  className="bg-slate-50 border-blue-100 focus-visible:ring-blue-500 text-xs"
+                                />
+                              </div>
+                            );
+                          })}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="w-full gap-2 border-dashed border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 h-8 text-xs font-medium"
+                            onClick={() => setForm({ 
+                              ...form, 
+                              marketing_items: [...(form.marketing_items || []), { type: 'demanda_grafica', item: '', description: '' }] 
+                            })}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            Adicionar Demanda Gráfica
+                          </Button>
+                        </div>
                         {errors.marketing_items && <p className="mt-1 text-xs text-destructive">{errors.marketing_items}</p>}
                       </div>
                     </div>
