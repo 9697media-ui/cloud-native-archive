@@ -437,6 +437,25 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       />
                     </div>
 
+                    <div className="flex flex-col gap-2 p-2 bg-slate-100 rounded-md border border-slate-200">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="banner_display_time" className="text-sm font-medium">Tempo de Exibição</Label>
+                        <Badge variant="secondary" className="text-[10px] font-mono">{form.banner_display_time || 5}s</Badge>
+                      </div>
+                      <input 
+                        type="range"
+                        id="banner_display_time"
+                        min="3"
+                        max="30"
+                        step="1"
+                        value={form.banner_display_time || 5}
+                        onChange={(e) => setForm({ ...form, banner_display_time: parseInt(e.target.value) })}
+                        disabled={!isAdmin}
+                        className="w-full h-1.5 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-primary"
+                      />
+                      <p className="text-[10px] text-muted-foreground text-center">Intervalo de 3 a 30 segundos.</p>
+                    </div>
+
                     {form.use_logo_as_title && (
                       <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300">
                         <FileUpload 
