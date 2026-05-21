@@ -590,9 +590,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 )}
                 
                 <div className="space-y-6 pt-4 border-t">
-                  <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                    <Layout className="h-4 w-4" /> Detalhes logísticos e público-alvo
-                  </Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Detalhes logísticos e público-alvo</Label>
                   
                   <div className="space-y-4">
                     <div>
