@@ -55,6 +55,7 @@ export interface AppEvent {
   marketing_info?: string;
   printed_materials?: string;
   equipment_needed?: string;
+  marketing_items?: Array<{ item: string; description: string }>;
 }
 
 export const SYSTEM_COLORS = [
