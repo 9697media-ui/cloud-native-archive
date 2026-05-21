@@ -25,7 +25,7 @@ import EventDetailPanel from '@/components/EventDetailPanel';
 import { useUserRole as _ur } from '@/hooks/useUserRole';
 
 export default function PublicEventsPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [search, setSearch] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -156,7 +156,7 @@ export default function PublicEventsPage() {
     if (slug && events.length > 0) {
       const found = events.find(e => e.slug === slug || e.id === slug);
       if (found) {
-        if (isAuthenticated && isAdmin) {
+        if (isAuthenticated && isAdmin && user?.email !== 'visitante@publico.local') {
           setSelectedEvent(found);
         } else {
           setSelectedEventForDetail(found);
@@ -184,7 +184,7 @@ export default function PublicEventsPage() {
 
   const handleCardClick = (event: AppEvent) => {
     if (showTrash) return; // Don't open detail for trash items, or we could add a restore action
-    if (isAuthenticated && isAdmin) {
+    if (isAuthenticated && isAdmin && user?.email !== 'visitante@publico.local') {
       setSelectedEvent(event);
     } else {
       setSelectedEventForDetail(event);
@@ -202,7 +202,7 @@ export default function PublicEventsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {!isAuthenticated && (
+      {( !isAuthenticated || user?.email === 'visitante@publico.local') && (
         <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -365,7 +365,7 @@ export default function PublicEventsPage() {
       )}
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {isAuthenticated && (
+        {(isAuthenticated && user?.email !== 'visitante@publico.local') && (
           <div className="w-full flex flex-wrap items-center gap-2 mb-8">
             <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-info text-info-foreground border border-info/20 text-[10px] sm:text-xs font-medium justify-center whitespace-nowrap">
               <CalendarDays className="h-3.5 w-3.5 shrink-0" />
@@ -451,7 +451,7 @@ export default function PublicEventsPage() {
           </div>
         </div>
 
-        {!isAuthenticated && (
+        {(!isAuthenticated || user?.email === 'visitante@publico.local') && (
           <div className="mb-6 p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -521,7 +521,7 @@ export default function PublicEventsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex gap-2">
-                      {isAuthenticated && (
+                      {isAuthenticated && user?.email !== 'visitante@publico.local' && (
                         <>
                           <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium text-[10px]">
                             Confirmado
@@ -571,7 +571,7 @@ export default function PublicEventsPage() {
         )}
       </main>
 
-      {!isAuthenticated && (
+      {(!isAuthenticated || user?.email === 'visitante@publico.local') && (
         <footer className="bg-white border-t border-slate-200 py-12 px-6 mt-12">
           <div className="max-w-7xl mx-auto text-center">
             <img src={logoImg} alt="anabrasil" className="h-8 w-8 rounded-lg mx-auto mb-4 opacity-50 grayscale" />
