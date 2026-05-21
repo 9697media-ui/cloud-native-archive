@@ -553,6 +553,34 @@ export default function PublicEventsPage() {
         onConfirm={confirmBannerToggle}
         onAddImage={handleAddImage}
       />
+
+      <ConflictDialog
+        events={allEvents}
+        selectedMonth={new Date()}
+        open={showConflicts}
+        onOpenChange={setShowConflicts}
+        onEventClick={(e) => { setShowConflicts(false); setTimeout(() => { setDetailEvent(e); setShowDetail(true); }, 200); }}
+      />
+
+      {showFiltered && (
+        <FilteredEventsDialog
+          events={allEvents}
+          filterType={showFiltered}
+          selectedMonth={new Date()}
+          open={!!showFiltered}
+          onOpenChange={(v) => { if (!v) setShowFiltered(null); }}
+          onEventClick={(e) => { setShowFiltered(null); setTimeout(() => { setDetailEvent(e); setShowDetail(true); }, 200); }}
+        />
+      )}
+
+      <EventDetailPanel
+        event={detailEvent}
+        open={showDetail}
+        onOpenChange={setShowDetail}
+        onEdit={canEdit ? (e) => { setShowDetail(false); setSelectedEvent(e); } : undefined}
+        onDelete={canEdit ? (id) => { deleteEvent(id); setShowDetail(false); } : undefined}
+      />
     </div>
   );
 }
+
