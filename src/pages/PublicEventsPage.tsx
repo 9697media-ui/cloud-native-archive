@@ -63,7 +63,7 @@ export default function PublicEventsPage() {
         if (a.show_in_banner && !b.show_in_banner) return -1;
         if (!a.show_in_banner && b.show_in_banner) return 1;
         
-        // Second priority: start date
+        // Second priority: start date (even if hidden)
         return new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime();
       });
     }
