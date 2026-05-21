@@ -550,18 +550,87 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   </div>
                 )}
                 
-                <div>
-                  <Label>Observações internas</Label>
-                  <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Notas internas..." rows={2} />
+                <div className="space-y-4 pt-4 border-t">
+                  <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                    <Layout className="h-4 w-4" /> Detalhes Logísticos (Planilha)
+                  </Label>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs">Público-Alvo Específico</Label>
+                      <Input 
+                        value={form.target_audience} 
+                        onChange={e => setForm({ ...form, target_audience: e.target.value })} 
+                        placeholder="Ex: Atendidos, Comunidade..." 
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Equipe de Apoio</Label>
+                      <Input 
+                        value={form.support_team} 
+                        onChange={e => setForm({ ...form, support_team: e.target.value })} 
+                        placeholder="Ex: Funcionários, Voluntários..." 
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-xs">Logística de Alimentação</Label>
+                    <Textarea 
+                      value={form.food_logistics} 
+                      onChange={e => setForm({ ...form, food_logistics: e.target.value })} 
+                      placeholder="Detalhes sobre ingredientes, horários..." 
+                      rows={2} 
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs">Equipamentos Necessários</Label>
+                      <Input 
+                        value={form.equipment_needed} 
+                        onChange={e => setForm({ ...form, equipment_needed: e.target.value })} 
+                        placeholder="Ex: Som, Microfone, Pula-pula..." 
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Materiais Impressos (Qtd/Tipo)</Label>
+                      <Input 
+                        value={form.printed_materials} 
+                        onChange={e => setForm({ ...form, printed_materials: e.target.value })} 
+                        placeholder="Ex: 50 Panfletos, 2 Banners..." 
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                   <Switch
-                    id="marketing_request"
-                    checked={form.marketing_request || false}
-                    onCheckedChange={v => setForm({ ...form, marketing_request: v })}
-                  />
-                  <Label htmlFor="marketing_request" className="cursor-pointer flex-1 text-sm">Solicitação de Marketing</Label>
+                <div className="space-y-4 pt-4 border-t">
+                  <Label>Observações internas</Label>
+                  <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Notas internas gerais..." rows={2} />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                    <Switch
+                      id="marketing_request"
+                      checked={form.marketing_request || false}
+                      onCheckedChange={v => setForm({ ...form, marketing_request: v })}
+                    />
+                    <Label htmlFor="marketing_request" className="cursor-pointer flex-1 text-sm font-medium">Solicitação de Marketing</Label>
+                  </div>
+
+                  {form.marketing_request && (
+                    <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-3 space-y-2 animate-in fade-in slide-in-from-top-1">
+                      <Label className="text-xs font-semibold text-blue-800">Informações para a Arte</Label>
+                      <Textarea 
+                        value={form.marketing_info} 
+                        onChange={e => setForm({ ...form, marketing_info: e.target.value })} 
+                        placeholder="Descreva o que deve conter na arte (textos, logos, referências)..." 
+                        rows={3}
+                        className="bg-white border-blue-200 focus-visible:ring-blue-500"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-3 rounded-lg border border-border p-3">
