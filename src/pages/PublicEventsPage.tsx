@@ -52,9 +52,26 @@ export default function PublicEventsPage() {
   }, [filtered]);
 
   const bannerEvents = useMemo(() => {
-    // Show events that have show_in_banner explicitly enabled by admin
-    return events.filter(e => e.show_in_banner);
-  }, [events]);
+    // Show confirmed events that are in banner, sorted by start date
+    // For regular users, only show those with show_in_banner = true
+    // For admins, show ALL but push disabled ones to the end
+    const confirmedEvents = events;
+    
+    if (isAdmin) {
+      return [...confirmedEvents].sort((a, b) => {
+        // First priority: show_in_banner status
+        if (a.show_in_banner && !b.show_in_banner) return -1;
+        if (!a.show_in_banner && b.show_in_banner) return 1;
+        
+        // Second priority: start date
+        return new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime();
+      });
+    }
+
+    return confirmedEvents
+      .filter(e => e.show_in_banner)
+      .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
+  }, [events, isAdmin]);
 
   const handleToggleBanner = (event: AppEvent) => {
     // If adding to banner and missing desktop image
