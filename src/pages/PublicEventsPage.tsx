@@ -80,30 +80,43 @@ export default function PublicEventsPage() {
     // For admins, show ALL but push disabled or passed ones to the end
     const confirmedEvents = events;
     const now = new Date();
-    // Reset hours to compare only date if needed, but usually banner should hide as soon as it starts or finishes.
-    // The requirement is "eventos que já acontece automaticamente oculte do banner" (events already happening or past).
-    // Let's hide events whose start date is before now (meaning they started or are in the past).
+    // For the banner, hide events starting tomorrow (00:00 of the next day)
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
     
     if (isAdmin) {
       return [...confirmedEvents].sort((a, b) => {
-        const aStarted = new Date(a.start_datetime) < now;
-        const bStarted = new Date(b.start_datetime) < now;
+        const aStart = new Date(a.start_datetime);
+        const bStart = new Date(b.start_datetime);
+        const aPassed = aStart > endOfToday; // Wait, requirement says "if today is 01, stay until 23:59 of 01"
+        // Correct logic: hide if start_datetime is on a previous day.
+        
+        // Let's use start of today for comparison
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        
+        const aIsPast = aStart < startOfToday;
+        const bIsPast = bStart < startOfToday;
 
-        // First priority: show_in_banner status AND not started
-        const aActive = a.show_in_banner && !aStarted;
-        const bActive = b.show_in_banner && !bStarted;
+        // First priority: show_in_banner status AND not past
+        const aActive = a.show_in_banner && !aIsPast;
+        const bActive = b.show_in_banner && !bIsPast;
 
         if (aActive && !bActive) return -1;
         if (!aActive && bActive) return 1;
         
         // Second priority: start date
-        return new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime();
+        return aStart.getTime() - bStart.getTime();
       });
     }
 
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
     return confirmedEvents
-      .filter(e => e.show_in_banner && new Date(e.start_datetime) >= now)
+      .filter(e => e.show_in_banner && new Date(e.start_datetime) >= startOfToday)
       .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
+  }, [events, isAdmin]);
   }, [events, isAdmin]);
 
   const handleToggleBanner = (event: AppEvent) => {

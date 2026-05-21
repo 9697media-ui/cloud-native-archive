@@ -1,6 +1,6 @@
 export type Unit = 'DIC' | 'Nilópolis' | 'Santana' | 'Evento Geral do Grupo';
 
-export type EventStatus = 'confirmado' | 'pendente' | 'cancelado';
+export type EventStatus = 'confirmado' | 'pendente' | 'cancelado' | 'concluido';
 
 export type EventType = 'reunião' | 'evento institucional' | 'apresentação' | 'cobertura' | 'ação externa' | 'programação interna' | 'outro';
 
@@ -48,6 +48,7 @@ export interface AppEvent {
   full_height_title?: boolean;
   banner_display_time?: number;
   show_banner_overlay?: boolean;
+  deleted_at?: string;
 }
 
 export const SYSTEM_COLORS = [
@@ -93,7 +94,7 @@ export const UNIT_BG_COLORS: Record<Unit, string> = {
 
 export const EVENT_TYPES: EventType[] = ['reunião', 'evento institucional', 'apresentação', 'cobertura', 'ação externa', 'programação interna', 'outro'];
 
-export const EVENT_STATUSES: EventStatus[] = ['confirmado', 'pendente', 'cancelado'];
+export const EVENT_STATUSES: EventStatus[] = ['confirmado', 'pendente', 'cancelado', 'concluido'];
 
 export const PARTNER_TYPES: { value: PartnerType; label: string }[] = [
   { value: 'padrinho', label: 'Padrinho' },
