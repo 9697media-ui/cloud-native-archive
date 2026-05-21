@@ -156,12 +156,6 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
     const fullEvent = getFullEvent();
 
-    // Check if banner is enabled but image is missing
-    if (fullEvent.show_in_banner && !fullEvent.banner_image_desktop && !showBannerWarning) {
-      setShowBannerWarning(true);
-      return;
-    }
-
     const found = detectConflicts(fullEvent);
     if (found.length > 0 && !showConflictAlert) {
       setConflicts(found);
@@ -629,26 +623,6 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
         </div>
       </DialogContent>
 
-      <BannerMissingDialog 
-        open={showBannerWarning}
-        onOpenChange={setShowBannerWarning}
-        onConfirm={() => {
-          setShowBannerWarning(false);
-          setTimeout(() => {
-            const fullEvent = getFullEvent();
-            const found = detectConflicts(fullEvent);
-            if (found.length > 0 && !showConflictAlert) {
-              setConflicts(found);
-              setShowConflictAlert(true);
-              return;
-            }
-            if (isEditing) updateEvent(fullEvent); else addEvent(fullEvent);
-            setSelectedEvent(null);
-            onOpenChange(false);
-          }, 10);
-        }}
-        onAddImage={() => setShowBannerWarning(false)}
-      />
     </Dialog>
   );
 }

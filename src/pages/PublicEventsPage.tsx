@@ -74,7 +74,8 @@ export default function PublicEventsPage() {
   }, [events, isAdmin]);
 
   const handleToggleBanner = (event: AppEvent) => {
-    // If we are ENABLEANING the banner and missing desktop image, show warning
+    // If we are ENABLING the banner and missing desktop image, show warning FIRST
+    // and DO NOT open the editor yet.
     if (!event.show_in_banner && !event.banner_image_desktop) {
       setEventToToggleBanner(event);
       setShowBannerMissingDialog(true);
