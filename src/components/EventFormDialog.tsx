@@ -877,37 +877,60 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       <Label className="text-sm font-medium">Instituições Externas</Label>
                       <div className="space-y-2 mt-2">
                         {(form.external_collaborators || []).map((ext, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
+                          <div key={idx} className="space-y-2 p-3 bg-muted/30 rounded-md border border-border">
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={typeof ext === 'string' ? ext : (ext as any).name}
+                                onChange={e => {
+                                  const updated = [...(form.external_collaborators || [])];
+                                  if (typeof ext === 'string') {
+                                    updated[idx] = { name: e.target.value, details: '' };
+                                  } else {
+                                    updated[idx] = { ...(ext as any), name: e.target.value };
+                                  }
+                                  setForm({ ...form, external_collaborators: updated });
+                                }}
+                                placeholder="Nome da instituição"
+                                className="flex-1 h-8 text-sm"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0 h-8 w-8"
+                                onClick={() => {
+                                  const updated = (form.external_collaborators || []).filter((_, i) => i !== idx);
+                                  setForm({ ...form, external_collaborators: updated });
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
                             <Input
-                              value={ext}
+                              value={typeof ext === 'string' ? '' : (ext as any).details}
                               onChange={e => {
                                 const updated = [...(form.external_collaborators || [])];
-                                updated[idx] = e.target.value;
+                                if (typeof ext === 'string') {
+                                  updated[idx] = { name: ext, details: e.target.value };
+                                } else {
+                                  updated[idx] = { ...(ext as any), details: e.target.value };
+                                }
                                 setForm({ ...form, external_collaborators: updated });
                               }}
-                              placeholder="Nome da instituição"
-                              className="flex-1"
+                              placeholder="Tipo de parceria / Detalhes..."
+                              className="h-8 text-xs bg-white/50"
                             />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="shrink-0 h-8 w-8"
-                              onClick={() => {
-                                const updated = (form.external_collaborators || []).filter((_, i) => i !== idx);
-                                setForm({ ...form, external_collaborators: updated });
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
                           </div>
                         ))}
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="gap-1"
-                          onClick={() => setForm({ ...form, external_collaborators: [...(form.external_collaborators || []), ''] })}
+                          className="w-full gap-1 border-dashed"
+                          onClick={() => setForm({ 
+                            ...form, 
+                            external_collaborators: [...(form.external_collaborators || []), { name: '', details: '' }] 
+                          })}
                         >
                           <Plus className="h-3.5 w-3.5" />
                           Adicionar Instituição
