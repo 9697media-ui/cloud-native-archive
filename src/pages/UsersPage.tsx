@@ -683,7 +683,18 @@ export default function UsersPage() {
 
     return (
       <div className="space-y-6">
+        <Alert className="bg-primary/5 border-primary/20">
+          <FlaskConical className="h-4 w-4 text-primary" />
+          <AlertTitle className="text-primary text-sm font-semibold">Como funciona o Ambiente Beta?</AlertTitle>
+          <AlertDescription className="text-muted-foreground text-xs leading-relaxed">
+            Usuários marcados como <strong>Beta Testers</strong> veem as alterações mais recentes em tempo real. 
+            Quando você estiver satisfeito com os testes, use o botão <strong>Publicar</strong> abaixo para 
+            atualizar a interface de todos os usuários para a versão atual.
+          </AlertDescription>
+        </Alert>
+
         <div className="flex flex-col md:flex-row gap-6">
+
           <Card className="flex-1 border-primary/20 bg-primary/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
