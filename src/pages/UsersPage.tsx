@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown, History, Rocket, ArrowLeft } from 'lucide-react';
+import { Search, Edit2, Code2, Copy, Check, UserCheck, UserPlus, UserX, Clock, ShieldCheck, Shield, Eye, RefreshCw, KeyRound, UserCog, AlertTriangle, Trash2, ChevronDown, History, Rocket, ArrowLeft, FlaskConical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BulkActionBar from '@/components/BulkActionBar';
 import PageHeader from '@/components/PageHeader';
@@ -352,7 +352,9 @@ export default function UsersPage() {
       created_at: dbu.created_at,
       updated_at: dbu.created_at,
       view_restrictions: dbu.view_restrictions,
+      is_beta_tester: dbu.is_beta_tester,
     }));
+
 
     const dbEmails = new Set(mappedDbUsers.map(u => u.email.toLowerCase()));
     const uniqueMockUsers = users.filter(u => !dbEmails.has(u.email.toLowerCase()));
@@ -429,8 +431,10 @@ export default function UsersPage() {
             unit: editForm.unit,
             permission_level: editForm.permission_level,
             is_active: editForm.is_active,
+            is_beta_tester: editForm.is_beta_tester,
             updated_at: new Date().toISOString(),
           })
+
           .eq('user_id', selectedUser.id);
           
         if (profileError) {
@@ -679,7 +683,18 @@ export default function UsersPage() {
 
     return (
       <div className="space-y-6">
+        <Alert className="bg-primary/5 border-primary/20">
+          <FlaskConical className="h-4 w-4 text-primary" />
+          <AlertTitle className="text-primary text-sm font-semibold">Como funciona o Ambiente Beta?</AlertTitle>
+          <AlertDescription className="text-muted-foreground text-xs leading-relaxed">
+            Usuários marcados como <strong>Beta Testers</strong> veem as alterações mais recentes em tempo real. 
+            Quando você estiver satisfeito com os testes, use o botão <strong>Publicar</strong> abaixo para 
+            atualizar a interface de todos os usuários para a versão atual.
+          </AlertDescription>
+        </Alert>
+
         <div className="flex flex-col md:flex-row gap-6">
+
           <Card className="flex-1 border-primary/20 bg-primary/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -988,8 +1003,14 @@ export default function UsersPage() {
                                 {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                               </div>
                               <div className="min-w-0">
-                                <p className="font-medium text-foreground truncate">{user.name}</p>
+                                <div className="flex items-center gap-1.5">
+                                  <p className="font-medium text-foreground truncate">{user.name}</p>
+                                  {user.is_beta_tester && (
+                                    <Badge variant="outline" className="text-[9px] bg-primary/10 text-primary border-primary/20 h-4 px-1">BETA</Badge>
+                                  )}
+                                </div>
                                 <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+
                               </div>
                             </div>
                             {renderActions(user)}
@@ -1535,7 +1556,23 @@ export default function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-4 p-4 border rounded-lg bg-primary/5">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-semibold flex items-center gap-2">
+                      <Rocket className="h-4 w-4 text-primary" />
+                      Acesso Beta Tester
+                    </Label>
+                    <p className="text-xs text-muted-foreground">Este usuário verá o ambiente de testes/beta.</p>
+                  </div>
+                  <Switch 
+                    checked={!!editForm.is_beta_tester}
+                    onCheckedChange={checked => setEditForm({ ...editForm, is_beta_tester: checked })}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2 px-1">
+
                 <Switch checked={editForm.is_active} onCheckedChange={v => setEditForm({ ...editForm, is_active: v })} />
                 <Label>Usuário ativo</Label>
               </div>
