@@ -56,6 +56,7 @@ export interface AppEvent {
   printed_materials?: string;
   equipment_needed?: string;
   marketing_items?: Array<{ type: 'cobertura' | 'demanda_grafica'; item: string; description: string }>;
+  marketing_coverage?: boolean;
 }
 
 export const SYSTEM_COLORS = [
