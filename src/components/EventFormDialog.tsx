@@ -902,7 +902,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     checked={form.has_unit_collaboration || false}
                     onCheckedChange={v => setForm({ ...form, has_unit_collaboration: v, ...(!v ? { collaborating_units: [], external_collaborators: [] } : {}) })}
                   />
-                  <Label htmlFor="unit_collaboration" className="cursor-pointer flex-1 text-sm">Parceria com outra Unidade/Instituição</Label>
+                  <Label htmlFor="unit_collaboration" className="cursor-pointer flex-1 text-sm font-semibold">Parceria com unidade ou instituição</Label>
                 </div>
 
                 {form.has_unit_collaboration && (
