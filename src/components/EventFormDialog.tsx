@@ -62,6 +62,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   const [form, setForm] = useState<Partial<AppEvent>>(emptyEvent());
   const [conflicts, setConflicts] = useState<AppEvent[]>([]);
   const [showConflictAlert, setShowConflictAlert] = useState(false);
+  const [showBannerWarning, setShowBannerWarning] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isEditing = !!event;
@@ -88,6 +89,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     }
     setConflicts([]);
     setShowConflictAlert(false);
+    setShowBannerWarning(false);
     setErrors({});
   }, [event, open]);
 
