@@ -203,14 +203,14 @@ export default function PublicEventsPage() {
               )}
               
               {event.show_banner_overlay !== false && (
-                <div className="absolute inset-0 bg-slate-900/40 z-0" />
+                <div className="absolute inset-0 bg-slate-900/40 z-[5]" />
               )}
               
               {event.show_banner_fade !== false && (
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-[10]" />
               )}
               
-              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto flex flex-col items-start justify-end h-full">
+              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto flex flex-col items-start justify-end h-full z-[20]">
                 <div className="flex flex-wrap gap-2 mb-4 shrink-0">
                   <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none shadow-lg`}>
                     {event.unit}
