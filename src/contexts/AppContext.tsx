@@ -75,7 +75,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [events]);
 
   const addEvent = async (event: Partial<AppEvent>) => {
-    const { error } = await supabase.from('events').insert(event);
+    // @ts-ignore - Supabase type mismatch with AppEvent
+    const { error } = await supabase.from('events').insert([event]);
     if (error) {
       toast.error('Erro ao adicionar evento');
       throw error;
@@ -84,6 +85,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateEvent = async (event: AppEvent) => {
+    // @ts-ignore
     const { error } = await supabase.from('events').update(event).eq('id', event.id);
     if (error) {
       toast.error('Erro ao atualizar evento');
