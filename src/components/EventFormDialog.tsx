@@ -696,26 +696,115 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       {errors.support_team && <p className="mt-1 text-xs text-destructive">{errors.support_team}</p>}
                     </div>
 
-                    <div>
-                      <Label className="text-sm font-semibold mb-1.5 block">Logística de alimentação *</Label>
-                      <Textarea 
-                        value={form.food_logistics} 
-                        onChange={e => setForm({ ...form, food_logistics: e.target.value })} 
-                        placeholder="Ex: Almoço para 30 pessoas, coffee break às 10h..." 
-                        rows={2} 
-                        className={errors.food_logistics ? "border-destructive" : ""}
-                      />
+                    <div className="pt-2">
+                      <Label className="text-sm font-semibold mb-2 block">Logística de alimentação *</Label>
+                      <div className="space-y-2">
+                        {["Almoço", "Coffee Break", "Lanche", "Jantar", "Nenhum"].map((option) => (
+                          <div key={option} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card shadow-sm">
+                            <Switch
+                              id={`food-${option}`}
+                              checked={form.food_logistics?.includes(option)}
+                              onCheckedChange={(checked) => {
+                                const current = form.food_logistics ? form.food_logistics.split(", ").filter(Boolean) : [];
+                                let next;
+                                if (checked) {
+                                  next = [...current, option];
+                                } else {
+                                  next = current.filter(c => c !== option);
+                                }
+                                setForm({ ...form, food_logistics: next.join(", ") });
+                              }}
+                            />
+                            <Label htmlFor={`food-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
+                          </div>
+                        ))}
+                        <div className="space-y-2 p-3 rounded-lg border border-border bg-card shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <Switch
+                              id="food-other-switch"
+                              checked={!!form.food_logistics && !form.food_logistics.split(", ").every(val => ["Almoço", "Coffee Break", "Lanche", "Jantar", "Nenhum"].includes(val))}
+                              onCheckedChange={(checked) => {
+                                if (!checked) {
+                                  const next = (form.food_logistics?.split(", ") || []).filter(val => ["Almoço", "Coffee Break", "Lanche", "Jantar", "Nenhum"].includes(val));
+                                  setForm({ ...form, food_logistics: next.join(", ") });
+                                }
+                              }}
+                            />
+                            <Label htmlFor="food-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outra logística</Label>
+                          </div>
+                          {(!!form.food_logistics && !form.food_logistics.split(", ").every(val => ["Almoço", "Coffee Break", "Lanche", "Jantar", "Nenhum"].includes(val))) && (
+                            <Input 
+                              className="h-9 mt-2"
+                              value={(form.food_logistics?.split(", ") || []).filter(val => !["Almoço", "Coffee Break", "Lanche", "Jantar", "Nenhum"].includes(val)).join(", ")}
+                              onChange={e => {
+                                const base = (form.food_logistics?.split(", ") || []).filter(val => ["Almoço", "Coffee Break", "Lanche", "Jantar", "Nenhum"].includes(val));
+                                if (e.target.value.trim()) {
+                                  setForm({ ...form, food_logistics: [...base, e.target.value].join(", ") });
+                                } else {
+                                  setForm({ ...form, food_logistics: base.join(", ") });
+                                }
+                              }}
+                              placeholder="Especifique a alimentação..."
+                            />
+                          )}
+                        </div>
+                      </div>
                       {errors.food_logistics && <p className="mt-1 text-xs text-destructive">{errors.food_logistics}</p>}
                     </div>
 
-                    <div>
-                      <Label className="text-sm font-semibold mb-1.5 block">Equipamentos necessários *</Label>
-                      <Input 
-                        value={form.equipment_needed} 
-                        onChange={e => setForm({ ...form, equipment_needed: e.target.value })} 
-                        placeholder="Ex: Som, Microfone, Projetor..." 
-                        className={errors.equipment_needed ? "border-destructive" : ""}
-                      />
+                    <div className="pt-2">
+                      <Label className="text-sm font-semibold mb-2 block">Equipamentos necessários *</Label>
+                      <div className="space-y-2">
+                        {["Som", "Microfone", "Projetor", "Televisão", "Notebook", "Nenhum"].map((option) => (
+                          <div key={option} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card shadow-sm">
+                            <Switch
+                              id={`equip-${option}`}
+                              checked={form.equipment_needed?.includes(option)}
+                              onCheckedChange={(checked) => {
+                                const current = form.equipment_needed ? form.equipment_needed.split(", ").filter(Boolean) : [];
+                                let next;
+                                if (checked) {
+                                  next = [...current, option];
+                                } else {
+                                  next = current.filter(c => c !== option);
+                                }
+                                setForm({ ...form, equipment_needed: next.join(", ") });
+                              }}
+                            />
+                            <Label htmlFor={`equip-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
+                          </div>
+                        ))}
+                        <div className="space-y-2 p-3 rounded-lg border border-border bg-card shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <Switch
+                              id="equip-other-switch"
+                              checked={!!form.equipment_needed && !form.equipment_needed.split(", ").every(val => ["Som", "Microfone", "Projetor", "Televisão", "Notebook", "Nenhum"].includes(val))}
+                              onCheckedChange={(checked) => {
+                                if (!checked) {
+                                  const next = (form.equipment_needed?.split(", ") || []).filter(val => ["Som", "Microfone", "Projetor", "Televisão", "Notebook", "Nenhum"].includes(val));
+                                  setForm({ ...form, equipment_needed: next.join(", ") });
+                                }
+                              }}
+                            />
+                            <Label htmlFor="equip-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outro equipamento</Label>
+                          </div>
+                          {(!!form.equipment_needed && !form.equipment_needed.split(", ").every(val => ["Som", "Microfone", "Projetor", "Televisão", "Notebook", "Nenhum"].includes(val))) && (
+                            <Input 
+                              className="h-9 mt-2"
+                              value={(form.equipment_needed?.split(", ") || []).filter(val => !["Som", "Microfone", "Projetor", "Televisão", "Notebook", "Nenhum"].includes(val)).join(", ")}
+                              onChange={e => {
+                                const base = (form.equipment_needed?.split(", ") || []).filter(val => ["Som", "Microfone", "Projetor", "Televisão", "Notebook", "Nenhum"].includes(val));
+                                if (e.target.value.trim()) {
+                                  setForm({ ...form, equipment_needed: [...base, e.target.value].join(", ") });
+                                } else {
+                                  setForm({ ...form, equipment_needed: base.join(", ") });
+                                }
+                              }}
+                              placeholder="Especifique os equipamentos..."
+                            />
+                          )}
+                        </div>
+                      </div>
                       {errors.equipment_needed && <p className="mt-1 text-xs text-destructive">{errors.equipment_needed}</p>}
                     </div>
                   </div>
