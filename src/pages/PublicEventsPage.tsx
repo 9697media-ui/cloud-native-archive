@@ -365,7 +365,7 @@ export default function PublicEventsPage() {
       )}
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {isAuthenticated && (
+        {(isAuthenticated && isAdmin) && (
           <div className="w-full flex flex-wrap items-center gap-2 mb-8">
             <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-info text-info-foreground border border-info/20 text-[10px] sm:text-xs font-medium justify-center whitespace-nowrap">
               <CalendarDays className="h-3.5 w-3.5 shrink-0" />
