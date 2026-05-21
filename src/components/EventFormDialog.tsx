@@ -453,7 +453,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         disabled={!isAdmin}
                         className="w-full h-1.5 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-primary"
                       />
-                      <p className="text-[10px] text-muted-foreground text-center">Intervalo de 3 a 30 segundos.</p>
+                      
                     </div>
 
                     {form.use_logo_as_title && (
