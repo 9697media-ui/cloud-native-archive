@@ -25,6 +25,7 @@ export function useUserRole() {
   const [accessStatus, setAccessStatus] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [isActive, setIsActive] = useState<boolean>(true);
+  const [isBetaTester, setIsBetaTester] = useState<boolean>(false);
   const [viewRestrictions, setViewRestrictions] = useState<string[] | null>(null);
   const [permissionLevel, setPermissionLevel] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>(null);
@@ -37,6 +38,7 @@ export function useUserRole() {
       setRole(activePersona.role);
       setUserName(activePersona.name);
       setIsActive(activePersona.is_active);
+      setIsBetaTester(false);
       setAccessStatus(activePersona.role ? 'approved' : 'pending');
       setPermissionLevel(activePersona.permission_level);
       setUnit(activePersona.unit);
@@ -69,13 +71,14 @@ export function useUserRole() {
       // Also check profile for permission_level and name
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('permission_level, name, is_active, view_restrictions, unit, delegated_units')
+        .select('permission_level, name, is_active, view_restrictions, unit, delegated_units, is_beta_tester')
         .eq('user_id', user.id)
         .maybeSingle();
       
       if (profileData) {
         setUserName(profileData.name);
-        setIsActive(profileData.is_active !== false);
+  setIsActive(profileData.is_active !== false);
+        setIsBetaTester(profileData.is_beta_tester === true);
         setViewRestrictions(profileData.view_restrictions as string[] | null);
         setPermissionLevel(profileData.permission_level);
         setUnit(profileData.unit);
@@ -138,6 +141,7 @@ export function useUserRole() {
     accessStatus, 
     userName, 
     isActive,
+    isBetaTester,
     viewRestrictions,
     permissionLevel,
     unit,
