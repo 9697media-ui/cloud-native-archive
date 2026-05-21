@@ -99,10 +99,28 @@ export default function EventDetailPanel({ event, open, onOpenChange, onEdit, on
                 <p className="text-sm text-muted-foreground">{event.notes}</p>
               </div>
             )}
+            {(event.target_audience || event.support_team || event.food_logistics || event.equipment_needed || event.printed_materials) && (
+              <div className="rounded-lg border border-border p-3 space-y-2 bg-muted/20">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Logística e Apoio</p>
+                {event.target_audience && <DetailRow label="Público-Alvo" value={event.target_audience} />}
+                {event.support_team && <DetailRow label="Equipe" value={event.support_team} />}
+                {event.food_logistics && <DetailRow label="Alimentação" value={event.food_logistics} />}
+                {event.equipment_needed && <DetailRow label="Equipamentos" value={event.equipment_needed} />}
+                {event.printed_materials && <DetailRow label="Materiais Impressos" value={event.printed_materials} />}
+              </div>
+            )}
             {event.marketing_request && (
-              <div className="flex items-center gap-2">
-                <Megaphone className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">Solicitação de Marketing</span>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Megaphone className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">Solicitação de Marketing</span>
+                </div>
+                {event.marketing_info && (
+                  <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-2 text-xs text-blue-900">
+                    <p className="font-semibold mb-1">Detalhes da Arte:</p>
+                    <p className="whitespace-pre-wrap">{event.marketing_info}</p>
+                  </div>
+                )}
               </div>
             )}
             {event.partner_involved && (

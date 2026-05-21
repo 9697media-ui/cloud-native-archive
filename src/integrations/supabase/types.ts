@@ -107,27 +107,33 @@ export type Database = {
           deleted_at: string | null
           description: string | null
           end_datetime: string
+          equipment_needed: string | null
           event_logo_url: string | null
           event_type: string
           external_collaborators: Json | null
           external_id: string | null
+          food_logistics: string | null
           full_height_title: boolean | null
           has_conflict: boolean | null
           has_unit_collaboration: boolean | null
           id: string
           location: string | null
+          marketing_info: string | null
           marketing_request: boolean | null
           notes: string | null
           partner_involved: boolean | null
           partner_name: string | null
           partner_type: string | null
           partners: Json | null
+          printed_materials: string | null
           show_banner_fade: boolean | null
           show_banner_overlay: boolean | null
           show_in_banner: boolean | null
           slug: string | null
           start_datetime: string
           status: string
+          support_team: string | null
+          target_audience: string | null
           title: string
           unit: string
           updated_at: string
@@ -149,27 +155,33 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           end_datetime: string
+          equipment_needed?: string | null
           event_logo_url?: string | null
           event_type: string
           external_collaborators?: Json | null
           external_id?: string | null
+          food_logistics?: string | null
           full_height_title?: boolean | null
           has_conflict?: boolean | null
           has_unit_collaboration?: boolean | null
           id?: string
           location?: string | null
+          marketing_info?: string | null
           marketing_request?: boolean | null
           notes?: string | null
           partner_involved?: boolean | null
           partner_name?: string | null
           partner_type?: string | null
           partners?: Json | null
+          printed_materials?: string | null
           show_banner_fade?: boolean | null
           show_banner_overlay?: boolean | null
           show_in_banner?: boolean | null
           slug?: string | null
           start_datetime: string
           status?: string
+          support_team?: string | null
+          target_audience?: string | null
           title: string
           unit: string
           updated_at?: string
@@ -191,27 +203,33 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           end_datetime?: string
+          equipment_needed?: string | null
           event_logo_url?: string | null
           event_type?: string
           external_collaborators?: Json | null
           external_id?: string | null
+          food_logistics?: string | null
           full_height_title?: boolean | null
           has_conflict?: boolean | null
           has_unit_collaboration?: boolean | null
           id?: string
           location?: string | null
+          marketing_info?: string | null
           marketing_request?: boolean | null
           notes?: string | null
           partner_involved?: boolean | null
           partner_name?: string | null
           partner_type?: string | null
           partners?: Json | null
+          printed_materials?: string | null
           show_banner_fade?: boolean | null
           show_banner_overlay?: boolean | null
           show_in_banner?: boolean | null
           slug?: string | null
           start_datetime?: string
           status?: string
+          support_team?: string | null
+          target_audience?: string | null
           title?: string
           unit?: string
           updated_at?: string

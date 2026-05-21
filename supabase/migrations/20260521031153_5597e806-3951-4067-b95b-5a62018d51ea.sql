@@ -1,0 +1,7 @@
+ALTER TABLE public.events 
+ADD COLUMN IF NOT EXISTS target_audience TEXT,
+ADD COLUMN IF NOT EXISTS support_team TEXT,
+ADD COLUMN IF NOT EXISTS food_logistics TEXT,
+ADD COLUMN IF NOT EXISTS marketing_info TEXT,
+ADD COLUMN IF NOT EXISTS printed_materials TEXT,
+ADD COLUMN IF NOT EXISTS equipment_needed TEXT;

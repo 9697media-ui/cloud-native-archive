@@ -103,6 +103,54 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                   {event.description || 'Nenhuma descrição detalhada disponível para este evento.'}
                 </p>
               </div>
+
+              {(event.target_audience || event.support_team || event.food_logistics || event.equipment_needed || event.printed_materials) && (
+                <div className="pt-6 border-t border-slate-100 space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Logística e Apoio</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {event.target_audience && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Público-Alvo</p>
+                        <p className="text-slate-700">{event.target_audience}</p>
+                      </div>
+                    )}
+                    {event.support_team && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Equipe de Apoio</p>
+                        <p className="text-slate-700">{event.support_team}</p>
+                      </div>
+                    )}
+                    {event.food_logistics && (
+                      <div className="col-span-1 md:col-span-2">
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Alimentação</p>
+                        <p className="text-slate-700 whitespace-pre-wrap">{event.food_logistics}</p>
+                      </div>
+                    )}
+                    {event.equipment_needed && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Equipamentos</p>
+                        <p className="text-slate-700">{event.equipment_needed}</p>
+                      </div>
+                    )}
+                    {event.printed_materials && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Materiais Impressos</p>
+                        <p className="text-slate-700">{event.printed_materials}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {event.marketing_request && event.marketing_info && (
+                <div className="pt-6 border-t border-slate-100">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-blue-500 mb-3">Solicitação de Marketing</h3>
+                  <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                    <p className="text-xs font-semibold text-blue-700 uppercase tracking-tighter mb-1">Detalhes da Arte</p>
+                    <p className="text-blue-900 text-sm whitespace-pre-wrap">{event.marketing_info}</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="w-full md:w-72 space-y-6">
