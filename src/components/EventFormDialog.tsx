@@ -50,6 +50,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   banner_image_mobile: '',
   custom_color: SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
   show_in_banner: false,
+  slug: '',
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
