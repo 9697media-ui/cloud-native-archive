@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useBetaPreference } from '@/hooks/useBetaPreference';
 import { APP_VERSION, APP_ENV } from '@/lib/version';
 
 export interface UIVersion {
@@ -22,6 +23,7 @@ export interface UIVersion {
 export function useUIVersions() {
   const { user } = useAuth();
   const { isAdmin, isBetaTester } = useUserRole();
+  const { betaEnabled, eligible: betaEligible, toggleBeta } = useBetaPreference();
   const [currentVersion, setCurrentVersion] = useState<any>(null);
   const [versions, setVersions] = useState<UIVersion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -154,7 +156,7 @@ export function useUIVersions() {
   };
 
   // Determine if the user should see the Beta UI
-  const showBetaUI = isBetaTester || isAdmin;
+  const showBetaUI = betaEnabled;
 
   return {
     currentVersion,
@@ -165,6 +167,8 @@ export function useUIVersions() {
     setActiveBeta,
     promoteVersionToProduction,
     showBetaUI,
+    betaEligible,
+    toggleBeta,
     refresh: fetchConfig,
   };
 }

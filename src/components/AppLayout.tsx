@@ -1,12 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History, Globe } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History, Globe, FlaskConical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useBetaPreference } from '@/hooks/useBetaPreference';
 import { useIsEmbedded } from '@/hooks/useIsEmbedded';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   DropdownMenu,
@@ -60,6 +62,7 @@ export default function AppLayout() {
   
   const { isAuthenticated, signOut, user } = useAuth();
   const { isAdmin, isManager, userName, unit, canViewAuditoria } = useUserRole();
+  const { eligible: betaEligible, rawEnabled: betaOn, toggleBeta } = useBetaPreference();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
   const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
@@ -209,6 +212,21 @@ export default function AppLayout() {
                       <span>Painel</span>
                     </Link>
                   </DropdownMenuItem>
+                )}
+                {betaEligible && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <div
+                      className="flex items-center justify-between gap-2 px-2 py-2 text-sm"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FlaskConical className="h-4 w-4" />
+                        <span>UI Beta</span>
+                      </div>
+                      <Switch checked={betaOn} onCheckedChange={(v) => { toggleBeta(v); window.location.reload(); }} />
+                    </div>
+                  </>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 cursor-pointer py-2 text-destructive focus:text-destructive">
