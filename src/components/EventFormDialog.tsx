@@ -51,6 +51,8 @@ const emptyEvent = (): Partial<AppEvent> => ({
   custom_color: SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
   show_in_banner: false,
   slug: '',
+  use_logo_as_title: false,
+  event_logo_url: '',
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
