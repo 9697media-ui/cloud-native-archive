@@ -57,6 +57,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   show_banner_fade: true,
   full_height_title: false,
   banner_display_time: 5,
+  show_banner_overlay: true,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
