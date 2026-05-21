@@ -300,6 +300,13 @@ export default function PublicEventsPage() {
                   />
                 )}
                 <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
+                  {showBetaUI && (
+                    <div className="flex items-center gap-2 bg-primary px-3 py-1 rounded-full text-white text-xs font-bold animate-pulse">
+                      <Rocket className="h-3 w-3" />
+                      BETA Ativo
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5" />
                     <span>{format(new Date(event.start_datetime), "dd 'de' MMMM", { locale: ptBR })}</span>
