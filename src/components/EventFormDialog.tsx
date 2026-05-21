@@ -218,10 +218,21 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className={`max-h-[95vh] overflow-y-auto ${isAdmin ? 'sm:max-w-[95vw] lg:max-w-[90vw]' : 'sm:max-w-lg'}`}>
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar Evento' : 'Nova Programação'}</DialogTitle>
+          <div className="flex justify-between items-center pr-8">
+            <DialogTitle>{isEditing ? 'Editar Evento' : 'Nova Programação'}</DialogTitle>
+            {isAdmin && (
+              <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 flex items-center gap-1.5 px-3 py-1">
+                <Eye className="h-3.5 w-3.5" /> Modo Split (Preview em Tempo Real)
+              </Badge>
+            )}
+          </div>
         </DialogHeader>
+
+        <div className={`grid gap-6 ${isAdmin ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
+          {/* LADO ESQUERDO: FORMULÁRIO */}
+          <div className="space-y-6">
 
         {showConflictAlert ? (
           <div className="space-y-4">
