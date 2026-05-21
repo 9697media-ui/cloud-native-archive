@@ -114,9 +114,12 @@ export default function PublicEventsPage() {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
-    return confirmedEvents
+    const result = confirmedEvents
       .filter(e => e.show_in_banner && new Date(e.start_datetime) >= startOfToday)
       .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
+    
+    console.log("Banner Events (Public):", result);
+    return result;
   }, [events, isAdmin]);
 
   const handleToggleBanner = (event: AppEvent) => {
@@ -220,6 +223,7 @@ export default function PublicEventsPage() {
 
       {bannerEvents.length > 0 && (
         <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden bg-slate-900">
+          {/* Debug: {bannerEvents.length} eventos no banner */}
           {bannerEvents.map((event, index) => (
             <div 
               key={event.id}
