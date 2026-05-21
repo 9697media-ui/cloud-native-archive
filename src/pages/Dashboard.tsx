@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Navigate } from 'react-router-dom';
 import { getStatusBadgeClass } from '@/lib/statusColors';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -42,7 +42,7 @@ export default function Dashboard() {
   const { events: rawEvents, selectedMonth, setSelectedMonth, setSelectedEvent, deleteEvent, updateEvent } = useApp();
   const events = useFilteredEvents();
   const { isAuthenticated } = useAuth();
-  const { canEdit, canCreate, unit } = useUserRole();
+  const { canEdit, canCreate, unit, isAdmin } = useUserRole();
   const isMobile = useIsMobile();
   const [showNewEvent, setShowNewEvent] = useState(false);
   const [detailEvent, setDetailEvent] = useState<AppEvent | null>(null);

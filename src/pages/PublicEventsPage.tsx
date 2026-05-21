@@ -420,15 +420,21 @@ export default function PublicEventsPage() {
 
 
 
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="flex-1 min-w-0">
-              <PageHeader 
-                title={showTrash ? "Lixeira de Eventos" : "Programação de Eventos"} 
-                description={showTrash ? "Eventos excluídos que podem ser recuperados ou removidos permanentemente." : "Confira os próximos eventos confirmados em todas as nossas unidades."}
-                className="mb-0"
-              />
-            </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-slate-900">Programação Completa</h2>
+            <p className="text-slate-500">Explore todos os eventos confirmados.</p>
+          </div>
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input 
+              placeholder="Buscar eventos..." 
+              value={search} 
+              onChange={e => setSearch(e.target.value)}
+              className="pl-10 h-11 bg-white border-slate-200 focus:ring-primary shadow-sm"
+            />
+          </div>
+        </div>
             {isAuthenticated && isAdmin && (
               <div className="flex items-center gap-2 shrink-0">
                 <Button
