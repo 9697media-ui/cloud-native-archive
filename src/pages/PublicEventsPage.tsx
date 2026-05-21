@@ -1,20 +1,26 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useFilteredEvents } from '@/hooks/useFilteredEvents';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useApp } from '@/contexts/AppContext';
 import { AppEvent, UNIT_BG_COLORS } from '@/types';
-import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarDays, MapPin, Clock, Search, ExternalLink, ChevronLeft, ChevronRight, LayoutPanelTop, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PageHeader from '@/components/PageHeader';
 import logoImg from '@/assets/logo.png';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export default function PublicEventsPage() {
   const [search, setSearch] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { isAdmin } = useUserRole();
+  const { updateEvent } = useApp();
   // Only confirmed events for public view
   const events = useFilteredEvents(true);
 
@@ -37,9 +43,15 @@ export default function PublicEventsPage() {
   }, [filtered]);
 
   const bannerEvents = useMemo(() => {
-    // Show events that have banners OR those that should show their custom color in the banner slider
-    return events.filter(e => e.banner_url_desktop || e.banner_url_mobile || e.custom_color);
+    // Show events that have show_in_banner explicitly enabled by admin
+    return events.filter(e => e.show_in_banner);
   }, [events]);
+
+  const handleToggleBanner = (event: AppEvent) => {
+    const updated = { ...event, show_in_banner: !event.show_in_banner };
+    updateEvent(updated);
+    toast.success(updated.show_in_banner ? 'Evento adicionado ao banner' : 'Evento removido do banner');
+  };
 
   useEffect(() => {
     if (bannerEvents.length <= 1) return;
@@ -120,9 +132,24 @@ export default function PublicEventsPage() {
                     <span>{event.location}</span>
                   </div>
                 </div>
-                <Button size="lg" className="rounded-full px-8 shadow-xl">
-                  Saber mais
-                </Button>
+                <div className="flex items-center gap-4 mt-6">
+                  <Button size="lg" className="rounded-full px-8 shadow-xl">
+                    Saber mais
+                  </Button>
+                  {isAdmin && (
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      className="rounded-full bg-white/10 hover:bg-white/20 text-white border-white/30 backdrop-blur-md"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleToggleBanner(event);
+                      }}
+                    >
+                      <EyeOff className="h-5 w-5 mr-2" /> Remover do Banner
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -203,12 +230,34 @@ export default function PublicEventsPage() {
                   <Badge className={`absolute top-3 left-3 ${UNIT_BG_COLORS[event.unit]} text-white border-none shadow-sm`}>
                     {event.unit}
                   </Badge>
+                  
+                  {isAdmin && (
+                    <div className="absolute top-3 right-3 flex gap-2">
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleToggleBanner(event);
+                        }}
+                        className={`p-1.5 rounded-full shadow-lg backdrop-blur-md transition-colors ${event.show_in_banner ? 'bg-primary text-white' : 'bg-white/80 text-slate-600 hover:bg-white'}`}
+                        title={event.show_in_banner ? "Remover do banner" : "Adicionar ao banner"}
+                      >
+                        {event.show_in_banner ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium text-[10px]">
-                      Confirmado
-                    </Badge>
+                    <div className="flex gap-2">
+                      <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium text-[10px]">
+                        Confirmado
+                      </Badge>
+                      {event.show_in_banner && (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 font-medium text-[10px] flex items-center gap-1">
+                          <LayoutPanelTop className="h-2 w-2" /> Banner Ativo
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <CardTitle className="text-xl line-clamp-2 leading-tight text-slate-900 group-hover:text-primary transition-colors">
                     {event.title}

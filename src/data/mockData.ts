@@ -37,6 +37,7 @@ export const mockEvents: AppEvent[] = [
     banner_url_desktop: '',
     banner_url_mobile: '',
     custom_color: '#484848',
+    show_in_banner: true,
   },
   {
     id: 'e2',
@@ -92,6 +93,7 @@ export const mockEvents: AppEvent[] = [
     banner_url_desktop: '',
     banner_url_mobile: '',
     custom_color: '#fbce00',
+    show_in_banner: true,
   },
   {
     id: 'e4',
@@ -224,7 +226,8 @@ export const mockEvents: AppEvent[] = [
     has_unit_collaboration: true,
     collaborating_units: ['DIC', 'Nilópolis', 'Santana'],
     external_collaborators: [],
-    attachments: []
+    attachments: [],
+    show_in_banner: true,
   },
   {
     id: 'e9',
@@ -250,7 +253,8 @@ export const mockEvents: AppEvent[] = [
     has_unit_collaboration: false,
     collaborating_units: [],
     external_collaborators: ['CIEE'],
-    attachments: []
+    attachments: [],
+    show_in_banner: true,
   },
   {
     id: 'e10',
@@ -302,7 +306,8 @@ export const mockEvents: AppEvent[] = [
     has_unit_collaboration: false,
     collaborating_units: [],
     external_collaborators: ['Coral Santa Cecília'],
-    attachments: []
+    attachments: [],
+    show_in_banner: true,
   },
   {
     id: 'e12',
