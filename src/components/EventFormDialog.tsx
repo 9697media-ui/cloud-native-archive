@@ -190,6 +190,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       attachments: form.attachments || [],
       banner_url_desktop: form.banner_url_desktop || '',
       banner_url_mobile: form.banner_url_mobile || '',
+      banner_image_desktop: form.banner_image_desktop || '',
+      banner_image_mobile: form.banner_image_mobile || '',
       custom_color: form.custom_color || SYSTEM_COLORS[Math.floor(Math.random() * SYSTEM_COLORS.length)],
       show_in_banner: form.show_in_banner || false,
     };
