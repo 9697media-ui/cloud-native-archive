@@ -249,6 +249,7 @@ export type Database = {
           email: string | null
           id: string
           is_active: boolean | null
+          is_beta_tester: boolean | null
           modules: string[] | null
           name: string | null
           permission_level: string | null
@@ -264,6 +265,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean | null
+          is_beta_tester?: boolean | null
           modules?: string[] | null
           name?: string | null
           permission_level?: string | null
@@ -279,6 +281,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean | null
+          is_beta_tester?: boolean | null
           modules?: string[] | null
           name?: string | null
           permission_level?: string | null
@@ -317,6 +320,54 @@ export type Database = {
           sheet_field?: string
           system_field?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      system_configs: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      ui_versions: {
+        Row: {
+          config_json: Json | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          config_json?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          config_json?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
