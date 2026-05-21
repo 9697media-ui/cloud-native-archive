@@ -93,17 +93,17 @@ export default function PublicEventsPage() {
               key={event.id}
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
             >
-              {/* Desktop Banner (16:9) */}
-              {event.banner_url_desktop || event.banner_url_mobile ? (
+              {/* Desktop Banner (21:9 preferencial, fallback para capa 16:9) */}
+              {(event.banner_image_desktop || event.banner_url_desktop || event.banner_url_mobile) ? (
                 <>
                   <img 
-                    src={event.banner_url_desktop || event.banner_url_mobile} 
+                    src={event.banner_image_desktop || event.banner_url_desktop || event.banner_url_mobile} 
                     alt={event.title}
                     className="hidden md:block w-full h-full object-cover opacity-60"
                   />
-                  {/* Mobile Banner (4:3) */}
+                  {/* Mobile Banner (9:16 preferencial, fallback para capa 4:3) */}
                   <img 
-                    src={event.banner_url_mobile || event.banner_url_desktop} 
+                    src={event.banner_image_mobile || event.banner_url_mobile || event.banner_url_desktop} 
                     alt={event.title}
                     className="block md:hidden w-full h-full object-cover opacity-60"
                   />
