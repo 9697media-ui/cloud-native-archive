@@ -581,6 +581,26 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                               <Layout className="h-10 w-10 text-white/20" />
                             </div>
                           )}
+
+                          <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
+                            {form.use_logo_as_title && form.event_logo_url ? (
+                              <div className={`${form.full_height_title ? 'h-full max-h-[80%] py-4' : 'max-h-12'}`}>
+                                <img 
+                                  src={form.event_logo_url} 
+                                  alt="Logo Preview" 
+                                  className={`object-contain filter drop-shadow-md ${form.full_height_title ? 'h-full' : 'max-h-12'}`} 
+                                />
+                              </div>
+                            ) : (
+                              <h3 
+                                className={`font-bold text-white drop-shadow-xl ${form.full_height_title ? 'text-4xl' : 'text-xl'}`}
+                                dangerouslySetInnerHTML={{ 
+                                  __html: (form.title || 'Título do Evento').replace(/<br\s*\/?>/gi, '<br/>') 
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
                         </div>
                         <div className={`p-6 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'mt-0' : '-mt-8'} relative z-10`}>
                           <Badge className="bg-primary text-white mb-2 text-[10px]">{form.unit}</Badge>
