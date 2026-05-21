@@ -37,7 +37,8 @@ export default function PublicEventsPage() {
   }, [filtered]);
 
   const bannerEvents = useMemo(() => {
-    return events.filter(e => e.banner_url_desktop || e.banner_url_mobile);
+    // Show events that have banners OR those that should show their custom color in the banner slider
+    return events.filter(e => e.banner_url_desktop || e.banner_url_mobile || e.custom_color);
   }, [events]);
 
   useEffect(() => {
@@ -77,17 +78,28 @@ export default function PublicEventsPage() {
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
             >
               {/* Desktop Banner (16:9) */}
-              <img 
-                src={event.banner_url_desktop || event.banner_url_mobile} 
-                alt={event.title}
-                className="hidden md:block w-full h-full object-cover opacity-60"
-              />
-              {/* Mobile Banner (4:3) */}
-              <img 
-                src={event.banner_url_mobile || event.banner_url_desktop} 
-                alt={event.title}
-                className="block md:hidden w-full h-full object-cover opacity-60"
-              />
+              {event.banner_url_desktop || event.banner_url_mobile ? (
+                <>
+                  <img 
+                    src={event.banner_url_desktop || event.banner_url_mobile} 
+                    alt={event.title}
+                    className="hidden md:block w-full h-full object-cover opacity-60"
+                  />
+                  {/* Mobile Banner (4:3) */}
+                  <img 
+                    src={event.banner_url_mobile || event.banner_url_desktop} 
+                    alt={event.title}
+                    className="block md:hidden w-full h-full object-cover opacity-60"
+                  />
+                </>
+              ) : (
+                <div 
+                  className="w-full h-full flex items-center justify-center opacity-40"
+                  style={{ backgroundColor: event.custom_color || '#1e293b' }}
+                >
+                  <CalendarDays className="h-32 w-32 text-white/20" />
+                </div>
+              )}
               
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
               

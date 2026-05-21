@@ -308,8 +308,11 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
               </div>
             </div>
             {form.visibility === 'publico' && (
-              <div className="space-y-4 rounded-lg border border-border p-3 bg-muted/20">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Banners para Página Pública</Label>
+              <div className={`space-y-4 rounded-lg border border-border p-3 bg-muted/20 ${!isAdmin ? 'opacity-70 pointer-events-none grayscale-[0.5]' : ''}`}>
+                <div className="flex justify-between items-center">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Banners para Página Pública</Label>
+                  {!isAdmin && <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-600 border-amber-200">Apenas Admin</Badge>}
+                </div>
                 
                 <FileUpload 
                   label="Capa Desktop/Tablet (16:9)"
