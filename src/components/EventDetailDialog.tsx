@@ -171,9 +171,8 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                     )}
                   </div>
                 </div>
-              ) (
-                /* The original code ended here with a close brace for the conditional block above, 
-                   but I need to be careful with the context. */
+              )}
+
 
 
               {event.marketing_request && (
