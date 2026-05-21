@@ -400,13 +400,17 @@ export default function PublicEventsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex gap-2">
-                      <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium text-[10px]">
-                        Confirmado
-                      </Badge>
-                      {event.show_in_banner && (
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 font-medium text-[10px] flex items-center gap-1">
-                          <LayoutPanelTop className="h-2 w-2" /> Banner Ativo
-                        </Badge>
+                      {isAuthenticated && (
+                        <>
+                          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium text-[10px]">
+                            Confirmado
+                          </Badge>
+                          {event.show_in_banner && (
+                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 font-medium text-[10px] flex items-center gap-1">
+                              <LayoutPanelTop className="h-2 w-2" /> Banner Ativo
+                            </Badge>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
