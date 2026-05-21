@@ -39,8 +39,9 @@ export default function PublicEventsPage() {
   const { isAdmin, canEdit } = useUserRole();
   const { updateEvent, setSelectedEvent, selectedEvent, deleteEvent } = useApp();
   
-  const allEvents = useFilteredEvents(false);
-  const events = useFilteredEvents(true);
+  const [showTrash, setShowTrash] = useState(false);
+  const allEvents = useFilteredEvents(false, showTrash);
+  const events = useFilteredEvents(true, false); // Public view never shows trash
 
 
   const stats = useMemo(() => {
@@ -116,7 +117,6 @@ export default function PublicEventsPage() {
     return confirmedEvents
       .filter(e => e.show_in_banner && new Date(e.start_datetime) >= startOfToday)
       .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
-  }, [events, isAdmin]);
   }, [events, isAdmin]);
 
   const handleToggleBanner = (event: AppEvent) => {
