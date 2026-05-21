@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { APP_VERSION, APP_ENV } from '@/lib/version';
 
 export interface UIVersion {
   id: string;
@@ -10,6 +11,12 @@ export interface UIVersion {
   config_json: any;
   created_at: string;
   created_by: string;
+  commit_sha?: string | null;
+  environment?: string | null;
+  is_active_beta?: boolean | null;
+  is_active_production?: boolean | null;
+  deployed_at?: string | null;
+  deployed_by?: string | null;
 }
 
 export function useUIVersions() {
@@ -56,21 +63,27 @@ export function useUIVersions() {
   const promoteToProduction = async (name: string, description: string, config: any) => {
     if (!isAdmin || !user) return;
 
-    // 1. Create new version entry
+    // 1. Create new version entry — tag with current commit/env, mark as active prod + beta
     const { data: newVersion, error: vError } = await supabase
       .from('ui_versions')
       .insert({
         name,
         description,
         config_json: config,
-        created_by: user.id
+        created_by: user.id,
+        commit_sha: APP_VERSION,
+        environment: APP_ENV,
+        deployed_by: user.email || user.id,
+        deployed_at: new Date().toISOString(),
+        is_active_beta: true,
+        is_active_production: true,
       })
       .select()
       .single();
 
     if (vError) throw vError;
 
-    // 2. Update current version in system_configs
+    // 2. Update current version in system_configs (legacy compat)
     const { error: cError } = await supabase
       .from('system_configs')
       .upsert({
@@ -100,13 +113,47 @@ export function useUIVersions() {
       });
 
     if (error) throw error;
+
+    // Also mark as active production (trigger clears others)
+    await supabase
+      .from('ui_versions')
+      .update({ is_active_production: true })
+      .eq('id', version.id);
+
     await fetchConfig();
+    await fetchVersions();
+  };
+
+  const setActiveBeta = async (version: UIVersion) => {
+    if (!isAdmin) return;
+    const { error } = await supabase
+      .from('ui_versions')
+      .update({ is_active_beta: true })
+      .eq('id', version.id);
+    if (error) throw error;
+    await fetchVersions();
+  };
+
+  const promoteVersionToProduction = async (version: UIVersion) => {
+    if (!isAdmin || !user) return;
+    const { error } = await supabase
+      .from('ui_versions')
+      .update({ is_active_production: true, is_active_beta: true })
+      .eq('id', version.id);
+    if (error) throw error;
+    await supabase
+      .from('system_configs')
+      .upsert({
+        key: 'current_ui_version',
+        value: { id: version.id, name: version.name, config: version.config_json },
+        updated_by: user.id,
+        updated_at: new Date().toISOString(),
+      });
+    await fetchConfig();
+    await fetchVersions();
   };
 
   // Determine if the user should see the Beta UI
-  // User sees Beta if:
-  // 1. They are a designated Beta Tester
-  // 2. They are an Admin (always see latest or can toggle)
   const showBetaUI = isBetaTester || isAdmin;
 
   return {
@@ -115,7 +162,9 @@ export function useUIVersions() {
     loading,
     promoteToProduction,
     rollback,
+    setActiveBeta,
+    promoteVersionToProduction,
     showBetaUI,
-    refresh: fetchConfig
+    refresh: fetchConfig,
   };
 }
