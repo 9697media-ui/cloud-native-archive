@@ -147,6 +147,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       event_logo_url: form.event_logo_url || '',
       show_banner_fade: form.show_banner_fade !== undefined ? form.show_banner_fade : true,
       full_height_title: form.full_height_title || false,
+      banner_display_time: form.banner_display_time || 5,
     };
   };
 
