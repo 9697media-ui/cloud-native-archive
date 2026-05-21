@@ -18,6 +18,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { EventDetailDialog } from '@/components/EventDetailDialog';
 import EventFormDialog from '@/components/EventFormDialog';
+import { BannerMissingDialog } from '@/components/BannerMissingDialog';
 
 export default function PublicEventsPage() {
   const { isAuthenticated } = useAuth();
@@ -25,6 +26,8 @@ export default function PublicEventsPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedEventForDetail, setSelectedEventForDetail] = useState<AppEvent | null>(null);
+  const [showBannerMissingDialog, setShowBannerMissingDialog] = useState(false);
+  const [eventToToggleBanner, setEventToToggleBanner] = useState<AppEvent | null>(null);
   const { isAdmin } = useUserRole();
   const { updateEvent, setSelectedEvent, selectedEvent } = useApp();
   // Only confirmed events for public view
@@ -54,9 +57,34 @@ export default function PublicEventsPage() {
   }, [events]);
 
   const handleToggleBanner = (event: AppEvent) => {
+    // If adding to banner and missing desktop image
+    if (!event.show_in_banner && !event.banner_image_desktop) {
+      setEventToToggleBanner(event);
+      setShowBannerMissingDialog(true);
+      return;
+    }
+
     const updated = { ...event, show_in_banner: !event.show_in_banner };
     updateEvent(updated);
     toast.success(updated.show_in_banner ? 'Evento adicionado ao banner' : 'Evento removido do banner');
+  };
+
+  const confirmBannerToggle = () => {
+    if (eventToToggleBanner) {
+      const updated = { ...eventToToggleBanner, show_in_banner: true };
+      updateEvent(updated);
+      toast.success('Evento adicionado ao banner');
+      setShowBannerMissingDialog(false);
+      setEventToToggleBanner(null);
+    }
+  };
+
+  const handleAddImage = () => {
+    if (eventToToggleBanner) {
+      setSelectedEvent(eventToToggleBanner);
+      setShowBannerMissingDialog(false);
+      setEventToToggleBanner(null);
+    }
   };
 
   useEffect(() => {
@@ -145,22 +173,27 @@ export default function PublicEventsPage() {
                 </>
               ) : (
                 <div 
-                  className="w-full h-full flex items-center justify-center opacity-40"
+                  className="w-full h-full flex flex-col items-center justify-center p-8 text-center"
                   style={{ backgroundColor: event.custom_color || '#1e293b' }}
                 >
-                  <CalendarDays className="h-32 w-32 text-white/20" />
+                  <h2 className="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl animate-in zoom-in-95 duration-700">
+                    {event.title}
+                  </h2>
+                  <CalendarDays className="h-16 w-16 text-white/10" />
                 </div>
               )}
               
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
               
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto">
                 <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none mb-4`}>
                   {event.unit}
                 </Badge>
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 max-w-2xl leading-tight">
-                  {event.title}
-                </h2>
+                {(event.banner_image_desktop || event.banner_url_desktop || event.banner_url_mobile) && (
+                  <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 max-w-2xl leading-tight">
+                    {event.title}
+                  </h2>
+                )}
                 <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5" />
@@ -375,6 +408,13 @@ export default function PublicEventsPage() {
         open={!!selectedEvent} 
         onOpenChange={(open) => !open && setSelectedEvent(null)} 
         event={selectedEvent} 
+      />
+
+      <BannerMissingDialog 
+        open={showBannerMissingDialog}
+        onOpenChange={setShowBannerMissingDialog}
+        onConfirm={confirmBannerToggle}
+        onAddImage={handleAddImage}
       />
     </div>
   );

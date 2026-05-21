@@ -473,29 +473,34 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     anabrasil.com/eventos/{form.slug || 'preview'}
                   </div>
                 </div>
-                <div className="p-0 overflow-y-auto max-h-[75vh]">
-                  {/* Inline version of Detail Dialog */}
-                  <div className="bg-white">
-                    <div className="relative aspect-[21/9] bg-slate-900 overflow-hidden">
-                      {(form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile) ? (
-                        <img 
-                          src={form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile} 
-                          alt="Preview"
-                          className="w-full h-full object-cover opacity-80"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center opacity-40" style={{ backgroundColor: form.custom_color || '#1e293b' }}>
-                          <Layout className="h-10 w-10 text-white/20" />
+                    <div className="p-0 overflow-y-auto max-h-[75vh]">
+                      {/* Inline version of Detail Dialog */}
+                      <div className="bg-white">
+                        <div className={`relative ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'aspect-[21/12]' : 'aspect-[21/9]'} bg-slate-900 overflow-hidden`}>
+                          {(form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile) ? (
+                            <img 
+                              src={form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile} 
+                              alt="Preview"
+                              className="w-full h-full object-cover opacity-80"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center" style={{ backgroundColor: form.custom_color || '#1e293b' }}>
+                              <h3 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
+                                {form.title || 'Título do Evento'}
+                              </h3>
+                              <Layout className="h-10 w-10 text-white/20 mt-4" />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className="p-6 -mt-8 relative z-10">
-                      <Badge className="bg-primary text-white mb-2 text-[10px]">{form.unit}</Badge>
-                      <h3 className="text-xl font-bold mb-2 line-clamp-2">{form.title || 'Título do Evento'}</h3>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                        <CalendarDays className="h-3 w-3" />
-                        <span>{form.start_datetime ? new Date(form.start_datetime).toLocaleDateString() : 'Data'}</span>
-                      </div>
+                        <div className={`p-6 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'mt-0 border-t' : '-mt-8'} relative z-10`}>
+                          <Badge className="bg-primary text-white mb-2 text-[10px]">{form.unit}</Badge>
+                          {(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? null : (
+                            <h3 className="text-xl font-bold mb-2 line-clamp-2">{form.title || 'Título do Evento'}</h3>
+                          )}
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+                            <CalendarDays className="h-3 w-3" />
+                            <span>{form.start_datetime ? new Date(form.start_datetime).toLocaleDateString() : 'Data'}</span>
+                          </div>
                       <div className="prose prose-sm max-w-none border-t pt-4">
                         <p className="text-xs text-slate-500 whitespace-pre-wrap">{form.description || 'Sem descrição.'}</p>
                       </div>
