@@ -122,7 +122,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       if (!form.marketing_items || form.marketing_items.length === 0) {
         errs.marketing_items = 'Adicione ao menos um item de marketing';
       } else if (form.marketing_items.some(item => !item.item.trim())) {
-        errs.marketing_items = 'Preencha todos os itens de marketing';
+        errs.marketing_items = 'Preencha todos os campos dos itens de marketing';
       }
     }
 
