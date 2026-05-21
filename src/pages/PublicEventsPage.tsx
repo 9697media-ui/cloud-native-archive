@@ -214,17 +214,22 @@ export default function PublicEventsPage() {
                 </div>
                 
                 {event.use_logo_as_title && event.event_logo_url ? (
-                  <div className="mb-6 max-w-xs md:max-w-md animate-in slide-in-from-left duration-700">
+                  <div className={`mb-6 animate-in slide-in-from-left duration-700 ${event.full_height_title ? 'max-w-md md:max-w-2xl h-[250px] md:h-[350px]' : 'max-w-xs md:max-w-md'}`}>
                     <img 
                       src={event.event_logo_url} 
                       alt={event.title} 
-                      className="max-h-24 md:max-h-40 w-auto object-contain filter drop-shadow-2xl" 
+                      className={`w-auto object-contain filter drop-shadow-2xl ${event.full_height_title ? 'h-full max-h-full' : 'max-h-24 md:max-h-40'}`} 
                     />
                   </div>
                 ) : (
-                  <h2 className="text-3xl md:text-6xl font-bold text-white mb-4 max-w-3xl leading-tight drop-shadow-lg">
-                    {event.title}
-                  </h2>
+                  <h2 
+                    className={`font-bold text-white mb-4 leading-tight drop-shadow-lg ${event.full_height_title ? 'text-4xl md:text-8xl lg:text-9xl max-w-5xl' : 'text-3xl md:text-6xl max-w-3xl'}`}
+                    dangerouslySetInnerHTML={{ 
+                      __html: event.title.replace(/<br\s*\/?>/gi, (match) => {
+                        return '<span class="hidden md:inline"><br/></span>';
+                      }) 
+                    }}
+                  />
                 )}
                 <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
                   <div className="flex items-center gap-2">

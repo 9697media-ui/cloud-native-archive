@@ -55,6 +55,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   use_logo_as_title: false,
   event_logo_url: '',
   show_banner_fade: true,
+  full_height_title: false,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -144,6 +145,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       use_logo_as_title: form.use_logo_as_title || false,
       event_logo_url: form.event_logo_url || '',
       show_banner_fade: form.show_banner_fade !== undefined ? form.show_banner_fade : true,
+      full_height_title: form.full_height_title || false,
     };
   };
 
@@ -420,6 +422,19 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       />
                     </div>
 
+                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                      <div className="flex flex-col">
+                        <Label htmlFor="full_height_title" className="text-sm font-medium">Ocupar Toda a Altura</Label>
+                        <p className="text-[10px] text-muted-foreground">O título ou logo cresce para preencher o banner (estilo cinema).</p>
+                      </div>
+                      <Switch
+                        id="full_height_title"
+                        checked={form.full_height_title || false}
+                        onCheckedChange={v => setForm({ ...form, full_height_title: v })}
+                        disabled={!isAdmin}
+                      />
+                    </div>
+
                     {form.use_logo_as_title && (
                       <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300">
                         <FileUpload 
@@ -549,9 +564,22 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         <div className={`p-6 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'mt-0' : '-mt-8'} relative z-10`}>
                           <Badge className="bg-primary text-white mb-2 text-[10px]">{form.unit}</Badge>
                           
-                          <h3 className={`font-bold mb-2 line-clamp-2 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}>
-                            {form.title || 'Título do Evento'}
-                          </h3>
+                          {form.use_logo_as_title && form.event_logo_url ? (
+                            <div className={`mb-2 ${form.full_height_title ? 'max-w-[250px] h-[150px]' : 'max-w-[150px]'}`}>
+                              <img 
+                                src={form.event_logo_url} 
+                                alt="Logo Preview" 
+                                className={`object-contain filter drop-shadow-md ${form.full_height_title ? 'h-full' : 'max-h-12'}`} 
+                              />
+                            </div>
+                          ) : (
+                            <h3 
+                              className={`font-bold mb-2 line-clamp-3 ${form.full_height_title ? 'text-4xl md:text-5xl text-white drop-shadow-xl' : (!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}
+                              dangerouslySetInnerHTML={{ 
+                                __html: (form.title || 'Título do Evento').replace(/<br\s*\/?>/gi, '<br/>') 
+                              }}
+                            />
+                          )}
                           
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
                             <CalendarDays className="h-3 w-3" />

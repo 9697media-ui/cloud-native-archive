@@ -109,6 +109,7 @@ export type Database = {
           event_type: string
           external_collaborators: Json | null
           external_id: string | null
+          full_height_title: boolean | null
           has_conflict: boolean | null
           has_unit_collaboration: boolean | null
           id: string
@@ -147,6 +148,7 @@ export type Database = {
           event_type: string
           external_collaborators?: Json | null
           external_id?: string | null
+          full_height_title?: boolean | null
           has_conflict?: boolean | null
           has_unit_collaboration?: boolean | null
           id?: string
@@ -185,6 +187,7 @@ export type Database = {
           event_type?: string
           external_collaborators?: Json | null
           external_id?: string | null
+          full_height_title?: boolean | null
           has_conflict?: boolean | null
           has_unit_collaboration?: boolean | null
           id?: string

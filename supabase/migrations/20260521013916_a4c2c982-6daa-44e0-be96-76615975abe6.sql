@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS full_height_title BOOLEAN DEFAULT false;
