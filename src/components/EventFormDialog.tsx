@@ -143,6 +143,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       slug: form.slug || '',
       use_logo_as_title: form.use_logo_as_title || false,
       event_logo_url: form.event_logo_url || '',
+      show_banner_fade: form.show_banner_fade !== undefined ? form.show_banner_fade : true,
     };
   };
 
