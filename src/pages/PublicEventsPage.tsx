@@ -74,7 +74,7 @@ export default function PublicEventsPage() {
   }, [events, isAdmin]);
 
   const handleToggleBanner = (event: AppEvent) => {
-    // If adding to banner and missing desktop image
+    // If we are ENABLEANING the banner and missing desktop image, show warning
     if (!event.show_in_banner && !event.banner_image_desktop) {
       setEventToToggleBanner(event);
       setShowBannerMissingDialog(true);
