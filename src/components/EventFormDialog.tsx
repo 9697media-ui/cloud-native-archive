@@ -137,6 +137,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       custom_color: form.custom_color || SYSTEM_COLORS[0],
       show_in_banner: form.show_in_banner || false,
       slug: form.slug || '',
+      use_logo_as_title: form.use_logo_as_title || false,
+      event_logo_url: form.event_logo_url || '',
     };
   };
 
