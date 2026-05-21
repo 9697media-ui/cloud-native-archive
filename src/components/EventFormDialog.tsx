@@ -711,27 +711,66 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                   {form.marketing_request && (
                     <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-4 space-y-4 animate-in fade-in slide-in-from-top-1">
-                      <div>
-                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Minuta / Briefing para Marketing *</Label>
-                        <Textarea 
-                          value={form.marketing_info} 
-                          onChange={e => setForm({ ...form, marketing_info: e.target.value })} 
-                          placeholder="Objetivo da arte, peças desejadas, prazo, canais de divulgação..." 
-                          rows={4}
-                          className={`mt-1 bg-white border-blue-200 focus-visible:ring-blue-500 ${errors.marketing_info ? "border-destructive" : ""}`}
-                        />
-                        {errors.marketing_info && <p className="mt-1 text-xs text-destructive">{errors.marketing_info}</p>}
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Itens de Marketing *</Label>
+                        <Badge variant="outline" className="text-[10px] bg-blue-100 text-blue-700 border-blue-200">Briefing / Materiais</Badge>
                       </div>
-
-                      <div>
-                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Materiais Impressos Necessários *</Label>
-                        <Input 
-                          value={form.printed_materials} 
-                          onChange={e => setForm({ ...form, printed_materials: e.target.value })} 
-                          placeholder="Ex: 100 folders, 2 banners 1x2m, certificados..." 
-                          className={`mt-1 bg-white border-blue-200 focus-visible:ring-blue-500 ${errors.printed_materials ? "border-destructive" : ""}`}
-                        />
-                        {errors.printed_materials && <p className="mt-1 text-xs text-destructive">{errors.printed_materials}</p>}
+                      
+                      <div className="space-y-3">
+                        {(form.marketing_items || []).map((item, idx) => (
+                          <div key={idx} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm">
+                            <div className="flex items-center gap-2">
+                              <Input 
+                                value={item.item} 
+                                onChange={e => {
+                                  const updated = [...(form.marketing_items || [])];
+                                  updated[idx] = { ...updated[idx], item: e.target.value };
+                                  setForm({ ...form, marketing_items: updated });
+                                }} 
+                                placeholder="O que você precisa? (Ex: Arte Instagram, Banner...)" 
+                                className="flex-1 bg-white border-blue-200 focus-visible:ring-blue-500 h-8 text-sm"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0 h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50"
+                                onClick={() => {
+                                  const updated = (form.marketing_items || []).filter((_, i) => i !== idx);
+                                  setForm({ ...form, marketing_items: updated });
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <Textarea 
+                              value={item.description} 
+                              onChange={e => {
+                                const updated = [...(form.marketing_items || [])];
+                                updated[idx] = { ...updated[idx], description: e.target.value };
+                                setForm({ ...form, marketing_items: updated });
+                              }} 
+                              placeholder="Detalhes: formato, texto, referências, prazo..." 
+                              rows={2}
+                              className="bg-slate-50 border-blue-100 focus-visible:ring-blue-500 text-xs"
+                            />
+                          </div>
+                        ))}
+                        
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-2 border-dashed border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
+                          onClick={() => setForm({ 
+                            ...form, 
+                            marketing_items: [...(form.marketing_items || []), { item: '', description: '' }] 
+                          })}
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Adicionar Item de Marketing
+                        </Button>
+                        {errors.marketing_items && <p className="mt-1 text-xs text-destructive">{errors.marketing_items}</p>}
                       </div>
                     </div>
                   )}
