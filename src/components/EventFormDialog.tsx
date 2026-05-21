@@ -997,7 +997,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 )}
 
                 <div className="rounded-lg border border-border p-3">
-                  <Label className="text-sm font-medium mb-2 block">Anexos</Label>
+                  <Label className="text-sm font-semibold mb-2 block">Anexos</Label>
                   <FileUpload
                     mode="multiple"
                     attachments={form.attachments || []}
