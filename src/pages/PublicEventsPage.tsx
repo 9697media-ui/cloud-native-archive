@@ -241,20 +241,36 @@ export default function PublicEventsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4 mt-6">
-                  <Button size="lg" className="rounded-full px-8 shadow-xl">
+                  <Button 
+                    size="lg" 
+                    className="rounded-full px-8 shadow-xl"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCardClick(event);
+                    }}
+                  >
                     Saber mais
                   </Button>
                   {isAdmin && (
                     <Button 
                       variant="outline" 
                       size="lg"
-                      className="rounded-full bg-white/10 hover:bg-white/20 text-white border-white/30 backdrop-blur-md"
+                      className={`rounded-full backdrop-blur-md border-white/30 ${event.show_in_banner ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-primary text-white hover:bg-primary/90'}`}
                       onClick={(e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         handleToggleBanner(event);
                       }}
                     >
-                      <EyeOff className="h-5 w-5 mr-2" /> Remover do Banner
+                      {event.show_in_banner ? (
+                        <>
+                          <EyeOff className="h-5 w-5 mr-2" /> Ocultar Banner
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-5 w-5 mr-2" /> Ativar Banner
+                        </>
+                      )}
                     </Button>
                   )}
                 </div>
