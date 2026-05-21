@@ -501,11 +501,11 @@ export default function PublicEventsPage() {
                     />
                   ) : (
                     <div 
-                      className="w-full h-full flex items-center justify-center p-6 text-center overflow-hidden"
+                      className="w-full h-full flex items-center justify-start p-6 text-left overflow-hidden"
                       style={{ backgroundColor: event.custom_color || '#94a3b8' }}
                     >
                       <span 
-                        className="font-bold text-white leading-[1.1] break-words uppercase drop-shadow-md select-none"
+                        className="font-bold text-white leading-[1.1] break-words uppercase select-none"
                         style={{ 
                           fontSize: event.title.length < 15 ? '2.5rem' : event.title.length < 30 ? '1.75rem' : event.title.length < 50 ? '1.25rem' : '1rem',
                         }}
