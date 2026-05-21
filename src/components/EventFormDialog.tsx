@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle2, Plus, X, Globe, Eye, Layout, CalendarDays, Lock, Share2, Info } from 'lucide-react';
+import { CheckCircle2, Plus, X, Globe, Eye, Layout, CalendarDays, Lock, Share2, Info, EyeOff } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FileUpload } from './FileUpload';
 import { EventDetailDialog } from './EventDetailDialog';
@@ -551,8 +551,11 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
           {/* LADO DIREITO: PREVIEW (Admin Only) */}
           {isAdmin && (
             <div className="hidden lg:block border-l pl-8 space-y-4">
-              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Preview Público</Label>
-              <div className="rounded-2xl border bg-slate-50 overflow-hidden shadow-inner h-full">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Preview Público (Banner)</Label>
+                <Badge variant="outline" className="text-[10px] text-amber-600 bg-amber-50">Exclusivo Banner</Badge>
+              </div>
+              <div className="rounded-2xl border bg-slate-50 overflow-hidden shadow-inner h-full flex flex-col">
                 <div className="bg-white border-b px-4 py-2 flex items-center justify-between">
                   <div className="flex gap-1">
                     <div className="h-2 w-2 rounded-full bg-red-400" />
@@ -563,52 +566,60 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     anabrasil.com/eventos/{form.slug || 'preview'}
                   </div>
                 </div>
-                    <div className="p-0 overflow-y-auto max-h-[75vh]">
-                      {/* Inline version of Detail Dialog */}
-                      <div className="bg-white">
-                        <div className={`relative ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'aspect-[21/12]' : 'aspect-[21/9]'} bg-slate-900 overflow-hidden`}>
-                          {form.show_banner_fade !== false && (
-                            <div className="absolute inset-0 z-10 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                          )}
-                          {(form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile) ? (
-                            <img 
-                              src={form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile} 
-                              alt="Preview"
-                              className="w-full h-full object-cover opacity-80"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-start p-6" style={{ backgroundColor: form.custom_color || '#1e293b' }}>
-                              <Layout className="h-10 w-10 text-white/20" />
-                            </div>
-                          )}
+                <div className="p-0 overflow-y-auto max-h-[75vh] flex-1">
+                  <div className="bg-white h-full">
+                    {/* Visualização de Slide do Banner */}
+                    <div className={`relative ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'aspect-[21/12]' : 'aspect-[21/9]'} bg-slate-900 overflow-hidden`}>
+                      {form.show_banner_fade !== false && (
+                        <div className="absolute inset-0 z-10 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                      )}
+                      
+                      {(form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile) ? (
+                        <img 
+                          src={form.banner_image_desktop || form.banner_url_desktop || form.banner_url_mobile} 
+                          alt="Preview"
+                          className="w-full h-full object-cover opacity-80"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-start p-6" style={{ backgroundColor: form.custom_color || '#1e293b' }}>
+                          <Layout className="h-10 w-10 text-white/20" />
                         </div>
-                        <div className={`p-6 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'mt-0' : '-mt-8'} relative z-10`}>
-                          <Badge className="bg-primary text-white mb-2 text-[10px]">{form.unit}</Badge>
-                          
-                          {form.use_logo_as_title && form.event_logo_url ? (
-                            <div className={`mb-2 ${form.full_height_title ? 'max-w-[250px] h-[150px]' : 'max-w-[150px]'}`}>
-                              <img 
-                                src={form.event_logo_url} 
-                                alt="Logo Preview" 
-                                className={`object-contain filter drop-shadow-md ${form.full_height_title ? 'h-full' : 'max-h-12'}`} 
-                              />
-                            </div>
-                          ) : (
-                            <h3 
-                              className={`font-bold mb-2 line-clamp-3 ${form.full_height_title ? 'text-4xl md:text-5xl text-white drop-shadow-xl' : (!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}
-                              dangerouslySetInnerHTML={{ 
-                                __html: (form.title || 'Título do Evento').replace(/<br\s*\/?>/gi, '<br/>') 
-                              }}
+                      )}
+
+                      <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
+                        <Badge className="bg-primary/80 text-white mb-2 text-[10px] border-none backdrop-blur-sm">{form.unit || 'UNIDADE'}</Badge>
+                        
+                        {form.use_logo_as_title && form.event_logo_url ? (
+                          <div className={`mb-2 ${form.full_height_title ? 'max-h-[120px] md:max-h-[160px]' : 'max-h-12'}`}>
+                            <img 
+                              src={form.event_logo_url} 
+                              alt="Logo Preview" 
+                              className={`object-contain filter drop-shadow-md ${form.full_height_title ? 'h-full' : 'max-h-12'}`} 
                             />
-                          )}
-                          
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                            <CalendarDays className="h-3 w-3" />
-                            <span>{form.start_datetime ? new Date(form.start_datetime).toLocaleDateString() : 'Data'}</span>
                           </div>
-                      <div className="prose prose-sm max-w-none border-t pt-4">
-                        <p className="text-xs text-slate-500 whitespace-pre-wrap">{form.description || 'Sem descrição.'}</p>
+                        ) : (
+                          <h3 
+                            className={`font-bold text-white drop-shadow-xl ${form.full_height_title ? 'text-3xl md:text-5xl lg:text-6xl' : 'text-xl md:text-2xl'}`}
+                            dangerouslySetInnerHTML={{ 
+                              __html: (form.title || 'Título do Evento').replace(/<br\s*\/?>/gi, '<br/>') 
+                            }}
+                          />
+                        )}
+                        
+                        <div className="flex items-center gap-2 text-[10px] text-white/80 mt-2">
+                          <CalendarDays className="h-3 w-3" />
+                          <span>{form.start_datetime ? new Date(form.start_datetime).toLocaleDateString('pt-BR') : 'Data'}</span>
+                        </div>
                       </div>
+                    </div>
+
+                    <div className="p-6 border-t bg-slate-50/50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Detalhes do Evento (Card/Modal)</span>
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900 mb-1">{form.title || 'Título do Evento'}</h4>
+                      <p className="text-[11px] text-slate-500 line-clamp-3 leading-relaxed">{form.description || 'Sem descrição.'}</p>
                     </div>
                   </div>
                 </div>
@@ -623,7 +634,6 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
         onOpenChange={setShowBannerWarning}
         onConfirm={() => {
           setShowBannerWarning(false);
-          // Small delay to ensure state update before submit
           setTimeout(() => {
             const fullEvent = getFullEvent();
             const found = detectConflicts(fullEvent);
