@@ -392,7 +392,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     >
                       <Lock className={`h-6 w-6 mb-2 ${form.visibility === 'interno' ? 'text-primary' : 'text-muted-foreground'}`} />
                       <span className="text-sm font-bold">Privado / Interno</span>
-                      <span className="text-[10px] opacity-70">Apenas para equipe</span>
+                      <span className="text-[11px] opacity-70">Apenas para equipe</span>
                     </button>
                     
                     <button
@@ -406,7 +406,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     >
                       <Globe className={`h-6 w-6 mb-2 ${form.visibility === 'publico' ? 'text-blue-500' : 'text-muted-foreground'}`} />
                       <span className="text-sm font-bold">Público / Site</span>
-                      <span className="text-[10px] opacity-70">Visível para todos</span>
+                      <span className="text-[11px] opacity-70">Visível para todos</span>
                     </button>
                   </div>
                 </div>
