@@ -342,47 +342,53 @@ export default function PublicEventsPage() {
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         {isAuthenticated && (
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 sm:gap-4 mb-8">
-            {[
-              { label: 'Total de Eventos', value: stats.total, icon: CalendarDays, color: 'text-blue-500', onClick: undefined },
-              { label: 'Confirmados', value: stats.confirmed, icon: CheckCircle2, color: 'text-emerald-500', onClick: () => setShowFiltered('confirmed') },
-              { label: 'Pendentes', value: stats.pending, icon: Clock, color: 'text-amber-500', onClick: () => setShowFiltered('pending') },
-              { label: 'Com Conflito', value: stats.conflict, icon: AlertCircle, color: 'text-rose-500', onClick: () => setShowConflicts(true) },
-            ].map(s => (
-              <Card
-                key={s.label}
-                className={`border-slate-200 shadow-sm transition-shadow hover:shadow-md ${s.onClick ? 'cursor-pointer' : ''}`}
-                onClick={s.onClick}
-              >
-                <CardContent className="p-4 sm:p-5">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-medium text-slate-500 sm:text-xs uppercase tracking-wider">{s.label}</p>
-                    <s.icon className={`h-5 w-5 ${s.color} opacity-70 shrink-0 sm:h-6 sm:w-6`} />
-                  </div>
-                  <p className="mt-1 text-2xl font-bold text-slate-900 sm:mt-2 sm:text-3xl">{s.value}</p>
-                  {s.label === 'Total de Eventos' && (
-                    <div className="mt-2 flex items-center gap-3 border-t border-slate-100 pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
-                      <button
-                        className="flex items-center gap-1 hover:opacity-70 transition-opacity"
-                        title="Solicitações de Marketing"
-                        onClick={(ev) => { ev.stopPropagation(); setShowFiltered('marketing'); }}
-                      >
-                        <Camera className="h-3.5 w-3.5 text-blue-500 sm:h-4 sm:w-4" />
-                        <span className="text-xs font-semibold text-slate-700 sm:text-sm">{stats.marketing}</span>
-                      </button>
-                      <button
-                        className="flex items-center gap-1 hover:opacity-70 transition-opacity"
-                        title="Parceiros Envolvidos"
-                        onClick={(ev) => { ev.stopPropagation(); setShowFiltered('partners'); }}
-                      >
-                        <Handshake className="h-3.5 w-3.5 text-blue-500 sm:h-4 sm:w-4" />
-                        <span className="text-xs font-semibold text-slate-700 sm:text-sm">{stats.partners}</span>
-                      </button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex flex-wrap items-center gap-2 mb-8">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[10px] sm:text-xs font-medium">
+              <CalendarDays className="h-3.5 w-3.5" />
+              <span>Eventos: <span className="font-bold">{stats.total}</span></span>
+            </div>
+            
+            <button 
+              onClick={() => setShowFiltered('confirmed')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] sm:text-xs font-medium hover:bg-emerald-100 transition-colors"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span>Confirmados: <span className="font-bold">{stats.confirmed}</span></span>
+            </button>
+
+            <button 
+              onClick={() => setShowFiltered('pending')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 text-[10px] sm:text-xs font-medium hover:bg-amber-100 transition-colors"
+            >
+              <Clock className="h-3.5 w-3.5" />
+              <span>Pendentes: <span className="font-bold">{stats.pending}</span></span>
+            </button>
+
+            <button 
+              onClick={() => setShowConflicts(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-100 text-[10px] sm:text-xs font-medium hover:bg-rose-100 transition-colors"
+            >
+              <AlertCircle className="h-3.5 w-3.5" />
+              <span>Conflitos: <span className="font-bold">{stats.conflict}</span></span>
+            </button>
+
+            <div className="h-4 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
+
+            <button 
+              onClick={() => setShowFiltered('marketing')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] sm:text-xs font-medium hover:bg-indigo-100 transition-colors"
+            >
+              <Camera className="h-3.5 w-3.5" />
+              <span>Marketing: <span className="font-bold">{stats.marketing}</span></span>
+            </button>
+
+            <button 
+              onClick={() => setShowFiltered('partners')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 border border-purple-100 text-[10px] sm:text-xs font-medium hover:bg-purple-100 transition-colors"
+            >
+              <Handshake className="h-3.5 w-3.5" />
+              <span>Parceiros: <span className="font-bold">{stats.partners}</span></span>
+            </button>
           </div>
         )}
 
