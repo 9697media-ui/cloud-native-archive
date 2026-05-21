@@ -44,6 +44,7 @@ export interface AppEvent {
   slug?: string;
   use_logo_as_title?: boolean;
   event_logo_url?: string;
+  show_banner_fade?: boolean;
 }
 
 export const SYSTEM_COLORS = [

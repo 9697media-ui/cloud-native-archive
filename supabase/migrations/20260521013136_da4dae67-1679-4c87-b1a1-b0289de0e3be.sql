@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS show_banner_fade BOOLEAN DEFAULT true;
