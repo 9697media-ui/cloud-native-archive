@@ -179,6 +179,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       marketing_info: form.marketing_info || '',
       printed_materials: form.printed_materials || '',
       equipment_needed: form.equipment_needed || '',
+      marketing_items: form.marketing_items || [],
     };
   };
 
