@@ -55,6 +55,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
   use_logo_as_title: false,
   event_logo_url: '',
   show_banner_fade: true,
+  full_height_title: false,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
