@@ -162,6 +162,8 @@ export default function Dashboard() {
     { label: 'Com Conflito', value: stats.conflict, icon: AlertCircle, color: 'text-destructive', onClick: () => setShowConflicts(true) },
   ];
 
+  if (!isAuthenticated && !isAdmin) return <Navigate to="/login" replace />;
+
   return (
     <div className="animate-fade-in space-y-6">
       {/* Header */}

@@ -202,21 +202,25 @@ export default function PublicEventsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {!isAuthenticated && (
-        <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl" />
-              <h1 className="text-xl font-bold tracking-tighter lowercase text-slate-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                anabrasil eventos
-              </h1>
-            </div>
+      <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl" />
+            <h1 className="text-xl font-bold tracking-tighter lowercase text-slate-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+              anabrasil eventos
+            </h1>
+          </div>
+          {!isAuthenticated ? (
             <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors flex items-center gap-1">
               Área Restrita <ExternalLink className="h-3 w-3" />
             </Link>
-          </div>
-        </header>
-      )}
+          ) : (
+            <Link to="/" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors flex items-center gap-2">
+              <LayoutPanelTop className="h-4 w-4" /> Voltar ao Painel
+            </Link>
+          )}
+        </div>
+      </header>
 
       {bannerEvents.length > 0 && (
         <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden bg-slate-900">
@@ -365,7 +369,7 @@ export default function PublicEventsPage() {
       )}
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {isAuthenticated && (
+        {(isAuthenticated || isAdmin) && (
           <div className="w-full flex flex-wrap items-center gap-2 mb-8">
             <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-info text-info-foreground border border-info/20 text-[10px] sm:text-xs font-medium justify-center whitespace-nowrap">
               <CalendarDays className="h-3.5 w-3.5 shrink-0" />
@@ -521,7 +525,7 @@ export default function PublicEventsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex gap-2">
-                      {isAuthenticated && (
+                      {(isAuthenticated || isAdmin) && (
                         <>
                           <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium text-[10px]">
                             Confirmado
