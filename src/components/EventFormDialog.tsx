@@ -484,19 +484,16 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                               className="w-full h-full object-cover opacity-80"
                             />
                           ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center" style={{ backgroundColor: form.custom_color || '#1e293b' }}>
-                              <h3 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
-                                {form.title || 'Título do Evento'}
-                              </h3>
-                              <Layout className="h-10 w-10 text-white/20 mt-4" />
+                            <div className="w-full h-full flex items-center justify-start p-6" style={{ backgroundColor: form.custom_color || '#1e293b' }}>
+                              <Layout className="h-10 w-10 text-white/20" />
                             </div>
                           )}
                         </div>
-                        <div className={`p-6 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'mt-0 border-t' : '-mt-8'} relative z-10`}>
+                        <div className={`p-6 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'mt-0' : '-mt-8'} relative z-10`}>
                           <Badge className="bg-primary text-white mb-2 text-[10px]">{form.unit}</Badge>
-                          {(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? null : (
-                            <h3 className="text-xl font-bold mb-2 line-clamp-2">{form.title || 'Título do Evento'}</h3>
-                          )}
+                          <h3 className={`font-bold mb-2 line-clamp-2 ${(!form.banner_image_desktop && !form.banner_url_desktop && !form.banner_url_mobile) ? 'text-2xl text-white drop-shadow-md' : 'text-xl'}`}>
+                            {form.title || 'Título do Evento'}
+                          </h3>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
                             <CalendarDays className="h-3 w-3" />
                             <span>{form.start_datetime ? new Date(form.start_datetime).toLocaleDateString() : 'Data'}</span>
