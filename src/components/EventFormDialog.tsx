@@ -575,21 +575,15 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 
                 <div className="space-y-6 pt-4 border-t">
                   <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                    <Layout className="h-4 w-4" /> Detalhes Logísticos e Público-Alvo
+                    <Layout className="h-4 w-4" /> Detalhes logísticos e público-alvo
                   </Label>
                   
                   <div className="space-y-4">
                     <div>
                       <Label className="text-sm font-semibold mb-2 block">Público-alvo *</Label>
                       <div className="space-y-2">
-                        {[
-                          "Os funcionários",
-                          "Os atendidos",
-                          "Os atendidos e suas famílias",
-                          "Será aberto para a comunidade"
-                        ].map((option) => (
-                          <div key={option} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card shadow-sm">
-                            <Label htmlFor={`target-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
+                        {["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].map((option) => (
+                          <div key={option} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card shadow-sm">
                             <Switch
                               id={`target-${option}`}
                               checked={form.target_audience === option}
@@ -601,11 +595,11 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 }
                               }}
                             />
+                            <Label htmlFor={`target-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
                           </div>
                         ))}
                         <div className="space-y-2 p-3 rounded-lg border border-border bg-card shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor="target-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outro público</Label>
+                          <div className="flex items-center gap-3">
                             <Switch
                               id="target-other-switch"
                               checked={!!form.target_audience && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience)}
@@ -617,6 +611,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 }
                               }}
                             />
+                            <Label htmlFor="target-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outro público</Label>
                           </div>
                           {(form.target_audience?.startsWith("Outro: ") || (form.target_audience !== "" && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience || ""))) && (
                             <Input 
@@ -635,8 +630,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       <Label className="text-sm font-semibold mb-2 block">Equipe de apoio (Auxílio) *</Label>
                       <div className="space-y-2">
                         {["Funcionários", "Voluntários"].map((option) => (
-                          <div key={option} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card shadow-sm">
-                            <Label htmlFor={`support-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
+                          <div key={option} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card shadow-sm">
                             <Switch
                               id={`support-${option}`}
                               checked={form.support_team?.includes(option)}
@@ -651,11 +645,11 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 setForm({ ...form, support_team: next.join(", ") });
                               }}
                             />
+                            <Label htmlFor={`support-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
                           </div>
                         ))}
                         <div className="space-y-2 p-3 rounded-lg border border-border bg-card shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor="support-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outra equipe</Label>
+                          <div className="flex items-center gap-3">
                             <Switch
                               id="support-other-switch"
                               checked={!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))}
@@ -663,11 +657,10 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 if (!checked) {
                                   const next = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
                                   setForm({ ...form, support_team: next.join(", ") });
-                                } else {
-                                  // No action needed here, user will type in input
                                 }
                               }}
                             />
+                            <Label htmlFor="support-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outra equipe</Label>
                           </div>
                           {(!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))) && (
                             <Input 
