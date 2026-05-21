@@ -119,6 +119,7 @@ export type Database = {
           partner_type: string | null
           partners: Json | null
           show_in_banner: boolean | null
+          slug: string | null
           start_datetime: string
           status: string
           title: string
@@ -153,6 +154,7 @@ export type Database = {
           partner_type?: string | null
           partners?: Json | null
           show_in_banner?: boolean | null
+          slug?: string | null
           start_datetime: string
           status?: string
           title: string
@@ -187,6 +189,7 @@ export type Database = {
           partner_type?: string | null
           partners?: Json | null
           show_in_banner?: boolean | null
+          slug?: string | null
           start_datetime?: string
           status?: string
           title?: string
