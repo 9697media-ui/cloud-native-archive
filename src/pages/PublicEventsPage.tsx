@@ -23,8 +23,10 @@ export default function PublicEventsPage() {
   const { isAuthenticated } = useAuth();
   const [search, setSearch] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedEventForDetail, setSelectedEventForDetail] = useState<AppEvent | null>(null);
   const { isAdmin } = useUserRole();
-  const { updateEvent } = useApp();
+  const { updateEvent, setSelectedEvent, selectedEvent } = useApp();
   // Only confirmed events for public view
   const events = useFilteredEvents(true);
 
