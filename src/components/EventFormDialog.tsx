@@ -726,14 +726,14 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       checked={form.marketing_request || false}
                       onCheckedChange={v => setForm({ ...form, marketing_request: v })}
                     />
-                    <Label htmlFor="marketing_request" className="cursor-pointer flex-1 text-sm font-medium">Solicitação de Marketing</Label>
+                    <Label htmlFor="marketing_request" className="cursor-pointer flex-1 text-sm font-semibold">Solicitação de Marketing</Label>
                   </div>
 
                   {form.marketing_request && (
                     <div className="rounded-lg border border-blue-100 bg-blue-50/30 p-4 space-y-4 animate-in fade-in slide-in-from-top-1">
                       <div className="flex items-center justify-between">
-                        <Label className="text-xs font-bold text-blue-800 uppercase tracking-tighter">Itens de Marketing *</Label>
-                        <Badge variant="outline" className="text-[10px] bg-blue-100 text-blue-700 border-blue-200">Briefing / Materiais</Badge>
+                        <Label className="text-sm font-semibold text-blue-900">Itens de marketing *</Label>
+                        <Badge variant="outline" className="text-[10px] bg-blue-100 text-blue-700 border-blue-200 uppercase font-bold tracking-tight">Briefing / Materiais</Badge>
                       </div>
                       
                       <div className="space-y-4">
