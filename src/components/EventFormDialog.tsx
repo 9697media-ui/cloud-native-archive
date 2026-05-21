@@ -580,43 +580,50 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-xs font-semibold">O EVENTO SERÁ VOLTADO PARA: *</Label>
-                      <div className="grid grid-cols-1 gap-2 mt-2">
+                      <Label className="text-sm font-semibold mb-2 block">Público-alvo *</Label>
+                      <div className="space-y-2">
                         {[
                           "Os funcionários",
                           "Os atendidos",
                           "Os atendidos e suas famílias",
                           "Será aberto para a comunidade"
                         ].map((option) => (
-                          <label key={option} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
-                            <input
-                              type="radio"
-                              name="target_audience"
-                              value={option}
+                          <div key={option} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card shadow-sm">
+                            <Label htmlFor={`target-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
+                            <Switch
+                              id={`target-${option}`}
                               checked={form.target_audience === option}
-                              onChange={e => setForm({ ...form, target_audience: e.target.value })}
-                              className="h-4 w-4 text-primary accent-primary"
+                              onCheckedChange={checked => {
+                                if (checked) {
+                                  setForm({ ...form, target_audience: option });
+                                } else if (form.target_audience === option) {
+                                  setForm({ ...form, target_audience: "" });
+                                }
+                              }}
                             />
-                            {option}
-                          </label>
+                          </div>
                         ))}
-                        <div className="flex items-center gap-2 p-2 rounded-md border border-transparent">
-                          <input
-                            type="radio"
-                            name="target_audience"
-                            id="target_other"
-                            value="Outro"
-                            checked={form.target_audience !== "" && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience || "")}
-                            onChange={() => setForm({ ...form, target_audience: "Outro: " })}
-                            className="h-4 w-4 text-primary accent-primary"
-                          />
-                          <Label htmlFor="target_other" className="text-sm cursor-pointer">Outro:</Label>
+                        <div className="space-y-2 p-3 rounded-lg border border-border bg-card shadow-sm">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="target-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outro público</Label>
+                            <Switch
+                              id="target-other-switch"
+                              checked={!!form.target_audience && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience)}
+                              onCheckedChange={checked => {
+                                if (checked) {
+                                  setForm({ ...form, target_audience: "Outro: " });
+                                } else {
+                                  setForm({ ...form, target_audience: "" });
+                                }
+                              }}
+                            />
+                          </div>
                           {(form.target_audience?.startsWith("Outro: ") || (form.target_audience !== "" && !["Os funcionários", "Os atendidos", "Os atendidos e suas famílias", "Será aberto para a comunidade"].includes(form.target_audience || ""))) && (
                             <Input 
-                              className="h-8 flex-1 ml-2"
+                              className="h-9 mt-2"
                               value={form.target_audience?.replace("Outro: ", "")}
                               onChange={e => setForm({ ...form, target_audience: `Outro: ${e.target.value}` })}
-                              placeholder="Especifique..."
+                              placeholder="Especifique o público..."
                             />
                           )}
                         </div>
@@ -624,12 +631,14 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       {errors.target_audience && <p className="mt-1 text-xs text-destructive">{errors.target_audience}</p>}
                     </div>
 
-                    <div>
-                      <Label className="text-xs font-semibold">IRÃO AUXILIAR NO EVENTO: *</Label>
-                      <div className="grid grid-cols-1 gap-2 mt-2">
+                    <div className="pt-2">
+                      <Label className="text-sm font-semibold mb-2 block">Equipe de apoio (Auxílio) *</Label>
+                      <div className="space-y-2">
                         {["Funcionários", "Voluntários"].map((option) => (
-                          <label key={option} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
-                            <Checkbox 
+                          <div key={option} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card shadow-sm">
+                            <Label htmlFor={`support-${option}`} className="text-sm cursor-pointer flex-1 font-medium">{option}</Label>
+                            <Switch
+                              id={`support-${option}`}
                               checked={form.support_team?.includes(option)}
                               onCheckedChange={(checked) => {
                                 const current = form.support_team ? form.support_team.split(", ") : [];
@@ -642,40 +651,46 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 setForm({ ...form, support_team: next.join(", ") });
                               }}
                             />
-                            {option}
-                          </label>
+                          </div>
                         ))}
-                        <div className="flex items-center gap-2 p-2 rounded-md">
-                          <Checkbox 
-                            checked={!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))}
-                            onCheckedChange={(checked) => {
-                              if (!checked) {
-                                const next = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
-                                setForm({ ...form, support_team: next.join(", ") });
-                              }
-                            }}
-                          />
-                          <Label className="text-sm cursor-pointer">Outro:</Label>
-                          <Input 
-                            className="h-8 flex-1 ml-2"
-                            value={(form.support_team?.split(", ") || []).filter(val => !["Funcionários", "Voluntários"].includes(val)).join(", ")}
-                            onChange={e => {
-                              const base = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
-                              if (e.target.value.trim()) {
-                                setForm({ ...form, support_team: [...base, e.target.value].join(", ") });
-                              } else {
-                                setForm({ ...form, support_team: base.join(", ") });
-                              }
-                            }}
-                            placeholder="Especifique..."
-                          />
+                        <div className="space-y-2 p-3 rounded-lg border border-border bg-card shadow-sm">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="support-other-switch" className="text-sm cursor-pointer flex-1 font-medium">Outra equipe</Label>
+                            <Switch
+                              id="support-other-switch"
+                              checked={!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))}
+                              onCheckedChange={(checked) => {
+                                if (!checked) {
+                                  const next = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
+                                  setForm({ ...form, support_team: next.join(", ") });
+                                } else {
+                                  // No action needed here, user will type in input
+                                }
+                              }}
+                            />
+                          </div>
+                          {(!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))) && (
+                            <Input 
+                              className="h-9 mt-2"
+                              value={(form.support_team?.split(", ") || []).filter(val => !["Funcionários", "Voluntários"].includes(val)).join(", ")}
+                              onChange={e => {
+                                const base = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
+                                if (e.target.value.trim()) {
+                                  setForm({ ...form, support_team: [...base, e.target.value].join(", ") });
+                                } else {
+                                  setForm({ ...form, support_team: base.join(", ") });
+                                }
+                              }}
+                              placeholder="Especifique a equipe..."
+                            />
+                          )}
                         </div>
                       </div>
                       {errors.support_team && <p className="mt-1 text-xs text-destructive">{errors.support_team}</p>}
                     </div>
 
                     <div>
-                      <Label className="text-xs font-semibold">Logística de Alimentação *</Label>
+                      <Label className="text-sm font-semibold mb-1.5 block">Logística de alimentação *</Label>
                       <Textarea 
                         value={form.food_logistics} 
                         onChange={e => setForm({ ...form, food_logistics: e.target.value })} 
@@ -687,7 +702,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     </div>
 
                     <div>
-                      <Label className="text-xs font-semibold">Equipamentos Necessários *</Label>
+                      <Label className="text-sm font-semibold mb-1.5 block">Equipamentos necessários *</Label>
                       <Input 
                         value={form.equipment_needed} 
                         onChange={e => setForm({ ...form, equipment_needed: e.target.value })} 
@@ -700,7 +715,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 </div>
 
                 <div className="space-y-4 pt-4 border-t">
-                  <Label>Observações internas</Label>
+                  <Label className="text-sm font-semibold mb-1.5 block">Observações internas</Label>
                   <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Notas internas gerais..." rows={2} />
                 </div>
 
