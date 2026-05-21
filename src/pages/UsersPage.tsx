@@ -686,11 +686,12 @@ export default function UsersPage() {
   };
 
   const BetaManager = () => {
-    const { currentVersion, versions, loading: vLoading, promoteToProduction, rollback } = useUIVersions();
+    const { currentVersion, versions, loading: vLoading, promoteToProduction, rollback, setActiveBeta, promoteVersionToProduction } = useUIVersions();
     const [name, setName] = useState('');
     const [desc, setDesc] = useState('');
     const [showPromote, setShowPromote] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [envFilter, setEnvFilter] = useState<string>('all');
 
     const handlePromote = async () => {
       if (!name) return;
@@ -708,15 +709,27 @@ export default function UsersPage() {
       }
     };
 
+    const envBadge = (env?: string | null) => {
+      const map: Record<string, string> = {
+        'lovable': 'bg-purple-500/10 text-purple-700 border-purple-500/30',
+        'cloudflare-production': 'bg-orange-500/10 text-orange-700 border-orange-500/30',
+        'cloudflare-preview': 'bg-amber-500/10 text-amber-700 border-amber-500/30',
+      };
+      const label = env || 'legado';
+      return <Badge variant="outline" className={`text-[10px] ${map[env || ''] || ''}`}>{label}</Badge>;
+    };
+
+    const filtered = envFilter === 'all' ? versions : versions.filter(v => (v.environment || 'legado') === envFilter);
+
     return (
       <div className="space-y-6">
         <Alert className="bg-primary/5 border-primary/20">
           <FlaskConical className="h-4 w-4 text-primary" />
           <AlertTitle className="text-primary text-sm font-semibold">Como funciona o Ambiente Beta?</AlertTitle>
           <AlertDescription className="text-muted-foreground text-xs leading-relaxed">
-            Usuários marcados como <strong>Beta Testers</strong> veem as alterações mais recentes em tempo real. 
-            Quando você estiver satisfeito com os testes, use o botão <strong>Publicar</strong> abaixo para 
-            atualizar a interface de todos os usuários para a versão atual.
+            Usuários marcados como <strong>Beta Testers</strong> veem a versão marcada como <strong>Beta Ativa</strong>. 
+            Demais usuários veem a versão marcada como <strong>Produção Ativa</strong>. 
+            Funciona em qualquer ambiente (Lovable ou Cloudflare).
           </AlertDescription>
         </Alert>
 
@@ -750,30 +763,61 @@ export default function UsersPage() {
 
           <Card className="flex-1">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <History className="h-5 w-5 text-primary" />
-                Histórico de Versões
-              </CardTitle>
-              <p className="text-xs text-muted-foreground">Últimas 30 versões publicadas.</p>
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <History className="h-5 w-5 text-primary" />
+                  Histórico de Deploys
+                </CardTitle>
+                <select
+                  value={envFilter}
+                  onChange={(e) => setEnvFilter(e.target.value)}
+                  className="text-xs border rounded px-2 py-1 bg-background"
+                >
+                  <option value="all">Todos</option>
+                  <option value="lovable">Lovable</option>
+                  <option value="cloudflare-production">CF Production</option>
+                  <option value="cloudflare-preview">CF Preview</option>
+                  <option value="legado">Legado</option>
+                </select>
+              </div>
+              <p className="text-xs text-muted-foreground">Últimas 30 versões.</p>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                {versions.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma versão anterior.</p> : 
-                  versions.map(v => (
-                    <div key={v.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
-                      <div className="min-w-0">
-                        <p className="font-medium text-sm truncate">{v.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{new Date(v.created_at).toLocaleString('pt-BR')}</p>
+              <div className="space-y-2 max-h-[480px] overflow-y-auto pr-2">
+                {filtered.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma versão.</p> :
+                  filtered.map(v => (
+                    <div key={v.id} className="flex flex-col gap-2 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-medium text-sm truncate">{v.name}</p>
+                            {envBadge(v.environment)}
+                            {v.is_active_beta && <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30" variant="outline">Beta ativa</Badge>}
+                            {v.is_active_production && <Badge className="text-[10px] bg-green-500/15 text-green-700 border-green-500/30" variant="outline">Produção ativa</Badge>}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {v.commit_sha ? <code className="font-mono">{v.commit_sha.slice(0, 7)}</code> : '—'} · {new Date(v.deployed_at || v.created_at).toLocaleString('pt-BR')}
+                            {v.deployed_by && ` · ${v.deployed_by}`}
+                          </p>
+                        </div>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => rollback(v)}
-                        disabled={currentVersion?.id === v.id}
-                        className="h-8 text-xs"
-                      >
-                        Reverter
-                      </Button>
+                      <div className="flex flex-wrap gap-1.5">
+                        <Button variant="outline" size="sm" className="h-7 text-xs"
+                          disabled={!!v.is_active_beta}
+                          onClick={async () => { try { await setActiveBeta(v); toast({ title: 'Ativada para Beta Testers' }); } catch (e: any) { toast({ title: 'Erro', description: e.message, variant: 'destructive' }); } }}>
+                          Ativar como Beta
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-7 text-xs"
+                          disabled={!!v.is_active_production}
+                          onClick={async () => { try { await promoteVersionToProduction(v); toast({ title: 'Promovida para Produção' }); } catch (e: any) { toast({ title: 'Erro', description: e.message, variant: 'destructive' }); } }}>
+                          <Rocket className="h-3 w-3 mr-1" /> Produção
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs"
+                          disabled={currentVersion?.id === v.id}
+                          onClick={() => rollback(v)}>
+                          Reverter config
+                        </Button>
+                      </div>
                     </div>
                   ))
                 }
@@ -781,6 +825,7 @@ export default function UsersPage() {
             </CardContent>
           </Card>
         </div>
+
 
         <Dialog open={showPromote} onOpenChange={setShowPromote}>
           <DialogContent>

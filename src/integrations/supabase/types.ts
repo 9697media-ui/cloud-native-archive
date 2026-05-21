@@ -346,27 +346,45 @@ export type Database = {
       }
       ui_versions: {
         Row: {
+          commit_sha: string | null
           config_json: Json | null
           created_at: string
           created_by: string | null
+          deployed_at: string | null
+          deployed_by: string | null
           description: string | null
+          environment: string | null
           id: string
+          is_active_beta: boolean | null
+          is_active_production: boolean | null
           name: string
         }
         Insert: {
+          commit_sha?: string | null
           config_json?: Json | null
           created_at?: string
           created_by?: string | null
+          deployed_at?: string | null
+          deployed_by?: string | null
           description?: string | null
+          environment?: string | null
           id?: string
+          is_active_beta?: boolean | null
+          is_active_production?: boolean | null
           name: string
         }
         Update: {
+          commit_sha?: string | null
           config_json?: Json | null
           created_at?: string
           created_by?: string | null
+          deployed_at?: string | null
+          deployed_by?: string | null
           description?: string | null
+          environment?: string | null
           id?: string
+          is_active_beta?: boolean | null
+          is_active_production?: boolean | null
           name?: string
         }
         Relationships: []
