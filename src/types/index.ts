@@ -47,6 +47,7 @@ export interface AppEvent {
   show_banner_fade?: boolean;
   full_height_title?: boolean;
   banner_display_time?: number;
+  show_banner_overlay?: boolean;
 }
 
 export const SYSTEM_COLORS = [
