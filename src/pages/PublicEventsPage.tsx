@@ -173,13 +173,10 @@ export default function PublicEventsPage() {
                 </>
               ) : (
                 <div 
-                  className="w-full h-full flex flex-col items-center justify-center p-8 text-center"
+                  className="w-full h-full flex items-center justify-start px-8 md:px-16"
                   style={{ backgroundColor: event.custom_color || '#1e293b' }}
                 >
-                  <h2 className="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl animate-in zoom-in-95 duration-700">
-                    {event.title}
-                  </h2>
-                  <CalendarDays className="h-16 w-16 text-white/10" />
+                  {/* Fundo colorido sólido sem conteúdo centralizado */}
                 </div>
               )}
               
