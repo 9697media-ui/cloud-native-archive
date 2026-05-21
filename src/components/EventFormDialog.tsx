@@ -381,6 +381,31 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         disabled={!isAdmin}
                       />
                     </div>
+
+                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                      <div className="flex flex-col">
+                        <Label htmlFor="use_logo_as_title" className="text-sm font-medium">Usar Logo como Título</Label>
+                        <p className="text-[10px] text-muted-foreground">Estilo streaming: substitui o texto por uma imagem da logo.</p>
+                      </div>
+                      <Switch
+                        id="use_logo_as_title"
+                        checked={form.use_logo_as_title || false}
+                        onCheckedChange={v => setForm({ ...form, use_logo_as_title: v })}
+                        disabled={!isAdmin}
+                      />
+                    </div>
+
+                    {form.use_logo_as_title && (
+                      <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300">
+                        <FileUpload 
+                          label="Logo/ID Visual do Evento"
+                          mode="single"
+                          url={form.event_logo_url}
+                          onChange={(url) => setForm({ ...form, event_logo_url: url })}
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1 italic text-center">Recomendado: PNG com fundo transparente.</p>
+                      </div>
+                    )}
                     
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
