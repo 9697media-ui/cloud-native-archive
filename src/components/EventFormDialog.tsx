@@ -119,8 +119,11 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     
     // Condicional para marketing
     if (form.marketing_request) {
-      if (!form.marketing_info?.trim()) errs.marketing_info = 'Descreva os detalhes para o marketing';
-      if (!form.printed_materials?.trim()) errs.printed_materials = 'Informe os materiais impressos';
+      if (!form.marketing_items || form.marketing_items.length === 0) {
+        errs.marketing_items = 'Adicione ao menos um item de marketing';
+      } else if (form.marketing_items.some(item => !item.item.trim())) {
+        errs.marketing_items = 'Preencha todos os itens de marketing';
+      }
     }
 
     if (form.start_datetime && form.end_datetime && new Date(form.start_datetime) >= new Date(form.end_datetime)) {
