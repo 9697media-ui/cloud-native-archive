@@ -647,7 +647,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         ))}
                         <div className="flex items-center gap-2 p-2 rounded-md">
                           <Checkbox 
-                            checked={form.support_team !== undefined && form.support_team !== "" && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))}
+                            checked={!!form.support_team && !form.support_team.split(", ").every(val => ["Funcionários", "Voluntários"].includes(val))}
                             onCheckedChange={(checked) => {
                               if (!checked) {
                                 const next = (form.support_team?.split(", ") || []).filter(val => ["Funcionários", "Voluntários"].includes(val));
