@@ -357,9 +357,26 @@ export default function DesignManualPage() {
                   <p className="text-sm text-muted-foreground">Usada para branding e títulos.</p>
                 </div>
                 <Separator />
-                <div>
-                  <p className="text-xl font-medium mb-1">Inter (Interface & Body)</p>
-                  <p className="text-muted-foreground">Fonte padrão otimizada para legibilidade.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <p className="text-xl font-medium mb-1">Inter (Interface & Body)</p>
+                    <p className="text-muted-foreground text-sm mb-4">Fonte padrão otimizada para legibilidade em telas.</p>
+                    <div className="space-y-1 p-4 bg-slate-50 rounded-lg border">
+                      <p className="text-sm">Regular: The quick brown fox jumps over the lazy dog.</p>
+                      <p className="text-sm font-medium">Medium: The quick brown fox jumps over the lazy dog.</p>
+                      <p className="text-sm font-bold">Bold: The quick brown fox jumps over the lazy dog.</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Hierarquia</p>
+                    <div className="space-y-2">
+                      <h1 className="text-3xl font-bold">Título H1 (30px)</h1>
+                      <h2 className="text-2xl font-semibold">Subtítulo H2 (24px)</h2>
+                      <h3 className="text-xl font-medium">Seção H3 (20px)</h3>
+                      <p className="text-base">Corpo de texto (16px)</p>
+                      <p className="text-sm text-muted-foreground">Legendas (14px)</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
