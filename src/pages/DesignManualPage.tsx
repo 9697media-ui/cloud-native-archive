@@ -85,12 +85,23 @@ export default function DesignManualPage() {
     setIsExporting(true);
     toast.info("Gerando PDF, aguarde...");
 
+    // Store original styles to restore them later
+    const originalStyle = element.style.cssText;
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    
     try {
+      // Force light mode for PDF generation if needed, or ensure consistent background
+      element.style.backgroundColor = isDarkMode ? '#1a1a1a' : '#fcfbf7'; // Match HSL 40 27% 96% roughly
+      element.style.color = isDarkMode ? '#fcfbf7' : '#1a1a1a';
+      element.style.padding = '20px';
+      element.style.width = '1200px';
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
-        windowWidth: 1200
+        windowWidth: 1200,
+        backgroundColor: isDarkMode ? '#1a1a1a' : '#fcfbf7',
       });
       
       const imgData = canvas.toDataURL('image/png');
@@ -99,16 +110,33 @@ export default function DesignManualPage() {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      // Calculate how many pages we need
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      let heightLeft = pdfHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pageHeight;
+      }
+
       pdf.save('anabrasil-design-manual.pdf');
       toast.success("PDF baixado com sucesso!");
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       toast.error("Erro ao gerar PDF.");
     } finally {
+      // Restore original styles
+      element.style.cssText = originalStyle;
       setIsExporting(false);
     }
   };
+
 
   if (!hasAccess) {
     return (
