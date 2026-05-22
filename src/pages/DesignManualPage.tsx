@@ -183,26 +183,29 @@ export default function DesignManualPage() {
                 </CardHeader>
                 <CardContent className="p-6 space-y-6">
                   <div className="space-y-4">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cores Base</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <div className="h-16 w-full rounded-xl bg-primary shadow-sm ring-1 ring-black/5 flex items-end p-2">
-                          <span className="text-[10px] font-bold text-primary-foreground bg-white/20 px-1.5 py-0.5 rounded backdrop-blur-sm">Primary</span>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Paleta Oficial anabrasil</p>
+                    <div className="grid grid-cols-5 gap-3">
+                      {[
+                        { hex: "#484848", name: "Grafite" },
+                        { hex: "#fbce00", name: "Santana" },
+                        { hex: "#81e2cf", name: "Nilópolis" },
+                        { hex: "#01adff", name: "DIC" },
+                        { hex: "#f37964", name: "Geral" },
+                        { hex: "#f5dfbb", name: "Accent" },
+                        { hex: "#f0eee4", name: "Background" },
+                        { hex: "#1f2322", name: "Dark" },
+                        { hex: "#000000", name: "Preto" },
+                        { hex: "#ffffff", name: "Branco" },
+                      ].map((c) => (
+                        <div key={c.hex} className="space-y-1.5">
+                          <div
+                            className="aspect-square w-full rounded-full shadow-sm ring-1 ring-black/10"
+                            style={{ backgroundColor: c.hex }}
+                          />
+                          <p className="text-[10px] font-bold text-center leading-tight">{c.name}</p>
+                          <p className="text-[9px] font-mono text-center text-muted-foreground uppercase">{c.hex}</p>
                         </div>
-                        <p className="text-[10px] font-mono text-center">#B0EBE0</p>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="h-16 w-full rounded-xl bg-accent shadow-sm ring-1 ring-black/5 flex items-end p-2">
-                          <span className="text-[10px] font-bold text-accent-foreground bg-black/5 px-1.5 py-0.5 rounded backdrop-blur-sm">Accent</span>
-                        </div>
-                        <p className="text-[10px] font-mono text-center">#F9E7B8</p>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="h-16 w-full rounded-xl bg-background border shadow-sm flex items-end p-2">
-                          <span className="text-[10px] font-bold text-foreground bg-black/5 px-1.5 py-0.5 rounded backdrop-blur-sm">Bg</span>
-                        </div>
-                        <p className="text-[10px] font-mono text-center">#FAF7F0</p>
-                      </div>
+                      ))}
                     </div>
                   </div>
                   <div className="space-y-4 pt-4 border-t">
