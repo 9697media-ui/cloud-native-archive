@@ -7,7 +7,9 @@ import { AppProvider } from "@/contexts/AppContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { TestViewProvider } from "@/contexts/TestViewContext";
 import AppLayout from "@/components/AppLayout";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Dashboard from "./pages/Dashboard";
+
 import CalendarPage from "./pages/CalendarPage";
 import UsersPage from "./pages/UsersPage";
 import AuditPage from "./pages/AuditPage";
@@ -39,7 +41,9 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+    <ThemeProvider defaultTheme="light" storageKey="anabrasil-theme">
+      <TooltipProvider>
+
       <AuthProvider>
         <TestViewProvider>
           <AppProvider>
@@ -76,8 +80,10 @@ const App = () => (
           </AppProvider>
         </TestViewProvider>
       </AuthProvider>
-    </TooltipProvider>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
+
 
 export default App;
