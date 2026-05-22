@@ -43,7 +43,7 @@ export default function DesignManualPage() {
     <div className="container max-w-7xl py-8 space-y-8 animate-in fade-in duration-500">
       <PageHeader 
         title="Manual de UX/UI Design" 
-        subtitle="Diretrizes visuais e de experiência do usuário do ecossistema anabrasil."
+        description="Diretrizes visuais e de experiência do usuário do ecossistema anabrasil."
       />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
