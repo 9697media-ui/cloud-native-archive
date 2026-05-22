@@ -16,19 +16,23 @@ interface PageHeaderProps {
  */
 export default function PageHeader({ title, description, actions, hidden, className }: PageHeaderProps) {
   return (
-    <header className={cn("flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6", className)}>
+    <header className={cn("flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-8 animate-in fade-in slide-in-from-top-4 duration-700", className)}>
       {!hidden ? (
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl truncate">{title}</h1>
+        <div className="space-y-1.5">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            {title}
+          </h1>
           {description && (
-            <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+            <p className="text-base text-muted-foreground font-medium max-w-2xl leading-relaxed">
+              {description}
+            </p>
           )}
         </div>
       ) : (
         <div />
       )}
       {actions && (
-        <div className={cn("flex flex-wrap items-center gap-2 sm:gap-3", hidden && "ml-auto")}>
+        <div className={cn("flex flex-wrap items-center gap-3", hidden && "ml-auto")}>
           {actions}
         </div>
       )}

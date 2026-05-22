@@ -94,25 +94,25 @@ export default function DesignManualPage() {
   }
 
   return (
-    <div className="container max-w-7xl py-8 space-y-8 animate-in fade-in duration-500" id="design-manual-content">
+    <div className="container max-w-7xl py-12 space-y-12 animate-in fade-in duration-700" id="design-manual-content">
       <PageHeader 
         title="Manual de UX/UI Design" 
-        description="Diretrizes visuais e de experiência do usuário do ecossistema anabrasil."
+        description="Diretrizes visuais e de experiência do usuário do ecossistema anabrasil. Este guia serve como a única fonte de verdade para design e desenvolvimento."
         actions={
-          <Button onClick={exportToPDF} disabled={isExporting} variant="outline" className="gap-2">
+          <Button onClick={exportToPDF} disabled={isExporting} variant="default" className="gap-2 shadow-lg shadow-primary/20 hover:shadow-xl transition-all">
             {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-            Exportar PDF
+            Exportar Manual PDF
           </Button>
         }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <aside className="md:col-span-1 space-y-4">
-          <Card className="sticky top-24">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Sumário</CardTitle>
+          <Card className="sticky top-24 border-none bg-slate-100/50 backdrop-blur-sm">
+            <CardHeader className="pb-3 border-b">
+              <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground/70">Sumário Executivo</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-1">
+            <CardContent className="pt-4 grid gap-1">
               {[
                 { label: "Identidade Visual", icon: Palette, id: "identidade" },
                 { label: "Tipografia", icon: Type, id: "tipografia" },
@@ -124,10 +124,10 @@ export default function DesignManualPage() {
                 <button
                   key={item.label}
                   onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })}
-                  className="flex items-center gap-2 px-2 py-1.5 text-sm font-medium rounded-md hover:bg-accent text-left transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 text-sm font-semibold rounded-lg hover:bg-white hover:shadow-sm text-left transition-all group"
                 >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
+                  <item.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <span className="text-muted-foreground group-hover:text-foreground">{item.label}</span>
                 </button>
               ))}
             </CardContent>
