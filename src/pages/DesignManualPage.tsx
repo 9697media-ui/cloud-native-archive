@@ -40,7 +40,10 @@ import {
   Settings,
   Grid,
   Moon,
-  Sun
+  Sun,
+  Globe,
+  Calendar,
+  Users
 } from "lucide-react";
 
 import { 
@@ -69,6 +72,7 @@ import PageHeader from "@/components/PageHeader";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { toast } from "sonner";
+import logoImg from '@/assets/logo.png';
 
 export default function DesignManualPage() {
   const { user } = useAuth();
@@ -152,16 +156,23 @@ export default function DesignManualPage() {
 
   return (
     <div className="container max-w-7xl py-8 space-y-8 animate-in fade-in duration-500" id="design-manual-content">
-      <PageHeader 
-        title="Manual de UX/UI Design" 
-        description="Diretrizes visuais e de experiência do usuário do ecossistema anabrasil."
-        actions={
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-primary/10">
+        <div className="flex items-center gap-4">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-sm border border-primary/10">
+            <img src={logoImg} alt="anabrasil" className="h-12 w-12 object-contain" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>Manual de UX/UI Design</h1>
+            <p className="text-muted-foreground max-w-2xl">Diretrizes visuais e de experiência do usuário do ecossistema anabrasil.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
           <Button onClick={exportToPDF} disabled={isExporting} variant="outline" className="gap-2">
             {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             Exportar PDF
           </Button>
-        }
-      />
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <aside className="md:col-span-1 space-y-4">
@@ -202,11 +213,49 @@ export default function DesignManualPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">Identidade Visual</h2>
-                <p className="text-muted-foreground text-sm">Cores, sombras e fundamentos visuais.</p>
+                <p className="text-muted-foreground text-sm">Cores, logotipo e fundamentos visuais.</p>
               </div>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
+              <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm">
+                <CardHeader className="bg-slate-50/50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    Logotipo & Símbolo
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div className="space-y-4">
+                      <div className="p-8 bg-slate-50 rounded-2xl flex items-center justify-center border border-dashed border-slate-200">
+                        <img src={logoImg} alt="anabrasil Logo" className="h-24 w-auto object-contain" />
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center">
+                        O símbolo circular representa unidade e dinamismo.
+                      </p>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="p-8 bg-slate-900 rounded-2xl flex flex-col items-center justify-center gap-4 border border-slate-800">
+                        <div className="flex items-center gap-3">
+                          <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl" />
+                          <span className="text-2xl font-bold text-white tracking-tighter lowercase" style={{ fontFamily: 'Poppins, sans-serif' }}>anabrasil</span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 uppercase tracking-widest">Versão Negativa / Dark Mode</p>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold">Uso Correto:</p>
+                        <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+                          <li>Manter área de respiro de 50% da altura do logo.</li>
+                          <li>Não alterar as cores oficiais do símbolo.</li>
+                          <li>O nome "anabrasil" deve ser sempre em lowercase.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm">
                 <CardHeader className="bg-slate-50/50">
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -308,10 +357,54 @@ export default function DesignManualPage() {
                   <p className="text-sm text-muted-foreground">Usada para branding e títulos.</p>
                 </div>
                 <Separator />
-                <div>
-                  <p className="text-xl font-medium mb-1">Inter (Interface & Body)</p>
-                  <p className="text-muted-foreground">Fonte padrão otimizada para legibilidade.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <p className="text-xl font-medium mb-1">Inter (Interface & Body)</p>
+                    <p className="text-muted-foreground text-sm mb-4">Fonte padrão otimizada para legibilidade em telas.</p>
+                    <div className="space-y-1 p-4 bg-slate-50 rounded-lg border">
+                      <p className="text-sm">Regular: The quick brown fox jumps over the lazy dog.</p>
+                      <p className="text-sm font-medium">Medium: The quick brown fox jumps over the lazy dog.</p>
+                      <p className="text-sm font-bold">Bold: The quick brown fox jumps over the lazy dog.</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Hierarquia</p>
+                    <div className="space-y-2">
+                      <h1 className="text-3xl font-bold">Título H1 (30px)</h1>
+                      <h2 className="text-2xl font-semibold">Subtítulo H2 (24px)</h2>
+                      <h3 className="text-xl font-medium">Seção H3 (20px)</h3>
+                      <p className="text-base">Corpo de texto (16px)</p>
+                      <p className="text-sm text-muted-foreground">Legendas (14px)</p>
+                    </div>
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm">
+              <CardHeader className="bg-slate-50/50">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                  Iconografia
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { icon: Globe, label: "Global / Geral" },
+                    { icon: Calendar, label: "Temporal" },
+                    { icon: Users, label: "Social / Pessoas" },
+                    { icon: Settings, label: "Configuração" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50/50 border border-slate-100">
+                      <item.icon className="h-8 w-8 text-primary" />
+                      <p className="text-[10px] font-medium text-muted-foreground">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-4 italic">
+                  Utilizamos o set de ícones <strong>Lucide React</strong> com stroke de 2px para garantir consistência e leveza visual.
+                </p>
               </CardContent>
             </Card>
           </section>
