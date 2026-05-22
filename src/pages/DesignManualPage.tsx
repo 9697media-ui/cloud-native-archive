@@ -69,6 +69,7 @@ import PageHeader from "@/components/PageHeader";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { toast } from "sonner";
+import logoImg from '@/assets/logo.png';
 
 export default function DesignManualPage() {
   const { user } = useAuth();
