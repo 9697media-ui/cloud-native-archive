@@ -16,7 +16,8 @@ import {
   AlertCircle,
   ShieldCheck,
   MousePointer2,
-  Accessibility
+  Accessibility,
+  RefreshCw
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 
