@@ -21,6 +21,8 @@ import {
 import ImpersonationBanner from '@/components/ImpersonationBanner';
 import TestModeBanner, { TestModeTrigger } from '@/components/TestModeBanner';
 import logoImg from '@/assets/logo.png';
+import { ThemeToggle } from './ThemeToggle';
+
 
 interface NavItem {
   to: string;
@@ -191,7 +193,9 @@ export default function AppLayout() {
           isFirstRender && "animate-in fade-in slide-in-from-bottom-4"
         )}>
           <TestModeTrigger floating />
+          <ThemeToggle />
           {isAuthenticated ? (
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
