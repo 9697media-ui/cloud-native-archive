@@ -360,6 +360,33 @@ export default function DesignManualPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm">
+              <CardHeader className="bg-slate-50/50">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                  Iconografia
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { icon: Globe, label: "Global / Geral" },
+                    { icon: Calendar, label: "Temporal" },
+                    { icon: Users, label: "Social / Pessoas" },
+                    { icon: Settings, label: "Configuração" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50/50 border border-slate-100">
+                      <item.icon className="h-8 w-8 text-primary" />
+                      <p className="text-[10px] font-medium text-muted-foreground">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-4 italic">
+                  Utilizamos o set de ícones <strong>Lucide React</strong> com stroke de 2px para garantir consistência e leveza visual.
+                </p>
+              </CardContent>
+            </Card>
           </section>
 
           <section id="temas" className="space-y-6 scroll-mt-24">
