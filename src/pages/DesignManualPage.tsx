@@ -38,8 +38,11 @@ import {
   Lock,
   Eye,
   Settings,
-  Grid
+  Grid,
+  Moon,
+  Sun
 } from "lucide-react";
+
 import { 
   Dialog, 
   DialogContent, 
@@ -142,7 +145,9 @@ export default function DesignManualPage() {
               {[
                 { label: "Identidade Visual", icon: Palette, id: "identidade" },
                 { label: "Tipografia", icon: Type, id: "tipografia" },
+                { label: "Temas", icon: Moon, id: "temas" },
                 { label: "Componentes", icon: ComponentIcon, id: "componentes" },
+
                 { label: "Layout & Grid", icon: Layout, id: "layout" },
                 { label: "Interações & Animação", icon: Zap, id: "interacoes" },
                 { label: "Permissões & UX", icon: Lock, id: "permissoes" },
@@ -283,7 +288,60 @@ export default function DesignManualPage() {
             </Card>
           </section>
 
+          <section id="temas" className="space-y-6 scroll-mt-24">
+            <div className="flex items-center gap-3 border-b pb-4">
+              <div className="p-2 bg-primary/20 rounded-lg">
+                <Moon className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Temas</h2>
+                <p className="text-muted-foreground text-sm">Suporte nativo para modo claro e escuro.</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="border-2 border-slate-100 dark:border-slate-800">
+                <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                  <Sun className="h-5 w-5 text-yellow-500" />
+                  <CardTitle className="text-lg">Modo Claro</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 rounded-lg bg-[#f0eee4] border border-slate-200">
+                    <p className="text-slate-900 font-medium">Visual Padrão</p>
+                    <p className="text-slate-600 text-sm">Fundo claro com tons pastéis e alto contraste de leitura.</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground italic">
+                    Utiliza a paleta principal com fundo HSL 40 27% 96%.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-900 text-slate-100 border-none">
+                <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                  <Moon className="h-5 w-5 text-blue-400" />
+                  <CardTitle className="text-lg">Modo Escuro</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 rounded-lg bg-slate-800 border border-slate-700">
+                    <p className="text-slate-100 font-medium">Visual Noturno</p>
+                    <p className="text-slate-400 text-sm">Redução de fadiga ocular com tons profundos de cinza e azul.</p>
+                  </div>
+                  <p className="text-xs text-slate-500 italic">
+                    Inverte cores base mantendo a identidade das unidades.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="bg-muted/30 p-4 rounded-xl border border-dashed border-muted-foreground/20 text-center">
+              <p className="text-sm text-muted-foreground">
+                O sistema detecta automaticamente a preferência do dispositivo, mas permite a troca manual via botão flutuante.
+              </p>
+            </div>
+          </section>
+
           <section id="componentes" className="space-y-6 scroll-mt-24">
+
             <div className="flex items-center gap-2 border-b pb-2">
               <ComponentIcon className="h-6 w-6 text-primary" />
               <h2 className="text-2xl font-bold tracking-tight">Componentes do Sistema</h2>

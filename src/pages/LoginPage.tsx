@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { TestModeTrigger } from '@/components/TestModeBanner';
 import { UNITS, Unit } from '@/types';
+import { ThemeToggle } from '@/components/ThemeToggle';
+
 
 export default function LoginPage() {
   const { signIn, signUp, resetPassword } = useAuth();
@@ -275,9 +277,11 @@ export default function LoginPage() {
         </CardContent>
       </Card>
       
-      <div className="fixed bottom-6 right-6 z-[60]">
+      <div className="fixed bottom-6 right-6 z-[60] flex items-center gap-3">
         <TestModeTrigger floating />
+        <ThemeToggle />
       </div>
+
     </div>
     </>
   );
