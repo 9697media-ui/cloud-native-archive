@@ -285,7 +285,7 @@ export default function DesignManualPage() {
                         </TabsList>
                       </Tabs>
                     </div>
-                  </div>
+                  </Card>
                 </div>
               </div>
             </div>
