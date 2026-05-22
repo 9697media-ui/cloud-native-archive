@@ -30,6 +30,7 @@ interface NavItem {
   managerOnly?: boolean;
   auditoriaOnly?: boolean;
   requireAuth?: boolean;
+  mktOrAdminOnly?: boolean;
 }
 
 const navItems: NavItem[] = [
