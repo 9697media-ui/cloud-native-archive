@@ -156,10 +156,10 @@ export default function Dashboard() {
 
 
   const statCards = [
-    { label: 'Total de Eventos', value: stats.total, icon: CalendarDays, color: 'text-info', onClick: undefined },
-    { label: 'Confirmados', value: stats.confirmed, icon: CheckCircle2, color: 'text-success', onClick: () => setShowFiltered('confirmed') },
-    { label: 'Pendentes', value: stats.pending, icon: Clock, color: 'text-warning', onClick: () => setShowFiltered('pending') },
-    { label: 'Com Conflito', value: stats.conflict, icon: AlertCircle, color: 'text-destructive', onClick: () => setShowConflicts(true) },
+    { label: 'Total de Eventos', value: stats.total, icon: CalendarDays, color: 'text-primary', bgColor: 'bg-primary/10', borderColor: 'border-primary/20', onClick: undefined },
+    { label: 'Confirmados', value: stats.confirmed, icon: CheckCircle2, color: 'text-success', bgColor: 'bg-success/10', borderColor: 'border-success/20', onClick: () => setShowFiltered('confirmed') },
+    { label: 'Pendentes', value: stats.pending, icon: Clock, color: 'text-warning', bgColor: 'bg-warning/10', borderColor: 'border-warning/20', onClick: () => setShowFiltered('pending') },
+    { label: 'Com Conflito', value: stats.conflict, icon: AlertCircle, color: 'text-destructive', bgColor: 'bg-destructive/10', borderColor: 'border-destructive/20', onClick: () => setShowConflicts(true) },
   ];
 
   return (
@@ -269,89 +269,132 @@ export default function Dashboard() {
           <Card
             key={s.label}
             className={cn(
-              "transition-shadow hover:shadow-md",
-              s.onClick ? 'cursor-pointer' : ''
+              "group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-slate-200/60",
+              s.onClick ? 'cursor-pointer active:scale-95' : ''
             )}
             onClick={s.onClick}
           >
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-[10px] font-medium text-muted-foreground sm:text-xs uppercase tracking-wider">{s.label}</p>
-                <s.icon className={`h-5 w-5 ${s.color} opacity-70 shrink-0 sm:h-6 sm:w-6`} />
+            <CardContent className="p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className={cn("p-2.5 rounded-xl transition-colors duration-300", s.bgColor)}>
+                  <s.icon className={cn("h-6 w-6 shrink-0", s.color)} />
+                </div>
+                <div className="flex flex-col items-end">
+                  <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{s.label}</p>
+                </div>
               </div>
-              <p className="mt-1 text-2xl font-bold text-foreground sm:mt-2 sm:text-3xl">{s.value}</p>
+              <div className="flex items-baseline gap-1">
+                <p className="text-3xl font-extrabold text-foreground tracking-tight sm:text-4xl">{s.value}</p>
+              </div>
+              
               {s.label === 'Total de Eventos' && (
-                <div className="mt-2 flex items-center gap-3 border-t border-border pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
+                <div className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-4">
                   <button
-                    className="flex items-center gap-1 hover:opacity-70 transition-opacity"
+                    className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-slate-50 transition-colors group/btn"
                     title="Solicitações de Marketing"
                     onClick={(ev) => { ev.stopPropagation(); setShowFiltered('marketing'); }}
                   >
-                    <Camera className="h-3.5 w-3.5 text-info sm:h-4 sm:w-4" />
-                    <span className="text-xs font-semibold text-foreground sm:text-sm">{stats.marketing}</span>
+                    <Camera className="h-4 w-4 text-primary opacity-60 group-hover/btn:opacity-100" />
+                    <span className="text-sm font-bold text-foreground/80">{stats.marketing}</span>
                   </button>
                   <button
-                    className="flex items-center gap-1 hover:opacity-70 transition-opacity"
+                    className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-slate-50 transition-colors group/btn"
                     title="Parceiros Envolvidos"
                     onClick={(ev) => { ev.stopPropagation(); setShowFiltered('partners'); }}
                   >
-                    <Handshake className="h-3.5 w-3.5 text-info sm:h-4 sm:w-4" />
-                    <span className="text-xs font-semibold text-foreground sm:text-sm">{stats.partners}</span>
+                    <Handshake className="h-4 w-4 text-primary opacity-60 group-hover/btn:opacity-100" />
+                    <span className="text-sm font-bold text-foreground/80">{stats.partners}</span>
                   </button>
                 </div>
               )}
             </CardContent>
+            {/* Subtle gradient background for premium feel */}
+            <div className={cn("absolute inset-0 opacity-[0.03] pointer-events-none bg-gradient-to-br", s.color === 'text-primary' ? 'from-primary to-transparent' : '')} />
           </Card>
         ))}
       </div>
 
 
       {/* Timeline da Semana */}
-      <Card>
-        <CardContent className="p-4 sm:p-5">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">Timeline da Semana</h2>
-            </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              {UNITS.map(u => (
-                <div key={u} className="flex items-center gap-1.5">
-                  <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                  <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
+      <Card className="border-none shadow-2xl shadow-slate-200/40 bg-white rounded-[2rem] overflow-hidden">
+        <CardContent className="p-0">
+          <div className="flex flex-col md:grid md:grid-cols-5 min-h-[400px]">
+            <div className="p-8 bg-slate-50 border-r border-slate-100 space-y-8">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Clock className="h-5 w-5 text-primary" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">Timeline</h2>
                 </div>
-              ))}
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Atividade da Semana</p>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Legenda Unidades</p>
+                <div className="space-y-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                  {UNITS.map(u => (
+                    <div key={u} className="flex items-center gap-3 group">
+                      <span className={cn("h-3 w-3 rounded-full shrink-0 transition-transform group-hover:scale-125", unitDotColors[u])} />
+                      <span className="text-xs font-bold text-slate-600 truncate">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-4 p-8">
+              {weekEvents.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-12">
+                  <div className="p-4 bg-slate-50 rounded-full">
+                    <CalendarIcon className="h-10 w-10 text-slate-200" />
+                  </div>
+                  <p className="text-sm font-bold text-slate-400">Nenhum evento programado para esta semana.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {weekEvents.slice(0, 9).map((e, idx) => (
+                    <button 
+                      key={e.id} 
+                      onClick={() => handleEventClick(e)}
+                      className="group flex flex-col p-5 rounded-3xl border border-slate-100 bg-white hover:bg-slate-50 hover:shadow-xl hover:shadow-slate-200/30 transition-all duration-500 text-left animate-in fade-in slide-in-from-bottom-4"
+                      style={{ animationDelay: `${idx * 50}ms` }}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shadow-sm", unitDotColors[e.unit])}>
+                          {e.visibility === 'publico' ? (
+                            <Globe className="h-5 w-5 text-white" />
+                          ) : (
+                            <Lock className="h-5 w-5 text-white opacity-90" />
+                          )}
+                        </div>
+                        <Badge variant="outline" className={cn("text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 border-none", getStatusBadgeClass(e.status))}>
+                          {e.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-1 flex-1">
+                        <h3 className="font-bold text-slate-900 leading-tight group-hover:text-primary transition-colors line-clamp-2">{e.title}</h3>
+                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                          {format(new Date(e.start_datetime), "EEEE, d 'de' MMM", { locale: ptBR })}
+                        </p>
+                      </div>
+
+                      <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-50">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-3.5 w-3.5 text-slate-300" />
+                          <span className="text-xs font-bold text-slate-500">
+                            {format(new Date(e.start_datetime), 'HH:mm')}
+                          </span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-          {weekEvents.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento nesta semana</p>
-          ) : (
-            <div className="space-y-1.5 sm:space-y-2">
-              {weekEvents.slice(0, 6).map(e => (
-                <div key={e.id} className="flex w-full items-center gap-2 rounded-lg border border-border p-2.5 text-left transition-colors hover:bg-accent sm:gap-3 sm:p-3">
-                  <button onClick={() => handleEventClick(e)} className="flex flex-1 items-center gap-2 text-left sm:gap-3">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <span className={`h-2 w-2 rounded-full ${unitDotColors[e.unit]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                      {e.visibility === 'publico' ? (
-                        <Globe className="h-3 w-3 text-info shrink-0" />
-                      ) : (
-                        <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
-                      )}
-                      <span className="flex-1 text-xs font-medium text-foreground line-clamp-1 sm:text-sm">{e.title}</span>
-                    </div>
-                    <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
-                      <span className="text-[10px] text-muted-foreground whitespace-nowrap sm:text-xs">
-                        {format(new Date(e.start_datetime), 'dd/MM HH:mm')}
-                      </span>
-                      <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 capitalize sm:text-xs sm:px-2.5 sm:py-0.5", getStatusBadgeClass(e.status))}>
-                        {e.status}
-                      </Badge>
-                    </div>
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </CardContent>
       </Card>
 
