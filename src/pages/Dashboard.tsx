@@ -156,10 +156,10 @@ export default function Dashboard() {
 
 
   const statCards = [
-    { label: 'Total de Eventos', value: stats.total, icon: CalendarDays, color: 'text-info', onClick: undefined },
-    { label: 'Confirmados', value: stats.confirmed, icon: CheckCircle2, color: 'text-success', onClick: () => setShowFiltered('confirmed') },
-    { label: 'Pendentes', value: stats.pending, icon: Clock, color: 'text-warning', onClick: () => setShowFiltered('pending') },
-    { label: 'Com Conflito', value: stats.conflict, icon: AlertCircle, color: 'text-destructive', onClick: () => setShowConflicts(true) },
+    { label: 'Total de Eventos', value: stats.total, icon: CalendarDays, color: 'text-primary', bgColor: 'bg-primary/10', borderColor: 'border-primary/20', onClick: undefined },
+    { label: 'Confirmados', value: stats.confirmed, icon: CheckCircle2, color: 'text-success', bgColor: 'bg-success/10', borderColor: 'border-success/20', onClick: () => setShowFiltered('confirmed') },
+    { label: 'Pendentes', value: stats.pending, icon: Clock, color: 'text-warning', bgColor: 'bg-warning/10', borderColor: 'border-warning/20', onClick: () => setShowFiltered('pending') },
+    { label: 'Com Conflito', value: stats.conflict, icon: AlertCircle, color: 'text-destructive', bgColor: 'bg-destructive/10', borderColor: 'border-destructive/20', onClick: () => setShowConflicts(true) },
   ];
 
   return (
@@ -269,38 +269,47 @@ export default function Dashboard() {
           <Card
             key={s.label}
             className={cn(
-              "transition-shadow hover:shadow-md",
-              s.onClick ? 'cursor-pointer' : ''
+              "group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-slate-200/60",
+              s.onClick ? 'cursor-pointer active:scale-95' : ''
             )}
             onClick={s.onClick}
           >
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-[10px] font-medium text-muted-foreground sm:text-xs uppercase tracking-wider">{s.label}</p>
-                <s.icon className={`h-5 w-5 ${s.color} opacity-70 shrink-0 sm:h-6 sm:w-6`} />
+            <CardContent className="p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className={cn("p-2.5 rounded-xl transition-colors duration-300", s.bgColor)}>
+                  <s.icon className={cn("h-6 w-6 shrink-0", s.color)} />
+                </div>
+                <div className="flex flex-col items-end">
+                  <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{s.label}</p>
+                </div>
               </div>
-              <p className="mt-1 text-2xl font-bold text-foreground sm:mt-2 sm:text-3xl">{s.value}</p>
+              <div className="flex items-baseline gap-1">
+                <p className="text-3xl font-extrabold text-foreground tracking-tight sm:text-4xl">{s.value}</p>
+              </div>
+              
               {s.label === 'Total de Eventos' && (
-                <div className="mt-2 flex items-center gap-3 border-t border-border pt-2 sm:mt-3 sm:gap-4 sm:pt-3">
+                <div className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-4">
                   <button
-                    className="flex items-center gap-1 hover:opacity-70 transition-opacity"
+                    className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-slate-50 transition-colors group/btn"
                     title="Solicitações de Marketing"
                     onClick={(ev) => { ev.stopPropagation(); setShowFiltered('marketing'); }}
                   >
-                    <Camera className="h-3.5 w-3.5 text-info sm:h-4 sm:w-4" />
-                    <span className="text-xs font-semibold text-foreground sm:text-sm">{stats.marketing}</span>
+                    <Camera className="h-4 w-4 text-primary opacity-60 group-hover/btn:opacity-100" />
+                    <span className="text-sm font-bold text-foreground/80">{stats.marketing}</span>
                   </button>
                   <button
-                    className="flex items-center gap-1 hover:opacity-70 transition-opacity"
+                    className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-slate-50 transition-colors group/btn"
                     title="Parceiros Envolvidos"
                     onClick={(ev) => { ev.stopPropagation(); setShowFiltered('partners'); }}
                   >
-                    <Handshake className="h-3.5 w-3.5 text-info sm:h-4 sm:w-4" />
-                    <span className="text-xs font-semibold text-foreground sm:text-sm">{stats.partners}</span>
+                    <Handshake className="h-4 w-4 text-primary opacity-60 group-hover/btn:opacity-100" />
+                    <span className="text-sm font-bold text-foreground/80">{stats.partners}</span>
                   </button>
                 </div>
               )}
             </CardContent>
+            {/* Subtle gradient background for premium feel */}
+            <div className={cn("absolute inset-0 opacity-[0.03] pointer-events-none bg-gradient-to-br", s.color === 'text-primary' ? 'from-primary to-transparent' : '')} />
           </Card>
         ))}
       </div>
