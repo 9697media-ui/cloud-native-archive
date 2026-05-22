@@ -203,11 +203,49 @@ export default function DesignManualPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">Identidade Visual</h2>
-                <p className="text-muted-foreground text-sm">Cores, sombras e fundamentos visuais.</p>
+                <p className="text-muted-foreground text-sm">Cores, logotipo e fundamentos visuais.</p>
               </div>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
+              <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm">
+                <CardHeader className="bg-slate-50/50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    Logotipo & Símbolo
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div className="space-y-4">
+                      <div className="p-8 bg-slate-50 rounded-2xl flex items-center justify-center border border-dashed border-slate-200">
+                        <img src={logoImg} alt="anabrasil Logo" className="h-24 w-auto object-contain" />
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center">
+                        O símbolo circular representa unidade e dinamismo.
+                      </p>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="p-8 bg-slate-900 rounded-2xl flex flex-col items-center justify-center gap-4 border border-slate-800">
+                        <div className="flex items-center gap-3">
+                          <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl" />
+                          <span className="text-2xl font-bold text-white tracking-tighter lowercase" style={{ fontFamily: 'Poppins, sans-serif' }}>anabrasil</span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 uppercase tracking-widest">Versão Negativa / Dark Mode</p>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold">Uso Correto:</p>
+                        <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+                          <li>Manter área de respiro de 50% da altura do logo.</li>
+                          <li>Não alterar as cores oficiais do símbolo.</li>
+                          <li>O nome "anabrasil" deve ser sempre em lowercase.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm">
                 <CardHeader className="bg-slate-50/50">
                   <CardTitle className="text-lg flex items-center gap-2">
