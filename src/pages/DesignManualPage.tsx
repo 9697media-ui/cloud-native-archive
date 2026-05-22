@@ -284,9 +284,10 @@ export default function DesignManualPage() {
                     <div className="space-y-3">
                       <p className="text-sm font-medium">Status de Eventos</p>
                       <div className="flex flex-wrap gap-2">
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">Confirmado</Badge>
-                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200">Pendente</Badge>
-                        <Badge className="bg-red-100 text-red-800 hover:bg-red-100 border-red-200">Cancelado</Badge>
+                        <Badge className="bg-green-500/15 text-green-700 hover:bg-green-500/20 border-green-300">Confirmado</Badge>
+                        <Badge className="bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/20 border-yellow-300">Pendente</Badge>
+                        <Badge className="bg-red-500/15 text-red-700 hover:bg-red-500/20 border-red-300">Cancelado</Badge>
+                        <Badge className="bg-blue-500/15 text-blue-700 hover:bg-blue-500/20 border-blue-300">Concluído</Badge>
                       </div>
                     </div>
                     <div className="space-y-3">
