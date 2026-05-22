@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFilteredEvents } from '@/hooks/useFilteredEvents';
 import { useUserRole } from '@/hooks/useUserRole';
