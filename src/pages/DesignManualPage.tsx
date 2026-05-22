@@ -40,7 +40,10 @@ import {
   Settings,
   Grid,
   Moon,
-  Sun
+  Sun,
+  Globe,
+  Calendar,
+  Users
 } from "lucide-react";
 
 import { 
