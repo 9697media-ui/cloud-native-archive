@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { 
   Palette, 
@@ -163,7 +162,7 @@ export default function DesignManualPage() {
         </aside>
 
         <main className="md:col-span-3 space-y-16">
-          {/* Identidade Visual */}
+          <section id="identidade" className="space-y-6 scroll-mt-24">
             <div className="flex items-center gap-3 border-b pb-4">
               <div className="p-2 bg-primary/20 rounded-lg">
                 <Palette className="h-6 w-6 text-primary" />
@@ -179,7 +178,7 @@ export default function DesignManualPage() {
                 <CardHeader className="bg-slate-50/50">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-primary" />
-                    Paleta de Cores do Sistema
+                    Paleta de Cores
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-6">
@@ -203,28 +202,6 @@ export default function DesignManualPage() {
                           <span className="text-[10px] font-bold text-foreground bg-black/5 px-1.5 py-0.5 rounded backdrop-blur-sm">Bg</span>
                         </div>
                         <p className="text-[10px] font-mono text-center">#FAF7F0</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 pt-4 border-t">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cores das Unidades</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                      <div className="space-y-1">
-                        <div className="h-10 w-full rounded-lg bg-[#00a3ff]" />
-                        <p className="text-[9px] font-bold text-center">DIC</p>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="h-10 w-full rounded-lg bg-[#81e2cf]" />
-                        <p className="text-[9px] font-bold text-center">Nilópolis</p>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="h-10 w-full rounded-lg bg-[#fbce00]" />
-                        <p className="text-[9px] font-bold text-center">Santana</p>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="h-10 w-full rounded-lg bg-[#f37964]" />
-                        <p className="text-[9px] font-bold text-center">Geral</p>
                       </div>
                     </div>
                   </div>
@@ -260,7 +237,6 @@ export default function DesignManualPage() {
             </div>
           </section>
 
-          {/* Tipografia */}
           <section id="tipografia" className="space-y-6 scroll-mt-24">
             <div className="flex items-center gap-2 border-b pb-2">
               <Type className="h-6 w-6 text-primary" />
@@ -269,35 +245,15 @@ export default function DesignManualPage() {
             <Card>
               <CardContent className="pt-6 space-y-6">
                 <div>
-                  <Badge variant="outline" className="mb-2">Headers</Badge>
                   <h3 className="text-4xl font-bold tracking-tighter lowercase mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
                     anabrasil (Poppins Bold)
                   </h3>
-                  <p className="text-sm text-muted-foreground">Usada para branding, logotipos e títulos de alto nível.</p>
+                  <p className="text-sm text-muted-foreground">Usada para branding e títulos.</p>
                 </div>
                 <Separator />
                 <div>
-                  <Badge variant="outline" className="mb-2">Interface & Body</Badge>
-                  <p className="text-xl font-medium mb-1">Inter (Default System Font)</p>
-                  <p className="text-muted-foreground mb-4">A fonte Inter é otimizada para legibilidade em telas. Usada para todo o corpo de texto, botões e campos de entrada.</p>
-                  <div className="grid grid-cols-2 gap-4 text-sm font-mono">
-                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
-                      <span className="text-[10px] text-muted-foreground uppercase">Normal</span>
-                      <span className="font-normal text-base">Aa Bb Cc 123</span>
-                    </div>
-                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
-                      <span className="text-[10px] text-muted-foreground uppercase">Semi-bold</span>
-                      <span className="font-semibold text-base">Aa Bb Cc 123</span>
-                    </div>
-                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
-                      <span className="text-[10px] text-muted-foreground uppercase">Bold</span>
-                      <span className="font-bold text-base">Aa Bb Cc 123</span>
-                    </div>
-                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
-                      <span className="text-[10px] text-muted-foreground uppercase">Tight Tracking</span>
-                      <span className="font-bold text-base tracking-tighter">anabrasil</span>
-                    </div>
-                  </div>
+                  <p className="text-xl font-medium mb-1">Inter (Interface & Body)</p>
+                  <p className="text-muted-foreground">Fonte padrão otimizada para legibilidade.</p>
                 </div>
               </CardContent>
             </Card>
@@ -573,20 +529,13 @@ export default function DesignManualPage() {
             </Card>
           </section>
 
-          {/* Rodapé do Manual */}
           <footer className="pt-12 pb-24 text-center space-y-6">
-            <div className="flex flex-col items-center gap-4 py-8 border-t border-b border-slate-100 bg-slate-50/30 rounded-2xl">
-              <FileText className="h-10 w-10 text-primary opacity-40" />
-              <div className="space-y-1">
-                <p className="font-semibold">Versão Offline Disponível</p>
-                <p className="text-sm text-muted-foreground">Baixe uma cópia em PDF deste manual para consulta offline.</p>
-              </div>
-              <Button onClick={exportToPDF} disabled={isExporting} className="gap-2 shadow-lg hover:shadow-xl transition-all">
+            <div className="flex flex-col items-center gap-4 py-8 border-t border-slate-100 bg-slate-50/30 rounded-2xl">
+              <Button onClick={exportToPDF} disabled={isExporting} className="gap-2">
                 {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                 Download Manual Design System (PDF)
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground">© 2026 anabrasil Design System. Documentação técnica gerada via Lovable Cloud.</p>
           </footer>
         </main>
       </div>
