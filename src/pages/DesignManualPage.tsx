@@ -41,9 +41,42 @@ import { toast } from "sonner";
 export default function DesignManualPage() {
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
+  const [isExporting, setIsExporting] = useState(false);
 
   const isMktUser = user?.email === 'mkt@anabrasil.org';
   const hasAccess = isAdmin || isMktUser;
+
+  const exportToPDF = async () => {
+    const element = document.getElementById('design-manual-content');
+    if (!element) return;
+
+    setIsExporting(true);
+    toast.info("Gerando PDF, aguarde...");
+
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: 1200
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('anabrasil-design-manual.pdf');
+      toast.success("PDF baixado com sucesso!");
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast.error("Erro ao gerar PDF.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (!hasAccess) {
     return (
@@ -58,10 +91,16 @@ export default function DesignManualPage() {
   }
 
   return (
-    <div className="container max-w-7xl py-8 space-y-8 animate-in fade-in duration-500">
+    <div className="container max-w-7xl py-8 space-y-8 animate-in fade-in duration-500" id="design-manual-content">
       <PageHeader 
         title="Manual de UX/UI Design" 
         description="Diretrizes visuais e de experiência do usuário do ecossistema anabrasil."
+        actions={
+          <Button onClick={exportToPDF} disabled={isExporting} variant="outline" className="gap-2">
+            {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Exportar PDF
+          </Button>
+        }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
