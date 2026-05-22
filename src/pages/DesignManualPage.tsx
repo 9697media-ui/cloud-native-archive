@@ -33,7 +33,8 @@ import {
   Info,
   Layers,
   Table as TableIcon,
-  ChevronRight
+  ChevronRight,
+  AlertTriangle
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import jsPDF from 'jspdf';
@@ -151,15 +152,22 @@ export default function DesignManualPage() {
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-lg bg-primary shadow-sm ring-1 ring-black/5" />
                     <div>
-                      <p className="font-mono text-sm font-bold">Primary (Blue)</p>
-                      <p className="text-xs text-muted-foreground">#0070f3 / HSL(221.2 83.2% 53.3%)</p>
+                      <p className="font-mono text-sm font-bold">Primary (Brand)</p>
+                      <p className="text-xs text-muted-foreground">HSL(166 62% 69%)</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-white border shadow-sm" />
+                    <div className="h-12 w-12 rounded-lg bg-accent shadow-sm ring-1 ring-black/5" />
+                    <div>
+                      <p className="font-mono text-sm font-bold">Accent (Highlight)</p>
+                      <p className="text-xs text-muted-foreground">HSL(33 80% 85%)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-background border shadow-sm" />
                     <div>
                       <p className="font-mono text-sm font-bold">Background</p>
-                      <p className="text-xs text-muted-foreground">#FFFFFF / HSL(0 0% 100%)</p>
+                      <p className="text-xs text-muted-foreground">HSL(40 27% 96%)</p>
                     </div>
                   </div>
                 </CardContent>
@@ -277,25 +285,38 @@ export default function DesignManualPage() {
                     <div className="space-y-3">
                       <p className="text-sm font-medium">Status de Eventos</p>
                       <div className="flex flex-wrap gap-2">
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">Confirmado</Badge>
-                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200">Pendente</Badge>
-                        <Badge className="bg-red-100 text-red-800 hover:bg-red-100 border-red-200">Cancelado</Badge>
+                        <Badge className="bg-green-500/15 text-green-700 hover:bg-green-500/20 border-green-300">Confirmado</Badge>
+                        <Badge className="bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/20 border-yellow-300">Pendente</Badge>
+                        <Badge className="bg-red-500/15 text-red-700 hover:bg-red-500/20 border-red-300">Cancelado</Badge>
+                        <Badge className="bg-blue-500/15 text-blue-700 hover:bg-blue-500/20 border-blue-300">Concluído</Badge>
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <p className="text-sm font-medium">Cores das Unidades (Dots)</p>
+                      <p className="text-sm font-medium">Cores das Unidades (Dots & Cards)</p>
                       <div className="flex flex-wrap gap-4">
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="h-3 w-3 rounded-full bg-unit-dic" /> DIC
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#00a3ff]" /> DIC
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#00a3ff</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="h-3 w-3 rounded-full bg-unit-nilopolis" /> Nilópolis
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#81e2cf]" /> Nilópolis
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#81e2cf</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="h-3 w-3 rounded-full bg-unit-santana" /> Santana
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#fbce00]" /> Santana
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#fbce00</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="h-3 w-3 rounded-full bg-unit-geral" /> Geral
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#f37964]" /> Geral
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#f37964</span>
                         </div>
                       </div>
                     </div>
@@ -366,6 +387,20 @@ export default function DesignManualPage() {
                     <Button variant="ghost" size="sm" className="gap-2">
                       Ver detalhes <ChevronRight className="h-4 w-4" />
                     </Button>
+                  </Card>
+                  <Card className="p-4 flex flex-col gap-3">
+                    <p className="text-sm font-medium">Banners de Aviso</p>
+                    <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex gap-2 items-center">
+                      <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      <span className="text-xs text-amber-900 font-medium">Faltam informações no banner...</span>
+                    </div>
+                  </Card>
+                  <Card className="p-4 flex flex-col gap-3">
+                    <p className="text-sm font-medium">Test Mode / Impersonation</p>
+                    <div className="bg-primary px-3 py-1.5 rounded-full flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-primary-foreground uppercase tracking-tight">Modo de Teste Ativo</span>
+                      <RefreshCw className="h-3 w-3 text-primary-foreground" />
+                    </div>
                   </Card>
                 </div>
               </div>
