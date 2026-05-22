@@ -107,42 +107,35 @@ export default function AppLayout() {
       {!hideHeaderParam && <ImpersonationBanner />}
       {!hideHeaderParam && <TestModeBanner />}
       {!hideHeaderParam && (
-        <header className="sticky top-0 z-50 border-b border-border bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 transition-all duration-300">
-          <div className="flex h-20 w-full items-center gap-4 px-6 lg:px-12">
+        <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
+          <div className="flex h-16 w-full items-center gap-4 px-4 lg:px-8">
             {isMobile && (
               <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="shrink-0 hover:bg-slate-100 rounded-xl">
-                    <Menu className="h-6 w-6" />
+                  <Button variant="ghost" size="icon" className="shrink-0">
+                    <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] p-0 border-r-0 shadow-2xl">
-                  <SheetHeader className="p-8 text-left border-b bg-slate-50/50">
-                    <SheetTitle className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                        <img src={logoImg} alt="anabrasil" className="h-7 w-7 object-cover" />
-                      </div>
-                      <span className="font-bold tracking-tight text-xl lowercase text-foreground">anabrasil</span>
+                <SheetContent side="left" className="w-[280px] p-0">
+                  <SheetHeader className="p-6 text-left">
+                    <SheetTitle className="flex items-center gap-2">
+                      <img src={logoImg} alt="anabrasil" className="h-8 w-8 rounded-lg object-cover" />
+                      <span className="font-bold tracking-tighter text-lg lowercase">anabrasil</span>
                     </SheetTitle>
                   </SheetHeader>
-                  <nav className="flex flex-col gap-2 p-6">
+                  <nav className="flex flex-col gap-1 px-2">
                     <NavContent onClick={() => setIsMenuOpen(false)} />
                   </nav>
-                  <div className="absolute bottom-0 left-0 w-full p-8 border-t bg-slate-50/50">
+                  <div className="absolute bottom-4 left-0 w-full px-6">
                     {isAuthenticated && (
-                      <div className="flex flex-col gap-6">
-                        <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500">
-                            {userName?.charAt(0)}
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <p className="text-sm font-bold text-foreground truncate">{userName}</p>
-                            <p className="text-xs text-muted-foreground truncate">{unit || user?.email}</p>
-                          </div>
+                      <div className="flex flex-col gap-4 border-t border-border pt-4">
+                        <div className="flex flex-col">
+                          <p className="text-sm font-semibold text-foreground truncate">{userName}</p>
+                          <p className="text-xs text-muted-foreground truncate">{unit || user?.email}</p>
                         </div>
-                        <Button variant="outline" size="lg" onClick={() => signOut()} className="w-full justify-center gap-2 rounded-xl border-slate-200 hover:bg-white hover:shadow-md transition-all">
+                        <Button variant="outline" size="sm" onClick={() => signOut()} className="w-full justify-start gap-2">
                           <LogOut className="h-4 w-4" />
-                          Encerrar Sessão
+                          Sair
                         </Button>
                       </div>
                     )}
@@ -151,32 +144,30 @@ export default function AppLayout() {
               </Sheet>
             )}
 
-            <Link to={`/${location.search}`} className="flex items-center gap-3 shrink-0 group transition-all active:scale-95">
-              <div className="h-11 w-11 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/30 group-hover:-rotate-3 transition-all duration-300">
-                <img src={logoImg} alt="anabrasil" className="h-7 w-7 object-cover" />
-              </div>
-              <span className={cn("text-2xl leading-none text-foreground tracking-tighter lowercase", isMobile ? "inline" : "hidden sm:inline")} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800 }}>
+            <Link to={`/${location.search}`} className="flex items-center gap-2.5 shrink-0 group transition-all active:scale-95">
+              <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-all" />
+              <span className={cn("text-xl leading-none text-foreground tracking-tighter lowercase", isMobile ? "inline" : "hidden sm:inline")} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
                 anabrasil
               </span>
             </Link>
 
             {!isMobile && (
-              <nav className="flex items-center gap-2 ml-10 flex-1">
+              <nav className="flex items-center gap-1 flex-1">
                 <NavContent />
               </nav>
             )}
 
-            <div className="flex items-center gap-4 shrink-0 ml-auto">
+            <div className="flex items-center gap-3 shrink-0 ml-auto">
               {isAuthenticated ? (
                 <>
                   <div className="flex flex-col items-end hidden md:flex">
-                    <span className="text-sm font-bold text-foreground">{userName}</span>
-                    <span className="text-[11px] font-medium text-muted-foreground opacity-80 uppercase tracking-wider">{unit || user?.email}</span>
+                    <span className="text-xs font-semibold text-foreground">{userName}</span>
+                    <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">{unit || user?.email}</span>
                   </div>
                   {!isMobile && (
-                    <Button variant="outline" size="sm" onClick={() => signOut()} className="gap-2 rounded-xl border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all h-10 px-4">
+                    <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5">
                       <LogOut className="h-4 w-4" />
-                      <span className="hidden sm:inline font-semibold">Sair</span>
+                      <span className="hidden sm:inline">Sair</span>
                     </Button>
                   )}
                 </>

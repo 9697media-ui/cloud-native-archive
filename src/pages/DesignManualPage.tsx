@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -55,7 +54,7 @@ export default function DesignManualPage() {
     if (!element) return;
 
     setIsExporting(true);
-    toast.info("Gerando PDF premium, aguarde...");
+    toast.info("Gerando PDF, aguarde...");
 
     try {
       const canvas = await html2canvas(element, {
@@ -72,8 +71,8 @@ export default function DesignManualPage() {
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save('anabrasil-design-system.pdf');
-      toast.success("Manual baixado com sucesso!");
+      pdf.save('anabrasil-design-manual.pdf');
+      toast.success("PDF baixado com sucesso!");
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       toast.error("Erro ao gerar PDF.");
@@ -85,35 +84,35 @@ export default function DesignManualPage() {
   if (!hasAccess) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center">
-        <ShieldCheck className="h-20 w-20 text-slate-200 mb-6" />
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Acesso Restrito</h1>
-        <p className="text-slate-500 mt-2 max-w-md mx-auto font-medium">
-          Este manual técnico é confidencial e acessível apenas para administradores e equipe de marketing autorizada.
+        <ShieldCheck className="h-16 w-16 text-muted-foreground mb-4 opacity-20" />
+        <h1 className="text-2xl font-bold tracking-tight">Acesso Restrito</h1>
+        <p className="text-muted-foreground mt-2">
+          Esta página é um manual técnico acessível apenas para administradores e equipe de marketing.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="container max-w-7xl py-12 space-y-16 animate-in fade-in duration-700" id="design-manual-content">
+    <div className="container max-w-7xl py-8 space-y-8 animate-in fade-in duration-500" id="design-manual-content">
       <PageHeader 
-        title="Design Manual" 
-        description="O guia definitivo de identidade visual e experiência do usuário para o ecossistema anabrasil. Criado para garantir consistência, elegância e performance."
+        title="Manual de UX/UI Design" 
+        description="Diretrizes visuais e de experiência do usuário do ecossistema anabrasil."
         actions={
-          <Button onClick={exportToPDF} disabled={isExporting} size="lg" className="gap-2 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all rounded-xl">
-            {isExporting ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
-            Download PDF Premium
+          <Button onClick={exportToPDF} disabled={isExporting} variant="outline" className="gap-2">
+            {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Exportar PDF
           </Button>
         }
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-        <aside className="md:col-span-1">
-          <Card className="sticky top-28 border-none bg-slate-100/40 backdrop-blur-xl rounded-3xl overflow-hidden">
-            <CardHeader className="pb-4 border-b border-white/40">
-              <CardTitle className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Sumário</CardTitle>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <aside className="md:col-span-1 space-y-4">
+          <Card className="sticky top-24">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Sumário</CardTitle>
             </CardHeader>
-            <CardContent className="pt-6 grid gap-2 p-4">
+            <CardContent className="grid gap-1">
               {[
                 { label: "Identidade Visual", icon: Palette, id: "identidade" },
                 { label: "Tipografia", icon: Type, id: "tipografia" },
@@ -125,99 +124,114 @@ export default function DesignManualPage() {
                 <button
                   key={item.label}
                   onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })}
-                  className="flex items-center gap-4 px-4 py-3 text-sm font-bold rounded-2xl hover:bg-white hover:shadow-xl hover:shadow-slate-200/40 text-left transition-all group w-full"
+                  className="flex items-center gap-2 px-2 py-1.5 text-sm font-medium rounded-md hover:bg-accent text-left transition-colors"
                 >
-                  <item.icon className="h-5 w-5 text-slate-400 group-hover:text-primary transition-colors" />
-                  <span className="text-slate-500 group-hover:text-slate-900 transition-colors">{item.label}</span>
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
                 </button>
               ))}
             </CardContent>
           </Card>
         </aside>
 
-        <main className="md:col-span-3 space-y-32 pb-20">
+        <main className="md:col-span-3 space-y-16">
           {/* Identidade Visual */}
-          <section id="identidade" className="space-y-10 scroll-mt-28">
-            <div className="flex items-end justify-between border-b-2 border-slate-100 pb-6">
-              <div className="space-y-2">
-                <Badge className="bg-primary/10 text-primary border-none text-[10px] font-bold uppercase tracking-widest px-3 py-1">Foundations</Badge>
-                <h2 className="text-4xl font-black tracking-tight text-slate-900">Identidade Visual</h2>
-              </div>
+          <section id="identidade" className="space-y-6 scroll-mt-24">
+            <div className="flex items-center gap-2 border-b pb-2">
+              <Palette className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold tracking-tight">Identidade Visual</h2>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              <Card className="border-none shadow-2xl shadow-slate-200/50 bg-white rounded-[2rem] p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold">Cores de Marca</CardTitle>
-                  <CardDescription className="font-medium">O uso estratégico de cores para transmitir confiança.</CardDescription>
+                  <CardTitle className="text-lg">Cores Primárias</CardTitle>
+                  <CardDescription>Cores que definem a marca anabrasil.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="group flex items-center justify-between p-4 rounded-3xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
-                    <div className="flex items-center gap-5">
-                      <div className="h-16 w-16 rounded-2xl bg-primary shadow-2xl shadow-primary/40 ring-4 ring-primary/10 transition-transform group-hover:scale-110" />
-                      <div className="space-y-1">
-                        <p className="font-bold text-slate-900">Primary Blue</p>
-                        <p className="font-mono text-[10px] text-slate-400 font-bold uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-lg">#3b82f6</p>
-                      </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-primary shadow-sm ring-1 ring-black/5" />
+                    <div>
+                      <p className="font-mono text-sm font-bold">Primary (Brand)</p>
+                      <p className="text-xs text-muted-foreground">HSL(166 62% 69%)</p>
                     </div>
                   </div>
-                  <div className="group flex items-center justify-between p-4 rounded-3xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
-                    <div className="flex items-center gap-5">
-                      <div className="h-16 w-16 rounded-2xl bg-slate-900 shadow-2xl shadow-slate-900/40 ring-4 ring-slate-900/10 transition-transform group-hover:scale-110" />
-                      <div className="space-y-1">
-                        <p className="font-bold text-slate-900">Deep Night</p>
-                        <p className="font-mono text-[10px] text-slate-400 font-bold uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-lg">#020617</p>
-                      </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-accent shadow-sm ring-1 ring-black/5" />
+                    <div>
+                      <p className="font-mono text-sm font-bold">Accent (Highlight)</p>
+                      <p className="text-xs text-muted-foreground">HSL(33 80% 85%)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-background border shadow-sm" />
+                    <div>
+                      <p className="font-mono text-sm font-bold">Background</p>
+                      <p className="text-xs text-muted-foreground">HSL(40 27% 96%)</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
               
-              <Card className="border-none shadow-2xl shadow-slate-200/50 bg-white rounded-[2rem] p-4">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold">Formas & Bordas</CardTitle>
-                  <CardDescription className="font-medium">Suavidade que guia a navegação.</CardDescription>
+                  <CardTitle className="text-lg">Sistema de Card</CardTitle>
+                  <CardDescription>Padronização de bordas e sombras.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="aspect-video bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 flex items-center justify-center p-8">
-                    <div className="w-full h-full bg-white shadow-2xl rounded-3xl flex items-center justify-center font-bold text-slate-400 text-sm">
-                      Radius: 1.5rem / 24px
-                    </div>
-                  </div>
+                <CardContent className="space-y-2 text-sm">
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    Bordas arredondadas: <code className="bg-muted px-1 rounded">0.75rem (xl)</code>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    Sombra suave: <code className="bg-muted px-1 rounded">shadow-sm</code>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    Borda: <code className="bg-muted px-1 rounded">1px solid border</code>
+                  </p>
                 </CardContent>
               </Card>
             </div>
           </section>
 
           {/* Tipografia */}
-          <section id="tipografia" className="space-y-10 scroll-mt-28">
-            <div className="flex items-end justify-between border-b-2 border-slate-100 pb-6">
-              <div className="space-y-2">
-                <Badge className="bg-primary/10 text-primary border-none text-[10px] font-bold uppercase tracking-widest px-3 py-1">Typography</Badge>
-                <h2 className="text-4xl font-black tracking-tight text-slate-900">Tipografia</h2>
-              </div>
+          <section id="tipografia" className="space-y-6 scroll-mt-24">
+            <div className="flex items-center gap-2 border-b pb-2">
+              <Type className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold tracking-tight">Tipografia</h2>
             </div>
-            <Card className="border-none shadow-[0_32px_64px_-15px_rgba(0,0,0,0.08)] bg-white rounded-[2.5rem] overflow-hidden">
-              <CardContent className="p-0">
-                <div className="grid md:grid-cols-2">
-                  <div className="bg-slate-950 p-16 text-white space-y-8">
-                    <div className="space-y-2">
-                      <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Fonte Principal</span>
-                      <h3 className="text-9xl font-black tracking-tighter" style={{ fontFamily: 'Poppins, sans-serif' }}>Aa</h3>
+            <Card>
+              <CardContent className="pt-6 space-y-6">
+                <div>
+                  <Badge variant="outline" className="mb-2">Headers</Badge>
+                  <h3 className="text-4xl font-bold tracking-tighter lowercase mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    anabrasil (Poppins Bold)
+                  </h3>
+                  <p className="text-sm text-muted-foreground">Usada para branding, logotipos e títulos de alto nível.</p>
+                </div>
+                <Separator />
+                <div>
+                  <Badge variant="outline" className="mb-2">Interface & Body</Badge>
+                  <p className="text-xl font-medium mb-1">Inter (Default System Font)</p>
+                  <p className="text-muted-foreground mb-4">A fonte Inter é otimizada para legibilidade em telas. Usada para todo o corpo de texto, botões e campos de entrada.</p>
+                  <div className="grid grid-cols-2 gap-4 text-sm font-mono">
+                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
+                      <span className="text-[10px] text-muted-foreground uppercase">Normal</span>
+                      <span className="font-normal text-base">Aa Bb Cc 123</span>
                     </div>
-                    <div className="space-y-4">
-                      <p className="text-5xl font-black tracking-tighter">Poppins</p>
-                      <p className="text-slate-400 leading-relaxed font-medium">Poppins é uma tipografia geométrica, moderna e internacional que equilibra perfeitamente técnica e amabilidade.</p>
+                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
+                      <span className="text-[10px] text-muted-foreground uppercase">Semi-bold</span>
+                      <span className="font-semibold text-base">Aa Bb Cc 123</span>
                     </div>
-                  </div>
-                  <div className="p-16 flex flex-col justify-center space-y-12">
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Heading Large</label>
-                      <p className="text-5xl font-black tracking-tighter text-slate-900 lowercase leading-none">anabrasil</p>
+                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
+                      <span className="text-[10px] text-muted-foreground uppercase">Bold</span>
+                      <span className="font-bold text-base">Aa Bb Cc 123</span>
                     </div>
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Body Content</label>
-                      <p className="text-xl font-medium text-slate-600 leading-relaxed">Desenvolvemos experiências que conectam pessoas e simplificam processos institucionais complexos.</p>
+                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
+                      <span className="text-[10px] text-muted-foreground uppercase">Tight Tracking</span>
+                      <span className="font-bold text-base tracking-tighter">anabrasil</span>
                     </div>
                   </div>
                 </div>
@@ -226,79 +240,289 @@ export default function DesignManualPage() {
           </section>
 
           {/* Componentes */}
-          <section id="componentes" className="space-y-10 scroll-mt-28">
-            <div className="flex items-end justify-between border-b-2 border-slate-100 pb-6">
-              <div className="space-y-2">
-                <Badge className="bg-primary/10 text-primary border-none text-[10px] font-bold uppercase tracking-widest px-3 py-1">Components</Badge>
-                <h2 className="text-4xl font-black tracking-tight text-slate-900">Componentes</h2>
-              </div>
+          <section id="componentes" className="space-y-6 scroll-mt-24">
+            <div className="flex items-center gap-2 border-b pb-2">
+              <ComponentIcon className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold tracking-tight">Componentes do Sistema</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div className="space-y-6">
-                <h4 className="text-lg font-bold flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
-                  Action Buttons
-                </h4>
-                <div className="p-10 bg-slate-50 rounded-[2.5rem] flex flex-wrap gap-4 items-center justify-center border border-slate-100">
-                  <Button size="lg" className="rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all font-bold">Principal</Button>
-                  <Button variant="secondary" size="lg" className="rounded-2xl font-bold bg-white shadow-sm border-none">Subtle</Button>
-                  <Button variant="outline" size="icon" className="h-14 w-14 rounded-2xl bg-white"><Plus className="h-6 w-6 text-primary" /></Button>
+            <div className="space-y-8">
+              {/* Buttons */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Botões e Ações
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Card className="p-4 flex flex-col items-center justify-center gap-4 bg-slate-50/50">
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      <Button variant="default">Principal</Button>
+                      <Button variant="secondary">Secundário</Button>
+                      <Button variant="outline">Outline</Button>
+                      <Button variant="ghost" size="icon"><Plus className="h-4 w-4" /></Button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest">Variantes de Botão</p>
+                  </Card>
+                  <Card className="p-4 flex flex-col items-center justify-center gap-4 bg-slate-50/50">
+                    <div className="flex gap-2">
+                      <Button size="sm">Pequeno</Button>
+                      <Button size="default">Padrão</Button>
+                      <Button size="lg">Grande</Button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest">Escala de Tamanhos</p>
+                  </Card>
                 </div>
               </div>
-              <div className="space-y-6">
-                <h4 className="text-lg font-bold flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
-                  Status & Indicators
-                </h4>
-                <div className="p-10 bg-slate-50 rounded-[2.5rem] flex flex-wrap gap-4 items-center justify-center border border-slate-100">
-                  <Badge className="bg-green-500/10 text-green-600 border-none px-4 py-1.5 rounded-full font-bold">Confirmado</Badge>
-                  <Badge className="bg-amber-500/10 text-amber-600 border-none px-4 py-1.5 rounded-full font-bold">Pendente</Badge>
-                  <Badge className="bg-red-500/10 text-red-600 border-none px-4 py-1.5 rounded-full font-bold">Cancelado</Badge>
+
+              {/* Data Display */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Exibição de Dados (Badges & Tags)
+                </h3>
+                <Card className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium">Status de Eventos</p>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge className="bg-green-500/15 text-green-700 hover:bg-green-500/20 border-green-300">Confirmado</Badge>
+                        <Badge className="bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/20 border-yellow-300">Pendente</Badge>
+                        <Badge className="bg-red-500/15 text-red-700 hover:bg-red-500/20 border-red-300">Cancelado</Badge>
+                        <Badge className="bg-blue-500/15 text-blue-700 hover:bg-blue-500/20 border-blue-300">Concluído</Badge>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium">Cores das Unidades (Dots & Cards)</p>
+                      <div className="flex flex-wrap gap-4">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#00a3ff]" /> DIC
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#00a3ff</span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#81e2cf]" /> Nilópolis
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#81e2cf</span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#fbce00]" /> Santana
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#fbce00</span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#f37964]" /> Geral
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#f37964</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Form Elements */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Entradas e Formulários
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="p-4 space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium uppercase text-muted-foreground">Input de Texto</label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input className="pl-9" placeholder="Buscar no sistema..." />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium uppercase text-muted-foreground">Select</label>
+                      <Select defaultValue="all">
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todas as Unidades</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </Card>
+                  <Card className="p-4 space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium uppercase text-muted-foreground">Tabs de Navegação</label>
+                      <Tabs defaultValue="grid">
+                        <TabsList className="grid w-full grid-cols-2">
+                          <TabsTrigger value="grid" className="gap-2"><LayoutGrid className="h-4 w-4" /> Grid</TabsTrigger>
+                          <TabsTrigger value="list" className="gap-2"><List className="h-4 w-4" /> Lista</TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+                    </div>
+                  </Card>
                 </div>
+              </div>
+              {/* Other System Elements */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Diálogos e Modais
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="p-4 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Diálogo de Confirmação</p>
+                      <p className="text-xs text-muted-foreground">Usado para exclusões ou ações críticas.</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">Cancelar</Button>
+                      <Button variant="destructive" size="sm">Excluir</Button>
+                    </div>
+                  </Card>
+                  <Card className="p-4 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Painel Lateral (Sheet)</p>
+                      <p className="text-xs text-muted-foreground">Para detalhes sem perder contexto.</p>
+                    </div>
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      Ver detalhes <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Card>
+                  <Card className="p-4 flex flex-col gap-3">
+                    <p className="text-sm font-medium">Banners de Aviso</p>
+                    <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex gap-2 items-center">
+                      <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      <span className="text-xs text-amber-900 font-medium">Faltam informações no banner...</span>
+                    </div>
+                  </Card>
+                  <Card className="p-4 flex flex-col gap-3">
+                    <p className="text-sm font-medium">Test Mode / Impersonation</p>
+                    <div className="bg-primary px-3 py-1.5 rounded-full flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-primary-foreground uppercase tracking-tight">Modo de Teste Ativo</span>
+                      <RefreshCw className="h-3 w-3 text-primary-foreground" />
+                    </div>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Navigation Elements */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Navegação e Menus
+                </h3>
+                <Card className="p-6 bg-slate-900 text-white rounded-xl">
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-primary/20 text-primary rounded-md border border-primary/30">
+                      <LayoutDashboard className="h-4 w-4" />
+                      <span className="text-sm font-medium">Dashboard</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                      <FileText className="h-4 w-4" />
+                      <span className="text-sm font-medium">Auditoria</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                      <Layers className="h-4 w-4" />
+                      <span className="text-sm font-medium">Unidades</span>
+                    </div>
+                  </div>
+                </Card>
               </div>
             </div>
+          </section>
+
+          {/* Layout & Grid */}
+          <section id="layout" className="space-y-6 scroll-mt-24">
+            <div className="flex items-center gap-2 border-b pb-2">
+              <Layout className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold tracking-tight">Layout & Grid</h2>
+            </div>
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <p className="text-sm">
+                  Utilizamos um sistema de container responsivo com largura máxima de <code className="bg-muted px-1 rounded">max-w-7xl</code> para páginas de conteúdo denso.
+                </p>
+                <div className="grid grid-cols-12 gap-2 h-20">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i} className="bg-primary/5 border border-primary/10 rounded flex items-center justify-center text-[10px] text-primary/40 font-mono">
+                      {i + 1}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">Grid de 12 colunas padrão Tailwind CSS.</p>
+              </CardContent>
+            </Card>
           </section>
 
           {/* Interações */}
-          <section id="interacoes" className="space-y-10 scroll-mt-28">
-            <div className="flex items-end justify-between border-b-2 border-slate-100 pb-6">
-              <div className="space-y-2">
-                <Badge className="bg-primary/10 text-primary border-none text-[10px] font-bold uppercase tracking-widest px-3 py-1">Motion</Badge>
-                <h2 className="text-4xl font-black tracking-tight text-slate-900">Micro-interações</h2>
-              </div>
+          <section id="interacoes" className="space-y-6 scroll-mt-24">
+            <div className="flex items-center gap-2 border-b pb-2">
+              <MousePointer2 className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold tracking-tight">Interações & Micro-momentos</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { title: "Hover Effects", desc: "Transições suaves de 300ms em estados interativos.", icon: MousePointerClick, bg: "bg-blue-50" },
-                { title: "Fluid Entradas", desc: "Animações de fade-in e slide-up para novos conteúdos.", icon: RefreshCw, bg: "bg-indigo-50" },
-                { title: "Active States", desc: "Feedback tátil visual via redução de escala em cliques.", icon: Smartphone, bg: "bg-violet-50" },
-              ].map((item) => (
-                <div key={item.title} className={cn("p-8 rounded-[2rem] space-y-4 border border-white shadow-sm", item.bg)}>
-                  <item.icon className="h-8 w-8 text-primary" />
-                  <div className="space-y-2">
-                    <p className="font-bold text-slate-900">{item.title}</p>
-                    <p className="text-sm text-slate-500 font-medium leading-relaxed">{item.desc}</p>
-                  </div>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl flex gap-4">
+                <AlertCircle className="h-6 w-6 text-blue-600 shrink-0" />
+                <div className="space-y-2">
+                  <h4 className="font-bold text-blue-900">Feedback Imediato</h4>
+                  <p className="text-sm text-blue-800 leading-relaxed">
+                    Toda ação do usuário deve resultar em uma resposta visual clara. 
+                    Botões de carregamento (loading states) e toasts de confirmação são obrigatórios para operações assíncronas.
+                  </p>
                 </div>
-              ))}
+              </div>
+              <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-xl flex gap-4">
+                <RefreshCw className="h-6 w-6 text-indigo-600 shrink-0" />
+                <div className="space-y-2">
+                  <h4 className="font-bold text-indigo-900">Estados de Transição</h4>
+                  <p className="text-sm text-indigo-800 leading-relaxed">
+                    Utilizamos <code className="bg-indigo-100/50 px-1 rounded text-xs">animate-in fade-in duration-500</code> para entrada de páginas e componentes modais para evitar saltos visuais bruscos.
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
 
-          <footer className="pt-24 pb-12 border-t border-slate-100 text-center space-y-8">
-            <div className="flex flex-col items-center gap-6 p-12 bg-slate-900 rounded-[3rem] text-white shadow-2xl shadow-slate-900/20">
-              <div className="h-20 w-20 rounded-3xl bg-primary flex items-center justify-center shadow-2xl shadow-primary/40">
-                <Download className="h-10 w-10 text-white" />
+          {/* Acessibilidade */}
+          <section id="acessibilidade" className="space-y-6 scroll-mt-24 pb-20">
+            <div className="flex items-center gap-2 border-b pb-2">
+              <Accessibility className="h-6 w-6 text-primary" />
+              <h2 className="text-2xl font-bold tracking-tight">Acessibilidade (a11y)</h2>
+            </div>
+            <Card>
+              <CardContent className="pt-6">
+                <ul className="space-y-4 text-sm">
+                  <li className="flex items-start gap-3">
+                    <Monitor className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <span><strong>Contraste:</strong> Garantimos que a proporção de contraste entre texto e fundo atenda aos padrões WCAG AA.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Smartphone className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <span><strong>Touch Targets:</strong> Elementos clicáveis em telas menores possuem área mínima de 44x44 pixels.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Type className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <span><strong>Alt Text:</strong> Todas as imagens e logotipos possuem descrições alternativas para leitores de tela.</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Rodapé do Manual */}
+          <footer className="pt-12 pb-24 text-center space-y-6">
+            <div className="flex flex-col items-center gap-4 py-8 border-t border-b border-slate-100 bg-slate-50/30 rounded-2xl">
+              <FileText className="h-10 w-10 text-primary opacity-40" />
+              <div className="space-y-1">
+                <p className="font-semibold">Versão Offline Disponível</p>
+                <p className="text-sm text-muted-foreground">Baixe uma cópia em PDF deste manual para consulta offline.</p>
               </div>
-              <div className="space-y-2">
-                <h4 className="text-3xl font-black tracking-tighter">Pronto para Offline?</h4>
-                <p className="text-slate-400 font-medium max-w-sm mx-auto">Salve este manual em PDF de alta qualidade para consultas rápidas em qualquer lugar.</p>
-              </div>
-              <Button onClick={exportToPDF} disabled={isExporting} size="lg" className="bg-white text-slate-950 hover:bg-slate-100 rounded-2xl h-14 px-10 font-bold transition-all hover:scale-105 active:scale-95">
-                {isExporting ? "Gerando PDF..." : "Baixar Manual Completo"}
+              <Button onClick={exportToPDF} disabled={isExporting} className="gap-2 shadow-lg hover:shadow-xl transition-all">
+                {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Download Manual Design System (PDF)
               </Button>
             </div>
-            <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">© 2026 anabrasil Design System</p>
+            <p className="text-sm text-muted-foreground">© 2026 anabrasil Design System. Documentação técnica gerada via Lovable Cloud.</p>
           </footer>
         </main>
       </div>
