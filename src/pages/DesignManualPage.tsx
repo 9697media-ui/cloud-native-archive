@@ -17,7 +17,12 @@ import {
   ShieldCheck,
   MousePointer2,
   Accessibility,
-  RefreshCw
+  RefreshCw,
+  Plus,
+  LayoutGrid,
+  List,
+  Search,
+  LayoutDashboard
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 
@@ -151,8 +156,22 @@ export default function DesignManualPage() {
                   <p className="text-xl font-medium mb-1">Inter (Default System Font)</p>
                   <p className="text-muted-foreground mb-4">A fonte Inter é otimizada para legibilidade em telas. Usada para todo o corpo de texto, botões e campos de entrada.</p>
                   <div className="grid grid-cols-2 gap-4 text-sm font-mono">
-                    <div className="p-3 bg-muted rounded">Font-Weight: 400 (Regular)</div>
-                    <div className="p-3 bg-muted rounded">Font-Weight: 600 (Semi-bold)</div>
+                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
+                      <span className="text-[10px] text-muted-foreground uppercase">Normal</span>
+                      <span className="font-normal text-base">Aa Bb Cc 123</span>
+                    </div>
+                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
+                      <span className="text-[10px] text-muted-foreground uppercase">Semi-bold</span>
+                      <span className="font-semibold text-base">Aa Bb Cc 123</span>
+                    </div>
+                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
+                      <span className="text-[10px] text-muted-foreground uppercase">Bold</span>
+                      <span className="font-bold text-base">Aa Bb Cc 123</span>
+                    </div>
+                    <div className="p-3 bg-muted rounded border flex flex-col gap-1">
+                      <span className="text-[10px] text-muted-foreground uppercase">Tight Tracking</span>
+                      <span className="font-bold text-base tracking-tighter">anabrasil</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -163,24 +182,110 @@ export default function DesignManualPage() {
           <section id="componentes" className="space-y-6 scroll-mt-24">
             <div className="flex items-center gap-2 border-b pb-2">
               <ComponentIcon className="h-6 w-6 text-primary" />
-              <h2 className="text-2xl font-bold tracking-tight">Componentes Base</h2>
+              <h2 className="text-2xl font-bold tracking-tight">Componentes do Sistema</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+            <div className="space-y-8">
+              {/* Buttons */}
               <div className="space-y-4">
-                <h4 className="font-semibold">Botões (Buttons)</h4>
-                <div className="flex flex-wrap gap-2">
-                  <div className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium">Default</div>
-                  <div className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium">Secondary</div>
-                  <div className="px-4 py-2 border border-input bg-background rounded-md text-sm font-medium">Outline</div>
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Botões e Ações
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Card className="p-4 flex flex-col items-center justify-center gap-4 bg-slate-50/50">
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      <Button variant="default">Principal</Button>
+                      <Button variant="secondary">Secundário</Button>
+                      <Button variant="outline">Outline</Button>
+                      <Button variant="ghost" size="icon"><Plus className="h-4 w-4" /></Button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest">Variantes de Botão</p>
+                  </Card>
+                  <Card className="p-4 flex flex-col items-center justify-center gap-4 bg-slate-50/50">
+                    <div className="flex gap-2">
+                      <Button size="sm">Pequeno</Button>
+                      <Button size="default">Padrão</Button>
+                      <Button size="lg">Grande</Button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest">Escala de Tamanhos</p>
+                  </Card>
                 </div>
-                <p className="text-xs text-muted-foreground italic">Botões utilizam transições de 200ms para hover states.</p>
               </div>
+
+              {/* Data Display */}
               <div className="space-y-4">
-                <h4 className="font-semibold">Badges</h4>
-                <div className="flex flex-wrap gap-2">
-                  <Badge>Admin</Badge>
-                  <Badge variant="secondary">Editor</Badge>
-                  <Badge variant="outline">Viewer</Badge>
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Exibição de Dados (Badges & Tags)
+                </h3>
+                <Card className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium">Status de Eventos</p>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">Confirmado</Badge>
+                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200">Pendente</Badge>
+                        <Badge className="bg-red-100 text-red-800 hover:bg-red-100 border-red-200">Cancelado</Badge>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium">Cores das Unidades (Dots)</p>
+                      <div className="flex flex-wrap gap-4">
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="h-3 w-3 rounded-full bg-unit-dic" /> DIC
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="h-3 w-3 rounded-full bg-unit-nilopolis" /> Nilópolis
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="h-3 w-3 rounded-full bg-unit-santana" /> Santana
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="h-3 w-3 rounded-full bg-unit-geral" /> Geral
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Form Elements */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Entradas e Formulários
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="p-4 space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium uppercase text-muted-foreground">Input de Texto</label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input className="pl-9" placeholder="Buscar no sistema..." />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium uppercase text-muted-foreground">Select</label>
+                      <Select defaultValue="all">
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todas as Unidades</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </Card>
+                  <Card className="p-4 space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium uppercase text-muted-foreground">Tabs de Navegação</label>
+                      <Tabs defaultValue="grid">
+                        <TabsList className="grid w-full grid-cols-2">
+                          <TabsTrigger value="grid" className="gap-2"><LayoutGrid className="h-4 w-4" /> Grid</TabsTrigger>
+                          <TabsTrigger value="list" className="gap-2"><List className="h-4 w-4" /> Lista</TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
