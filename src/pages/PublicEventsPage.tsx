@@ -213,128 +213,102 @@ export default function PublicEventsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-
-
+    <div className="min-h-screen bg-white">
       {bannerEvents.length > 0 && (
-        <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden bg-slate-900">
+        <section className="relative w-full h-[500px] md:h-[650px] overflow-hidden bg-slate-950">
           {bannerEvents.map((event, index) => (
             <div 
               key={event.id}
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
             >
-              {/* Desktop Banner (21:9 preferencial, fallback para capa 16:9) */}
               {(event.banner_image_desktop || event.banner_url_desktop || event.banner_url_mobile) ? (
                 <>
                   <img 
                     src={event.banner_image_desktop || event.banner_url_desktop || event.banner_url_mobile} 
                     alt={event.title}
-                    className="hidden md:block w-full h-full object-cover opacity-60"
+                    className="hidden md:block w-full h-full object-cover opacity-70 scale-105"
                   />
-                  {/* Mobile Banner (9:16 preferencial, fallback para capa 4:3) */}
                   <img 
                     src={event.banner_image_mobile || event.banner_url_mobile || event.banner_url_desktop} 
                     alt={event.title}
-                    className="block md:hidden w-full h-full object-cover opacity-60"
+                    className="block md:hidden w-full h-full object-cover opacity-70 scale-105"
                   />
                 </>
               ) : (
                 <div 
-                  className="w-full h-full flex items-center justify-center px-8 md:px-16"
-                  style={{ backgroundColor: event.custom_color || '#1e293b' }}
-                >
-                  {/* Fallback content if no image */}
-                </div>
+                  className="w-full h-full flex items-center justify-center"
+                  style={{ backgroundColor: event.custom_color || '#020617' }}
+                />
               )}
               
-              {event.show_banner_overlay !== false && (
-                <div className="absolute inset-0 bg-slate-900/40 z-[5]" />
-              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-[10]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent z-[11]" />
               
-              {event.show_banner_fade !== false && (
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-[10]" />
-              )}
-              
-              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 max-w-7xl mx-auto flex flex-col items-start justify-end h-full z-[20]">
-                <div className="flex flex-wrap gap-2 mb-4 shrink-0">
-                  <Badge className={`${UNIT_BG_COLORS[event.unit]} text-white border-none shadow-lg`}>
-                    {event.unit}
-                  </Badge>
-                  {!event.show_in_banner && isAdmin && (
-                    <Badge variant="outline" className="bg-slate-900/80 text-slate-200 border-slate-700 backdrop-blur-sm">
-                      Oculto para o Público
+              <div className="absolute inset-0 z-20 flex flex-col items-start justify-end p-8 md:p-20 max-w-[1400px] mx-auto pb-16 md:pb-24">
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                  <div className="flex flex-wrap gap-3">
+                    <Badge className={cn("px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-none shadow-2xl", UNIT_BG_COLORS[event.unit])}>
+                      {event.unit}
                     </Badge>
-                  )}
-                </div>
-                
-                {event.use_logo_as_title && event.event_logo_url ? (
-                  <div className={`mb-6 animate-in slide-in-from-left duration-700 w-full flex items-center justify-start ${event.full_height_title ? 'h-1/2' : 'h-24 md:h-40'}`}>
-                    <img 
-                      src={event.event_logo_url} 
-                      alt={event.title} 
-                      className={`object-contain object-left h-full max-w-full filter drop-shadow-2xl`} 
-                    />
                   </div>
-                ) : (
-                  <h2 
-                    className={`font-bold text-white mb-4 leading-tight drop-shadow-lg ${event.full_height_title ? 'text-4xl md:text-8xl lg:text-9xl max-w-5xl' : 'text-3xl md:text-6xl max-w-3xl'}`}
-                    dangerouslySetInnerHTML={{ 
-                      __html: event.title.replace(/<br\s*\/?>/gi, (match) => {
-                        return '<span class="hidden md:inline"><br/></span>';
-                      }) 
-                    }}
-                  />
-                )}
-                <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
-                  {showBetaUI && (
-                    <div className="flex items-center gap-2 bg-primary px-3 py-1 rounded-full text-white text-xs font-bold animate-pulse">
-                      <Rocket className="h-3 w-3" />
-                      BETA Ativo
+                  
+                  {event.use_logo_as_title && event.event_logo_url ? (
+                    <div className={cn("w-full flex items-center justify-start", event.full_height_title ? 'h-1/2' : 'h-24 md:h-48')}>
+                      <img 
+                        src={event.event_logo_url} 
+                        alt={event.title} 
+                        className="object-contain object-left h-full max-w-full drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
+                      />
                     </div>
+                  ) : (
+                    <h2 
+                      className={cn("font-black text-white leading-[0.9] tracking-tight drop-shadow-2xl", event.full_height_title ? 'text-5xl md:text-9xl' : 'text-4xl md:text-7xl')}
+                      style={{ fontFamily: 'Poppins, sans-serif' }}
+                      dangerouslySetInnerHTML={{ 
+                        __html: event.title.replace(/<br\s*\/?>/gi, '<br class="hidden md:inline"/>') 
+                      }}
+                    />
                   )}
 
-                  <div className="flex items-center gap-2">
-                    <CalendarDays className="h-5 w-5" />
-                    <span>{format(new Date(event.start_datetime), "dd 'de' MMMM", { locale: ptBR })}</span>
+                  <div className="flex flex-wrap items-center gap-6 text-white/80 font-bold tracking-tight text-sm md:text-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center">
+                        <CalendarDays className="h-5 w-5 text-primary" />
+                      </div>
+                      <span>{format(new Date(event.start_datetime), "dd 'de' MMMM", { locale: ptBR })}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center">
+                        <MapPin className="h-5 w-5 text-primary" />
+                      </div>
+                      <span>{event.location}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    <span>{event.location}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 mt-6">
-                  <Button 
-                    size="lg" 
-                    className="rounded-full px-8 shadow-xl"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCardClick(event);
-                    }}
-                  >
-                    Saber mais
-                  </Button>
-                  {isAdmin && (
+
+                  <div className="flex flex-wrap items-center gap-4 pt-6">
                     <Button 
-                      variant="outline" 
-                      size="lg"
-                      className={`rounded-full backdrop-blur-md border-white/30 ${event.show_in_banner ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-primary text-white hover:bg-primary/90'}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleToggleBanner(event);
-                      }}
+                      size="lg" 
+                      className="rounded-2xl px-10 h-14 font-black uppercase tracking-widest bg-primary text-white shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all"
+                      onClick={(e) => { e.stopPropagation(); handleCardClick(event); }}
                     >
-                      {event.show_in_banner ? (
-                        <>
-                          <EyeOff className="h-5 w-5 mr-2" /> Ocultar Banner
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="h-5 w-5 mr-2" /> Ativar Banner
-                        </>
-                      )}
+                      Ver Detalhes
                     </Button>
-                  )}
+                    
+                    {isAdmin && (
+                      <Button 
+                        variant="outline" 
+                        size="lg"
+                        className="rounded-2xl h-14 px-8 border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-xl text-white font-bold transition-all"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggleBanner(event); }}
+                      >
+                        {event.show_in_banner ? (
+                          <><EyeOff className="h-5 w-5 mr-2" /> Ocultar do Público</>
+                        ) : (
+                          <><Eye className="h-5 w-5 mr-2" /> Tornar Público</>
+                        )}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -342,25 +316,27 @@ export default function PublicEventsPage() {
 
           {bannerEvents.length > 1 && (
             <>
-              <button 
-                onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all z-20"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-              <button 
-                onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all z-20"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
+              <div className="absolute right-8 bottom-12 z-30 flex flex-col gap-3">
+                <button 
+                  onClick={prevSlide}
+                  className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white backdrop-blur-2xl border border-white/10 transition-all hover:scale-110 active:scale-90"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <button 
+                  onClick={nextSlide}
+                  className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white backdrop-blur-2xl border border-white/10 transition-all hover:scale-110 active:scale-90"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </div>
               
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+              <div className="absolute bottom-12 left-8 md:left-20 flex gap-1.5 z-30">
                 {bannerEvents.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentSlide(i)}
-                    className={`h-1.5 transition-all rounded-full ${i === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/30'}`}
+                    className={cn("h-1.5 transition-all duration-500 rounded-full", i === currentSlide ? 'w-12 bg-primary shadow-[0_0_20px_rgba(var(--primary),0.5)]' : 'w-3 bg-white/20 hover:bg-white/40')}
                   />
                 ))}
               </div>
@@ -369,7 +345,7 @@ export default function PublicEventsPage() {
         </section>
       )}
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-[1400px] mx-auto px-6 py-20">
         {(isAuthenticated && isAdmin) && (
           <div className="w-full flex flex-wrap items-center gap-2 mb-8">
             <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-info text-info-foreground border border-info/20 text-[10px] sm:text-xs font-medium justify-center whitespace-nowrap">
