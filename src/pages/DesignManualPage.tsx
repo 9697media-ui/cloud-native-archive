@@ -34,8 +34,35 @@ import {
   Layers,
   Table as TableIcon,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  Zap,
+  Lock,
+  Eye,
+  Settings,
+  Grid
 } from "lucide-react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import PageHeader from "@/components/PageHeader";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -118,7 +145,8 @@ export default function DesignManualPage() {
                 { label: "Tipografia", icon: Type, id: "tipografia" },
                 { label: "Componentes", icon: ComponentIcon, id: "componentes" },
                 { label: "Layout & Grid", icon: Layout, id: "layout" },
-                { label: "Interações", icon: MousePointer2, id: "interacoes" },
+                { label: "Interações & Animação", icon: Zap, id: "interacoes" },
+                { label: "Permissões & UX", icon: Lock, id: "permissoes" },
                 { label: "Acessibilidade", icon: Accessibility, id: "acessibilidade" },
               ].map((item) => (
                 <button
@@ -136,61 +164,97 @@ export default function DesignManualPage() {
 
         <main className="md:col-span-3 space-y-16">
           {/* Identidade Visual */}
-          <section id="identidade" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-2 border-b pb-2">
-              <Palette className="h-6 w-6 text-primary" />
-              <h2 className="text-2xl font-bold tracking-tight">Identidade Visual</h2>
+            <div className="flex items-center gap-3 border-b pb-4">
+              <div className="p-2 bg-primary/20 rounded-lg">
+                <Palette className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Identidade Visual</h2>
+                <p className="text-muted-foreground text-sm">Cores, sombras e fundamentos visuais.</p>
+              </div>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Cores Primárias</CardTitle>
-                  <CardDescription>Cores que definem a marca anabrasil.</CardDescription>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm">
+                <CardHeader className="bg-slate-50/50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    Paleta de Cores do Sistema
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-primary shadow-sm ring-1 ring-black/5" />
-                    <div>
-                      <p className="font-mono text-sm font-bold">Primary (Brand)</p>
-                      <p className="text-xs text-muted-foreground">HSL(166 62% 69%)</p>
+                <CardContent className="p-6 space-y-6">
+                  <div className="space-y-4">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cores Base</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <div className="h-16 w-full rounded-xl bg-primary shadow-sm ring-1 ring-black/5 flex items-end p-2">
+                          <span className="text-[10px] font-bold text-primary-foreground bg-white/20 px-1.5 py-0.5 rounded backdrop-blur-sm">Primary</span>
+                        </div>
+                        <p className="text-[10px] font-mono text-center">#B0EBE0</p>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-16 w-full rounded-xl bg-accent shadow-sm ring-1 ring-black/5 flex items-end p-2">
+                          <span className="text-[10px] font-bold text-accent-foreground bg-black/5 px-1.5 py-0.5 rounded backdrop-blur-sm">Accent</span>
+                        </div>
+                        <p className="text-[10px] font-mono text-center">#F9E7B8</p>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-16 w-full rounded-xl bg-background border shadow-sm flex items-end p-2">
+                          <span className="text-[10px] font-bold text-foreground bg-black/5 px-1.5 py-0.5 rounded backdrop-blur-sm">Bg</span>
+                        </div>
+                        <p className="text-[10px] font-mono text-center">#FAF7F0</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-accent shadow-sm ring-1 ring-black/5" />
-                    <div>
-                      <p className="font-mono text-sm font-bold">Accent (Highlight)</p>
-                      <p className="text-xs text-muted-foreground">HSL(33 80% 85%)</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-background border shadow-sm" />
-                    <div>
-                      <p className="font-mono text-sm font-bold">Background</p>
-                      <p className="text-xs text-muted-foreground">HSL(40 27% 96%)</p>
+
+                  <div className="space-y-4 pt-4 border-t">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cores das Unidades</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <div className="space-y-1">
+                        <div className="h-10 w-full rounded-lg bg-[#00a3ff]" />
+                        <p className="text-[9px] font-bold text-center">DIC</p>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="h-10 w-full rounded-lg bg-[#81e2cf]" />
+                        <p className="text-[9px] font-bold text-center">Nilópolis</p>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="h-10 w-full rounded-lg bg-[#fbce00]" />
+                        <p className="text-[9px] font-bold text-center">Santana</p>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="h-10 w-full rounded-lg bg-[#f37964]" />
+                        <p className="text-[9px] font-bold text-center">Geral</p>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Sistema de Card</CardTitle>
-                  <CardDescription>Padronização de bordas e sombras.</CardDescription>
+              <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm">
+                <CardHeader className="bg-slate-50/50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    Elevação e Superfícies
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    Bordas arredondadas: <code className="bg-muted px-1 rounded">0.75rem (xl)</code>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    Sombra suave: <code className="bg-muted px-1 rounded">shadow-sm</code>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    Borda: <code className="bg-muted px-1 rounded">1px solid border</code>
-                  </p>
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="flex items-start gap-4 p-3 bg-white rounded-xl shadow-sm border border-border/50">
+                      <div className="p-2 bg-muted rounded-lg"><Layers className="h-4 w-4 text-muted-foreground" /></div>
+                      <div>
+                        <p className="font-bold text-sm">Cards (Base)</p>
+                        <p className="text-xs text-muted-foreground">Radius: 0.75rem (xl), Shadow: shadow-sm, Border: 1px border</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4 p-3 bg-white rounded-xl shadow-md border border-border/50">
+                      <div className="p-2 bg-primary/10 rounded-lg"><Layers className="h-4 w-4 text-primary" /></div>
+                      <div>
+                        <p className="font-bold text-sm">Dialogs & Popovers</p>
+                        <p className="text-xs text-muted-foreground">Shadow: shadow-md, Backdrop: blur-sm (8px)</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
