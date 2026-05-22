@@ -340,6 +340,58 @@ export default function DesignManualPage() {
                   </Card>
                 </div>
               </div>
+              {/* Other System Elements */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Diálogos e Modais
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="p-4 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Diálogo de Confirmação</p>
+                      <p className="text-xs text-muted-foreground">Usado para exclusões ou ações críticas.</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">Cancelar</Button>
+                      <Button variant="destructive" size="sm">Excluir</Button>
+                    </div>
+                  </Card>
+                  <Card className="p-4 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Painel Lateral (Sheet)</p>
+                      <p className="text-xs text-muted-foreground">Para detalhes sem perder contexto.</p>
+                    </div>
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      Ver detalhes <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Navigation Elements */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Navegação e Menus
+                </h3>
+                <Card className="p-6 bg-slate-900 text-white rounded-xl">
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-primary/20 text-primary rounded-md border border-primary/30">
+                      <LayoutDashboard className="h-4 w-4" />
+                      <span className="text-sm font-medium">Dashboard</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                      <FileText className="h-4 w-4" />
+                      <span className="text-sm font-medium">Auditoria</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                      <Layers className="h-4 w-4" />
+                      <span className="text-sm font-medium">Unidades</span>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </div>
           </section>
 
