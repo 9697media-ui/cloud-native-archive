@@ -33,7 +33,8 @@ import {
   Info,
   Layers,
   Table as TableIcon,
-  ChevronRight
+  ChevronRight,
+  AlertTriangle
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import jsPDF from 'jspdf';
