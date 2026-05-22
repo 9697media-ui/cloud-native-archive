@@ -32,7 +32,8 @@ import {
   MousePointerClick,
   Info,
   Layers,
-  Table as TableIcon
+  Table as TableIcon,
+  ChevronRight
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import jsPDF from 'jspdf';
