@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,16 +26,59 @@ import {
   LayoutGrid,
   List,
   Search,
-  LayoutDashboard
+  LayoutDashboard,
+  Download,
+  FileText,
+  MousePointerClick,
+  Info,
+  Layers,
+  Table as TableIcon,
+  ChevronRight
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { toast } from "sonner";
 
 export default function DesignManualPage() {
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
+  const [isExporting, setIsExporting] = useState(false);
 
   const isMktUser = user?.email === 'mkt@anabrasil.org';
   const hasAccess = isAdmin || isMktUser;
+
+  const exportToPDF = async () => {
+    const element = document.getElementById('design-manual-content');
+    if (!element) return;
+
+    setIsExporting(true);
+    toast.info("Gerando PDF, aguarde...");
+
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: 1200
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('anabrasil-design-manual.pdf');
+      toast.success("PDF baixado com sucesso!");
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast.error("Erro ao gerar PDF.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (!hasAccess) {
     return (
@@ -49,10 +93,16 @@ export default function DesignManualPage() {
   }
 
   return (
-    <div className="container max-w-7xl py-8 space-y-8 animate-in fade-in duration-500">
+    <div className="container max-w-7xl py-8 space-y-8 animate-in fade-in duration-500" id="design-manual-content">
       <PageHeader 
         title="Manual de UX/UI Design" 
         description="Diretrizes visuais e de experiência do usuário do ecossistema anabrasil."
+        actions={
+          <Button onClick={exportToPDF} disabled={isExporting} variant="outline" className="gap-2">
+            {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Exportar PDF
+          </Button>
+        }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -291,6 +341,58 @@ export default function DesignManualPage() {
                   </Card>
                 </div>
               </div>
+              {/* Other System Elements */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Diálogos e Modais
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="p-4 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Diálogo de Confirmação</p>
+                      <p className="text-xs text-muted-foreground">Usado para exclusões ou ações críticas.</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">Cancelar</Button>
+                      <Button variant="destructive" size="sm">Excluir</Button>
+                    </div>
+                  </Card>
+                  <Card className="p-4 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Painel Lateral (Sheet)</p>
+                      <p className="text-xs text-muted-foreground">Para detalhes sem perder contexto.</p>
+                    </div>
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      Ver detalhes <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Navigation Elements */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  Navegação e Menus
+                </h3>
+                <Card className="p-6 bg-slate-900 text-white rounded-xl">
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-primary/20 text-primary rounded-md border border-primary/30">
+                      <LayoutDashboard className="h-4 w-4" />
+                      <span className="text-sm font-medium">Dashboard</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                      <FileText className="h-4 w-4" />
+                      <span className="text-sm font-medium">Auditoria</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                      <Layers className="h-4 w-4" />
+                      <span className="text-sm font-medium">Unidades</span>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </div>
           </section>
 
@@ -373,8 +475,19 @@ export default function DesignManualPage() {
           </section>
 
           {/* Rodapé do Manual */}
-          <footer className="pt-12 text-center text-sm text-muted-foreground">
-            <p>© 2026 anabrasil Design System. Documentação gerada via Lovable Cloud.</p>
+          <footer className="pt-12 pb-24 text-center space-y-6">
+            <div className="flex flex-col items-center gap-4 py-8 border-t border-b border-slate-100 bg-slate-50/30 rounded-2xl">
+              <FileText className="h-10 w-10 text-primary opacity-40" />
+              <div className="space-y-1">
+                <p className="font-semibold">Versão Offline Disponível</p>
+                <p className="text-sm text-muted-foreground">Baixe uma cópia em PDF deste manual para consulta offline.</p>
+              </div>
+              <Button onClick={exportToPDF} disabled={isExporting} className="gap-2 shadow-lg hover:shadow-xl transition-all">
+                {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Download Manual Design System (PDF)
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">© 2026 anabrasil Design System. Documentação técnica gerada via Lovable Cloud.</p>
           </footer>
         </main>
       </div>
