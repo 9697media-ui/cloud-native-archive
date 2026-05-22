@@ -387,6 +387,20 @@ export default function DesignManualPage() {
                       Ver detalhes <ChevronRight className="h-4 w-4" />
                     </Button>
                   </Card>
+                  <Card className="p-4 flex flex-col gap-3">
+                    <p className="text-sm font-medium">Banners de Aviso</p>
+                    <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex gap-2 items-center">
+                      <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      <span className="text-xs text-amber-900 font-medium">Faltam informações no banner...</span>
+                    </div>
+                  </Card>
+                  <Card className="p-4 flex flex-col gap-3">
+                    <p className="text-sm font-medium">Test Mode / Impersonation</p>
+                    <div className="bg-primary px-3 py-1.5 rounded-full flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-primary-foreground uppercase tracking-tight">Modo de Teste Ativo</span>
+                      <RefreshCw className="h-3 w-3 text-primary-foreground" />
+                    </div>
+                  </Card>
                 </div>
               </div>
 
