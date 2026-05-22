@@ -151,15 +151,22 @@ export default function DesignManualPage() {
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-lg bg-primary shadow-sm ring-1 ring-black/5" />
                     <div>
-                      <p className="font-mono text-sm font-bold">Primary (Blue)</p>
-                      <p className="text-xs text-muted-foreground">#0070f3 / HSL(221.2 83.2% 53.3%)</p>
+                      <p className="font-mono text-sm font-bold">Primary (Brand)</p>
+                      <p className="text-xs text-muted-foreground">HSL(166 62% 69%)</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-white border shadow-sm" />
+                    <div className="h-12 w-12 rounded-lg bg-accent shadow-sm ring-1 ring-black/5" />
+                    <div>
+                      <p className="font-mono text-sm font-bold">Accent (Highlight)</p>
+                      <p className="text-xs text-muted-foreground">HSL(33 80% 85%)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-background border shadow-sm" />
                     <div>
                       <p className="font-mono text-sm font-bold">Background</p>
-                      <p className="text-xs text-muted-foreground">#FFFFFF / HSL(0 0% 100%)</p>
+                      <p className="text-xs text-muted-foreground">HSL(40 27% 96%)</p>
                     </div>
                   </div>
                 </CardContent>
