@@ -150,24 +150,24 @@ export default function DesignManualPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-primary shadow-sm ring-1 ring-black/5" />
+                    <div className="h-12 w-12 rounded-lg bg-primary shadow-lg shadow-primary/20 ring-1 ring-black/5" />
                     <div>
-                      <p className="font-mono text-sm font-bold">Primary (Brand)</p>
-                      <p className="text-xs text-muted-foreground">HSL(166 62% 69%)</p>
+                      <p className="font-mono text-sm font-bold">Primary (Blue)</p>
+                      <p className="text-xs text-muted-foreground">HSL(221.2 83.2% 53.3%)</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-accent shadow-sm ring-1 ring-black/5" />
+                    <div className="h-12 w-12 rounded-lg bg-secondary shadow-sm ring-1 ring-black/5" />
                     <div>
-                      <p className="font-mono text-sm font-bold">Accent (Highlight)</p>
-                      <p className="text-xs text-muted-foreground">HSL(33 80% 85%)</p>
+                      <p className="font-mono text-sm font-bold">Secondary (Neutral)</p>
+                      <p className="text-xs text-muted-foreground">HSL(210 40% 96.1%)</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-lg bg-background border shadow-sm" />
                     <div>
-                      <p className="font-mono text-sm font-bold">Background</p>
-                      <p className="text-xs text-muted-foreground">HSL(40 27% 96%)</p>
+                      <p className="font-mono text-sm font-bold">Background (Clean)</p>
+                      <p className="text-xs text-muted-foreground">HSL(210 20% 98%)</p>
                     </div>
                   </div>
                 </CardContent>
