@@ -475,8 +475,19 @@ export default function DesignManualPage() {
           </section>
 
           {/* Rodapé do Manual */}
-          <footer className="pt-12 text-center text-sm text-muted-foreground">
-            <p>© 2026 anabrasil Design System. Documentação gerada via Lovable Cloud.</p>
+          <footer className="pt-12 pb-24 text-center space-y-6">
+            <div className="flex flex-col items-center gap-4 py-8 border-t border-b border-slate-100 bg-slate-50/30 rounded-2xl">
+              <FileText className="h-10 w-10 text-primary opacity-40" />
+              <div className="space-y-1">
+                <p className="font-semibold">Versão Offline Disponível</p>
+                <p className="text-sm text-muted-foreground">Baixe uma cópia em PDF deste manual para consulta offline.</p>
+              </div>
+              <Button onClick={exportToPDF} disabled={isExporting} className="gap-2 shadow-lg hover:shadow-xl transition-all">
+                {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Download Manual Design System (PDF)
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">© 2026 anabrasil Design System. Documentação técnica gerada via Lovable Cloud.</p>
           </footer>
         </main>
       </div>
