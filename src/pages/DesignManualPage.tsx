@@ -25,9 +25,18 @@ import {
   LayoutGrid,
   List,
   Search,
-  LayoutDashboard
+  LayoutDashboard,
+  Download,
+  FileText,
+  MousePointerClick,
+  Info,
+  Layers,
+  Table as TableIcon
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { toast } from "sonner";
 
 export default function DesignManualPage() {
   const { user } = useAuth();
