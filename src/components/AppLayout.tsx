@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History, Globe, FlaskConical } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History, Globe, FlaskConical, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -38,6 +38,7 @@ const navItems: NavItem[] = [
   { to: '/calendario', label: 'Calendário', icon: Calendar, requireAuth: true },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
   { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, auditoriaOnly: true },
+  { to: '/design-manual', label: 'Manual Design', icon: BookOpen, requireAuth: true, mktOrAdminOnly: true },
 ];
 
 export default function AppLayout() {
@@ -72,6 +73,7 @@ export default function AppLayout() {
       {navItems.filter(item => {
         if (item.adminOnly) return isAdmin;
         if (item.managerOnly) return isAdmin || isManager;
+        if (item.mktOrAdminOnly) return isAdmin || user?.email === 'mkt@anabrasil.org';
         if (item.auditoriaOnly) return canViewAuditoria;
         if (item.requireAuth) return isAuthenticated;
         return true;

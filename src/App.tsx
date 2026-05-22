@@ -14,6 +14,7 @@ import AuditPage from "./pages/AuditPage";
 import LoginPage from "./pages/LoginPage";
 import PublicEventsPage from "./pages/PublicEventsPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import DesignManualPage from "./pages/DesignManualPage";
 import NotFound from "./pages/NotFound";
 
 
@@ -64,6 +65,9 @@ const App = () => (
                   } />
                   <Route path="/auditoria" element={
                     <ProtectedRoute><AuditPage /></ProtectedRoute>
+                  } />
+                  <Route path="/design-manual" element={
+                    <ProtectedRoute><DesignManualPage /></ProtectedRoute>
                   } />
                   <Route path="*" element={<NotFound />} />
                 </Route>
