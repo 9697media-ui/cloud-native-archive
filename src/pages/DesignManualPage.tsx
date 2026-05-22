@@ -291,19 +291,31 @@ export default function DesignManualPage() {
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <p className="text-sm font-medium">Cores das Unidades (Dots)</p>
+                      <p className="text-sm font-medium">Cores das Unidades (Dots & Cards)</p>
                       <div className="flex flex-wrap gap-4">
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="h-3 w-3 rounded-full bg-unit-dic" /> DIC
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#00a3ff]" /> DIC
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#00a3ff</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="h-3 w-3 rounded-full bg-unit-nilopolis" /> Nilópolis
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#81e2cf]" /> Nilópolis
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#81e2cf</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="h-3 w-3 rounded-full bg-unit-santana" /> Santana
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#fbce00]" /> Santana
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#fbce00</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="h-3 w-3 rounded-full bg-unit-geral" /> Geral
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="h-3 w-3 rounded-full bg-[#f37964]" /> Geral
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">#f37964</span>
                         </div>
                       </div>
                     </div>
