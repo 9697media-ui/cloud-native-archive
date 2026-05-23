@@ -39,7 +39,7 @@ const navItems: NavItem[] = [
   { to: '/', label: 'Eventos', icon: Globe },
   { to: '/visao-geral', label: 'Visão Geral', icon: LayoutDashboard, requireAuth: true },
   { to: '/calendario', label: 'Calendário', icon: Calendar, requireAuth: true },
-  { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, adminOnly: true },
+  { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
   { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, adminOnly: true },
   { to: '/design-manual', label: 'Manual Design', icon: BookOpen, requireAuth: true, mktOrAdminOnly: true },
 ];

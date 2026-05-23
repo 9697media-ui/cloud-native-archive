@@ -618,6 +618,10 @@ export default function UsersPage() {
       if (isManager) {
         const targetLevel = (user.permission_level as string) || '';
         
+        // Só pode entrar em usuários da mesma unidade
+        const isSameUnit = user.unit === unit || delegatedUnits.includes(user.unit || '');
+        if (!isSameUnit) return false;
+
         // Pode entrar em perfis de Usuário Padrão e Visualizador
         const isTargetStandardOrViewer = 
           targetLevel === 'usuario_padrao' || 
@@ -631,7 +635,7 @@ export default function UsersPage() {
       return false;
     })();
 
-    const canEdit = isAdmin || (isManager && authUserId === currentUser?.id);
+    const canEdit = isAdmin || (isManager && (user.unit === unit || delegatedUnits.includes(user.unit || '')));
 
     return (
       <div className="flex items-center gap-1">
