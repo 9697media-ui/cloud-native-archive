@@ -69,8 +69,7 @@ export default function UsersPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const displayRequests = useMemo(() => {
-    if (isAdmin || isManager) return requests;
-    return requests.filter(r => r.user_id === currentUser?.id);
+    return requests;
   }, [requests, isAdmin, isManager, currentUser]);
   const [showEdit, setShowEdit] = useState(false);
   const [editForm, setEditForm] = useState<AppUser | null>(null);
