@@ -731,7 +731,7 @@ export default function UsersPage() {
     return (
       <div className="space-y-6">
         <Alert className="bg-primary/5 border-primary/20">
-          <FlaskConical className="h-4 w-4 text-primary" />
+          <History className="h-4 w-4 text-primary" />
           <AlertTitle className="text-primary text-sm font-semibold">Configuração de Versões</AlertTitle>
           <AlertDescription className="text-muted-foreground text-xs leading-relaxed">
             Usuários com a opção de <strong>Novas Versões</strong> ligada veem a versão marcada como <strong>Versão Secundária</strong>. 
