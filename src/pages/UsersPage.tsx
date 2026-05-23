@@ -811,7 +811,7 @@ export default function UsersPage() {
                         <Button variant="outline" size="sm" className="h-7 text-xs"
                           disabled={!!v.is_active_beta}
                           onClick={async () => { try { await setActiveBeta(v); toast({ title: 'Ativada para Beta Testers' }); } catch (e: any) { toast({ title: 'Erro', description: e.message, variant: 'destructive' }); } }}>
-                          Ativar como Beta
+                          Ativar para Teste
                         </Button>
                         <Button variant="outline" size="sm" className="h-7 text-xs"
                           disabled={!!v.is_active_production}
