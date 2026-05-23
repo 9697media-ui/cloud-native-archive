@@ -361,7 +361,7 @@ export default function UsersPage() {
     setProcessingId(null);
     refetch();
     toast({ 
-      title: beta ? 'Beta ativado' : 'Beta desativado', 
+      title: beta ? 'Visualização antecipada ativada' : 'Visualização antecipada desativada', 
       description: `${successCount} usuário(s) atualizado(s).` 
     });
   };
@@ -734,8 +734,8 @@ export default function UsersPage() {
           <FlaskConical className="h-4 w-4 text-primary" />
           <AlertTitle className="text-primary text-sm font-semibold">Configuração de Versões</AlertTitle>
           <AlertDescription className="text-muted-foreground text-xs leading-relaxed">
-            Usuários com a chave <strong>UI Beta</strong> ligada veem a versão marcada como <strong>Versão Beta</strong>. 
-            Os demais veem a versão marcada como <strong>Versão Produção</strong>. 
+            Usuários com a opção de <strong>Novas Versões</strong> ligada veem a versão marcada como <strong>Versão Secundária</strong>. 
+            Os demais veem a versão marcada como <strong>Publicação Geral</strong>. 
           </AlertDescription>
         </Alert>
 
@@ -798,7 +798,7 @@ export default function UsersPage() {
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-medium text-sm truncate">{v.name}</p>
                             {envBadge(v.environment)}
-                            {v.is_active_beta && <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30" variant="outline">Versão Beta</Badge>}
+                            {v.is_active_beta && <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30" variant="outline">Versão Secundária</Badge>}
                             {v.is_active_production && <Badge className="text-[10px] bg-green-500/15 text-green-700 border-green-500/30" variant="outline">Versão Produção</Badge>}
                           </div>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -810,8 +810,8 @@ export default function UsersPage() {
                       <div className="flex flex-wrap gap-1.5">
                         <Button variant="outline" size="sm" className="h-7 text-xs"
                           disabled={!!v.is_active_beta}
-                          onClick={async () => { try { await setActiveBeta(v); toast({ title: 'Ativada para Beta Testers' }); } catch (e: any) { toast({ title: 'Erro', description: e.message, variant: 'destructive' }); } }}>
-                          Ativar como Beta
+                          onClick={async () => { try { await setActiveBeta(v); toast({ title: 'Ativada para visualização antecipada' }); } catch (e: any) { toast({ title: 'Erro', description: e.message, variant: 'destructive' }); } }}>
+                          Ativar como Secundária
                         </Button>
                         <Button variant="outline" size="sm" className="h-7 text-xs"
                           disabled={!!v.is_active_production}
