@@ -734,7 +734,7 @@ export default function UsersPage() {
           <FlaskConical className="h-4 w-4 text-primary" />
           <AlertTitle className="text-primary text-sm font-semibold">Configuração de Versões</AlertTitle>
           <AlertDescription className="text-muted-foreground text-xs leading-relaxed">
-            Usuários com a chave <strong>UI Beta</strong> ligada veem a versão marcada como <strong>Versão Beta</strong>. 
+            Usuários com a chave <strong>Modo Teste</strong> ligada veem a versão marcada como <strong>Versão Teste</strong>. 
             Os demais veem a versão marcada como <strong>Versão Produção</strong>. 
           </AlertDescription>
         </Alert>
