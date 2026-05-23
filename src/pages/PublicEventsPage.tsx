@@ -286,12 +286,7 @@ export default function PublicEventsPage() {
                   />
                 )}
                 <div className="flex flex-wrap gap-4 text-slate-200 text-sm md:text-base mb-6">
-                  {showBetaUI && (
-                    <div className="flex items-center gap-2 bg-primary px-3 py-1 rounded-full text-white text-xs font-bold animate-pulse">
-                      <Rocket className="h-3 w-3" />
-                      BETA Ativo
-                    </div>
-                  )}
+
 
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5" />
@@ -470,7 +465,7 @@ export default function PublicEventsPage() {
             {sortedEvents.map(event => (
               <Card 
                 key={event.id} 
-                className={`overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer ${showBetaUI ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer"
                 onClick={() => handleCardClick(event)}
               >
 
@@ -534,8 +529,8 @@ export default function PublicEventsPage() {
                       )}
                     </div>
                   </div>
-                  <CardTitle className={`text-xl line-clamp-2 leading-tight group-hover:text-primary transition-colors ${showBetaUI ? 'text-primary font-black' : 'text-slate-900'}`}>
-                    {event.title} {showBetaUI && <Badge className="ml-2">BETA</Badge>}
+                  <CardTitle className="text-xl line-clamp-2 leading-tight group-hover:text-primary transition-colors text-slate-900">
+                    {event.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-1">

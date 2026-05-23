@@ -236,7 +236,7 @@ export default function AppLayout() {
                     >
                       <div className="flex items-center gap-2">
                         <FlaskConical className="h-4 w-4" />
-                        <span>UI Beta</span>
+                        <span>Modo Teste</span>
                       </div>
                       <Switch checked={betaOn} onCheckedChange={(v) => { toggleBeta(v); window.location.reload(); }} />
                     </div>

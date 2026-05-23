@@ -734,7 +734,7 @@ export default function UsersPage() {
           <FlaskConical className="h-4 w-4 text-primary" />
           <AlertTitle className="text-primary text-sm font-semibold">Configuração de Versões</AlertTitle>
           <AlertDescription className="text-muted-foreground text-xs leading-relaxed">
-            Usuários com a chave <strong>UI Beta</strong> ligada veem a versão marcada como <strong>Versão Beta</strong>. 
+            Usuários com a chave <strong>Modo Teste</strong> ligada veem a versão marcada como <strong>Versão Teste</strong>. 
             Os demais veem a versão marcada como <strong>Versão Produção</strong>. 
           </AlertDescription>
         </Alert>
@@ -798,7 +798,7 @@ export default function UsersPage() {
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-medium text-sm truncate">{v.name}</p>
                             {envBadge(v.environment)}
-                            {v.is_active_beta && <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30" variant="outline">Versão Beta</Badge>}
+                            {v.is_active_beta && <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30" variant="outline">Versão Teste</Badge>}
                             {v.is_active_production && <Badge className="text-[10px] bg-green-500/15 text-green-700 border-green-500/30" variant="outline">Versão Produção</Badge>}
                           </div>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -811,7 +811,7 @@ export default function UsersPage() {
                         <Button variant="outline" size="sm" className="h-7 text-xs"
                           disabled={!!v.is_active_beta}
                           onClick={async () => { try { await setActiveBeta(v); toast({ title: 'Ativada para Beta Testers' }); } catch (e: any) { toast({ title: 'Erro', description: e.message, variant: 'destructive' }); } }}>
-                          Ativar como Beta
+                          Ativar para Teste
                         </Button>
                         <Button variant="outline" size="sm" className="h-7 text-xs"
                           disabled={!!v.is_active_production}
@@ -1353,7 +1353,7 @@ export default function UsersPage() {
                       <div className="space-y-0.5">
                         <Label className="text-sm font-semibold flex items-center gap-2">
                           <Code2 className="h-4 w-4 text-primary" />
-                          Acesso Beta Tester
+                          Acesso Antecipado
                         </Label>
                         <p className="text-xs text-muted-foreground">Permite que este usuário veja novas funcionalidades antes do lançamento.</p>
                       </div>
@@ -1638,7 +1638,7 @@ export default function UsersPage() {
                   <div className="space-y-0.5">
                     <Label className="text-sm font-semibold flex items-center gap-2">
                       <Rocket className="h-4 w-4 text-primary" />
-                      Acesso Beta Tester
+                      Acesso Antecipado
                     </Label>
                     <p className="text-xs text-muted-foreground">Este usuário verá o ambiente de testes/beta.</p>
                   </div>
