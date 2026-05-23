@@ -722,7 +722,7 @@ export default function UsersPage() {
         'cloudflare-production': 'bg-orange-500/10 text-orange-700 border-orange-500/30',
         'cloudflare-preview': 'bg-amber-500/10 text-amber-700 border-amber-500/30',
       };
-      const label = env || 'legado';
+      const label = env || 'estável';
       return <Badge variant="outline" className={`text-[10px] ${map[env || ''] || ''}`}>{label}</Badge>;
     };
 
@@ -732,11 +732,10 @@ export default function UsersPage() {
       <div className="space-y-6">
         <Alert className="bg-primary/5 border-primary/20">
           <FlaskConical className="h-4 w-4 text-primary" />
-          <AlertTitle className="text-primary text-sm font-semibold">Como funciona o Ambiente Beta?</AlertTitle>
+          <AlertTitle className="text-primary text-sm font-semibold">Configuração de Versões</AlertTitle>
           <AlertDescription className="text-muted-foreground text-xs leading-relaxed">
-            Usuários marcados como <strong>Beta Testers</strong> veem a versão marcada como <strong>Beta Ativa</strong>. 
-            Demais usuários veem a versão marcada como <strong>Produção Ativa</strong>. 
-            Funciona em qualquer ambiente (Lovable ou Cloudflare).
+            Usuários com a chave <strong>UI Beta</strong> ligada veem a versão marcada como <strong>Versão Beta</strong>. 
+            Os demais veem a versão marcada como <strong>Versão Produção</strong>. 
           </AlertDescription>
         </Alert>
 
@@ -746,7 +745,7 @@ export default function UsersPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Rocket className="h-5 w-5 text-primary" />
-                Versão Atual em Produção
+                Publicação Geral
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -773,7 +772,7 @@ export default function UsersPage() {
               <div className="flex items-center justify-between gap-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <History className="h-5 w-5 text-primary" />
-                  Histórico de Deploys
+                  Histórico de Versões
                 </CardTitle>
                 <select
                   value={envFilter}
@@ -896,7 +895,7 @@ export default function UsersPage() {
                 {isAdmin && (
                   <TabsTrigger value="beta-configs" className="gap-1.5 h-8">
                     <History className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Beta/Histórico</span>
+                    <span className="hidden sm:inline">Versões</span>
                   </TabsTrigger>
                 )}
                 {isAdmin && (
@@ -919,7 +918,7 @@ export default function UsersPage() {
                 <Button 
                   variant="outline" 
                   size="icon" 
-                  title="Ambiente de Testes / Beta"
+                  title="Configuração de Versões"
                   onClick={() => setActiveTab('beta-configs')}
                   className={`h-10 w-10 ${activeTab === 'beta-configs' ? 'bg-primary/10 text-primary border-primary' : ''}`}
                 >
