@@ -56,7 +56,7 @@ export default function UsersPage() {
   const hideTitleParam = urlSearchParams.get('hideTitle') === 'true';
   const { users, selectedUser, setSelectedUser, updateUser, deleteUser } = useApp();
   const { user: currentUser } = useAuth();
-  const { isAdmin, isManager, canView, loading: roleLoading } = useUserRole();
+  const { isAdmin, isManager, unit, delegatedUnits, canView, loading: roleLoading } = useUserRole();
   const { dbUsers, loading: dbUsersLoading, refetch } = useDbUsers();
   const { configs, updateConfig, isLoading: configsLoading } = useViewConfigs();
   const { requests, loading: requestsLoading, approveRequest, rejectRequest } = useAccessRequests();
@@ -83,7 +83,7 @@ export default function UsersPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bulkDelete, setBulkDelete] = useState(false);
   const [showRoleToggleConfirm, setShowRoleToggleConfirm] = useState<boolean | null>(null);
-  const [approvalsExpanded, setApprovalsExpanded] = useState(false);
+  const [approvalsExpanded, setApprovalsExpanded] = useState(true);
   
   const [showPreRegister, setShowPreRegister] = useState(false);
   const [preRegisterForm, setPreRegisterForm] = useState({
@@ -475,30 +475,34 @@ export default function UsersPage() {
         }
 
         // 2. Sincroniza com a tabela user_roles
-        let mappedRole: 'admin' | 'editor' | 'criador' | 'viewer' = 'viewer';
-        if ((editForm.permission_level as string) === 'admin_geral') mappedRole = 'admin';
-        else if ((editForm.permission_level as string) === 'gestor_unidade') mappedRole = 'criador';
-        else if ((editForm.permission_level as string) === 'editor') mappedRole = 'editor';
+        // Somente Admin Geral pode alterar cargos de sistema
+        if (isAdmin) {
+          let mappedRole: 'admin' | 'editor' | 'criador' | 'viewer' = 'viewer';
+          if ((editForm.permission_level as string) === 'admin_geral') mappedRole = 'admin';
+          else if ((editForm.permission_level as string) === 'gestor_unidade') mappedRole = 'criador';
+          else if ((editForm.permission_level as string) === 'editor') mappedRole = 'editor';
 
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .upsert({ 
-            user_id: selectedUser.id, 
-            role: mappedRole 
-          }, { 
-            onConflict: 'user_id' 
-          });
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .upsert({ 
+              user_id: selectedUser.id, 
+              role: mappedRole 
+            }, { 
+              onConflict: 'user_id' 
+            });
 
-        if (roleError) {
-          console.error('Erro ao atualizar cargo:', roleError);
-          // Apenas aviso, pois o perfil já foi salvo
-          toast({ 
-            title: 'Aviso', 
-            description: 'Perfil salvo, mas houve um erro ao sincronizar permissões de sistema.', 
-            variant: 'destructive' 
-          });
+          if (roleError) {
+            console.error('Erro ao atualizar cargo:', roleError);
+            toast({ 
+              title: 'Aviso', 
+              description: 'Perfil salvo, mas houve um erro ao sincronizar permissões de sistema.', 
+              variant: 'destructive' 
+            });
+          } else {
+            toast({ title: 'Sucesso', description: 'Usuário e permissões atualizados com sucesso.' });
+          }
         } else {
-          toast({ title: 'Sucesso', description: 'Usuário e permissões atualizados com sucesso.' });
+          toast({ title: 'Sucesso', description: 'Perfil atualizado com sucesso.' });
         }
         
         refetch(); // Recarrega os usuários do banco
@@ -618,6 +622,10 @@ export default function UsersPage() {
       if (isManager) {
         const targetLevel = (user.permission_level as string) || '';
         
+        // Só pode entrar em usuários da mesma unidade
+        const isSameUnit = user.unit === unit || delegatedUnits.includes(user.unit || '');
+        if (!isSameUnit) return false;
+
         // Pode entrar em perfis de Usuário Padrão e Visualizador
         const isTargetStandardOrViewer = 
           targetLevel === 'usuario_padrao' || 
@@ -631,7 +639,7 @@ export default function UsersPage() {
       return false;
     })();
 
-    const canEdit = isAdmin || (isManager && authUserId === currentUser?.id);
+    const canEdit = isAdmin || (isManager && (user.unit === unit || delegatedUnits.includes(user.unit || '')));
 
     return (
       <div className="flex items-center gap-1">
