@@ -798,7 +798,7 @@ export default function UsersPage() {
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-medium text-sm truncate">{v.name}</p>
                             {envBadge(v.environment)}
-                            {v.is_active_beta && <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30" variant="outline">Versão Beta</Badge>}
+                            {v.is_active_beta && <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30" variant="outline">Versão Teste</Badge>}
                             {v.is_active_production && <Badge className="text-[10px] bg-green-500/15 text-green-700 border-green-500/30" variant="outline">Versão Produção</Badge>}
                           </div>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
