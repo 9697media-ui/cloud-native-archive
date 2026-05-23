@@ -19,6 +19,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AuthConfirmPage from "./pages/AuthConfirmPage";
 import DesignManualPage from "./pages/DesignManualPage";
 import NotFound from "./pages/NotFound";
+import EmailPreview from "./pages/EmailPreview";
 
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
                 } />
                 <Route path="/auth/confirm" element={<AuthConfirmPage />} />
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+                <Route path="/email-preview" element={<EmailPreview />} />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<PublicEventsPage />} />
                   <Route path="/visao-geral" element={
