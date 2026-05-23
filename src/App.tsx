@@ -16,6 +16,7 @@ import AuditPage from "./pages/AuditPage";
 import LoginPage from "./pages/LoginPage";
 import PublicEventsPage from "./pages/PublicEventsPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import AuthConfirmPage from "./pages/AuthConfirmPage";
 import DesignManualPage from "./pages/DesignManualPage";
 import NotFound from "./pages/NotFound";
 
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/login" element={
                   <AuthRedirect><LoginPage /></AuthRedirect>
                 } />
+                <Route path="/auth/confirm" element={<AuthConfirmPage />} />
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<PublicEventsPage />} />
