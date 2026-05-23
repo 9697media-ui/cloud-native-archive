@@ -465,7 +465,7 @@ export default function PublicEventsPage() {
             {sortedEvents.map(event => (
               <Card 
                 key={event.id} 
-                className={`overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer ${showBetaUI ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer"
                 onClick={() => handleCardClick(event)}
               >
 
@@ -529,8 +529,8 @@ export default function PublicEventsPage() {
                       )}
                     </div>
                   </div>
-                  <CardTitle className={`text-xl line-clamp-2 leading-tight group-hover:text-primary transition-colors ${showBetaUI ? 'text-primary font-black' : 'text-slate-900'}`}>
-                    {event.title} {showBetaUI && <Badge className="ml-2">BETA</Badge>}
+                  <CardTitle className="text-xl line-clamp-2 leading-tight group-hover:text-primary transition-colors text-slate-900">
+                    {event.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-1">
