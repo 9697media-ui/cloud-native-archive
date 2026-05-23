@@ -12,7 +12,7 @@ export default function AuthConfirmPage() {
     const handleConfirm = async () => {
       const token_hash = searchParams.get('token_hash');
       const type = searchParams.get('type') as any;
-      const next = searchParams.get('next') ?? '/reset-password';
+      const next = searchParams.get('next') ?? '/redefinir-senha';
 
       if (token_hash && type) {
         const { error } = await supabase.auth.verifyOtp({
