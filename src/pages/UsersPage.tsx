@@ -1353,7 +1353,7 @@ export default function UsersPage() {
                       <div className="space-y-0.5">
                         <Label className="text-sm font-semibold flex items-center gap-2">
                           <Code2 className="h-4 w-4 text-primary" />
-                          Acesso Beta Tester
+                          Acesso Antecipado
                         </Label>
                         <p className="text-xs text-muted-foreground">Permite que este usuário veja novas funcionalidades antes do lançamento.</p>
                       </div>
