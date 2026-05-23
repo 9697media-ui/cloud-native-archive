@@ -57,13 +57,6 @@ export default function BulkActionBar(props: BulkActionBarProps) {
             <Button size="sm" variant="outline" className="flex-1 h-9 text-xs sm:h-8 sm:px-3" onClick={() => (props as BulkUserActionBarProps).onToggleActive(true)}>
               Ativar
             </Button>
-            <Button size="sm" variant="outline" className="flex-1 h-9 text-xs sm:h-8 sm:px-3 gap-1.5" onClick={() => (props as BulkUserActionBarProps).onToggleBeta?.(true)}>
-              <Rocket className="h-3.5 w-3.5 text-primary" />
-              Beta ON
-            </Button>
-            <Button size="sm" variant="outline" className="flex-1 h-9 text-xs sm:h-8 sm:px-3" onClick={() => (props as BulkUserActionBarProps).onToggleBeta?.(false)}>
-              Beta OFF
-            </Button>
           </div>
 
         )}

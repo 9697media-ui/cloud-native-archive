@@ -692,7 +692,7 @@ export default function UsersPage() {
     );
   };
 
-  const BetaManager = () => {
+  const VersionManager = () => {
     const { currentVersion, versions, loading: vLoading, promoteToProduction, rollback, setActiveBeta, promoteVersionToProduction } = useUIVersions();
     const [name, setName] = useState('');
     const [desc, setDesc] = useState('');
@@ -1116,7 +1116,7 @@ export default function UsersPage() {
 
         {isAdmin && (
           <TabsContent value="beta-configs" className="mt-4 space-y-6">
-            <BetaManager />
+            <VersionManager />
           </TabsContent>
         )}
 
@@ -1352,10 +1352,10 @@ export default function UsersPage() {
                     <div className="flex items-center justify-between p-3 border rounded-lg bg-primary/5">
                       <div className="space-y-0.5">
                         <Label className="text-sm font-semibold flex items-center gap-2">
-                          <Code2 className="h-4 w-4 text-primary" />
-                          Acesso Beta Tester
+                          <History className="h-4 w-4 text-primary" />
+                          Visualizar Novas Versões
                         </Label>
-                        <p className="text-xs text-muted-foreground">Permite que este usuário veja novas funcionalidades antes do lançamento.</p>
+                        <p className="text-xs text-muted-foreground">Permite que este usuário veja novas versões do sistema antes da publicação geral.</p>
                       </div>
                       <Switch 
                         checked={selectedViewUser.is_beta_tester}
@@ -1366,7 +1366,7 @@ export default function UsersPage() {
                             .eq('user_id', selectedViewUser.id);
                           
                           if (!error) {
-                            toast({ title: checked ? "Beta Tester habilitado" : "Beta Tester desabilitado" });
+                            toast({ title: checked ? "Visualização de novas versões habilitada" : "Visualização de novas versões desabilitada" });
                             refetch();
                             setSelectedViewUser({ ...selectedViewUser, is_beta_tester: checked });
                           }
@@ -1637,10 +1637,10 @@ export default function UsersPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-sm font-semibold flex items-center gap-2">
-                      <Rocket className="h-4 w-4 text-primary" />
-                      Acesso Beta Tester
+                      <History className="h-4 w-4 text-primary" />
+                      Visualizar Novas Versões
                     </Label>
-                    <p className="text-xs text-muted-foreground">Este usuário verá o ambiente de testes/beta.</p>
+                    <p className="text-xs text-muted-foreground">Este usuário verá versões marcadas como secundárias.</p>
                   </div>
                   <Switch 
                     checked={!!editForm.is_beta_tester}

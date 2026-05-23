@@ -227,21 +227,6 @@ export default function AppLayout() {
                     </Link>
                   </DropdownMenuItem>
                 )}
-                {betaEligible && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <div
-                      className="flex items-center justify-between gap-2 px-2 py-2 text-sm"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      <div className="flex items-center gap-2">
-                        <FlaskConical className="h-4 w-4" />
-                        <span>UI Beta</span>
-                      </div>
-                      <Switch checked={betaOn} onCheckedChange={(v) => { toggleBeta(v); window.location.reload(); }} />
-                    </div>
-                  </>
-                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 cursor-pointer py-2 text-destructive focus:text-destructive">
                   <LogOut className="h-4 w-4" />
