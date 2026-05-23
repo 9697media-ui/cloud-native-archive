@@ -107,7 +107,6 @@ export default function AppLayout() {
   return (
     <div className={cn("flex min-h-screen flex-col bg-background", isCleanView && "h-full")}>
       {!hideHeaderParam && <ImpersonationBanner />}
-      {!hideHeaderParam && <TestModeBanner />}
       {!hideHeaderParam && (
         <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
           <div className="flex h-16 w-full items-center gap-4 px-4 lg:px-8">
@@ -121,8 +120,13 @@ export default function AppLayout() {
                 <SheetContent side="left" className="w-[280px] p-0">
                   <SheetHeader className="p-6 text-left">
                     <SheetTitle className="flex items-center gap-2">
-                      <img src={logoImg} alt="anabrasil" className="h-8 w-8 rounded-lg object-cover" />
-                      <span className="font-bold tracking-tighter text-lg lowercase">anabrasil</span>
+                      <div className="relative h-8 w-8">
+                        <img src={logoImg} alt="anabrasil" className={cn("h-8 w-8 rounded-lg object-cover absolute inset-0 transition-opacity duration-1000", betaOn ? "opacity-0" : "opacity-100")} />
+                        <FlaskConical className={cn("h-8 w-8 text-primary absolute inset-0 transition-opacity duration-1000", betaOn ? "opacity-100" : "opacity-0")} />
+                      </div>
+                      <span className="font-bold tracking-tighter text-lg lowercase">
+                        {betaOn ? "beta teste" : "anabrasil"}
+                      </span>
                     </SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col gap-1 px-2">
@@ -147,9 +151,12 @@ export default function AppLayout() {
             )}
 
             <Link to={`/${location.search}`} className="flex items-center gap-2.5 shrink-0 group transition-all active:scale-95">
-              <img src={logoImg} alt="anabrasil" className="h-10 w-10 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-all" />
+              <div className="relative h-10 w-10">
+                <img src={logoImg} alt="anabrasil" className={cn("h-10 w-10 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-all absolute inset-0 duration-1000", betaOn ? "opacity-0" : "opacity-100")} />
+                <FlaskConical className={cn("h-10 w-10 text-primary absolute inset-0 transition-opacity duration-1000", betaOn ? "opacity-100" : "opacity-0")} />
+              </div>
               <span className={cn("text-xl leading-none text-foreground tracking-tighter lowercase", isMobile ? "inline" : "hidden sm:inline")} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}>
-                anabrasil
+                {betaOn ? "beta teste" : "anabrasil"}
               </span>
             </Link>
 
@@ -192,7 +199,7 @@ export default function AppLayout() {
           "fixed bottom-6 right-6 z-[60] duration-500 flex items-center gap-3",
           isFirstRender && "animate-in fade-in slide-in-from-bottom-4"
         )}>
-          <TestModeTrigger floating />
+          
           <ThemeToggle />
           {isAuthenticated ? (
 
