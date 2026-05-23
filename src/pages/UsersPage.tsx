@@ -1638,7 +1638,7 @@ export default function UsersPage() {
                   <div className="space-y-0.5">
                     <Label className="text-sm font-semibold flex items-center gap-2">
                       <Rocket className="h-4 w-4 text-primary" />
-                      Acesso Beta Tester
+                      Acesso Antecipado
                     </Label>
                     <p className="text-xs text-muted-foreground">Este usuário verá o ambiente de testes/beta.</p>
                   </div>
