@@ -1086,9 +1086,6 @@ export default function UsersPage() {
                               <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
                                   <p className="font-medium text-foreground truncate">{user.name}</p>
-                                  {user.is_beta_tester && (
-                                    <Badge variant="outline" className="text-[9px] bg-primary/10 text-primary border-primary/20 h-4 px-1">BETA</Badge>
-                                  )}
                                 </div>
                                 <p className="text-xs text-muted-foreground truncate">{user.email}</p>
 
