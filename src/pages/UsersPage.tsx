@@ -83,7 +83,7 @@ export default function UsersPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bulkDelete, setBulkDelete] = useState(false);
   const [showRoleToggleConfirm, setShowRoleToggleConfirm] = useState<boolean | null>(null);
-  const [approvalsExpanded, setApprovalsExpanded] = useState(false);
+  const [approvalsExpanded, setApprovalsExpanded] = useState(true);
   
   const [showPreRegister, setShowPreRegister] = useState(false);
   const [preRegisterForm, setPreRegisterForm] = useState({
