@@ -1618,7 +1618,7 @@ export default function UsersPage() {
                     const newLevel = v as any;
                     let newUnit = editForm.unit;
                     
-                    if (newLevel === 'admin_geral') {
+                    if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') {
                       newUnit = 'Evento Geral do Grupo';
                     } else if (newLevel === 'gestor_unidade' && newUnit === 'Evento Geral do Grupo') {
                       newUnit = 'DIC'; // Valor padrão para gestores
