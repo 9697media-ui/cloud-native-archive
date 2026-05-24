@@ -213,7 +213,7 @@ export default function PublicEventsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
 
 
       {bannerEvents.length > 0 && (
@@ -441,10 +441,10 @@ export default function PublicEventsPage() {
           </div>
           
           <div className="mt-6 relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
               placeholder="Buscar por título, local ou descrição..." 
-              className="pl-10 h-12 shadow-sm border-slate-200 focus-visible:ring-primary bg-white"
+              className="pl-10 h-12 shadow-sm border-border focus-visible:ring-primary bg-white"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -455,21 +455,21 @@ export default function PublicEventsPage() {
 
 
         {sortedEvents.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
-            <CalendarDays className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-900">Nenhum evento encontrado</h3>
-            <p className="text-slate-500">Tente ajustar sua busca ou volte mais tarde.</p>
+          <div className="text-center py-20 bg-card rounded-2xl border border-dashed border-border">
+            <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground">Nenhum evento encontrado</h3>
+            <p className="text-muted-foreground">Tente ajustar sua busca ou volte mais tarde.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedEvents.map(event => (
               <Card 
                 key={event.id} 
-                className="overflow-hidden border-slate-200 hover:shadow-lg transition-shadow bg-white flex flex-col group cursor-pointer"
+                className="overflow-hidden border-border hover:shadow-lg transition-shadow bg-card flex flex-col group cursor-pointer"
                 onClick={() => handleCardClick(event)}
               >
 
-                <div className="relative aspect-video overflow-hidden bg-slate-100">
+                <div className="relative aspect-video overflow-hidden bg-muted">
                   {event.banner_url_desktop || event.banner_url_mobile ? (
                     <img 
                       src={event.banner_url_desktop || event.banner_url_mobile} 
@@ -504,7 +504,7 @@ export default function PublicEventsPage() {
                           e.stopPropagation();
                           handleToggleBanner(event);
                         }}
-                        className={`p-1.5 rounded-full shadow-lg backdrop-blur-md transition-colors ${event.show_in_banner ? 'bg-primary text-white' : 'bg-white/80 text-slate-600 hover:bg-white'}`}
+                        className={`p-1.5 rounded-full shadow-lg backdrop-blur-md transition-colors ${event.show_in_banner ? 'bg-primary text-white' : 'bg-white/80 text-muted-foreground hover:bg-white'}`}
                         title={event.show_in_banner ? "Remover do banner" : "Adicionar ao banner"}
                       >
                         {event.show_in_banner ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
@@ -521,7 +521,7 @@ export default function PublicEventsPage() {
                             Confirmado
                           </Badge>
                           {event.show_in_banner && (
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 font-medium text-[10px] flex items-center gap-1">
+                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-medium text-[10px] flex items-center gap-1">
                               <LayoutPanelTop className="h-2 w-2" /> Banner Ativo
                             </Badge>
                           )}
@@ -529,32 +529,32 @@ export default function PublicEventsPage() {
                       )}
                     </div>
                   </div>
-                  <CardTitle className="text-xl line-clamp-2 leading-tight group-hover:text-primary transition-colors text-slate-900">
+                  <CardTitle className="text-xl line-clamp-2 leading-tight group-hover:text-primary transition-colors text-foreground">
                     {event.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-1">
-                  <div className="space-y-2 text-sm text-slate-600">
+                  <div className="space-y-2 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
-                      <CalendarDays className="h-4 w-4 text-slate-400 shrink-0" />
+                      <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
                       <span>{format(new Date(event.start_datetime), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-slate-400 shrink-0" />
+                      <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
                       <span>
                         {format(new Date(event.start_datetime), 'HH:mm')} às {format(new Date(event.end_datetime), 'HH:mm')}
                       </span>
                     </div>
                     {event.location && (
                       <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
+                        <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
                         <span className="line-clamp-1">{event.location}</span>
                       </div>
                     )}
                   </div>
 
                   {event.description && (
-                    <p className="text-sm text-slate-500 line-clamp-3 italic border-t border-slate-100 pt-4">
+                    <p className="text-sm text-muted-foreground line-clamp-3 italic border-t border-border pt-4">
                       "{event.description}"
                     </p>
                   )}
@@ -566,10 +566,10 @@ export default function PublicEventsPage() {
       </main>
 
       {!isAuthenticated && (
-        <footer className="bg-white border-t border-slate-200 py-12 px-6 mt-12">
+        <footer className="bg-card border-t border-border py-12 px-6 mt-12">
           <div className="max-w-7xl mx-auto text-center">
             <img src={logoImg} alt="anabrasil" className="h-8 w-8 rounded-lg mx-auto mb-4 opacity-50 grayscale" />
-            <p className="text-slate-400 text-sm">
+            <p className="text-muted-foreground text-sm">
               © {new Date().getFullYear()} anabrasil. Todos os direitos reservados.
             </p>
           </div>
