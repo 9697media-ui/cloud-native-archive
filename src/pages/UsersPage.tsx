@@ -1595,7 +1595,7 @@ export default function UsersPage() {
               <div>
                 <Label>Unidade</Label>
                 <Select 
-                  disabled={editForm.permission_level === 'admin_geral'}
+                  disabled={editForm.permission_level === 'admin_geral' || editForm.permission_level === 'eventos_parceiros'}
                   value={editForm.unit} 
                   onValueChange={v => setEditForm({ ...editForm, unit: v as any })}
                 >
