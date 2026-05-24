@@ -32,7 +32,7 @@ const unitDotColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic',
   'Nilópolis': 'bg-unit-nilopolis',
   'Santana': 'bg-unit-santana',
-  'Evento Geral do Grupo': 'bg-unit-geral',
+  'Grupo ANA Brasil': 'bg-unit-geral',
 };
 
 
@@ -58,7 +58,7 @@ export default function Dashboard() {
 
   // Sync filter unit with user unit when it changes (useful for test mode)
   useEffect(() => {
-    if (unit && unit !== 'Evento Geral do Grupo') {
+    if (unit && unit !== 'Grupo ANA Brasil') {
       setFilterUnit(unit);
     } else {
       setFilterUnit('all');
@@ -318,7 +318,7 @@ export default function Dashboard() {
               {UNITS.map(u => (
                 <div key={u} className="flex items-center gap-1.5">
                   <span className={`h-2 w-2 rounded-full ${unitDotColors[u]} shrink-0 sm:h-2.5 sm:w-2.5`} />
-                  <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Evento Geral do Grupo' ? 'Geral' : u}</span>
+                  <span className="text-[10px] text-muted-foreground sm:text-xs">{u === 'Grupo ANA Brasil' ? 'Geral' : u}</span>
                 </div>
               ))}
             </div>

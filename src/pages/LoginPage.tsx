@@ -23,7 +23,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [requestedRole, setRequestedRole] = useState<string>('viewer');
-  const [requestedUnit, setRequestedUnit] = useState<Unit>('Evento Geral do Grupo');
+  const [requestedUnit, setRequestedUnit] = useState<Unit>('Grupo ANA Brasil');
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState<{ title: string; message: string; type: 'error' | 'success' } | null>(null);
   const [emergencyReset, setEmergencyReset] = useState(false);
@@ -31,10 +31,10 @@ export default function LoginPage() {
 
   // Ajusta unidade padrão se mudar o nível solicitado
   useEffect(() => {
-    if ((requestedRole === 'editor' || requestedRole === 'criador') && requestedUnit === 'Evento Geral do Grupo') {
+    if ((requestedRole === 'editor' || requestedRole === 'criador') && requestedUnit === 'Grupo ANA Brasil') {
       setRequestedUnit('DIC');
-    } else if (requestedRole === 'viewer' && requestedUnit !== 'Evento Geral do Grupo') {
-      setRequestedUnit('Evento Geral do Grupo');
+    } else if (requestedRole === 'viewer' && requestedUnit !== 'Grupo ANA Brasil') {
+      setRequestedUnit('Grupo ANA Brasil');
     }
   }, [requestedRole]);
 
@@ -245,7 +245,7 @@ export default function LoginPage() {
                     <Select value={requestedUnit} onValueChange={(v) => setRequestedUnit(v as Unit)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {UNITS.filter(u => u !== 'Evento Geral do Grupo').map(u => (
+                        {UNITS.filter(u => u !== 'Grupo ANA Brasil').map(u => (
                           <SelectItem key={u} value={u}>{u}</SelectItem>
                         ))}
                       </SelectContent>
