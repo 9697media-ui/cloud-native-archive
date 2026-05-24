@@ -4,7 +4,7 @@ export type EventStatus = 'confirmado' | 'pendente' | 'cancelado' | 'concluido';
 
 export type EventType = 'reunião' | 'evento institucional' | 'apresentação' | 'cobertura' | 'ação externa' | 'programação interna' | 'outro';
 
-export type PermissionLevel = 'admin_geral' | 'gestor_unidade' | 'editor' | 'usuario_padrao';
+export type PermissionLevel = 'admin_geral' | 'gestor_unidade' | 'eventos_parceiros' | 'editor' | 'usuario_padrao';
 
 export type PartnerType = 'padrinho' | 'doador' | 'empresa' | 'figura_publica' | 'outro' | '';
 
@@ -116,6 +116,7 @@ export const PARTNER_TYPES: { value: PartnerType; label: string }[] = [
 export const PERMISSION_LEVELS: { value: PermissionLevel; label: string }[] = [
   { value: 'admin_geral', label: 'Admin Geral' },
   { value: 'gestor_unidade', label: 'Gestor de Unidade (Cria/Edita)' },
+  { value: 'eventos_parceiros', label: 'Eventos e Parceiros' },
   { value: 'editor', label: 'Editor (Apenas Edição)' },
   { value: 'usuario_padrao', label: 'Usuário Padrão (Visualizador)' },
 ];

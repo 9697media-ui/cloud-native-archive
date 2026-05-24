@@ -38,6 +38,7 @@ const ROLE_LABELS: Record<string, string> = {
   editor: 'Editor (Apenas Edição)',
   admin_geral: 'Admin Geral',
   gestor_unidade: 'Gestor de Unidade',
+  eventos_parceiros: 'Eventos e Parceiros',
   usuario_padrao: 'Usuário Padrão',
   usuario_padrao_admin: 'Admin',
 };
@@ -48,6 +49,7 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
   criador: <Edit2 className="h-3.5 w-3.5" />,
   editor: <Shield className="h-3.5 w-3.5" />,
   gestor_unidade: <Shield className="h-3.5 w-3.5" />,
+  eventos_parceiros: <Shield className="h-3.5 w-3.5" />,
   usuario_padrao: <Shield className="h-3.5 w-3.5 opacity-50" />,
 };
 
@@ -122,6 +124,7 @@ export default function UsersPage() {
         ...preRegisterForm,
         role: preRegisterForm.permission_level === 'admin_geral' ? 'admin' : 
               preRegisterForm.permission_level === 'gestor_unidade' ? 'criador' : 
+              preRegisterForm.permission_level === 'eventos_parceiros' ? 'criador' : 
               preRegisterForm.permission_level === 'editor' ? 'editor' : 'viewer'
       },
     });
@@ -480,6 +483,7 @@ export default function UsersPage() {
           let mappedRole: 'admin' | 'editor' | 'criador' | 'viewer' = 'viewer';
           if ((editForm.permission_level as string) === 'admin_geral') mappedRole = 'admin';
           else if ((editForm.permission_level as string) === 'gestor_unidade') mappedRole = 'criador';
+          else if ((editForm.permission_level as string) === 'eventos_parceiros') mappedRole = 'criador';
           else if ((editForm.permission_level as string) === 'editor') mappedRole = 'editor';
 
           const { error: roleError } = await supabase
@@ -1593,7 +1597,7 @@ export default function UsersPage() {
               <div>
                 <Label>Unidade</Label>
                 <Select 
-                  disabled={editForm.permission_level === 'admin_geral'}
+                  disabled={editForm.permission_level === 'admin_geral' || editForm.permission_level === 'eventos_parceiros'}
                   value={editForm.unit} 
                   onValueChange={v => setEditForm({ ...editForm, unit: v as any })}
                 >
@@ -1616,7 +1620,7 @@ export default function UsersPage() {
                     const newLevel = v as any;
                     let newUnit = editForm.unit;
                     
-                    if (newLevel === 'admin_geral') {
+                    if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') {
                       newUnit = 'Evento Geral do Grupo';
                     } else if (newLevel === 'gestor_unidade' && newUnit === 'Evento Geral do Grupo') {
                       newUnit = 'DIC'; // Valor padrão para gestores
@@ -1849,7 +1853,7 @@ export default function UsersPage() {
                   onValueChange={v => {
                     const newLevel = v as any;
                     let newUnit = preRegisterForm.unit;
-                    if (newLevel === 'admin_geral') newUnit = 'Evento Geral do Grupo';
+                    if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') newUnit = 'Evento Geral do Grupo';
                     else if (newLevel === 'gestor_unidade' && newUnit === 'Evento Geral do Grupo') newUnit = 'DIC';
                     setPreRegisterForm({ ...preRegisterForm, permission_level: newLevel, unit: newUnit });
                   }}
@@ -1863,7 +1867,7 @@ export default function UsersPage() {
               <div className="space-y-2">
                 <Label>Unidade</Label>
                 <Select 
-                  disabled={preRegisterForm.permission_level === 'admin_geral'}
+                  disabled={preRegisterForm.permission_level === 'admin_geral' || preRegisterForm.permission_level === 'eventos_parceiros'}
                   value={preRegisterForm.unit} 
                   onValueChange={v => setPreRegisterForm({ ...preRegisterForm, unit: v as any })}
                 >
