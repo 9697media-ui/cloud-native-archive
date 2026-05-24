@@ -522,7 +522,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     </div>
 
                     {form.use_logo_as_title && (
-                      <div className="p-3 bg-white rounded-lg border border-dashed border-border">
+                      <div className="p-3 bg-card rounded-lg border border-dashed border-border">
                         <FileUpload 
                           label="Logo/ID Visual do Evento"
                           mode="single"
@@ -834,7 +834,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       
                       <div className="space-y-4">
                         <div className="space-y-3">
-                          <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-white p-3 shadow-sm">
+                          <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-sm">
                             <Switch
                               id="marketing_cobertura"
                               checked={form.marketing_coverage || false}
@@ -851,7 +851,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                             </div>
                           )}
 
-                          <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-white p-3 shadow-sm">
+                          <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-sm">
                             <Switch
                               id="marketing_grafica"
                               checked={(form.marketing_items || []).some(i => i.type === 'demanda_grafica')}
@@ -870,7 +870,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                           {(form.marketing_items || []).filter(i => i.type === 'demanda_grafica').map((item, idx) => {
                             const originalIdx = (form.marketing_items || []).findIndex(mi => mi === item);
                             return (
-                              <div key={`grafica-${idx}`} className="space-y-2 p-3 bg-white rounded-md border border-blue-100 shadow-sm animate-in fade-in slide-in-from-top-1">
+                              <div key={`grafica-${idx}`} className="space-y-2 p-3 bg-card rounded-md border border-border shadow-sm animate-in fade-in slide-in-from-top-1">
                                 <div className="flex items-center gap-2">
                                   <Input 
                                     value={item.item} 
@@ -880,7 +880,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                       setForm({ ...form, marketing_items: updated });
                                     }} 
                                     placeholder="Ex: Card Instagram, Banner..." 
-                                    className="flex-1 bg-white border-blue-200 focus-visible:ring-blue-500 h-8 text-sm"
+                                    className="flex-1 bg-background border-border focus-visible:ring-ring h-8 text-sm"
                                   />
                                   <Button
                                     type="button"
@@ -1070,7 +1070,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 setForm({ ...form, external_collaborators: updated });
                               }}
                               placeholder="Tipo de parceria / Detalhes..."
-                              className="h-8 text-xs bg-white/50"
+                              className="h-8 text-xs bg-background/50"
                             />
                           </div>
                         ))}

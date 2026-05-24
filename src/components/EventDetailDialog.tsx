@@ -35,7 +35,7 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-white border-none sm:rounded-2xl shadow-2xl">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-background border-none sm:rounded-2xl shadow-2xl">
         <div className="relative aspect-[21/9] md:aspect-[3/1] bg-slate-900 overflow-hidden">
           {(event.banner_image_desktop || event.banner_url_desktop || event.banner_url_mobile) ? (
             <img 
