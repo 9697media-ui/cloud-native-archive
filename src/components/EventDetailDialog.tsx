@@ -35,7 +35,7 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-white border-none sm:rounded-2xl shadow-2xl">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-background border-none sm:rounded-2xl shadow-2xl">
         <div className="relative aspect-[21/9] md:aspect-[3/1] bg-slate-900 overflow-hidden">
           {(event.banner_image_desktop || event.banner_url_desktop || event.banner_url_mobile) ? (
             <img 
@@ -74,80 +74,80 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
           
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="flex-1 space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-tight">
                 {event.title}
               </h2>
               
-              <div className="flex flex-wrap gap-6 text-slate-600">
+              <div className="flex flex-wrap gap-6 text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                     <CalendarDays className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs text-slate-400 uppercase font-semibold tracking-wider">Data</p>
+                    <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Data</p>
                     <p className="font-medium">{format(new Date(event.start_datetime), "dd 'de' MMMM", { locale: ptBR })}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                     <Clock className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs text-slate-400 uppercase font-semibold tracking-wider">Horário</p>
+                    <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Horário</p>
                     <p className="font-medium">
                       {format(new Date(event.start_datetime), 'HH:mm')} - {format(new Date(event.end_datetime), 'HH:mm')}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs text-slate-400 uppercase font-semibold tracking-wider">Local</p>
+                    <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Local</p>
                     <p className="font-medium">{event.location}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="prose prose-slate max-w-none pt-6 border-t border-slate-100">
-                <p className="text-slate-600 text-lg leading-relaxed whitespace-pre-wrap">
+              <div className="prose prose-slate max-w-none pt-6 border-t border-border">
+                <p className="text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap">
                   {event.description || 'Nenhuma descrição detalhada disponível para este evento.'}
                 </p>
               </div>
 
               {(event.target_audience || event.support_team || event.food_logistics || event.equipment_needed || event.printed_materials) && (
-                <div className="pt-6 border-t border-slate-100 space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Logística e Apoio</h3>
+                <div className="pt-6 border-t border-border space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Logística e Apoio</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {event.target_audience && (
                       <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Público-Alvo</p>
-                        <p className="text-slate-700">{event.target_audience}</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter">Público-Alvo</p>
+                        <p className="text-foreground">{event.target_audience}</p>
                       </div>
                     )}
                     {event.support_team && (
                       <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Equipe de Apoio</p>
-                        <p className="text-slate-700">{event.support_team}</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter">Equipe de Apoio</p>
+                        <p className="text-foreground">{event.support_team}</p>
                       </div>
                     )}
                     {event.food_logistics && (
                       <div className="col-span-1 md:col-span-2">
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Alimentação</p>
-                        <p className="text-slate-700 whitespace-pre-wrap">{event.food_logistics}</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter">Alimentação</p>
+                        <p className="text-foreground whitespace-pre-wrap">{event.food_logistics}</p>
                       </div>
                     )}
                     {event.equipment_needed && (
                       <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Equipamentos</p>
-                        <p className="text-slate-700">{event.equipment_needed}</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter">Equipamentos</p>
+                        <p className="text-foreground">{event.equipment_needed}</p>
                       </div>
                     )}
                     {event.printed_materials && (
                       <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Materiais Impressos</p>
-                        <p className="text-slate-700">{event.printed_materials}</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter">Materiais Impressos</p>
+                        <p className="text-foreground">{event.printed_materials}</p>
                       </div>
                     )}
                   </div>
@@ -155,26 +155,26 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
               )}
               
               {event.has_unit_collaboration && (
-                <div className="pt-6 border-t border-slate-100 space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Parcerias e Colaborações</h3>
+                <div className="pt-6 border-t border-border space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Parcerias e Colaborações</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {event.collaborating_units.length > 0 && (
                       <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Unidades Internas</p>
-                        <p className="text-slate-700">{event.collaborating_units.join(', ')}</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter">Unidades Internas</p>
+                        <p className="text-foreground">{event.collaborating_units.join(', ')}</p>
                       </div>
                     )}
                     {event.external_collaborators.length > 0 && (
                       <div className="col-span-1 md:col-span-2">
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-tighter">Instituições Externas</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-tighter">Instituições Externas</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
                           {event.external_collaborators.map((ext, idx) => (
-                            <div key={idx} className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-                              <p className="font-bold text-slate-900 text-sm">
+                            <div key={idx} className="bg-muted/50 rounded-lg p-3 border border-border">
+                              <p className="font-bold text-foreground text-sm">
                                 {typeof ext === 'string' ? ext : ext.name}
                               </p>
                               {typeof ext !== 'string' && ext.details && (
-                                <p className="text-xs text-slate-500 mt-0.5">{ext.details}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">{ext.details}</p>
                               )}
                             </div>
                           ))}
@@ -186,7 +186,7 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
               )}
 
               {event.marketing_request && isInternalView && (
-                <div className="pt-6 border-t border-slate-100 space-y-4">
+                <div className="pt-6 border-t border-border space-y-4">
                   <div className="flex items-center gap-2">
                     <Megaphone className="h-5 w-5 text-blue-500" />
                     <h3 className="text-sm font-bold uppercase tracking-wider text-blue-500">Solicitação de Marketing</h3>
@@ -232,9 +232,9 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                           </div>
                         )}
                         {event.printed_materials && (
-                          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-tighter mb-1">Materiais Impressos Necessários</p>
-                            <p className="text-slate-900 text-sm">{event.printed_materials}</p>
+                          <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                            <p className="text-xs font-bold text-muted-foreground uppercase tracking-tighter mb-1">Materiais Impressos Necessários</p>
+                            <p className="text-foreground text-sm">{event.printed_materials}</p>
                           </div>
                         )}
                       </>
@@ -245,14 +245,14 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
             </div>
 
             <div className="w-full md:w-72 space-y-6">
-              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <div className="bg-muted/50 rounded-2xl p-6 border border-border">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Share2 className="h-4 w-4" /> Compartilhar
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <Button 
                     variant="outline" 
-                    className="flex flex-col h-auto py-3 gap-2 border-slate-200 hover:bg-green-50 hover:text-green-600 hover:border-green-200"
+                    className="flex flex-col h-auto py-3 gap-2 border-border hover:bg-green-50 hover:text-green-600 hover:border-green-200"
                     onClick={shareOnWhatsApp}
                   >
                     <MessageCircle className="h-5 w-5" />
@@ -260,14 +260,14 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="flex flex-col h-auto py-3 gap-2 border-slate-200 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200"
+                    className="flex flex-col h-auto py-3 gap-2 border-border hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200"
                   >
                     <Instagram className="h-5 w-5" />
                     <span className="text-[10px] font-bold uppercase">Instagram</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="col-span-2 flex items-center justify-center gap-2 border-slate-200"
+                    className="col-span-2 flex items-center justify-center gap-2 border-border"
                     onClick={copyLink}
                   >
                     <Copy className="h-4 w-4" />
@@ -278,7 +278,7 @@ export function EventDetailDialog({ open, onOpenChange, event }: Props) {
 
               <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10">
                 <p className="text-xs text-primary font-bold uppercase tracking-widest mb-2">Informação</p>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                   Este evento é {event.visibility === 'publico' ? 'público e aberto a todos' : 'interno para colaboradores'}.
                 </p>
               </div>
