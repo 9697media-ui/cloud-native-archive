@@ -39,11 +39,11 @@ export function BannerMissingDialog({ open, onOpenChange, onConfirm, onAddImage 
           
           <Button 
             variant="ghost" 
-            className="flex items-center justify-start gap-3 h-auto py-4 px-6 hover:bg-slate-100"
+            className="flex items-center justify-start gap-3 h-auto py-4 px-6 hover:bg-muted"
             onClick={onConfirm}
           >
-            <div className="bg-slate-200 p-2 rounded-lg">
-              <CheckCircle2 className="h-5 w-5 text-slate-600" />
+            <div className="bg-muted p-2 rounded-lg">
+              <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
             </div>
             <div className="text-left">
               <p className="font-bold text-sm">Publicar sem imagem</p>

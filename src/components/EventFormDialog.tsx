@@ -439,7 +439,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     
                     <div className="flex items-center justify-between gap-3 p-2 bg-primary/5 rounded-md border border-primary/10">
                       <div className="flex flex-col">
-                        <Label htmlFor="show_in_banner" className="text-sm font-semibold text-slate-900">Exibir no banner superior</Label>
+                        <Label htmlFor="show_in_banner" className="text-sm font-semibold text-foreground">Exibir no banner superior</Label>
                         <p className="text-[11px] text-muted-foreground">Destacar no carrossel da página pública.</p>
                       </div>
                       <Switch
@@ -450,9 +450,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       />
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                    <div className="flex items-center justify-between gap-3 p-2 bg-muted rounded-md border border-border">
                       <div className="flex flex-col">
-                        <Label htmlFor="use_logo_as_title" className="text-sm font-semibold text-slate-900">Usar logo como título</Label>
+                        <Label htmlFor="use_logo_as_title" className="text-sm font-semibold text-foreground">Usar logo como título</Label>
                         <p className="text-[11px] text-muted-foreground">Estilo streaming: substitui o texto por uma imagem da logo.</p>
                       </div>
                       <Switch
@@ -463,9 +463,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       />
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                    <div className="flex items-center justify-between gap-3 p-2 bg-muted rounded-md border border-border">
                       <div className="flex flex-col">
-                        <Label htmlFor="show_banner_overlay" className="text-sm font-semibold text-slate-900">Cortina de opacidade</Label>
+                        <Label htmlFor="show_banner_overlay" className="text-sm font-semibold text-foreground">Cortina de opacidade</Label>
                         <p className="text-[11px] text-muted-foreground">Escurece levemente a imagem para destacar o texto.</p>
                       </div>
                       <Switch
@@ -476,9 +476,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       />
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                    <div className="flex items-center justify-between gap-3 p-2 bg-muted rounded-md border border-border">
                       <div className="flex flex-col">
-                        <Label htmlFor="show_banner_fade" className="text-sm font-semibold text-slate-900">Efeito de sombreamento (Fade)</Label>
+                        <Label htmlFor="show_banner_fade" className="text-sm font-semibold text-foreground">Efeito de sombreamento (Fade)</Label>
                         <p className="text-[11px] text-muted-foreground">Adiciona um degradê na base do banner para melhorar a leitura.</p>
                       </div>
                       <Switch
@@ -489,9 +489,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       />
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 p-2 bg-slate-100 rounded-md border border-slate-200">
+                    <div className="flex items-center justify-between gap-3 p-2 bg-muted rounded-md border border-border">
                       <div className="flex flex-col">
-                        <Label htmlFor="full_height_title" className="text-sm font-semibold text-slate-900">Ocupar toda a altura</Label>
+                        <Label htmlFor="full_height_title" className="text-sm font-semibold text-foreground">Ocupar toda a altura</Label>
                         <p className="text-[11px] text-muted-foreground">O título ou logo cresce para preencher o banner (estilo cinema).</p>
                       </div>
                       <Switch
@@ -502,9 +502,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       />
                     </div>
 
-                    <div className="flex flex-col gap-2 p-2 bg-slate-100 rounded-md border border-slate-200">
+                    <div className="flex flex-col gap-2 p-2 bg-muted rounded-md border border-border">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="banner_display_time" className="text-sm font-semibold text-slate-900">Tempo de exibição</Label>
+                        <Label htmlFor="banner_display_time" className="text-sm font-semibold text-foreground">Tempo de exibição</Label>
                         <Badge variant="secondary" className="text-[11px] font-mono">{form.banner_display_time || 5}s</Badge>
                       </div>
                       <input 
@@ -516,13 +516,13 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         value={form.banner_display_time || 5}
                         onChange={(e) => setForm({ ...form, banner_display_time: parseInt(e.target.value) })}
                         disabled={!isAdmin}
-                        className="w-full h-1.5 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-primary"
+                        className="w-full h-1.5 bg-muted-foreground/20 rounded-lg appearance-none cursor-pointer accent-primary"
                       />
                       
                     </div>
 
                     {form.use_logo_as_title && (
-                      <div className="p-3 bg-white rounded-lg border border-dashed border-slate-300">
+                      <div className="p-3 bg-white rounded-lg border border-dashed border-border">
                         <FileUpload 
                           label="Logo/ID Visual do Evento"
                           mode="single"
@@ -904,7 +904,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                   }} 
                                   placeholder="Detalhes: formato, arte, impressão..." 
                                   rows={2}
-                                  className="bg-slate-50 border-blue-100 focus-visible:ring-blue-500 text-xs"
+                                  className="bg-muted/50 border-blue-100 focus-visible:ring-blue-500 text-xs"
                                 />
                                 <Button
                                   type="button"
@@ -1118,7 +1118,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                 <Label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Preview público (Banner)</Label>
                 <Badge variant="outline" className="text-[10px] text-amber-600 bg-amber-50">Exclusivo Banner</Badge>
               </div>
-              <div className="rounded-2xl border bg-slate-50 overflow-hidden shadow-inner h-full flex flex-col">
+              <div className="rounded-2xl border bg-muted/50 overflow-hidden shadow-inner h-full flex flex-col">
                 <div className="bg-white border-b px-4 py-2 flex items-center justify-between">
                   <div className="flex gap-1">
                     <div className="h-2 w-2 rounded-full bg-red-400" />
@@ -1180,13 +1180,13 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       </div>
                     </div>
 
-                    <div className="p-6 border-t bg-slate-50/50">
+                    <div className="p-6 border-t bg-muted/50/50">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Detalhes do evento (Card/Modal)</span>
+                        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-tighter">Detalhes do evento (Card/Modal)</span>
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900 mb-1">{form.title || 'Título do evento'}</h4>
-                      <p className="text-[11px] text-slate-500 line-clamp-3 leading-relaxed">{form.description || 'Sem descrição.'}</p>
+                      <h4 className="text-sm font-bold text-foreground mb-1">{form.title || 'Título do evento'}</h4>
+                      <p className="text-[11px] text-muted-foreground line-clamp-3 leading-relaxed">{form.description || 'Sem descrição.'}</p>
                     </div>
                   </div>
                 </div>
