@@ -102,10 +102,21 @@
 
   html, body, #root {
     height: 100%;
+    /* Prevent rogue horizontal scrolling on mobile/tablet */
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 
   body {
     @apply bg-background text-foreground font-sans;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Ensure media never overflows its container */
+  img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
   }
 }
 
