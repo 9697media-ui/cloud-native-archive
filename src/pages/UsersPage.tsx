@@ -1865,7 +1865,7 @@ export default function UsersPage() {
               <div className="space-y-2">
                 <Label>Unidade</Label>
                 <Select 
-                  disabled={preRegisterForm.permission_level === 'admin_geral'}
+                  disabled={preRegisterForm.permission_level === 'admin_geral' || preRegisterForm.permission_level === 'eventos_parceiros'}
                   value={preRegisterForm.unit} 
                   onValueChange={v => setPreRegisterForm({ ...preRegisterForm, unit: v as any })}
                 >
