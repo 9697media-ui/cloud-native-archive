@@ -483,6 +483,7 @@ export default function UsersPage() {
           let mappedRole: 'admin' | 'editor' | 'criador' | 'viewer' = 'viewer';
           if ((editForm.permission_level as string) === 'admin_geral') mappedRole = 'admin';
           else if ((editForm.permission_level as string) === 'gestor_unidade') mappedRole = 'criador';
+          else if ((editForm.permission_level as string) === 'eventos_parceiros') mappedRole = 'criador';
           else if ((editForm.permission_level as string) === 'editor') mappedRole = 'editor';
 
           const { error: roleError } = await supabase
