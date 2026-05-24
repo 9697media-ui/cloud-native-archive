@@ -124,6 +124,7 @@ export default function UsersPage() {
         ...preRegisterForm,
         role: preRegisterForm.permission_level === 'admin_geral' ? 'admin' : 
               preRegisterForm.permission_level === 'gestor_unidade' ? 'criador' : 
+              preRegisterForm.permission_level === 'eventos_parceiros' ? 'criador' : 
               preRegisterForm.permission_level === 'editor' ? 'editor' : 'viewer'
       },
     });
