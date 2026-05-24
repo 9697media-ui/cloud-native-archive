@@ -1851,7 +1851,7 @@ export default function UsersPage() {
                   onValueChange={v => {
                     const newLevel = v as any;
                     let newUnit = preRegisterForm.unit;
-                    if (newLevel === 'admin_geral') newUnit = 'Evento Geral do Grupo';
+                    if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') newUnit = 'Evento Geral do Grupo';
                     else if (newLevel === 'gestor_unidade' && newUnit === 'Evento Geral do Grupo') newUnit = 'DIC';
                     setPreRegisterForm({ ...preRegisterForm, permission_level: newLevel, unit: newUnit });
                   }}
