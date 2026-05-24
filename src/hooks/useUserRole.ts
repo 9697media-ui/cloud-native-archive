@@ -123,7 +123,7 @@ export function useUserRole() {
 
   const isAdmin = role === 'admin' || permissionLevel === 'admin_geral';
   const isCreator = role === 'criador' || isAdmin;
-  const isManager = role === 'editor' || isCreator || permissionLevel === 'gestor_unidade' || permissionLevel === 'admin_geral';
+  const isManager = role === 'editor' || isCreator || permissionLevel === 'gestor_unidade' || permissionLevel === 'eventos_parceiros' || permissionLevel === 'admin_geral';
   const hasDelegatedAccess = delegatedUnits && delegatedUnits.length > 0;
   const canEdit = isAdmin || isCreator || role === 'editor';
   const canCreate = isAdmin || isCreator;
