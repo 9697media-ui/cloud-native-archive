@@ -94,6 +94,7 @@ export function useUserRole() {
       if (!effectiveRole && profileData?.permission_level) {
         if (profileData.permission_level === 'admin_geral') effectiveRole = 'admin';
         else if (profileData.permission_level === 'gestor_unidade') effectiveRole = 'criador';
+        else if (profileData.permission_level === 'eventos_parceiros') effectiveRole = 'criador';
         else if (profileData.permission_level === 'editor') effectiveRole = 'editor';
         else effectiveRole = null;
       }
