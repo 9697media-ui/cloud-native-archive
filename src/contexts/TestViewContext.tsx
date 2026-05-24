@@ -28,7 +28,7 @@ export const TEST_PERSONAS: TestPersona[] = [
     email: 'admin.teste@lovable.local',
     permission_level: 'admin_geral',
     role: 'admin',
-    unit: 'Evento Geral do Grupo',
+    unit: 'Grupo ANA Brasil',
     is_active: true,
   },
   {

@@ -70,7 +70,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const eEnd = new Date(e.end_datetime).getTime();
       const eventStart = new Date(event.start_datetime).getTime();
       const eventEnd = new Date(event.end_datetime).getTime();
-      const sameScope = e.unit === event.unit || e.unit === 'Evento Geral do Grupo' || event.unit === 'Evento Geral do Grupo';
+      const sameScope = e.unit === event.unit || e.unit === 'Grupo ANA Brasil' || event.unit === 'Grupo ANA Brasil';
       return sameScope && eStart < eventEnd && eEnd > eventStart;
     });
   }, [events]);

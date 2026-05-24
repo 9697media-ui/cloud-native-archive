@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
         email,
         is_active: true,
         permission_level: permissionLevel || 'usuario_padrao',
-        unit: unit || 'Evento Geral do Grupo',
+        unit: unit || 'Grupo ANA Brasil',
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);

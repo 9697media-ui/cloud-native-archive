@@ -13,7 +13,7 @@ const unitDotColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic',
   'Nilópolis': 'bg-unit-nilopolis',
   'Santana': 'bg-unit-santana',
-  'Evento Geral do Grupo': 'bg-unit-geral',
+  'Grupo ANA Brasil': 'bg-unit-geral',
 };
 
 interface Props {

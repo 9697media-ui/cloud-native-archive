@@ -1,4 +1,4 @@
-export type Unit = 'DIC' | 'Nilópolis' | 'Santana' | 'Evento Geral do Grupo';
+export type Unit = 'DIC' | 'Nilópolis' | 'Santana' | 'Grupo ANA Brasil';
 
 export type EventStatus = 'confirmado' | 'pendente' | 'cancelado' | 'concluido';
 
@@ -85,20 +85,20 @@ export interface AppUser {
   is_beta_tester?: boolean;
 }
 
-export const UNITS: Unit[] = ['DIC', 'Nilópolis', 'Santana', 'Evento Geral do Grupo'];
+export const UNITS: Unit[] = ['DIC', 'Nilópolis', 'Santana', 'Grupo ANA Brasil'];
 
 export const UNIT_COLORS: Record<Unit, string> = {
   'DIC': 'unit-dic',
   'Nilópolis': 'unit-nilopolis',
   'Santana': 'unit-santana',
-  'Evento Geral do Grupo': 'unit-geral',
+  'Grupo ANA Brasil': 'unit-geral',
 };
 
 export const UNIT_BG_COLORS: Record<Unit, string> = {
   'DIC': 'bg-unit-dic',
   'Nilópolis': 'bg-unit-nilopolis',
   'Santana': 'bg-unit-santana',
-  'Evento Geral do Grupo': 'bg-unit-geral',
+  'Grupo ANA Brasil': 'bg-unit-geral',
 };
 
 export const EVENT_TYPES: EventType[] = ['reunião', 'evento institucional', 'apresentação', 'cobertura', 'ação externa', 'programação interna', 'outro'];
