@@ -478,6 +478,7 @@ export default function NewsGeneratorPage() {
           <div
             onMouseDown={() => setIsResizing(true)}
             className="hidden lg:block absolute -right-1 top-0 bottom-0 w-2 cursor-col-resize z-50 group"
+            title="Arraste para redimensionar"
           >
             <div className="absolute inset-y-0 right-0 w-[1px] bg-border group-hover:bg-primary/50 group-hover:w-1 transition-all" />
           </div>
