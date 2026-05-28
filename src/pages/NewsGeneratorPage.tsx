@@ -23,6 +23,7 @@ import {
 const MODULE_RULES: Record<string, { label: string; max: number; icon: any; placeholder: string }> = {
   paragraph: { label: 'Parágrafo de Texto', max: Infinity, icon: FileText, placeholder: 'Digite o texto da notícia aqui...' },
   image: { label: 'Imagem (URL)', max: Infinity, icon: ImageIcon, placeholder: 'Cole o link/URL da imagem aqui...' },
+  video: { label: 'Vídeo (YouTube/Vimeo)', max: Infinity, icon: LayoutGrid, placeholder: 'Cole o link do vídeo aqui...' },
 };
 
 function CarouselGallery({ items, isGeneratingPdf }: { items: any[]; isGeneratingPdf: boolean }) {
