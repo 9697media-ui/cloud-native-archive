@@ -539,8 +539,8 @@ export default function NewsGeneratorPage() {
         }
         .grid-background {
           background-image: 
-            linear-gradient(to right, hsl(var(--primary) / 0.1) 1.5px, transparent 1.5px),
-            linear-gradient(to bottom, hsl(var(--primary) / 0.1) 1.5px, transparent 1.5px);
+            linear-gradient(to right, hsl(var(--primary) / 0.05) 2px, transparent 2px),
+            linear-gradient(to bottom, hsl(var(--primary) / 0.05) 2px, transparent 2px);
           background-size: calc(100% / 3) 150px;
         }
       `}</style>
@@ -904,9 +904,9 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 gap-6 w-full relative min-h-[600px] grid-background rounded-lg border border-border/20'}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 gap-0 w-full relative min-h-[600px] grid-background rounded-xl border-2 border-primary/5 bg-slate-50/30'}>
             {!isGeneratingPdf && (
-              <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 pointer-events-none opacity-40">
+              <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 pointer-events-none">
                 {Array.from({ length: 12 }).map((_, i) => (
                   <div 
                     key={i} 
@@ -915,11 +915,13 @@ export default function NewsGeneratorPage() {
                       e.preventDefault();
                       e.stopPropagation();
                     }}
-                    className="border-2 border-primary/20 border-dashed m-1.5 rounded-lg flex items-center justify-center pointer-events-auto hover:bg-primary/5 transition-colors group"
+                    className="border border-primary/5 m-0 pointer-events-auto hover:bg-primary/[0.02] transition-colors group flex items-center justify-center"
                   >
-                    <div className="flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <PlusCircle size={16} className="text-primary/40" />
-                      <span className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{Math.floor(i/3) + 1}x{(i%3) + 1}</span>
+                    <div className="flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary/40">
+                        <Plus size={16} />
+                      </div>
+                      <span className="text-[9px] font-black text-primary/20 uppercase tracking-tighter">Slot {Math.floor(i/3) + 1}x{(i%3) + 1}</span>
                     </div>
                   </div>
                 ))}
@@ -994,11 +996,14 @@ export default function NewsGeneratorPage() {
                     ${module.type === 'paragraph' ? '' : 'avoid-break'}
                     flex flex-col
                     relative
-                    border-2 border-transparent
-                    ${!isGeneratingPdf ? 'hover:border-primary/40 rounded-xl transition-all group/module bg-white/50 backdrop-blur-sm shadow-sm' : ''}
+                    z-10
+                    ${!isGeneratingPdf ? 'transition-all duration-200 group/module' : ''}
                     ${isDraggingThis ? 'opacity-30' : ''}
                   `}
                 >
+                  {!isGeneratingPdf && (
+                    <div className="absolute inset-0 border-2 border-transparent group-hover/module:border-primary/30 rounded-xl transition-all pointer-events-none z-20" />
+                  )}
                   {/* Resizers */}
                   {!isGeneratingPdf && (
                     <>
@@ -1009,7 +1014,7 @@ export default function NewsGeneratorPage() {
                           e.stopPropagation();
                           const startX = e.clientX;
                           const startCols = module.cols || 1;
-                          const containerWidth = document.getElementById('pdf-content')?.offsetWidth || 800;
+                          const containerWidth = document.getElementById('pdf-content')?.querySelector('.grid-background')?.clientWidth || 800;
                           const colWidth = containerWidth / 3;
 
                           const onMouseMove = (moveEvent: MouseEvent) => {
@@ -1080,7 +1085,7 @@ export default function NewsGeneratorPage() {
                     onDragOver={(e) => handleModuleDragOver(e, dragId)}
                     onDragEnd={handleDragEnd}
                     onDrop={handleDrop}
-                    className="flex-1 flex items-center justify-center p-4 cursor-grab active:cursor-grabbing h-full w-full overflow-hidden"
+                    className="flex-1 flex items-center justify-center p-0 cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow"
                   >
                     <div className="w-full h-full flex items-center justify-center">
                       {contentRender}
