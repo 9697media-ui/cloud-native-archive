@@ -1037,27 +1037,25 @@ export default function NewsGeneratorPage() {
                     <div 
                       className="w-full h-full flex flex-col justify-center overflow-hidden"
                     >
-                      <p 
-                        className="text-slate-700 leading-tight text-justify w-full"
+                      <div
+                        className="text-slate-700 leading-snug text-justify w-full h-full flex items-center"
                         style={{ 
                           fontSize: calculateFontSize(module.content, module.cols, module.rows),
-                          lineHeight: '1.25',
-                          margin: 0,
-                          padding: 0,
-                          wordBreak: 'break-word',
                           textAlign: 'justify',
                           textAlignLast: 'left',
-                          width: '100%',
-                          height: '100%',
-                          overflow: 'hidden',
-                          display: 'flex',
-                          alignItems: 'center'
+                          wordBreak: 'break-word',
+                          hyphens: 'auto'
                         }}
                       >
-                        {module.content.split('\n').map((line: string, i: number) => (
-                          <React.Fragment key={i}>{renderFormattedText(line)}<br /></React.Fragment>
-                        ))}
-                      </p>
+                        <span className="w-full">
+                          {module.content.split('\n').map((line: string, i: number) => (
+                            <React.Fragment key={i}>
+                              {renderFormattedText(line)}
+                              {i < module.content.split('\n').length - 1 && <br />}
+                            </React.Fragment>
+                          ))}
+                        </span>
+                      </div>
                     </div>
                   );
                   break;
