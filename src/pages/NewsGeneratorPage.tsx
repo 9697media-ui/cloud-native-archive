@@ -1006,9 +1006,11 @@ export default function NewsGeneratorPage() {
                   break;
                 case 'gallery':
                   contentRender = (
-                    <div style={heightStyle}>
-                      <CarouselGallery items={module.items} isGeneratingPdf={isGeneratingPdf} />
-                    </div>
+                    <CarouselGallery 
+                      items={module.items} 
+                      isGeneratingPdf={isGeneratingPdf} 
+                      heightStyle={heightStyle}
+                    />
                   );
                   break;
                 default:
