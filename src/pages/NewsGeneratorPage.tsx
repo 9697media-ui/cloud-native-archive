@@ -345,14 +345,53 @@ export default function NewsGeneratorPage() {
     const y = e.clientY - rect.top;
 
     let position: 'left' | 'right' | 'top' | 'bottom' = 'bottom';
-    if (x < rect.width * 0.25) position = 'left';
-    else if (x > rect.width * 0.75) position = 'right';
+    if (x < rect.width * 0.3) position = 'left';
+    else if (x > rect.width * 0.7) position = 'right';
     else if (y < rect.height * 0.5) position = 'top';
     else position = 'bottom';
 
     if (dropIndicator?.id !== targetId || dropIndicator?.position !== position) {
       setDropIndicator({ id: targetId, position });
     }
+  };
+
+  const handleGridCellDrop = (e: React.DragEvent, cellIndex: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!dragItem) return;
+
+    let newItem: any;
+    if (dragItem.source === 'toolbox') {
+      newItem = { 
+        id: Date.now().toString(), 
+        type: dragItem.type, 
+        content: '', 
+        cols: 1, 
+        rows: 1 
+      };
+    } else {
+      const found = modules.find((m) => m.id === dragItem.id);
+      if (!found) return;
+      newItem = { ...found };
+    }
+
+    const newModules = modules.filter(m => m.id !== newItem.id);
+    
+    // Calcular posição de inserção baseada na contagem de colunas
+    let totalColsBefore = 0;
+    let targetIdx = newModules.length;
+    for (let i = 0; i < newModules.length; i++) {
+      if (totalColsBefore >= cellIndex) {
+        targetIdx = i;
+        break;
+      }
+      totalColsBefore += newModules[i].cols;
+    }
+
+    newModules.splice(targetIdx, 0, newItem);
+    setModules(normalizeModules(newModules));
+    handleDragEnd();
   };
 
   const handleContainerDragOver = (e: React.DragEvent) => {
