@@ -1028,10 +1028,11 @@ export default function NewsGeneratorPage() {
                           CLIQUE PARA ASSISTIR O VÍDEO COMPLETO
                         </a>
                       ) : (
-                        <div className="relative aspect-video rounded-xl overflow-hidden shadow-md bg-muted flex items-center justify-center">
+                        <div className={`relative rounded-xl overflow-hidden shadow-md bg-muted flex items-center justify-center ${module.width === 'third' ? 'aspect-[3/4]' : 'aspect-video'}`}>
                           <iframe
                             src={module.content.includes('youtube.com') ? module.content.replace('watch?v=', 'embed/') : module.content}
-                            className="absolute inset-0 w-full h-full border-0"
+                            className="absolute inset-0 w-full h-full border-0 object-cover"
+                            style={{ objectFit: 'cover' }}
                             allowFullScreen
                           />
                         </div>
