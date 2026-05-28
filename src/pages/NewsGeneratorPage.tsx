@@ -430,49 +430,44 @@ export default function NewsGeneratorPage() {
       }
     }
 
-    // 2. Agrupar em linhas virtuais e garantir preenchimento 100%
-    const getWidthValue = (w: string) => {
-      if (w === 'full') return 100;
-      if (w === 'two-thirds') return 66.6;
-      if (w === 'half') return 50;
-      if (w === 'third') return 33.3;
-      return 100;
+    // Reaproveita a mesma lógica de normalização para o drop
+    const normalizeModules = (modules: any[]) => {
+      let result = modules.map(m => ({ ...m }));
+      for (let i = 0; i < result.length; i++) {
+        const current = result[i];
+        const next = result[i + 1];
+        if (current.width === 'two-thirds' && next) next.width = 'third';
+        if (current.width === 'half' && next && next.width === 'third') current.width = 'two-thirds';
+        if (current.width === 'third' && next && next.width === 'half') next.width = 'two-thirds';
+        if (current.width === 'third' && next && next.width === 'third' && (!result[i+2] || result[i+2].width !== 'third')) {
+          next.width = 'two-thirds';
+        }
+      }
+      if (result.length > 1) {
+        const last = result[result.length - 1];
+        const prev = result[result.length - 2];
+        if (last.width === 'half' && prev.width !== 'half' && prev.width !== 'full') prev.width = 'half';
+        if (last.width === 'two-thirds' && prev.width !== 'third' && prev.width !== 'full') prev.width = 'third';
+      }
+      const getVal = (w: string) => (w === 'full' ? 100 : w === 'two-thirds' ? 66.6 : w === 'half' ? 50 : 33.3);
+      let lineSum = 0;
+      let lineIndices: number[] = [];
+      for (let i = 0; i < result.length; i++) {
+        const val = getVal(result[i].width);
+        if (lineSum + val > 100.1 || result[i].width === 'full') {
+          if (lineIndices.length === 1) result[lineIndices[0]].width = 'full';
+          lineSum = val;
+          lineIndices = [i];
+        } else {
+          lineSum += val;
+          lineIndices.push(i);
+        }
+      }
+      if (lineIndices.length === 1) result[lineIndices[0]].width = 'full';
+      return result;
     };
 
-    let rows: any[][] = [];
-    let currentRow: any[] = [];
-    let currentWidth = 0;
-
-    for (const m of newModules) {
-      const val = getWidthValue(m.width);
-      if (currentWidth + val > 100.1 || m.width === 'full') {
-        if (currentRow.length > 0) rows.push(currentRow);
-        currentRow = [m];
-        currentWidth = val;
-      } else {
-        currentRow.push(m);
-        currentWidth += val;
-      }
-    }
-    if (currentRow.length > 0) rows.push(currentRow);
-
-    const balancedModules = rows.flatMap(row => {
-      const rowSum = row.reduce((acc, m) => acc + getWidthValue(m.width), 0);
-      if (rowSum < 99 && row.length > 0) {
-        const lastItem = row[row.length - 1];
-        const otherItemsSum = rowSum - getWidthValue(lastItem.width);
-        const neededWidth = 100 - otherItemsSum;
-
-        if (neededWidth >= 90) lastItem.width = 'full';
-        else if (neededWidth >= 65) lastItem.width = 'two-thirds';
-        else if (neededWidth >= 45) lastItem.width = 'half';
-        else if (neededWidth >= 30) lastItem.width = 'third';
-        else lastItem.width = 'full';
-      }
-      return row;
-    });
-
-    setModules(balancedModules);
+    setModules(normalizeModules(newModules));
     handleDragEnd();
   };
 
