@@ -224,18 +224,25 @@ export default function NewsGeneratorPage() {
 
   const getMaxCharacters = (cols: number, rows: number | 'auto') => {
     if (rows === 'auto') return 2000;
-    // Estimativa: ~0.5 caracteres por pixel quadrado com fonte 14px
-    // Área = cols * rows * 150 (altura base) * 300 (largura base estimada por col)
-    return Math.floor((cols * (rows as number) * 150 * 250) / 100); 
+    // Baseamos a capacidade na densidade de leitura confortável
+    // Um bloco 1x1 tem ~150px altura e ~250px largura = 37.500px²
+    // Com fonte 14px (mínima), cabem aproximadamente 400-500 caracteres
+    const rowCount = rows as number;
+    return cols * rowCount * 450; 
   };
 
   const calculateFontSize = (text: string, cols: number, rows: number | 'auto') => {
-    if (rows === 'auto') return '16px';
+    if (rows === 'auto' || !text) return '16px';
     
     const charCount = Math.max(text.length, 1);
-    const area = cols * (rows as number) * 150 * 250; 
+    const rowCount = rows as number;
+    const areaFactor = cols * rowCount;
     
-    const idealSize = Math.sqrt(area / charCount) * 0.45;
+    // Aumentamos o multiplicador para dar mais peso ao espaço disponível vs quantidade de texto
+    // Se tiver pouco texto em muita área, o valor sobe rápido
+    const ratio = (areaFactor * 1200) / charCount;
+    const idealSize = 12 + Math.sqrt(ratio) * 1.8;
+    
     return `${Math.max(14, Math.min(22, idealSize))}px`;
   };
 
