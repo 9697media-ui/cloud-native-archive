@@ -1036,21 +1036,25 @@ export default function NewsGeneratorPage() {
                   {!isGeneratingPdf && (
                     <>
                       <div 
-                        className="absolute -right-2 top-0 bottom-0 w-4 cursor-col-resize z-50 opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
+                        className="absolute -right-3 top-0 bottom-0 w-6 cursor-col-resize z-[60] opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
                         onMouseDown={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           const startX = e.clientX;
                           const startCols = module.cols || 1;
                           const gridEl = document.querySelector('.grid-container-modern');
-                          const containerWidth = gridEl?.clientWidth || 800;
-                          const currentGap = 16; 
-                          const calculatedColWidth = (containerWidth - (2 * currentGap)) / 3;
+                          if (!gridEl) return;
+                          
+                          const containerWidth = gridEl.clientWidth;
+                          const calculatedColWidth = containerWidth / 3;
 
                           const onMouseMove = (moveEvent: MouseEvent) => {
+                            moveEvent.preventDefault();
                             const deltaX = moveEvent.clientX - startX;
                             const newCols = Math.max(1, Math.min(3, startCols + Math.round(deltaX / calculatedColWidth)));
-                            if (newCols !== module.cols) updateModuleGrid(module.id, { cols: newCols });
+                            if (newCols !== module.cols) {
+                              updateModuleGrid(module.id, { cols: newCols });
+                            }
                           };
                           const onMouseUp = () => {
                             document.removeEventListener('mousemove', onMouseMove);
@@ -1062,21 +1066,24 @@ export default function NewsGeneratorPage() {
                           document.addEventListener('mouseup', onMouseUp);
                         }}
                       >
-                        <div className="w-1.5 h-12 bg-primary/40 rounded-full hover:bg-primary transition-colors" />
+                        <div className="w-2 h-16 bg-primary/60 rounded-full hover:bg-primary transition-colors shadow-[0_0_10px_rgba(0,0,0,0.1)] border border-white/20" />
                       </div>
                       <div 
-                        className="absolute -bottom-2 left-0 right-0 h-4 cursor-row-resize z-50 opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
+                        className="absolute -bottom-3 left-0 right-0 h-6 cursor-row-resize z-[60] opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
                         onMouseDown={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           const startY = e.clientY;
                           const startRows = module.rows === 'auto' ? 1 : module.rows;
-                          const rowHeight = 150 + 16; 
+                          const rowHeight = 150; 
 
                           const onMouseMove = (moveEvent: MouseEvent) => {
+                            moveEvent.preventDefault();
                             const deltaY = moveEvent.clientY - startY;
                             const newRows = Math.max(1, Math.min(4, startRows + Math.round(deltaY / rowHeight)));
-                            if (newRows !== module.rows) updateModuleGrid(module.id, { rows: newRows as any });
+                            if (newRows !== module.rows) {
+                              updateModuleGrid(module.id, { rows: newRows as any });
+                            }
                           };
                           const onMouseUp = () => {
                             document.removeEventListener('mousemove', onMouseMove);
@@ -1088,7 +1095,7 @@ export default function NewsGeneratorPage() {
                           document.addEventListener('mouseup', onMouseUp);
                         }}
                       >
-                        <div className="w-12 h-1.5 bg-primary/40 rounded-full hover:bg-primary transition-colors" />
+                        <div className="w-16 h-2 bg-primary/60 rounded-full hover:bg-primary transition-colors shadow-[0_0_10px_rgba(0,0,0,0.1)] border border-white/20" />
                       </div>
                     </>
                   )}
