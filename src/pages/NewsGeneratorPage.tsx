@@ -232,50 +232,58 @@ export default function NewsGeneratorPage() {
 
   const updateModuleWidth = (id: string, width: string) => {
     setModules(prevModules => {
-      const newModules = prevModules.map((m) => {
-        if (m.id !== id) return m;
-        return { ...m, width };
-      });
+      // 1. Aplica a mudança de largura solicitada
+      const newModules = prevModules.map((m) => (m.id === id ? { ...m, width } : { ...m }));
       
-      const finalModules = newModules.map((m) => ({ ...m }));
+      // 2. Processa as linhas para garantir que somem sempre 100%
       let currentRowWidth = 0;
-      let currentRowStart = 0;
-
+      let rowIndices: number[] = [];
+      
       const getWidthValue = (w: string) => {
         if (w === 'full') return 100;
-        if (w === 'two-thirds') return 66;
+        if (w === 'two-thirds') return 66.6;
         if (w === 'half') return 50;
-        if (w === 'third') return 33;
+        if (w === 'third') return 33.3;
         return 100;
       };
 
-      for (let i = 0; i < finalModules.length; i++) {
-        const m = finalModules[i];
+      for (let i = 0; i < newModules.length; i++) {
+        const m = newModules[i];
         const val = getWidthValue(m.width);
         
-        if (currentRowWidth + val > 100 || m.width === 'full') {
-          // A linha anterior terminou. Vamos verificar se houve buraco.
-          if (currentRowWidth > 0 && currentRowWidth < 100 && i > 0) {
-            // Arredonda o ÚLTIMO item da linha anterior para preencher o que falta
-            const lastInRow = finalModules[i - 1];
-            if (currentRowWidth <= 50) lastInRow.width = 'full';
-            else if (currentRowWidth <= 67) lastInRow.width = 'two-thirds';
-            else lastInRow.width = 'full';
+        // Se este item não cabe na linha atual ou é 100%, fecha a linha anterior
+        if (currentRowWidth + val > 100.1 || m.width === 'full') {
+          if (rowIndices.length > 0 && currentRowWidth < 99) {
+            // Expandir o ÚLTIMO item da linha que acabou de fechar
+            const lastIdx = rowIndices[rowIndices.length - 1];
+            const needed = 100 - (currentRowWidth - getWidthValue(newModules[lastIdx].width));
+            
+            if (needed >= 90) newModules[lastIdx].width = 'full';
+            else if (needed >= 60) newModules[lastIdx].width = 'two-thirds';
+            else if (needed >= 45) newModules[lastIdx].width = 'half';
+            else newModules[lastIdx].width = 'third';
           }
-          currentRowWidth = val;
-          currentRowStart = i;
+          // Inicia nova linha
+          currentRowWidth = getWidthValue(newModules[i].width);
+          rowIndices = [i];
         } else {
           currentRowWidth += val;
-        }
-
-        // Se for o último item da lista, também precisamos fechar a linha
-        if (i === finalModules.length - 1 && currentRowWidth < 100) {
-          if (currentRowWidth <= 50) m.width = 'full';
-          else if (currentRowWidth <= 67) m.width = 'two-thirds';
-          else m.width = 'full';
+          rowIndices.push(i);
         }
       }
-      return finalModules;
+
+      // Processa a última linha pendente
+      if (rowIndices.length > 0 && currentRowWidth < 99) {
+        const lastIdx = rowIndices[rowIndices.length - 1];
+        const needed = 100 - (currentRowWidth - getWidthValue(newModules[lastIdx].width));
+        
+        if (needed >= 90) newModules[lastIdx].width = 'full';
+        else if (needed >= 60) newModules[lastIdx].width = 'two-thirds';
+        else if (needed >= 45) newModules[lastIdx].width = 'half';
+        else newModules[lastIdx].width = 'third';
+      }
+
+      return newModules;
     });
     setActiveWidthMenu(null);
   };
