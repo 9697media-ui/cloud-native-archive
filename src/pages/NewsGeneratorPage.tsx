@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Trash2,
   Image as ImageIcon,
@@ -126,6 +126,44 @@ export default function NewsGeneratorPage() {
   const [pdfError, setPdfError] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarWidth, setSidebarWidth] = useState(440);
+  const [isResizing, setIsResizing] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Ajusta a largura baseada na posição do mouse
+      // Adicionamos um pequeno buffer se necessário, mas clientX funciona bem para painel à esquerda
+      const newWidth = Math.max(340, Math.min(900, e.clientX));
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    };
+  }, [isResizing]);
 
   const handleNewArticle = () => setShowClearModal(true);
 
@@ -425,15 +463,26 @@ export default function NewsGeneratorPage() {
 
       {/* PAINEL DE EDIÇÃO */}
       <aside
+        style={{ width: sidebarOpen ? (windowWidth >= 1024 ? `${sidebarWidth}px` : '88vw') : '0px' }}
         className={`
           print:hidden bg-card border-r border-border shadow-xl lg:shadow-sm
-          flex flex-col transition-all duration-300 ease-out
+          flex flex-col ${isResizing ? '' : 'transition-all duration-300 ease-out'}
           fixed lg:relative inset-y-0 left-0 top-16 lg:top-0 z-40
           ${sidebarOpen
-            ? 'w-[88vw] max-w-[440px] lg:w-[440px] xl:w-[480px] 2xl:w-[520px] translate-x-0'
-            : '-translate-x-full lg:translate-x-0 lg:w-0 lg:overflow-hidden lg:border-r-0'}
+            ? 'max-w-[90vw] translate-x-0'
+            : '-translate-x-full lg:translate-x-0 lg:overflow-hidden lg:border-r-0'}
         `}
       >
+        {/* Handle de redimensionamento (apenas desktop) */}
+        {sidebarOpen && (
+          <div
+            onMouseDown={() => setIsResizing(true)}
+            className="hidden lg:block absolute -right-1 top-0 bottom-0 w-2 cursor-col-resize z-50 group"
+            title="Arraste para redimensionar"
+          >
+            <div className="absolute inset-y-0 right-0 w-[1px] bg-border group-hover:bg-primary/50 group-hover:w-1 transition-all" />
+          </div>
+        )}
         {/* Header da sidebar */}
         <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-card to-muted/30 flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -521,7 +570,7 @@ export default function NewsGeneratorPage() {
               </h3>
               <span className="text-[10px] text-muted-foreground/70 ml-auto">Clique ou arraste</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className={`grid gap-2 ${sidebarWidth > 640 ? 'grid-cols-3' : 'grid-cols-2'}`}>
               {Object.entries(MODULE_RULES).map(([type, rule]) => {
                 const Icon = rule.icon;
                 return (
@@ -565,7 +614,7 @@ export default function NewsGeneratorPage() {
             )}
 
 
-            <div className="flex flex-col gap-3">
+            <div className={`grid gap-3 ${sidebarWidth > 640 ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {modules.map((module, idx) => {
                 const rule = MODULE_RULES[module.type];
                 const Icon = rule.icon;
