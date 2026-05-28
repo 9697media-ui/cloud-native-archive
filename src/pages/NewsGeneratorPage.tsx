@@ -946,24 +946,28 @@ export default function NewsGeneratorPage() {
         </div>
 
         <article
+          ref={articleRef}
           id="pdf-content"
           className={`bg-white mx-auto w-full max-w-[210mm] shadow-2xl rounded-sm text-slate-800 relative page-break-container
-            ${isGeneratingPdf ? 'shadow-none p-0 max-w-none w-full' : 'page-ruler-bg min-h-[297mm] p-6 md:p-12 mb-20 print:shadow-none print:p-0 print:max-w-none print:w-full print:bg-none'}
+            ${isGeneratingPdf ? 'shadow-none p-0 max-w-none w-full' : 'min-h-[297mm] p-6 md:p-12 mb-20 print:shadow-none print:p-0 print:max-w-none print:w-full'}
           `}
+          style={!isGeneratingPdf ? { minHeight: `${totalPages * 297}mm` } : {}}
           onDragOver={handleContainerDragOver}
           onDrop={handleDrop}
         >
           {!isGeneratingPdf && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-sm">
-              <div className="absolute top-[297mm] left-0 right-0 h-[20px] bg-muted/50 border-y border-border flex items-center justify-center">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Quebra de Página 1</span>
-              </div>
-              <div className="absolute top-[594mm] left-0 right-0 h-[20px] bg-muted/50 border-y border-border flex items-center justify-center">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Quebra de Página 2</span>
-              </div>
-              <div className="absolute top-[891mm] left-0 right-0 h-[20px] bg-muted/50 border-y border-border flex items-center justify-center">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Quebra de Página 3</span>
-              </div>
+              {Array.from({ length: Math.max(0, totalPages - 1) }).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute left-0 right-0 h-[24px] bg-muted/60 border-y-2 border-dashed border-border flex items-center justify-center"
+                  style={{ top: `${(i + 1) * 297}mm`, transform: 'translateY(-12px)' }}
+                >
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-card px-2 py-0.5 rounded">
+                    Página {i + 2}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
           <div className={`border-b-4 border-primary pb-4 mb-8 ${isGeneratingPdf ? 'hidden' : 'print:hidden'}`}>
