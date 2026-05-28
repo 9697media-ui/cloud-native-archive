@@ -233,15 +233,15 @@ export default function NewsGeneratorPage() {
     const rowCount = rows as number;
     
     // Dimensões úteis subtraindo o padding interno do módulo (12px de cada lado = 24px)
-    // Largura estimada de uma coluna no grid real
-    const w = (cols * 260) - 24; 
+    // Refinando medidas para maior precisão no preenchimento
+    const w = (cols * 270) - 24; 
     const h = (rowCount * 150) - 24;
     
-    // Fator de densidade ajustado para garantir que o texto ocupe o máximo sem transbordar
-    // Aumentamos o divisor para ser mais conservador e evitar o corte que o usuário reportou
-    const s = Math.sqrt((w * h) / (charCount * 1.1));
+    // Fator de densidade "Golden Ratio" para preenchimento de bloco (entre 0.85 e 0.95)
+    // Se o divisor for menor, a fonte cresce. Se for maior, a fonte diminui.
+    const s = Math.sqrt((w * h) / (charCount * 0.92));
     
-    return `${Math.max(12, Math.min(22, s))}px`;
+    return `${Math.max(12, Math.min(24, s))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -1041,16 +1041,17 @@ export default function NewsGeneratorPage() {
                         className="text-slate-700 leading-tight text-justify w-full"
                         style={{ 
                           fontSize: calculateFontSize(module.content, module.cols, module.rows),
-                          lineHeight: '1.3',
+                          lineHeight: '1.25',
                           margin: 0,
                           padding: 0,
                           wordBreak: 'break-word',
                           textAlign: 'justify',
                           textAlignLast: 'left',
-                          display: 'block',
                           width: '100%',
-                          maxHeight: '100%',
-                          overflow: 'hidden'
+                          height: '100%',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          alignItems: 'center'
                         }}
                       >
                         {module.content.split('\n').map((line: string, i: number) => (
