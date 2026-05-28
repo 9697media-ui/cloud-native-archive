@@ -337,7 +337,7 @@ export default function NewsGeneratorPage() {
 
     let newItem: any;
     if (dragItem.source === 'toolbox') {
-      newItem = { id: Date.now().toString(), type: dragItem.type, content: '', width: 'full' };
+      newItem = { id: Date.now().toString(), type: dragItem.type, content: '', width: 'full', height: 'auto' };
     } else {
       const found = modules.find((m) => m.id === dragItem.id);
       if (!found) return;
