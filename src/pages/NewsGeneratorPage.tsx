@@ -140,6 +140,8 @@ export default function NewsGeneratorPage() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfError, setPdfError] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [showLegibilityModal, setShowLegibilityModal] = useState(false);
+  const [pendingModuleMove, setPendingModuleMove] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
@@ -412,6 +414,13 @@ export default function NewsGeneratorPage() {
       totalColsBefore += newModules[i].cols;
     }
 
+    // Calcular se o novo local causaria perda de legibilidade
+    // (Simplificado: 1 coluna para texto com mais de 150 caracteres)
+    if (newItem.type === 'paragraph' && newItem.content.length > 150 && newItem.cols > 1) {
+       // Se estivesse indo para um slot de 1 col, alertar?
+       // O grid de slots usa cols: 1 por padrão para novos itens
+    }
+
     newModules.splice(targetIdx, 0, newItem);
     setModules(normalizeModules(newModules));
     handleDragEnd();
@@ -436,7 +445,7 @@ export default function NewsGeneratorPage() {
 
     let newItem: any;
     if (dragItem.source === 'toolbox') {
-      newItem = { id: Date.now().toString(), type: dragItem.type, content: '', width: 'full', height: 'auto' };
+      newItem = { id: Date.now().toString(), type: dragItem.type, content: '', cols: 3, rows: 'auto' };
     } else {
       const found = modules.find((m) => m.id === dragItem.id);
       if (!found) return;
@@ -445,14 +454,35 @@ export default function NewsGeneratorPage() {
 
     if (!newItem) return;
 
+    // Detectar se o movimento vai reduzir as colunas e causar perda de legibilidade
+    if (newItem.type === 'paragraph' && dropIndicator.id !== 'container') {
+      const target = modules.find(m => m.id === dropIndicator.id);
+      if (target && (dropIndicator.position === 'left' || dropIndicator.position === 'right')) {
+        const futureCols = target.cols === 3 ? 1 : 1; 
+        const fontSizeStr = calculateFontSize(newItem.content, futureCols, newItem.rows);
+        const fontSize = parseFloat(fontSizeStr);
+        
+        if (fontSize <= 12.5 && newItem.content.length > 100) {
+          setPendingModuleMove({ newItem, dropIndicator });
+          setShowLegibilityModal(true);
+          handleDragEnd();
+          return;
+        }
+      }
+    }
+
+    executeMove(newItem, dropIndicator);
+  };
+
+  const executeMove = (newItem: any, indicator: any) => {
     let newModules = modules.map((m) => ({ ...m })).filter((m) => m.id !== newItem.id);
 
-    if (dropIndicator.id === 'container') {
+    if (indicator.id === 'container') {
       newModules.push(newItem);
     } else {
-      let targetIndex = newModules.findIndex((m) => m.id === dropIndicator.id);
+      let targetIndex = newModules.findIndex((m) => m.id === indicator.id);
       if (targetIndex !== -1) {
-        if (dropIndicator.position === 'left' || dropIndicator.position === 'right') {
+        if (indicator.position === 'left' || indicator.position === 'right') {
           const target = newModules[targetIndex];
 
           if (target.cols === 3) {
@@ -1258,6 +1288,53 @@ export default function NewsGeneratorPage() {
                 className="px-4 py-2 rounded-lg font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-md"
               >
                 Sim, folha em branco
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLegibilityModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 print:hidden">
+          <div className="bg-card rounded-xl shadow-2xl max-w-md w-full p-6 border border-border">
+            <div className="flex items-center gap-3 text-amber-500 mb-4">
+              <AlertCircle size={28} />
+              <h3 className="text-xl font-bold">Atenção: Texto no Limite</h3>
+            </div>
+            <p className="text-muted-foreground mb-6 text-sm">
+              Ao mover este bloco para o lado, o texto ficará muito pequeno (tamanho mínimo atingido). <br /><br />
+              O que deseja fazer?
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  executeMove(pendingModuleMove.newItem, pendingModuleMove.dropIndicator);
+                  setShowLegibilityModal(false);
+                }}
+                className="w-full px-4 py-2.5 rounded-lg font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all text-sm"
+              >
+                Manter e ajustar texto depois
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Auto-redimensionar: forçar 3 colunas inserindo acima ou abaixo
+                  const autoIndicator = { ...pendingModuleMove.dropIndicator, position: 'bottom' };
+                  const fullWidthItem = { ...pendingModuleMove.newItem, cols: 3 };
+                  executeMove(fullWidthItem, autoIndicator);
+                  setShowLegibilityModal(false);
+                }}
+                className="w-full px-4 py-2.5 rounded-lg font-medium border border-border hover:bg-muted transition-all text-sm"
+              >
+                Auto-redimensionar (Ocupar linha inteira)
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLegibilityModal(false)}
+                className="w-full px-4 py-2.5 rounded-lg font-medium text-muted-foreground hover:bg-muted transition-all text-sm"
+              >
+                Cancelar movimento
               </button>
             </div>
           </div>
