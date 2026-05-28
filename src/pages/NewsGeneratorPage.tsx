@@ -232,15 +232,14 @@ export default function NewsGeneratorPage() {
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
     
-    // Dimensões úteis considerando o padding de 12px fixo
-    // Usamos medidas base conservadoras para garantir que caiba
-    const w = (cols * 240) - 30; 
-    const h = (rowCount * 140) - 30;
+    // Dimensões úteis com padding mínimo
+    const w = (cols * 260); 
+    const h = (rowCount * 150);
     
-    // Fator de densidade ajustado para ser mais conservador e evitar corte
-    const s = Math.sqrt((w * h) / (charCount * 0.8));
+    // Fator de densidade agressivo para ocupar todo o bloco
+    const s = Math.sqrt((w * h) / (charCount * 0.5));
     
-    return `${Math.max(10, Math.min(20, s))}px`;
+    return `${Math.max(12, Math.min(22, s))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -1034,20 +1033,22 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="w-full h-full flex items-center justify-center"
+                      className="w-full h-full flex flex-col justify-start"
                       style={{ overflow: 'hidden' }}
                     >
                       <p 
                         className="text-slate-700 leading-tight text-justify w-full"
                         style={{ 
                           fontSize: calculateFontSize(module.content, module.cols, module.rows),
-                          lineHeight: '1.2',
+                          lineHeight: '1.1',
                           margin: 0,
                           padding: 0,
                           wordBreak: 'break-word',
                           textAlign: 'justify',
                           textAlignLast: 'left',
                           display: 'block',
+                          height: '100%',
+                          width: '100%',
                           overflow: 'hidden'
                         }}
                       >
