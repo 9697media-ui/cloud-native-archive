@@ -522,13 +522,12 @@ export default function NewsGeneratorPage() {
   modules.forEach((module) => {
     if (!module.content && module.type !== 'image') return;
 
-    if (module.type === 'image' && module.cols === 3 && module.content) {
+    if (module.type === 'image' && module.cols === 3 && module.content && !module.preventGallery) {
       if (!currentGalleryGroup) {
         currentGalleryGroup = { id: `gallery-${module.id}`, type: 'gallery', cols: 3, rows: module.rows, items: [module] };
         renderModules.push(currentGalleryGroup);
       } else {
         currentGalleryGroup.items.push(module);
-        // Se um item do grupo tiver altura definida, aplicamos ao grupo todo
         if (module.rows !== 'auto') currentGalleryGroup.rows = module.rows;
       }
     } else {
