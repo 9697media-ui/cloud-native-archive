@@ -241,10 +241,10 @@ export default function NewsGeneratorPage() {
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'col-span-4';
-    if (widthStr === 'half') return 'col-span-3';
-    if (widthStr === 'third') return 'col-span-2';
-    return 'col-span-6';
+    if (widthStr === 'two-thirds') return 'w-full md:grow md:basis-[calc(66.66%-8px)]';
+    if (widthStr === 'half') return 'w-full md:grow md:basis-[calc(50%-8px)]';
+    if (widthStr === 'third') return 'w-full md:grow md:basis-[calc(33.33%-8px)]';
+    return 'w-full flex-none';
   };
 
   const getWidthClass = (widthStr: string) => {
