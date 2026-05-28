@@ -232,13 +232,18 @@ export default function NewsGeneratorPage() {
     
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
-    const maxChars = getMaxCharacters(cols, rows);
     
-    // Mapeamento linear com mínimo reduzido para 10px para garantir que caiba 600 caracteres
-    const fillRatio = Math.min(charCount / maxChars, 1);
-    const size = 22 - (fillRatio * (22 - 10));
+    // Área relativa disponível (cols * rows)
+    const area = cols * rowCount;
     
-    return `${Math.max(10, Math.min(22, size))}px`;
+    // Se for 1x1 e tiver 600 caracteres, ratio é 1/600
+    const ratio = area / charCount;
+    
+    // Usamos uma escala logarítmica ou raiz para o tamanho da fonte
+    // Multiplicador ajustado para que 1/600 resulte em ~10px e 1/50 resulte em ~22px
+    const idealSize = 8 + Math.sqrt(ratio * 1200);
+    
+    return `${Math.max(10, Math.min(22, idealSize))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -1027,7 +1032,7 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="flex flex-col w-full h-full pointer-events-none justify-start overflow-y-auto"
+                      className="flex flex-col w-full h-full pointer-events-none justify-start"
                     >
                       <p 
                         className="text-slate-700 leading-tight text-justify"
@@ -1121,7 +1126,7 @@ export default function NewsGeneratorPage() {
                     onDragOver={(e) => handleModuleDragOver(e, dragId)}
                     onDragEnd={handleDragEnd}
                     onDrop={handleDrop}
-                    className={`flex-1 flex items-center justify-center cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow p-[12px]`}
+                    className={`flex-1 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow p-3`}
                   >
                     <div className="w-full h-full flex items-center justify-center">
                       {contentRender}
