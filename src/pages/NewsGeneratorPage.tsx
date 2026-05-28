@@ -569,7 +569,7 @@ export default function NewsGeneratorPage() {
               </h3>
               <span className="text-[10px] text-muted-foreground/70 ml-auto">Clique ou arraste</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className={`grid gap-2 ${sidebarWidth > 640 ? 'grid-cols-3' : 'grid-cols-2'}`}>
               {Object.entries(MODULE_RULES).map(([type, rule]) => {
                 const Icon = rule.icon;
                 return (
