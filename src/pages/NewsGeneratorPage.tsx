@@ -1068,6 +1068,95 @@ export default function NewsGeneratorPage() {
           </div>
         </div>
       )}
+
+      {/* Pop-up Assistente de Layout (Anti-Buraco) */}
+      {layoutAssistant.isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-card border border-border w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-6 border-b border-border bg-gradient-to-br from-primary/10 to-transparent">
+              <div className="flex items-center gap-3 text-primary mb-2">
+                <AlertCircle size={24} />
+                <h3 className="text-xl font-bold">Assistente de Layout</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Detectamos um espaço vazio na sua linha. O layout atual soma apenas {100 - layoutAssistant.remainingWidth}% de 100%. Como deseja corrigir?
+              </p>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* OPÇÃO 1 */}
+              <button
+                onClick={applyAutoAdjustment}
+                className="w-full group flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+              >
+                <div className="h-10 w-10 rounded-lg bg-muted group-hover:bg-primary/15 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <LayoutGrid size={20} className="group-hover:text-primary transition-colors" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-foreground">OPÇÃO 1: Preenchimento Automático</div>
+                  <div className="text-xs text-muted-foreground mt-1">Expande o último bloco da linha para ocupar os {layoutAssistant.remainingWidth.toFixed(0)}% restantes.</div>
+                </div>
+              </button>
+
+              {/* OPÇÃO 2 */}
+              <div className="space-y-2">
+                <div className="group flex items-start gap-4 p-4 rounded-xl border border-border bg-muted/20 opacity-80">
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                    <GripVertical size={20} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-foreground">OPÇÃO 2: Puxar Bloco Existente</div>
+                    <div className="text-xs text-muted-foreground mt-1">Selecione um bloco abaixo para preencher o espaço (ele será redimensionado para {layoutAssistant.remainingWidth.toFixed(0)}%):</div>
+                    
+                    <div className="mt-3 grid grid-cols-1 gap-2 max-h-32 overflow-y-auto pr-2">
+                      {modules
+                        .filter(m => !layoutAssistant.modulesInRow.some(rm => rm.id === m.id))
+                        .map((m, idx) => (
+                          <button
+                            key={m.id}
+                            onClick={() => applyPullBlock(m.id)}
+                            className="flex items-center justify-between px-3 py-2 rounded-lg bg-background border border-border hover:border-primary hover:text-primary transition-all text-[10px] font-medium"
+                          >
+                            <span>Bloco {idx + 1}: {MODULE_RULES[m.type].label} ({m.width})</span>
+                            <ChevronRight size={12} />
+                          </button>
+                        ))
+                      }
+                      {modules.length <= layoutAssistant.modulesInRow.length && (
+                        <div className="text-[10px] text-muted-foreground italic text-center py-2">Nenhum outro bloco disponível para puxar.</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* OPÇÃO 3 */}
+              <button
+                onClick={applyAddNewTailored}
+                className="w-full group flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+              >
+                <div className="h-10 w-10 rounded-lg bg-muted group-hover:bg-primary/15 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <PlusCircle size={20} className="group-hover:text-primary transition-colors" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-foreground">OPÇÃO 3: Adicionar Novo Bloco Sob Medida</div>
+                  <div className="text-xs text-muted-foreground mt-1">Cria um novo parágrafo vazio com exatamente {layoutAssistant.remainingWidth.toFixed(0)}% de largura.</div>
+                </div>
+              </button>
+            </div>
+
+            <div className="p-4 bg-muted/30 border-t border-border flex justify-end gap-3">
+              <button
+                onClick={() => setLayoutAssistant({ ...layoutAssistant, isOpen: false })}
+                className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Ignorar (manter buraco)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
