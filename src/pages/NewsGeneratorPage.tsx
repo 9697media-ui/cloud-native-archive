@@ -182,6 +182,101 @@ export default function NewsGeneratorPage() {
     };
   }, [isResizing]);
 
+  // Smart pagination: compute margin offsets to push blocks that cross page break to next page
+  useEffect(() => {
+    if (isGeneratingPdf) return;
+    const container = modulesContainerRef.current;
+    const article = articleRef.current;
+    if (!container || !article) return;
+
+    let raf = 0;
+    const compute = () => {
+      const PX_PER_MM = 3.7795275591;
+      const PAGE_HEIGHT_PX = 297 * PX_PER_MM;
+      const articleRect = article.getBoundingClientRect();
+      const paddingTop = parseFloat(getComputedStyle(article).paddingTop) || 0;
+
+      const children = Array.from(container.children) as HTMLElement[];
+      // group children by row (same offsetTop within tolerance), considering only un-offset positions
+      // We work iteratively: reset margins, then measure, then assign.
+      children.forEach((c) => { c.style.marginTop = ''; });
+
+      // Measure after reset (use rAF to wait paint)
+      requestAnimationFrame(() => {
+        const offsets: Record<string, number> = {};
+        const rows: { ids: string[]; top: number; bottom: number; elems: HTMLElement[] }[] = [];
+        children.forEach((el) => {
+          const r = el.getBoundingClientRect();
+          const top = r.top - articleRect.top;
+          const bottom = top + r.height;
+          const id = el.dataset.moduleId || '';
+          const last = rows[rows.length - 1];
+          if (last && Math.abs(last.top - top) < 4) {
+            last.ids.push(id);
+            last.elems.push(el);
+            last.bottom = Math.max(last.bottom, bottom);
+          } else {
+            rows.push({ ids: [id], top, bottom, elems: [el] });
+          }
+        });
+
+        let cumulativeOffset = 0;
+        let maxBottom = 0;
+        rows.forEach((row) => {
+          const adjustedTop = row.top + cumulativeOffset;
+          const adjustedBottom = row.bottom + cumulativeOffset;
+          const rowHeight = row.bottom - row.top;
+          // current page index based on top
+          const pageStart = Math.floor(adjustedTop / PAGE_HEIGHT_PX) * PAGE_HEIGHT_PX;
+          const pageEnd = pageStart + PAGE_HEIGHT_PX;
+          // padding buffer at end of page
+          const safeEnd = pageEnd - paddingTop * 0.5;
+
+          if (adjustedBottom > safeEnd && rowHeight < PAGE_HEIGHT_PX - paddingTop * 2) {
+            // push to next page
+            const push = pageEnd - adjustedTop + paddingTop * 0.5;
+            row.ids.forEach((id) => { offsets[id] = (offsets[id] || 0) + push; });
+            cumulativeOffset += push;
+            maxBottom = Math.max(maxBottom, adjustedBottom + push);
+          } else {
+            maxBottom = Math.max(maxBottom, adjustedBottom);
+          }
+        });
+
+        const pages = Math.max(1, Math.ceil(maxBottom / PAGE_HEIGHT_PX));
+        setPageOffsets((prev) => {
+          const same = Object.keys(offsets).length === Object.keys(prev).length &&
+            Object.keys(offsets).every((k) => prev[k] === offsets[k]);
+          return same ? prev : offsets;
+        });
+        setTotalPages((prev) => (prev === pages ? prev : pages));
+      });
+    };
+
+    raf = requestAnimationFrame(compute);
+
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(compute);
+    });
+    ro.observe(container);
+    Array.from(container.children).forEach((c) => ro.observe(c as Element));
+    // observe images load
+    const imgs = container.querySelectorAll('img');
+    imgs.forEach((img) => {
+      if (!(img as HTMLImageElement).complete) {
+        img.addEventListener('load', compute, { once: true });
+        img.addEventListener('error', compute, { once: true });
+      }
+    });
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [modules, headerData, sidebarWidth, isGeneratingPdf, windowWidth]);
+
+
   const handleNewArticle = () => setShowClearModal(true);
 
   const addModule = (type: string) => {
