@@ -229,29 +229,39 @@ export default function NewsGeneratorPage() {
         return { ...m, width: nextWidth };
       });
 
-      // Auto-ajuste para evitar buracos
-      return newModules.map((m, idx) => {
-        const prev = newModules[idx - 1];
-        const next = newModules[idx + 1];
+      // Aplicar regras de adaptação automática seguindo as especificações
+      const finalModules = newModules.map((m) => ({ ...m }));
+      
+      for (let i = 0; i < finalModules.length; i++) {
+        const m = finalModules[i];
+        
+        // Regra 2: Se um elemento tiver 66%, o elemento seguinte deve se adaptar para 33%
+        if (m.width === 'two-thirds' && i < finalModules.length - 1) {
+          finalModules[i + 1].width = 'third';
+        }
 
-        // Se eu sou o 66% e o próximo é 50% ou Full, o próximo deve virar 33% (se possível) ou eu viro Full
-        if (m.width === 'two-thirds') {
-          if (next && (next.width === 'half' || next.width === 'full')) {
-            // Ajustar o próximo para 33% para preencher a linha
-            // Mas só se o próximo não for o que o usuário acabou de mudar (para não ser frustrante)
-            // Na verdade, a lógica mais simples é: se o par não fecha 100%, o atual expande.
+        // Regra 3: Regra de Fechamento (Sem "Buracos" Visuais)
+        // Quando o ÚLTIMO é 50% ou 66%, o ANTERIOR se adapta para preencher a linha
+        if (i === finalModules.length - 1 && i > 0) {
+          const last = finalModules[i];
+          const prev = finalModules[i - 1];
+          if (last.width === 'half' && prev.width !== 'half') {
+            prev.width = 'half';
+          } else if (last.width === 'two-thirds' && prev.width !== 'third') {
+            prev.width = 'third';
           }
         }
-        return m;
-      });
+      }
+      
+      return finalModules;
     });
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'col-span-2';
-    if (widthStr === 'half' && sidebarWidth > 640) return 'col-span-1'; // No grid de 2 colunas, 50% é 1 col
-    if (widthStr === 'third') return 'col-span-1';
-    return 'col-span-full';
+    if (widthStr === 'two-thirds') return 'col-span-4';
+    if (widthStr === 'half') return 'col-span-3';
+    if (widthStr === 'third') return 'col-span-2';
+    return 'col-span-6';
   };
 
   const getWidthClass = (widthStr: string) => {
@@ -376,21 +386,29 @@ export default function NewsGeneratorPage() {
       }
     }
 
-    const balancedModules = newModules.map((m, idx) => {
-      if (idx === newModules.length - 1) {
-        const prev = newModules[idx - 1];
-        if (prev) {
-          if (prev.width === 'half') return { ...m, width: 'half' };
-          if (prev.width === 'two-thirds') return { ...m, width: 'third' };
-          if (prev.width === 'third') return { ...m, width: 'two-thirds' };
-        }
-      } else if (idx < newModules.length - 1) {
-        const next = newModules[idx + 1];
-        if (m.width === 'two-thirds' && (!next || next.width === 'full')) return { ...m, width: 'full' };
-        if (m.width === 'half' && (!next || next.width === 'full')) return { ...m, width: 'full' };
+    // Aplicar regras de adaptação automática seguindo as especificações
+    const balancedModules = newModules.map((m) => ({ ...m }));
+    
+    for (let i = 0; i < balancedModules.length; i++) {
+      const m = balancedModules[i];
+      
+      // Regra 2: Se um elemento tiver 66%, o elemento seguinte deve se adaptar para 33%
+      if (m.width === 'two-thirds' && i < balancedModules.length - 1) {
+        balancedModules[i + 1].width = 'third';
       }
-      return m;
-    });
+
+      // Regra 3: Regra de Fechamento (Sem "Buracos" Visuais)
+      // Quando o ÚLTIMO é 50% ou 66%, o ANTERIOR se adapta para preencher a linha
+      if (i === balancedModules.length - 1 && i > 0) {
+        const last = balancedModules[i];
+        const prev = balancedModules[i - 1];
+        if (last.width === 'half' && prev.width !== 'half') {
+          prev.width = 'half';
+        } else if (last.width === 'two-thirds' && prev.width !== 'third') {
+          prev.width = 'third';
+        }
+      }
+    }
 
     setModules(balancedModules);
     handleDragEnd();
@@ -658,7 +676,7 @@ export default function NewsGeneratorPage() {
             )}
 
 
-            <div className={`grid gap-3 ${sidebarWidth > 750 ? 'grid-cols-3' : sidebarWidth > 500 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            <div className={`grid gap-3 ${sidebarWidth > 500 ? 'grid-cols-6' : 'grid-cols-1'}`}>
               {modules.map((module, idx) => {
                 const rule = MODULE_RULES[module.type];
                 const Icon = rule.icon;
