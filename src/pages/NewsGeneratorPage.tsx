@@ -327,6 +327,7 @@ export default function NewsGeneratorPage() {
   const updateModuleWidth = (id: string, width: string) => {
     const newModules = modules.map(m => m.id === id ? { ...m, width } : m);
     setModules(newModules);
+    setTimeout(() => validateLayout(newModules), 300);
     setActiveWidthMenu(null);
     setTimeout(() => validateLayout(newModules), 300);
   };
