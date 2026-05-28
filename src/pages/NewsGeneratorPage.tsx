@@ -624,14 +624,14 @@ export default function NewsGeneratorPage() {
             )}
 
 
-            <div className={`grid gap-3 ${sidebarWidth > 640 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            <div className={`grid gap-3 ${sidebarWidth > 750 ? 'grid-cols-3' : sidebarWidth > 500 ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {modules.map((module, idx) => {
                 const rule = MODULE_RULES[module.type];
                 const Icon = rule.icon;
                 const isDraggingThis = dragItem?.id === module.id;
                 const isTarget = dropIndicator?.id === module.id;
-                const widthClass = getWidthClass(module.width);
-                const widthLabel = module.width === 'full' ? '100%' : module.width === 'half' ? '50%' : '33%';
+                const widthClass = getSidebarWidthClass(module.width);
+                const widthLabel = module.width === 'full' ? '100%' : module.width === 'half' ? '50%' : module.width === 'two-thirds' ? '66%' : '33%';
                 const WidthIcon = module.width === 'full' ? Square : module.width === 'half' ? Columns : LayoutGrid;
 
                 return (
