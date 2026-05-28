@@ -863,6 +863,20 @@ export default function NewsGeneratorPage() {
                             </div>
                           )}
                         </div>
+                      ) : module.type === 'video' ? (
+                        <div className="flex flex-col gap-2 h-full">
+                          <input
+                            type="url"
+                            value={module.content}
+                            onChange={(e) => updateContent(module.id, e.target.value)}
+                            placeholder={rule.placeholder}
+                            className="w-full p-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                          />
+                          <div className="text-[10px] text-amber-600 bg-amber-50 p-1.5 rounded border border-amber-200 flex items-center gap-1">
+                            <AlertCircle size={10} />
+                            Vídeos não rodam no PDF; será gerado um botão de acesso.
+                          </div>
+                        </div>
                       ) : null}
                     </div>
                   </div>
