@@ -954,21 +954,28 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'flex flex-wrap gap-4 w-full'}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 gap-6 w-full'}>
             {finalRenderModules.map((module) => {
-              const widthClass = isGeneratingPdf ? getPdfWidthClass(module.width) : getWidthClass(module.width);
+              const widthClass = isGeneratingPdf ? getPdfWidthClass(module.cols) : '';
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
               const isDraggingThis = dragItem?.id === dragId;
               const isTarget = dropIndicator?.id === dragId;
-              const heightStyle = getHeightStyle(module.height, isGeneratingPdf);
+              const heightStyle = getHeightStyle(module.rows, isGeneratingPdf);
+              
+              const gridStyle: React.CSSProperties = !isGeneratingPdf ? {
+                gridColumn: `span ${module.cols || 3}`,
+                gridRow: module.rows !== 'auto' ? `span ${module.rows}` : 'auto',
+                ...heightStyle
+              } : {
+                ...heightStyle
+              };
 
               let contentRender: React.ReactNode = null;
               switch (module.type) {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`}
-                      style={heightStyle}
+                      className="flex flex-col w-full h-full"
                     >
                       <p className="text-base md:text-lg text-slate-700 leading-relaxed text-justify">
                         {module.content.split('\n').map((line: string, i: number) => (
@@ -981,14 +988,13 @@ export default function NewsGeneratorPage() {
                 case 'image':
                   contentRender = (
                     <figure 
-                      className={`flex flex-col w-full m-0 ${module.width === 'full' ? 'h-auto' : 'flex-1 h-full'}`}
-                      style={heightStyle}
+                      className="flex flex-col w-full h-full m-0 overflow-hidden rounded-xl shadow-md"
                     >
                       <img
                         src={module.content}
                         alt="Notícia"
-                        className={`w-full object-cover rounded-xl shadow-md pointer-events-none
-                          ${module.height !== 'auto' ? 'h-full flex-1' : (module.width === 'full' ? 'max-h-[500px]' : (isGeneratingPdf ? 'aspect-video h-full' : 'h-full flex-1 min-h-[200px]'))}
+                        className={`w-full object-cover pointer-events-none h-full flex-1
+                          ${module.rows === 'auto' ? 'min-h-[200px] max-h-[600px]' : ''}
                         `}
                         onError={(e: any) => {
                           e.target.onerror = null;
@@ -1007,6 +1013,9 @@ export default function NewsGeneratorPage() {
                     />
                   );
                   break;
+                default:
+                  return null;
+              }
                 default:
                   return null;
               }
