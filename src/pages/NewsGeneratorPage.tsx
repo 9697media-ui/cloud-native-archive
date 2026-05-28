@@ -410,11 +410,7 @@ export default function NewsGeneratorPage() {
       }
     }
 
-    // 2. Processa as linhas para garantir que somem sempre 100%
-    const finalModules = newModules.map((m) => ({ ...m }));
-    let currentRowWidth = 0;
-    let rowIndices: number[] = [];
-    
+    // 2. Agrupar em linhas virtuais e garantir preenchimento 100%
     const getWidthValue = (w: string) => {
       if (w === 'full') return 100;
       if (w === 'two-thirds') return 66.6;
@@ -423,39 +419,36 @@ export default function NewsGeneratorPage() {
       return 100;
     };
 
-    for (let i = 0; i < finalModules.length; i++) {
-      const m = finalModules[i];
+    let rows: any[][] = [];
+    let currentRow: any[] = [];
+    let currentWidth = 0;
+
+    for (let m of newModules) {
       const val = getWidthValue(m.width);
-      
-      if (currentRowWidth + val > 100.1 || m.width === 'full') {
-        if (rowIndices.length > 0 && currentRowWidth < 99) {
-          const lastIdx = rowIndices[rowIndices.length - 1];
-          const needed = 100 - (currentRowWidth - getWidthValue(finalModules[lastIdx].width));
-          
-          if (needed >= 90) finalModules[lastIdx].width = 'full';
-          else if (needed >= 60) finalModules[lastIdx].width = 'two-thirds';
-          else if (needed >= 45) finalModules[lastIdx].width = 'half';
-          else finalModules[lastIdx].width = 'third';
-        }
-        currentRowWidth = getWidthValue(finalModules[i].width);
-        rowIndices = [i];
+      if (currentWidth + val > 100.1 || m.width === 'full') {
+        if (currentRow.length > 0) rows.push(currentRow);
+        currentRow = [m];
+        currentWidth = val;
       } else {
-        currentRowWidth += val;
-        rowIndices.push(i);
+        currentRow.push(m);
+        currentWidth += val;
       }
     }
+    if (currentRow.length > 0) rows.push(currentRow);
 
-    if (rowIndices.length > 0 && currentRowWidth < 99) {
-      const lastIdx = rowIndices[rowIndices.length - 1];
-      const needed = 100 - (currentRowWidth - getWidthValue(finalModules[lastIdx].width));
-      
-      if (needed >= 90) finalModules[lastIdx].width = 'full';
-      else if (needed >= 60) finalModules[lastIdx].width = 'two-thirds';
-      else if (needed >= 45) finalModules[lastIdx].width = 'half';
-      else finalModules[lastIdx].width = 'third';
-    }
+    rows.forEach(row => {
+      let rowSum = row.reduce((acc, m) => acc + getWidthValue(m.width), 0);
+      if (rowSum < 99 && row.length > 0) {
+        const lastItem = row[row.length - 1];
+        const needed = 100 - (rowSum - getWidthValue(lastItem.width));
+        if (needed >= 90) lastItem.width = 'full';
+        else if (needed >= 60) lastItem.width = 'two-thirds';
+        else if (needed >= 45) lastItem.width = 'half';
+        else lastItem.width = 'third';
+      }
+    });
 
-    setModules(finalModules);
+    setModules(rows.flat());
     handleDragEnd();
   };
 
