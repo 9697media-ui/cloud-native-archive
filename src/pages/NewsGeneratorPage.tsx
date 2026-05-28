@@ -133,26 +133,6 @@ export default function NewsGeneratorPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
-  const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
-  const [activeHeightMenu, setActiveHeightMenu] = useState<string | null>(null);
-  const widthMenuRef = useRef<HTMLDivElement>(null);
-  const heightMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (widthMenuRef.current && !widthMenuRef.current.contains(event.target as Node)) {
-        setActiveWidthMenu(null);
-      }
-      if (heightMenuRef.current && !heightMenuRef.current.contains(event.target as Node)) {
-        setActiveHeightMenu(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
