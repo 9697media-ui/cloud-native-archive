@@ -229,29 +229,39 @@ export default function NewsGeneratorPage() {
         return { ...m, width: nextWidth };
       });
 
-      // Auto-ajuste para evitar buracos
+      // Aplicar regras de adaptação automática
       return newModules.map((m, idx) => {
-        const prev = newModules[idx - 1];
-        const next = newModules[idx + 1];
-
-        // Se eu sou o 66% e o próximo é 50% ou Full, o próximo deve virar 33% (se possível) ou eu viro Full
-        if (m.width === 'two-thirds') {
-          if (next && (next.width === 'half' || next.width === 'full')) {
-            // Ajustar o próximo para 33% para preencher a linha
-            // Mas só se o próximo não for o que o usuário acabou de mudar (para não ser frustrante)
-            // Na verdade, a lógica mais simples é: se o par não fecha 100%, o atual expande.
+        // Regra 2: Se um elemento tem 66%, o próximo deve ser 33% para fechar a linha
+        if (m.width === 'two-thirds' && idx < newModules.length - 1) {
+          const next = newModules[idx + 1];
+          if (next.width !== 'third' && next.width !== 'full') {
+            // Só ajustamos se não for "full" para não quebrar blocos intencionalmente grandes
+            // Mas o usuário disse "deve se adaptar automaticamente", então vamos forçar se for half
+            if (next.width === 'half') next.width = 'third';
           }
         }
+
+        // Regra 3: Regra de Fechamento (Sem Buracos)
+        // Quando o ÚLTIMO é 50% ou 66%, o ANTERIOR se adapta para preencher
+        if (idx === newModules.length - 1 && idx > 0) {
+          const prev = newModules[idx - 1];
+          if (m.width === 'half' && prev.width !== 'half') {
+            prev.width = 'half';
+          } else if (m.width === 'two-thirds' && prev.width !== 'third') {
+            prev.width = 'third';
+          }
+        }
+
         return m;
       });
     });
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'col-span-2';
-    if (widthStr === 'half' && sidebarWidth > 640) return 'col-span-1'; // No grid de 2 colunas, 50% é 1 col
-    if (widthStr === 'third') return 'col-span-1';
-    return 'col-span-full';
+    if (widthStr === 'two-thirds') return 'col-span-4';
+    if (widthStr === 'half') return 'col-span-3';
+    if (widthStr === 'third') return 'col-span-2';
+    return 'col-span-6';
   };
 
   const getWidthClass = (widthStr: string) => {
