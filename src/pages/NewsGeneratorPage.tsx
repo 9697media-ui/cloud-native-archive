@@ -238,16 +238,16 @@ export default function NewsGeneratorPage() {
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-none';
-    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-none';
-    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-none';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-grow';
+    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-grow';
+    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-grow';
     return 'w-full flex-none';
   };
 
   const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] flex-none';
-    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-none';
-    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-none';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] flex-grow';
+    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-grow';
+    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-grow';
     return 'w-full flex-none';
   };
 
