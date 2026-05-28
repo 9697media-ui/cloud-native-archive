@@ -699,9 +699,9 @@ export default function NewsGeneratorPage() {
                 const Icon = rule.icon;
                 const isDraggingThis = dragItem?.id === module.id;
                 const isTarget = dropIndicator?.id === module.id;
-                const widthClass = getSidebarWidthClass(module.width);
-                const widthLabel = module.width === 'full' ? '100%' : module.width === 'half' ? '50%' : module.width === 'two-thirds' ? '66%' : '33%';
-                const WidthIcon = module.width === 'full' ? Square : module.width === 'half' ? Columns : LayoutGrid;
+                const widthClass = getSidebarWidthClass(module.cols || 3);
+                const widthLabel = `${module.cols === 3 ? '100%' : module.cols === 2 ? '66%' : '33%'}`;
+                const WidthIcon = module.cols === 3 ? Square : module.cols === 2 ? LayoutGrid : Columns;
 
                 return (
                   <div
