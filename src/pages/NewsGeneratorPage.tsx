@@ -961,7 +961,14 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 gap-6 w-full'}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 gap-6 w-full relative min-h-[600px] grid-background rounded-lg border border-border/20'}>
+            {!isGeneratingPdf && (
+              <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 pointer-events-none opacity-20">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="border border-slate-300 border-dashed m-1 rounded-md" />
+                ))}
+              </div>
+            )}
             {finalRenderModules.map((module) => {
               const widthClass = isGeneratingPdf ? getPdfWidthClass(module.cols) : '';
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
