@@ -951,7 +951,7 @@ export default function NewsGeneratorPage() {
             )}
             {finalRenderModules.map((module) => {
               const widthClass = isGeneratingPdf ? getPdfWidthClass(module.cols) : '';
-              const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
+              const dragId = module.type === 'gallery' ? (module.items?.[0]?.id || module.id) : module.id;
               const isDraggingThis = dragItem?.id === dragId;
               const isTarget = dropIndicator?.id === dragId;
               const heightStyle = getHeightStyle(module.rows, isGeneratingPdf);
