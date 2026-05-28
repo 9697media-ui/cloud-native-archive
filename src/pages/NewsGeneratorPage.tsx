@@ -486,10 +486,12 @@ export default function NewsGeneratorPage() {
 
     if (module.type === 'image' && module.width === 'full' && module.content) {
       if (!currentGalleryGroup) {
-        currentGalleryGroup = { id: `gallery-${module.id}`, type: 'gallery', width: 'full', items: [module] };
+        currentGalleryGroup = { id: `gallery-${module.id}`, type: 'gallery', width: 'full', height: module.height, items: [module] };
         renderModules.push(currentGalleryGroup);
       } else {
         currentGalleryGroup.items.push(module);
+        // Se um item do grupo tiver altura definida, aplicamos ao grupo todo
+        if (module.height !== 'auto') currentGalleryGroup.height = module.height;
       }
     } else {
       currentGalleryGroup = null;
