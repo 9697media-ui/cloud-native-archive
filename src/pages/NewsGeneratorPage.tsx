@@ -232,71 +232,58 @@ export default function NewsGeneratorPage() {
 
   const updateModuleWidth = (id: string, width: string) => {
     setModules(prevModules => {
-      // 1. Atualiza o item alvo
+      // 1. Atualiza o item alvo mantendo os outros como estão
       let newModules = prevModules.map(m => m.id === id ? { ...m, width } : { ...m });
 
-      // 2. Aplica as regras de negócio de forma sequencial
-      for (let i = 0; i < newModules.length; i++) {
-        const current = newModules[i];
-        const next = newModules[i + 1];
-
-        // Regra 2: Se 66%, o próximo deve ser 33%
-        if (current.width === 'two-thirds' && next) {
-          next.width = 'third';
-        }
-
-        // Regra: Se temos 50% e 33% na mesma linha, arredonda o maior para preencher (50 -> 66)
-        if (current.width === 'half' && next && next.width === 'third') {
-          current.width = 'two-thirds';
-        }
-        if (current.width === 'third' && next && next.width === 'half') {
-          next.width = 'two-thirds';
-        }
-
-        // Regra: Se temos 33% + 33% e não tem um terceiro, o segundo vira 66%
-        if (current.width === 'third' && next && next.width === 'third' && (!newModules[i+2] || newModules[i+2].width !== 'third')) {
-          next.width = 'two-thirds';
-        }
-      }
-
-      // Regra 3 (Especial): Se o ÚLTIMO do container é 50% ou 66%, o ANTERIOR se adapta
-      if (newModules.length > 1) {
-        const last = newModules[newModules.length - 1];
-        const prev = newModules[newModules.length - 2];
-        if (last.width === 'half' && prev.width !== 'half' && prev.width !== 'full') {
-          prev.width = 'half';
-        }
-        if (last.width === 'two-thirds' && prev.width !== 'third' && prev.width !== 'full') {
-          prev.width = 'third';
-        }
-      }
-
-      // Regra Final: Qualquer bloco que ficar "sozinho" na linha deve ser 100% (Full)
-      // Para isso, verificamos a soma das linhas
+      // 2. Função auxiliar para pegar valor numérico
       const getVal = (w: string) => (w === 'full' ? 100 : w === 'two-thirds' ? 66.6 : w === 'half' ? 50 : 33.3);
+
+      // 3. Normalização: garante que cada linha some 100% ou comece uma nova
+      // Mas sem "travar" a largura se o usuário acabou de mudar
+      let result: any[] = [];
+      let currentLine: any[] = [];
       let currentLineSum = 0;
-      let currentLineIndices: number[] = [];
 
       for (let i = 0; i < newModules.length; i++) {
-        const val = getVal(newModules[i].width);
-        if (currentLineSum + val > 100.1 || newModules[i].width === 'full') {
-          // Fecha linha anterior: se só tem 1 item e não é full, vira full
-          if (currentLineIndices.length === 1) {
-            newModules[currentLineIndices[0]].width = 'full';
+        const m = newModules[i];
+        const val = getVal(m.width);
+
+        // Se o item não cabe na linha atual ou é 'full', fecha a linha anterior
+        if (currentLineSum + val > 100.1 || m.width === 'full') {
+          if (currentLine.length > 0) {
+            // Se a linha anterior tem buraco, expande o último item dela
+            if (currentLineSum < 99) {
+              const last = currentLine[currentLine.length - 1];
+              const needed = 100 - (currentLineSum - getVal(last.width));
+              if (needed >= 90) last.width = 'full';
+              else if (needed >= 65) last.width = 'two-thirds';
+              else if (needed >= 45) last.width = 'half';
+              else last.width = 'third';
+            }
+            result.push(...currentLine);
           }
+          currentLine = [m];
           currentLineSum = val;
-          currentLineIndices = [i];
         } else {
+          currentLine.push(m);
           currentLineSum += val;
-          currentLineIndices.push(i);
         }
       }
-      // Fecha a última linha
-      if (currentLineIndices.length === 1) {
-        newModules[currentLineIndices[0]].width = 'full';
+
+      // Processa a última linha
+      if (currentLine.length > 0) {
+        if (currentLineSum < 99) {
+          const last = currentLine[currentLine.length - 1];
+          const needed = 100 - (currentLineSum - getVal(last.width));
+          if (needed >= 90) last.width = 'full';
+          else if (needed >= 65) last.width = 'two-thirds';
+          else if (needed >= 45) last.width = 'half';
+          else last.width = 'third';
+        }
+        result.push(...currentLine);
       }
 
-      return newModules;
+      return result;
     });
     setActiveWidthMenu(null);
   };
