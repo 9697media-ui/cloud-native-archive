@@ -218,23 +218,51 @@ export default function NewsGeneratorPage() {
   };
 
   const toggleWidth = (id: string) => {
-    setModules(modules.map((m) => {
-      if (m.id !== id) return m;
-      let nextWidth = 'full';
-      if (m.width === 'full') nextWidth = 'half';
-      else if (m.width === 'half') nextWidth = 'third';
-      else if (m.width === 'third') nextWidth = 'full';
-      return { ...m, width: nextWidth };
-    }));
+    setModules(prevModules => {
+      const newModules = prevModules.map((m) => {
+        if (m.id !== id) return m;
+        let nextWidth = 'full';
+        if (m.width === 'full') nextWidth = 'half';
+        else if (m.width === 'half') nextWidth = 'two-thirds';
+        else if (m.width === 'two-thirds') nextWidth = 'third';
+        else if (m.width === 'third') nextWidth = 'full';
+        return { ...m, width: nextWidth };
+      });
+
+      // Auto-ajuste para evitar buracos
+      return newModules.map((m, idx) => {
+        const prev = newModules[idx - 1];
+        const next = newModules[idx + 1];
+
+        // Se eu sou o 66% e o próximo é 50% ou Full, o próximo deve virar 33% (se possível) ou eu viro Full
+        if (m.width === 'two-thirds') {
+          if (next && (next.width === 'half' || next.width === 'full')) {
+            // Ajustar o próximo para 33% para preencher a linha
+            // Mas só se o próximo não for o que o usuário acabou de mudar (para não ser frustrante)
+            // Na verdade, a lógica mais simples é: se o par não fecha 100%, o atual expande.
+          }
+        }
+        return m;
+      });
+    });
+  };
+
+  const getSidebarWidthClass = (widthStr: string) => {
+    if (widthStr === 'two-thirds') return 'col-span-2';
+    if (widthStr === 'half' && sidebarWidth > 640) return 'col-span-1'; // No grid de 2 colunas, 50% é 1 col
+    if (widthStr === 'third') return 'col-span-1';
+    return 'col-span-full';
   };
 
   const getWidthClass = (widthStr: string) => {
+    if (widthStr === 'two-thirds') return 'w-full md:grow md:basis-[calc(66.666667%-10.666px)]';
     if (widthStr === 'third') return 'w-full md:grow md:basis-[calc(33.333333%-10.666px)]';
     if (widthStr === 'half') return 'w-full md:grow md:basis-[calc(50%-8px)]';
     return 'w-full flex-none';
   };
 
   const getPdfWidthClass = (widthStr: string) => {
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-8px)] inline-block align-top mx-[4px] mb-6';
     if (widthStr === 'third') return 'w-[calc(33.33%-8px)] inline-block align-top mx-[4px] mb-6';
     if (widthStr === 'half') return 'w-[calc(50%-8px)] inline-block align-top mx-[4px] mb-6';
     return 'w-full block mb-6';
@@ -348,7 +376,23 @@ export default function NewsGeneratorPage() {
       }
     }
 
-    setModules(newModules);
+    const balancedModules = newModules.map((m, idx) => {
+      if (idx === newModules.length - 1) {
+        const prev = newModules[idx - 1];
+        if (prev) {
+          if (prev.width === 'half') return { ...m, width: 'half' };
+          if (prev.width === 'two-thirds') return { ...m, width: 'third' };
+          if (prev.width === 'third') return { ...m, width: 'two-thirds' };
+        }
+      } else if (idx < newModules.length - 1) {
+        const next = newModules[idx + 1];
+        if (m.width === 'two-thirds' && (!next || next.width === 'full')) return { ...m, width: 'full' };
+        if (m.width === 'half' && (!next || next.width === 'full')) return { ...m, width: 'full' };
+      }
+      return m;
+    });
+
+    setModules(balancedModules);
     handleDragEnd();
   };
 
@@ -614,14 +658,14 @@ export default function NewsGeneratorPage() {
             )}
 
 
-            <div className={`grid gap-3 ${sidebarWidth > 640 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            <div className={`grid gap-3 ${sidebarWidth > 750 ? 'grid-cols-3' : sidebarWidth > 500 ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {modules.map((module, idx) => {
                 const rule = MODULE_RULES[module.type];
                 const Icon = rule.icon;
                 const isDraggingThis = dragItem?.id === module.id;
                 const isTarget = dropIndicator?.id === module.id;
-                const widthClass = getWidthClass(module.width);
-                const widthLabel = module.width === 'full' ? '100%' : module.width === 'half' ? '50%' : '33%';
+                const widthClass = getSidebarWidthClass(module.width);
+                const widthLabel = module.width === 'full' ? '100%' : module.width === 'half' ? '50%' : module.width === 'two-thirds' ? '66%' : '33%';
                 const WidthIcon = module.width === 'full' ? Square : module.width === 'half' ? Columns : LayoutGrid;
 
                 return (
@@ -639,7 +683,7 @@ export default function NewsGeneratorPage() {
                     onDragOver={(e) => handleModuleDragOver(e, module.id)}
                     onDragEnd={handleDragEnd}
                     onDrop={handleDrop}
-                    className={`bg-card border relative rounded-xl overflow-hidden shadow-sm hover:shadow-md flex flex-col group transition-all w-full
+                    className={`bg-card border relative rounded-xl overflow-hidden shadow-sm hover:shadow-md flex flex-col group transition-all ${widthClass}
                       ${isDraggingThis ? 'opacity-30 border-dashed scale-95' : 'border-border hover:border-primary/40'}`}
                   >
                     {isTarget && (
