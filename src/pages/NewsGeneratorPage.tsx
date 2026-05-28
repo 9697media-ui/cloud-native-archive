@@ -233,14 +233,15 @@ export default function NewsGeneratorPage() {
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
     
-    // Área real disponível considerando o padding de 12px de cada lado (total 24px)
-    const availableWidth = (cols * 280) - 24;
-    const availableHeight = (rowCount * 150) - 24;
-    const totalArea = availableWidth * availableHeight;
+    // Largura e altura estimadas (menos padding interno reduzido para preencher melhor)
+    const w = (cols * 310) - 16;
+    const h = (rowCount * 150) - 16;
     
-    const idealSize = Math.sqrt(totalArea / (charCount * 0.6));
+    // Cálculo de fonte para preenchimento máximo: s = sqrt(Área / (Caracteres * Fator de forma))
+    // O fator 0.55 a 0.7 costuma ser ideal para considerar espaços e quebras
+    const s = Math.sqrt((w * h) / (charCount * 0.65));
     
-    return `${Math.max(12, Math.min(22, idealSize))}px`;
+    return `${Math.max(12, Math.min(24, s))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -602,9 +603,9 @@ export default function NewsGeneratorPage() {
             padding: 24px;
           }
         }
-        /* Padding fixo de 12px em todos os blocos */
+        /* Padding interno dos blocos reduzido para preencher melhor o espaço */
         .module-content-wrapper {
-          padding: 12px !important;
+          padding: 8px !important;
         }
       `}</style>
 
@@ -1129,9 +1130,7 @@ export default function NewsGeneratorPage() {
                     onDrop={handleDrop}
                     className={`flex-1 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow module-content-wrapper`}
                   >
-                    <div className="w-full h-full flex items-center justify-center">
-                      {contentRender}
-                    </div>
+                    {contentRender}
                   </div>
 
                   {/* Resizers - Posicionados depois do conteúdo para garantir que fiquem no topo */}
