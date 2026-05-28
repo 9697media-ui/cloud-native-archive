@@ -800,7 +800,7 @@ export default function NewsGeneratorPage() {
                         )}
 
                         <button
-                          type="button;
+                          type="button"
                           onClick={() => removeModule(module.id)}
                           className="p-1.5 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-md transition-colors"
                           title="Excluir"
