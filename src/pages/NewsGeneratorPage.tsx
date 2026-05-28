@@ -520,8 +520,8 @@ export default function NewsGeneratorPage() {
         }
         .grid-background {
           background-image: 
-            linear-gradient(to right, hsl(var(--border) / 0.1) 1px, transparent 1px),
-            linear-gradient(to bottom, hsl(var(--border) / 0.1) 1px, transparent 1px);
+            linear-gradient(to right, hsl(var(--primary) / 0.1) 1.5px, transparent 1.5px),
+            linear-gradient(to bottom, hsl(var(--primary) / 0.1) 1.5px, transparent 1.5px);
           background-size: calc(100% / 3) 150px;
         }
       `}</style>
