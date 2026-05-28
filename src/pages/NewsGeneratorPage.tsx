@@ -782,39 +782,9 @@ export default function NewsGeneratorPage() {
                         <span className="text-[11px] font-semibold text-foreground truncate">{rule.label}</span>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0 relative">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveWidthMenu(activeWidthMenu === module.id ? null : module.id);
-                            setActiveHeightMenu(null);
-                          }}
-                          className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeWidthMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
-                          title="Opções de Largura"
-                        >
-                          <WidthIcon size={10} />
-                          {widthLabel}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveHeightMenu(activeHeightMenu === module.id ? null : module.id);
-                            setActiveWidthMenu(null);
-                          }}
-                          className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeHeightMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
-                          title="Opções de Altura"
-                        >
-                          <ArrowUpDown size={10} />
-                          {module.rows === 'auto' ? 'Auto' : `${module.rows}L`}
-                        </button>
-
-                        {activeWidthMenu === module.id && (
-                          <div 
-                            ref={widthMenuRef}
-                            className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-[100] p-1 animate-in fade-in zoom-in duration-200"
-                          >
+                        <span className="flex items-center gap-1 px-1.5 py-1 bg-muted/60 text-muted-foreground border border-border/50 rounded-md text-[9px] font-black uppercase tracking-tighter" title="Dimensões atuais">
+                          {widthLabel} x {module.rows === 'auto' ? 'AUTO' : `${module.rows}L`}
+                        </span>
                             <div className="grid grid-cols-1 gap-1">
                               {[
                                 { val: 3, label: '3 Colunas (100%)', icon: Square },
