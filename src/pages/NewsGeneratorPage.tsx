@@ -130,10 +130,6 @@ export default function NewsGeneratorPage() {
   const [isResizing, setIsResizing] = useState(false);
   const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
   const widthMenuRef = useRef<HTMLDivElement>(null);
-  const modulesContainerRef = useRef<HTMLDivElement>(null);
-  const articleRef = useRef<HTMLElement>(null);
-  const [pageOffsets, setPageOffsets] = useState<Record<string, number>>({});
-  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -181,101 +177,6 @@ export default function NewsGeneratorPage() {
       document.body.style.userSelect = 'auto';
     };
   }, [isResizing]);
-
-  // Smart pagination: compute margin offsets to push blocks that cross page break to next page
-  useEffect(() => {
-    if (isGeneratingPdf) return;
-    const container = modulesContainerRef.current;
-    const article = articleRef.current;
-    if (!container || !article) return;
-
-    let raf = 0;
-    const compute = () => {
-      const PX_PER_MM = 3.7795275591;
-      const PAGE_HEIGHT_PX = 297 * PX_PER_MM;
-      const articleRect = article.getBoundingClientRect();
-      const paddingTop = parseFloat(getComputedStyle(article).paddingTop) || 0;
-
-      const children = Array.from(container.children) as HTMLElement[];
-      // group children by row (same offsetTop within tolerance), considering only un-offset positions
-      // We work iteratively: reset margins, then measure, then assign.
-      children.forEach((c) => { c.style.marginTop = ''; });
-
-      // Measure after reset (use rAF to wait paint)
-      requestAnimationFrame(() => {
-        const offsets: Record<string, number> = {};
-        const rows: { ids: string[]; top: number; bottom: number; elems: HTMLElement[] }[] = [];
-        children.forEach((el) => {
-          const r = el.getBoundingClientRect();
-          const top = r.top - articleRect.top;
-          const bottom = top + r.height;
-          const id = el.dataset.moduleId || '';
-          const last = rows[rows.length - 1];
-          if (last && Math.abs(last.top - top) < 4) {
-            last.ids.push(id);
-            last.elems.push(el);
-            last.bottom = Math.max(last.bottom, bottom);
-          } else {
-            rows.push({ ids: [id], top, bottom, elems: [el] });
-          }
-        });
-
-        let cumulativeOffset = 0;
-        let maxBottom = 0;
-        rows.forEach((row) => {
-          const adjustedTop = row.top + cumulativeOffset;
-          const adjustedBottom = row.bottom + cumulativeOffset;
-          const rowHeight = row.bottom - row.top;
-          // current page index based on top
-          const pageStart = Math.floor(adjustedTop / PAGE_HEIGHT_PX) * PAGE_HEIGHT_PX;
-          const pageEnd = pageStart + PAGE_HEIGHT_PX;
-          // padding buffer at end of page
-          const safeEnd = pageEnd - paddingTop * 0.5;
-
-          if (adjustedBottom > safeEnd && rowHeight < PAGE_HEIGHT_PX - paddingTop * 2) {
-            // push to next page
-            const push = pageEnd - adjustedTop + paddingTop * 0.5;
-            row.ids.forEach((id) => { offsets[id] = (offsets[id] || 0) + push; });
-            cumulativeOffset += push;
-            maxBottom = Math.max(maxBottom, adjustedBottom + push);
-          } else {
-            maxBottom = Math.max(maxBottom, adjustedBottom);
-          }
-        });
-
-        const pages = Math.max(1, Math.ceil(maxBottom / PAGE_HEIGHT_PX));
-        setPageOffsets((prev) => {
-          const same = Object.keys(offsets).length === Object.keys(prev).length &&
-            Object.keys(offsets).every((k) => prev[k] === offsets[k]);
-          return same ? prev : offsets;
-        });
-        setTotalPages((prev) => (prev === pages ? prev : pages));
-      });
-    };
-
-    raf = requestAnimationFrame(compute);
-
-    const ro = new ResizeObserver(() => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(compute);
-    });
-    ro.observe(container);
-    Array.from(container.children).forEach((c) => ro.observe(c as Element));
-    // observe images load
-    const imgs = container.querySelectorAll('img');
-    imgs.forEach((img) => {
-      if (!(img as HTMLImageElement).complete) {
-        img.addEventListener('load', compute, { once: true });
-        img.addEventListener('error', compute, { once: true });
-      }
-    });
-
-    return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-    };
-  }, [modules, headerData, sidebarWidth, isGeneratingPdf, windowWidth]);
-
 
   const handleNewArticle = () => setShowClearModal(true);
 
@@ -337,23 +238,23 @@ export default function NewsGeneratorPage() {
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-grow min-w-[30%]';
-    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-grow min-w-[25%]';
-    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-grow min-w-[20%]';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-grow';
+    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-grow';
+    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-grow';
     return 'w-full flex-none';
   };
 
   const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-10.66px)] flex-grow min-w-[30%]';
-    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-grow min-w-[20%]';
-    if (widthStr === 'half') return 'w-[calc(50%-10.66px)] flex-grow min-w-[25%]';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] flex-grow';
+    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-grow';
+    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-grow';
     return 'w-full flex-none';
   };
 
   const getPdfWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-10.66px)] inline-block align-top mx-[5.33px] mb-6 flex-grow';
-    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] inline-block align-top mx-[5.33px] mb-6 flex-grow';
-    if (widthStr === 'half') return 'w-[calc(50%-10.66px)] inline-block align-top mx-[5.33px] mb-6 flex-grow';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] inline-block align-top mx-[2.66px] mb-6';
+    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] inline-block align-top mx-[5.33px] mb-6';
+    if (widthStr === 'half') return 'w-[calc(50%-8px)] inline-block align-top mx-[4px] mb-6';
     return 'w-full block mb-6';
   };
 
@@ -492,18 +393,12 @@ export default function NewsGeneratorPage() {
 
       const element = document.getElementById('pdf-content');
       const opt = {
-        margin: 0,
+        margin: 15,
         filename: 'noticia-institucional.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true, 
-          logging: false,
-          letterRendering: true,
-          windowWidth: 794 // 210mm em pixels (approx)
-        },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] },
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['.avoid-break', 'h1', 'h2', 'img'] },
       };
 
       const pdfPromise = (window as any).html2pdf().set(opt).from(element).save();
@@ -559,32 +454,7 @@ export default function NewsGeneratorPage() {
           break-inside: avoid !important;
         }
         .page-ruler-bg {
-          background-image: repeating-linear-gradient(to bottom, transparent, transparent 276mm, rgba(148, 163, 184, 0.2) 276mm, rgba(148, 163, 184, 0.2) 277mm);
-          padding-bottom: 40px;
-        }
-        .page-break-container {
-          position: relative;
-        }
-        .page-break-marker {
-          position: absolute;
-          left: -48px;
-          right: -48px;
-          height: 1px;
-          border-top: 1px dashed #cbd5e1;
-          pointer-events: none;
-          z-index: 1;
-        }
-        .page-break-label {
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%) translateY(-50%);
-          background: #f1f5f9;
-          padding: 2px 8px;
-          border-radius: 4px;
-          font-size: 10px;
-          color: #94a3b8;
-          font-weight: 600;
-          white-space: nowrap;
+          background-image: repeating-linear-gradient(to bottom, transparent, transparent 296mm, hsl(var(--border)) 296mm, hsl(var(--border)) 297mm);
         }
       `}</style>
 
@@ -946,30 +816,13 @@ export default function NewsGeneratorPage() {
         </div>
 
         <article
-          ref={articleRef}
           id="pdf-content"
-          className={`bg-white mx-auto w-full max-w-[210mm] shadow-2xl rounded-sm text-slate-800 relative page-break-container
-            ${isGeneratingPdf ? 'shadow-none p-0 max-w-none w-full' : 'min-h-[297mm] p-6 md:p-12 mb-20 print:shadow-none print:p-0 print:max-w-none print:w-full'}
+          className={`bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-6 md:p-12 shadow-2xl rounded-sm text-slate-800
+            ${isGeneratingPdf ? 'shadow-none p-0 max-w-none w-full' : 'page-ruler-bg print:shadow-none print:p-0 print:max-w-none print:w-full print:bg-none'}
           `}
-          style={!isGeneratingPdf ? { minHeight: `${totalPages * 297}mm` } : {}}
           onDragOver={handleContainerDragOver}
           onDrop={handleDrop}
         >
-          {!isGeneratingPdf && (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-sm">
-              {Array.from({ length: Math.max(0, totalPages - 1) }).map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute left-0 right-0 h-[24px] bg-muted/60 border-y-2 border-dashed border-border flex items-center justify-center"
-                  style={{ top: `${(i + 1) * 297}mm`, transform: 'translateY(-12px)' }}
-                >
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-card px-2 py-0.5 rounded">
-                    Página {i + 2}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
           <div className={`border-b-4 border-primary pb-4 mb-8 ${isGeneratingPdf ? 'hidden' : 'print:hidden'}`}>
             <span className="text-xs font-bold uppercase tracking-widest text-primary flex justify-between items-center">
               <span>Pré-visualização</span>
@@ -999,7 +852,7 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div ref={modulesContainerRef} className={isGeneratingPdf ? 'flex flex-wrap w-full' : 'flex flex-wrap gap-4 w-full relative z-10'} style={isGeneratingPdf ? { fontSize: 0, padding: 0 } : {}}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'flex flex-wrap gap-4 w-full'} style={isGeneratingPdf ? { fontSize: 0 } : {}}>
             {finalRenderModules.map((module) => {
               const widthClass = isGeneratingPdf ? getPdfWidthClass(module.width) : getWidthClass(module.width);
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
@@ -1043,12 +896,10 @@ export default function NewsGeneratorPage() {
                   return null;
               }
 
-              const pushOffset = !isGeneratingPdf ? (pageOffsets[module.id] || 0) : 0;
               return (
                 <div
                   key={module.id}
-                  data-module-id={module.id}
-                  style={isGeneratingPdf ? { pageBreakInside: 'avoid', breakInside: 'avoid' } : (pushOffset ? { marginTop: `${pushOffset}px` } : {})}
+                  style={isGeneratingPdf ? { pageBreakInside: 'avoid', breakInside: 'avoid' } : {}}
                   className={`
                     ${widthClass}
                     ${module.type === 'paragraph' ? '' : 'avoid-break'}
