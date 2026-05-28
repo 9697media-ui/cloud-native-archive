@@ -246,11 +246,25 @@ export default function NewsGeneratorPage() {
     setActiveWidthMenu(null);
   };
 
+  const updateModuleHeight = (id: string, height: string) => {
+    setModules(prevModules => {
+      return prevModules.map(m => m.id === id ? { ...m, height } : m);
+    });
+    setActiveHeightMenu(null);
+  };
+
   const getSidebarWidthClass = (widthStr: string) => {
     if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-8px)]';
     if (widthStr === 'half') return 'w-full grow basis-[calc(50%-8px)]';
     if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-8px)]';
     return 'w-full flex-none';
+  };
+
+  const getHeightStyle = (heightStr: string, isPdf = false): React.CSSProperties => {
+    if (heightStr === 'small') return { height: isPdf ? '180px' : '150px', overflow: 'hidden' };
+    if (heightStr === 'medium') return { height: isPdf ? '320px' : '280px', overflow: 'hidden' };
+    if (heightStr === 'large') return { height: isPdf ? '480px' : '420px', overflow: 'hidden' };
+    return { height: 'auto' };
   };
 
   const getWidthClass = (widthStr: string) => {
