@@ -358,7 +358,23 @@ export default function NewsGeneratorPage() {
       }
     }
 
-    setModules(newModules);
+    const balancedModules = newModules.map((m, idx) => {
+      if (idx === newModules.length - 1) {
+        const prev = newModules[idx - 1];
+        if (prev) {
+          if (prev.width === 'half') return { ...m, width: 'half' };
+          if (prev.width === 'two-thirds') return { ...m, width: 'third' };
+          if (prev.width === 'third') return { ...m, width: 'two-thirds' };
+        }
+      } else if (idx < newModules.length - 1) {
+        const next = newModules[idx + 1];
+        if (m.width === 'two-thirds' && (!next || next.width === 'full')) return { ...m, width: 'full' };
+        if (m.width === 'half' && (!next || next.width === 'full')) return { ...m, width: 'full' };
+      }
+      return m;
+    });
+
+    setModules(balancedModules);
     handleDragEnd();
   };
 
