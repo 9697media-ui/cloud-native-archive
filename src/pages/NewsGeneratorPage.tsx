@@ -125,6 +125,7 @@ export default function NewsGeneratorPage() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfError, setPdfError] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleNewArticle = () => setShowClearModal(true);
 
