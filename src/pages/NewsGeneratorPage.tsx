@@ -130,6 +130,10 @@ export default function NewsGeneratorPage() {
   const [isResizing, setIsResizing] = useState(false);
   const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
   const widthMenuRef = useRef<HTMLDivElement>(null);
+  const modulesContainerRef = useRef<HTMLDivElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
+  const [pageOffsets, setPageOffsets] = useState<Record<string, number>>({});
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
