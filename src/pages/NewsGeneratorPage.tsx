@@ -131,6 +131,10 @@ export default function NewsGeneratorPage() {
     { id: '7', type: 'image', content: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80', cols: 1, rows: 1 },
   ]);
 
+  const [resizingModuleId, setResizingModuleId] = useState<string | null>(null);
+  const [resizingTargetCols, setResizingTargetCols] = useState<number | null>(null);
+  const [resizingTargetRows, setResizingTargetRows] = useState<number | null>(null);
+
   const [dragItem, setDragItem] = useState<any>(null);
   const [dropIndicator, setDropIndicator] = useState<any>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
