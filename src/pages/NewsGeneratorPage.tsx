@@ -240,74 +240,58 @@ export default function NewsGeneratorPage() {
     setShowClearModal(false);
   };
 
-  const updateModuleWidth = (id: string, width: string) => {
+  const updateModuleGrid = (id: string, updates: { cols?: number; rows?: number | 'auto' }) => {
     setModules(prevModules => {
-      const newModules = prevModules.map(m => m.id === id ? { ...m, width } : m);
+      const newModules = prevModules.map(m => m.id === id ? { ...m, ...updates } : m);
       return normalizeModules(newModules);
     });
     setActiveWidthMenu(null);
+    setActiveHeightMenu(null);
   };
 
   const normalizeModules = (modules: any[]) => {
-    const getVal = (w: string) => (w === 'full' ? 100 : w === 'two-thirds' ? 66.6 : w === 'half' ? 50 : 33.3);
     const result = modules.map(m => ({ ...m }));
     
-    // 1. Ajuste proativo de vizinhos para evitar quebras
-    for (let i = 0; i < result.length; i++) {
-      const current = result[i];
-      const next = result[i + 1];
-      if (current.width === 'two-thirds' && next && next.width !== 'third' && next.width !== 'full') {
-        next.width = 'third';
-      }
-      if (current.width === 'half' && next && next.width === 'two-thirds') {
-        next.width = 'half';
-      }
-    }
-
-
-    // 2. Garante que as linhas fechem em 100% (Corte Inteligente de Largura)
-    let lineSum = 0;
+    let currentRowCols = 0;
     let currentRowIndices: number[] = [];
 
     for (let i = 0; i < result.length; i++) {
-      const val = getVal(result[i].width);
+      const m = result[i];
+      const cols = m.cols || 3;
       
-      if (lineSum + val > 100.1 || result[i].width === 'full') {
-        // Fecha a linha anterior expandindo o último item se necessário
-        if (currentRowIndices.length > 0 && lineSum < 95) {
+      if (currentRowCols + cols > 3) {
+        // Se a linha atual tem espaço vazio, expande o último item da linha para ocupar o resto
+        if (currentRowIndices.length > 0 && currentRowCols < 3) {
           const lastIdx = currentRowIndices[currentRowIndices.length - 1];
-          const needed = 100 - (lineSum - getVal(result[lastIdx].width));
-          if (needed >= 90) result[lastIdx].width = 'full';
-          else if (needed >= 60) result[lastIdx].width = 'two-thirds';
-          else if (needed >= 45) result[lastIdx].width = 'half';
-          else result[lastIdx].width = 'third';
+          result[lastIdx].cols = 3 - (currentRowCols - result[lastIdx].cols);
         }
-        lineSum = val;
+        currentRowCols = cols;
         currentRowIndices = [i];
       } else {
-        lineSum += val;
+        currentRowCols += cols;
         currentRowIndices.push(i);
       }
     }
 
-    // Fecha a última linha
-    if (lineSum < 95 && result.length > 0) {
+    // Fecha a última linha se necessário
+    if (currentRowCols > 0 && currentRowCols < 3 && result.length > 0) {
       const lastIdx = result.length - 1;
-      const needed = 100 - (lineSum - getVal(result[lastIdx].width));
-      if (needed >= 90) result[lastIdx].width = 'full';
-      else if (needed >= 60) result[lastIdx].width = 'two-thirds';
-      else if (needed >= 45) result[lastIdx].width = 'half';
-      else result[lastIdx].width = 'third';
+      result[lastIdx].cols = 3 - (currentRowCols - result[lastIdx].cols);
     }
+
     return result;
   };
 
+  const updateModuleWidth = (id: string, width: string) => {
+    // Legado para compatibilidade se necessário, mas vamos migrar para updateModuleGrid
+    const cols = width === 'full' ? 3 : width === 'two-thirds' ? 2 : 1;
+    updateModuleGrid(id, { cols });
+  };
 
   const updateModuleHeight = (id: string, height: string) => {
-    setModules(prevModules => {
-      return prevModules.map(m => m.id === id ? { ...m, height } : m);
-    });
-    setActiveHeightMenu(null);
+    // Legado para compatibilidade
+    const rows: any = height === 'auto' ? 'auto' : height === 'small' ? 1 : height === 'medium' ? 2 : 3;
+    updateModuleGrid(id, { rows });
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
