@@ -566,14 +566,14 @@ export default function NewsGeneratorPage() {
         .grid-container-modern {
           display: grid;
           grid-template-columns: repeat(1, 1fr);
-          gap: 12px;
+          gap: 0;
           padding: 24px;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @media (min-width: 768px) {
           .grid-container-modern {
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            gap: 0;
             padding: 24px;
           }
         }
@@ -1084,7 +1084,7 @@ export default function NewsGeneratorPage() {
                     onDragOver={(e) => handleModuleDragOver(e, dragId)}
                     onDragEnd={handleDragEnd}
                     onDrop={handleDrop}
-                    className={`flex-1 flex items-center justify-center cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow ${module.type === 'paragraph' ? 'p-6' : 'p-0'}`}
+                    className={`flex-1 flex items-center justify-center cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow p-[12px]`}
                   >
                     <div className="w-full h-full flex items-center justify-center">
                       {contentRender}
