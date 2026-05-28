@@ -393,19 +393,17 @@ export default function NewsGeneratorPage() {
         if (dropIndicator.position === 'left' || dropIndicator.position === 'right') {
           const target = newModules[targetIndex];
 
-          if (target.width === 'full') {
-            target.width = 'half';
-            newItem.width = 'half';
-          } else if (target.width === 'half') {
-            target.width = 'third';
-            newItem.width = 'third';
-            if (targetIndex > 0 && newModules[targetIndex - 1].width === 'half') {
-              newModules[targetIndex - 1].width = 'third';
-            } else if (targetIndex < newModules.length - 1 && newModules[targetIndex + 1].width === 'half') {
-              newModules[targetIndex + 1].width = 'third';
+          if (target.cols === 3) {
+            target.cols = 2;
+            newItem.cols = 1;
+          } else if (target.cols === 2) {
+            target.cols = 1;
+            newItem.cols = 1;
+            if (targetIndex > 0 && newModules[targetIndex - 1].cols === 2) {
+              newModules[targetIndex - 1].cols = 1;
             }
           } else {
-            newItem.width = 'third';
+            newItem.cols = 1;
           }
 
           if (dropIndicator.position === 'left') {
@@ -414,14 +412,14 @@ export default function NewsGeneratorPage() {
             newModules.splice(targetIndex + 1, 0, newItem);
           }
         } else {
-          newItem.width = 'full';
+          newItem.cols = 3;
           if (dropIndicator.position === 'bottom') {
             targetIndex += 1;
           }
           newModules.splice(targetIndex, 0, newItem);
         }
       } else {
-        newItem.width = 'full';
+        newItem.cols = 3;
         newModules.push(newItem);
       }
     }
