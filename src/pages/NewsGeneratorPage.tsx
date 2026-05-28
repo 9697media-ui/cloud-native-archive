@@ -584,13 +584,17 @@ export default function NewsGeneratorPage() {
           display: grid;
           grid-template-columns: repeat(1, 1fr);
           gap: 0;
-          padding: 24px;
+          padding: 0;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @media (min-width: 768px) {
           .grid-container-modern {
             grid-template-columns: repeat(3, 1fr);
             gap: 0;
+            padding: 0;
+          }
+          .grid-container-modern:hover {
+            gap: 12px;
             padding: 24px;
           }
         }
