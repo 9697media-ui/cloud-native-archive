@@ -232,16 +232,15 @@ export default function NewsGeneratorPage() {
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
     
-    // Dimensões do bloco menos o padding de 12px de cada lado (total 24px)
-    // 3 colunas em A4 (210mm ~ 794px) -> cada col ~264px
-    const w = (cols * 264) - 24; 
-    const h = (rowCount * 150) - 24;
+    // Dimensões úteis considerando o padding de 12px fixo
+    // Usamos medidas base conservadoras para garantir que caiba
+    const w = (cols * 240) - 30; 
+    const h = (rowCount * 140) - 30;
     
-    // Fator para preenchimento: Área / (Caracteres * constante de densidade)
-    // 0.6 é uma média boa para parágrafos com espaços
-    const s = Math.sqrt((w * h) / (charCount * 0.6));
+    // Fator de densidade ajustado para ser mais conservador e evitar corte
+    const s = Math.sqrt((w * h) / (charCount * 0.8));
     
-    return `${Math.max(10, Math.min(22, s))}px`;
+    return `${Math.max(10, Math.min(20, s))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -1035,13 +1034,21 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="w-full h-full flex items-center justify-center overflow-hidden"
+                      className="w-full h-full flex items-center justify-center"
+                      style={{ overflow: 'hidden' }}
                     >
                       <p 
-                        className="text-slate-700 leading-tight text-justify"
+                        className="text-slate-700 leading-tight text-center w-full"
                         style={{ 
                           fontSize: calculateFontSize(module.content, module.cols, module.rows),
-                          lineHeight: '1.2'
+                          lineHeight: '1.2',
+                          margin: 0,
+                          padding: 0,
+                          wordBreak: 'break-word',
+                          display: '-webkit-box',
+                          WebkitLineClamp: Math.floor(((module.rows as number || 1) * 150) / 14),
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
                         }}
                       >
                         {module.content.split('\n').map((line: string, i: number) => (
