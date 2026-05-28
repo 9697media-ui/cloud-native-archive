@@ -232,13 +232,14 @@ export default function NewsGeneratorPage() {
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
     
-    // Dimensões do bloco em pixels (aproximadamente)
-    const w = (cols * 280); 
-    const h = (rowCount * 150);
+    // Dimensões úteis subtraindo o padding interno do módulo (12px de cada lado = 24px)
+    // Largura estimada de uma coluna no grid real
+    const w = (cols * 260) - 24; 
+    const h = (rowCount * 150) - 24;
     
-    // Fator de ajuste para tentar preencher o máximo do bloco
-    // Ajustamos de 0.9 para 0.75 para permitir que a fonte cresça um pouco mais
-    const s = Math.sqrt((w * h) / (charCount * 0.72));
+    // Fator de densidade ajustado para garantir que o texto ocupe o máximo sem transbordar
+    // Aumentamos o divisor para ser mais conservador e evitar o corte que o usuário reportou
+    const s = Math.sqrt((w * h) / (charCount * 1.1));
     
     return `${Math.max(12, Math.min(22, s))}px`;
   };
@@ -1034,22 +1035,21 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="w-full h-full flex flex-col justify-start overflow-hidden"
+                      className="w-full h-full flex flex-col justify-center overflow-hidden"
                     >
                       <p 
                         className="text-slate-700 leading-tight text-justify w-full"
                         style={{ 
                           fontSize: calculateFontSize(module.content, module.cols, module.rows),
-                          lineHeight: '1.2',
+                          lineHeight: '1.3',
                           margin: 0,
                           padding: 0,
                           wordBreak: 'break-word',
                           textAlign: 'justify',
                           textAlignLast: 'left',
                           display: 'block',
-                          height: 'auto',
-                          minHeight: '100%',
                           width: '100%',
+                          maxHeight: '100%',
                           overflow: 'hidden'
                         }}
                       >
