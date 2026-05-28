@@ -139,6 +139,9 @@ export default function NewsGeneratorPage() {
       if (widthMenuRef.current && !widthMenuRef.current.contains(event.target as Node)) {
         setActiveWidthMenu(null);
       }
+      if (heightMenuRef.current && !heightMenuRef.current.contains(event.target as Node)) {
+        setActiveHeightMenu(null);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
