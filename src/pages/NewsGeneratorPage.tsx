@@ -810,6 +810,17 @@ export default function NewsGeneratorPage() {
                         >
                           <Trash2 size={13} />
                         </button>
+
+                        {module.type === 'image' && module.cols === 3 && (
+                          <button
+                            type="button"
+                            onClick={() => ungroupGallery(module.id)}
+                            className={`p-1.5 rounded-md transition-colors ${module.preventGallery ? 'bg-primary/20 text-primary' : 'hover:bg-primary/10 text-muted-foreground hover:text-primary'}`}
+                            title={module.preventGallery ? "Ativar agrupamento em carrossel" : "Desativar agrupamento em carrossel"}
+                          >
+                            <Layers size={13} />
+                          </button>
+                        )}
                       </div>
                     </div>
 
