@@ -649,7 +649,7 @@ export default function NewsGeneratorPage() {
                     onDragOver={(e) => handleModuleDragOver(e, module.id)}
                     onDragEnd={handleDragEnd}
                     onDrop={handleDrop}
-                    className={`bg-card border relative rounded-xl overflow-hidden shadow-sm hover:shadow-md flex flex-col group transition-all w-full
+                    className={`bg-card border relative rounded-xl overflow-hidden shadow-sm hover:shadow-md flex flex-col group transition-all ${widthClass}
                       ${isDraggingThis ? 'opacity-30 border-dashed scale-95' : 'border-border hover:border-primary/40'}`}
                   >
                     {isTarget && (
