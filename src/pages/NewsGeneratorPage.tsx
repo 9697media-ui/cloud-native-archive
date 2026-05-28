@@ -951,7 +951,7 @@ export default function NewsGeneratorPage() {
             )}
             {finalRenderModules.map((module) => {
               const widthClass = isGeneratingPdf ? getPdfWidthClass(module.cols) : '';
-              const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
+              const dragId = module.type === 'gallery' ? (module.items?.[0]?.id || module.id) : module.id;
               const isDraggingThis = dragItem?.id === dragId;
               const isTarget = dropIndicator?.id === dragId;
               const heightStyle = getHeightStyle(module.rows, isGeneratingPdf);
@@ -959,7 +959,11 @@ export default function NewsGeneratorPage() {
               const gridStyle: React.CSSProperties = !isGeneratingPdf ? {
                 gridColumn: `span ${module.cols || 3}`,
                 gridRow: module.rows !== 'auto' ? `span ${module.rows}` : 'span 1',
-                zIndex: 20
+                height: '100%',
+                minHeight: module.rows !== 'auto' ? `${module.rows * 150}px` : '150px',
+                zIndex: 20,
+                display: 'flex',
+                flexDirection: 'column'
               } : {
                 ...heightStyle
               };
@@ -1038,12 +1042,14 @@ export default function NewsGeneratorPage() {
                           e.stopPropagation();
                           const startX = e.clientX;
                           const startCols = module.cols || 1;
-                          const containerWidth = document.getElementById('pdf-content')?.querySelector('.grid-background')?.clientWidth || 800;
-                          const colWidth = containerWidth / 3;
+                          const gridEl = document.querySelector('.grid-container-modern');
+                          const containerWidth = gridEl?.clientWidth || 800;
+                          const currentGap = 16; 
+                          const calculatedColWidth = (containerWidth - (2 * currentGap)) / 3;
 
                           const onMouseMove = (moveEvent: MouseEvent) => {
                             const deltaX = moveEvent.clientX - startX;
-                            const newCols = Math.max(1, Math.min(3, startCols + Math.round(deltaX / colWidth)));
+                            const newCols = Math.max(1, Math.min(3, startCols + Math.round(deltaX / calculatedColWidth)));
                             if (newCols !== module.cols) updateModuleGrid(module.id, { cols: newCols });
                           };
                           const onMouseUp = () => {
@@ -1065,7 +1071,7 @@ export default function NewsGeneratorPage() {
                           e.stopPropagation();
                           const startY = e.clientY;
                           const startRows = module.rows === 'auto' ? 1 : module.rows;
-                          const rowHeight = 150; 
+                          const rowHeight = 150 + 16; 
 
                           const onMouseMove = (moveEvent: MouseEvent) => {
                             const deltaY = moveEvent.clientY - startY;
