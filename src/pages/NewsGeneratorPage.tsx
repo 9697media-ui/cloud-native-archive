@@ -133,24 +133,6 @@ export default function NewsGeneratorPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
-  const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
-  const [activeHeightMenu, setActiveHeightMenu] = useState<string | null>(null);
-  const widthMenuRef = useRef<HTMLDivElement>(null);
-  const heightMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (widthMenuRef.current && !widthMenuRef.current.contains(event.target as Node)) {
-        setActiveWidthMenu(null);
-      }
-      if (heightMenuRef.current && !heightMenuRef.current.contains(event.target as Node)) {
-        setActiveHeightMenu(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -245,8 +227,6 @@ export default function NewsGeneratorPage() {
       const newModules = prevModules.map(m => m.id === id ? { ...m, ...updates } : m);
       return normalizeModules(newModules);
     });
-    setActiveWidthMenu(null);
-    setActiveHeightMenu(null);
   };
 
   const normalizeModules = (modules: any[]) => {
@@ -782,85 +762,9 @@ export default function NewsGeneratorPage() {
                         <span className="text-[11px] font-semibold text-foreground truncate">{rule.label}</span>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0 relative">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveWidthMenu(activeWidthMenu === module.id ? null : module.id);
-                            setActiveHeightMenu(null);
-                          }}
-                          className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeWidthMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
-                          title="Opções de Largura"
-                        >
-                          <WidthIcon size={10} />
-                          {widthLabel}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveHeightMenu(activeHeightMenu === module.id ? null : module.id);
-                            setActiveWidthMenu(null);
-                          }}
-                          className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeHeightMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
-                          title="Opções de Altura"
-                        >
-                          <ArrowUpDown size={10} />
-                          {module.rows === 'auto' ? 'Auto' : `${module.rows}L`}
-                        </button>
-
-                        {activeWidthMenu === module.id && (
-                          <div 
-                            ref={widthMenuRef}
-                            className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-[100] p-1 animate-in fade-in zoom-in duration-200"
-                          >
-                            <div className="grid grid-cols-1 gap-1">
-                              {[
-                                { val: 3, label: '3 Colunas (100%)', icon: Square },
-                                { val: 2, label: '2 Colunas (66%)', icon: LayoutGrid },
-                                { val: 1, label: '1 Coluna (33%)', icon: Columns },
-                              ].map((option) => (
-                                <button
-                                  key={option.val}
-                                  type="button"
-                                  onClick={() => updateModuleGrid(module.id, { cols: option.val })}
-                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.cols === option.val ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
-                                >
-                                  <option.icon size={10} />
-                                  {option.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {activeHeightMenu === module.id && (
-                          <div 
-                            ref={heightMenuRef}
-                            className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-[100] p-1 animate-in fade-in zoom-in duration-200"
-                          >
-                            <div className="grid grid-cols-1 gap-1">
-                              {[
-                                { val: 'auto', label: 'Automático', icon: ArrowUpDown },
-                                { val: 1, label: '1 Linha', icon: ArrowUpDown },
-                                { val: 2, label: '2 Linhas', icon: ArrowUpDown },
-                                { val: 3, label: '3 Linhas', icon: ArrowUpDown },
-                                { val: 4, label: '4 Linhas', icon: ArrowUpDown },
-                              ].map((option) => (
-                                <button
-                                  key={option.val}
-                                  type="button"
-                                  onClick={() => updateModuleGrid(module.id, { rows: option.val as any })}
-                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.rows === option.val ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
-                                >
-                                  <option.icon size={10} />
-                                  {option.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        <span className="flex items-center gap-1 px-1.5 py-1 bg-muted/60 text-muted-foreground border border-border/50 rounded-md text-[9px] font-black uppercase tracking-tighter" title="Dimensões atuais">
+                          {widthLabel} x {module.rows === 'auto' ? 'AUTO' : `${module.rows}L`}
+                        </span>
 
                         <button
                           type="button"
