@@ -417,15 +417,16 @@ export default function NewsGeneratorPage() {
       }
     }
 
-    // Aplicar regras de adaptação automática para preenchimento total (100%)
+    // 2. Processa as linhas para garantir que somem sempre 100%
     const finalModules = newModules.map((m) => ({ ...m }));
     let currentRowWidth = 0;
-
+    let rowIndices: number[] = [];
+    
     const getWidthValue = (w: string) => {
       if (w === 'full') return 100;
-      if (w === 'two-thirds') return 66;
+      if (w === 'two-thirds') return 66.6;
       if (w === 'half') return 50;
-      if (w === 'third') return 33;
+      if (w === 'third') return 33.3;
       return 100;
     };
 
@@ -433,23 +434,32 @@ export default function NewsGeneratorPage() {
       const m = finalModules[i];
       const val = getWidthValue(m.width);
       
-      if (currentRowWidth + val > 100 || m.width === 'full') {
-        if (currentRowWidth > 0 && currentRowWidth < 100 && i > 0) {
-          const lastInRow = finalModules[i - 1];
-          if (currentRowWidth <= 50) lastInRow.width = 'full';
-          else if (currentRowWidth <= 67) lastInRow.width = 'two-thirds';
-          else lastInRow.width = 'full';
+      if (currentRowWidth + val > 100.1 || m.width === 'full') {
+        if (rowIndices.length > 0 && currentRowWidth < 99) {
+          const lastIdx = rowIndices[rowIndices.length - 1];
+          const needed = 100 - (currentRowWidth - getWidthValue(finalModules[lastIdx].width));
+          
+          if (needed >= 90) finalModules[lastIdx].width = 'full';
+          else if (needed >= 60) finalModules[lastIdx].width = 'two-thirds';
+          else if (needed >= 45) finalModules[lastIdx].width = 'half';
+          else finalModules[lastIdx].width = 'third';
         }
-        currentRowWidth = val;
+        currentRowWidth = getWidthValue(finalModules[i].width);
+        rowIndices = [i];
       } else {
         currentRowWidth += val;
+        rowIndices.push(i);
       }
+    }
 
-      if (i === finalModules.length - 1 && currentRowWidth < 100) {
-        if (currentRowWidth <= 50) m.width = 'full';
-        else if (currentRowWidth <= 67) m.width = 'two-thirds';
-        else m.width = 'full';
-      }
+    if (rowIndices.length > 0 && currentRowWidth < 99) {
+      const lastIdx = rowIndices[rowIndices.length - 1];
+      const needed = 100 - (currentRowWidth - getWidthValue(finalModules[lastIdx].width));
+      
+      if (needed >= 90) finalModules[lastIdx].width = 'full';
+      else if (needed >= 60) finalModules[lastIdx].width = 'two-thirds';
+      else if (needed >= 45) finalModules[lastIdx].width = 'half';
+      else finalModules[lastIdx].width = 'third';
     }
 
     setModules(finalModules);
