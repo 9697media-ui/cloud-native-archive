@@ -386,26 +386,29 @@ export default function NewsGeneratorPage() {
       }
     }
 
-    const balancedModules = newModules.map((m, idx) => {
-      // Regra 2: 66% -> 33% para o próximo
-      if (m.width === 'two-thirds' && idx < newModules.length - 1) {
-        const next = newModules[idx + 1];
-        if (next.width !== 'third' && next.width !== 'full') {
-          next.width = 'third';
-        }
+    // Aplicar regras de adaptação automática seguindo as especificações
+    const balancedModules = newModules.map((m) => ({ ...m }));
+    
+    for (let i = 0; i < balancedModules.length; i++) {
+      const m = balancedModules[i];
+      
+      // Regra 2: Se um elemento tiver 66%, o elemento seguinte deve se adaptar para 33%
+      if (m.width === 'two-thirds' && i < balancedModules.length - 1) {
+        balancedModules[i + 1].width = 'third';
       }
 
-      // Regra 3: Se o último é 50% ou 66%, o anterior se adapta
-      if (idx === newModules.length - 1 && idx > 0) {
-        const prev = newModules[idx - 1];
-        if (m.width === 'half' && prev.width !== 'half') {
+      // Regra 3: Regra de Fechamento (Sem "Buracos" Visuais)
+      // Quando o ÚLTIMO é 50% ou 66%, o ANTERIOR se adapta para preencher a linha
+      if (i === balancedModules.length - 1 && i > 0) {
+        const last = balancedModules[i];
+        const prev = balancedModules[i - 1];
+        if (last.width === 'half' && prev.width !== 'half') {
           prev.width = 'half';
-        } else if (m.width === 'two-thirds' && prev.width !== 'third') {
+        } else if (last.width === 'two-thirds' && prev.width !== 'third') {
           prev.width = 'third';
         }
       }
-      return m;
-    });
+    }
 
     setModules(balancedModules);
     handleDragEnd();
