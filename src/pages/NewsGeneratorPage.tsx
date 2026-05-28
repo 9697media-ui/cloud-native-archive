@@ -393,12 +393,18 @@ export default function NewsGeneratorPage() {
 
       const element = document.getElementById('pdf-content');
       const opt = {
-        margin: 15,
+        margin: 0,
         filename: 'noticia-institucional.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true, 
+          logging: false,
+          letterRendering: true,
+          windowWidth: 794 // 210mm em pixels (approx)
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'], avoid: ['.avoid-break', 'h1', 'h2', 'img'] },
+        pagebreak: { mode: ['css', 'legacy'] },
       };
 
       const pdfPromise = (window as any).html2pdf().set(opt).from(element).save();
@@ -890,7 +896,7 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'flex flex-wrap w-full' : 'flex flex-wrap gap-4 w-full'} style={isGeneratingPdf ? { fontSize: 0, padding: 0 } : {}}>
+          <div className={isGeneratingPdf ? 'flex flex-wrap w-full' : 'flex flex-wrap gap-4 w-full relative z-10'} style={isGeneratingPdf ? { fontSize: 0, padding: 0 } : {}}>
             {finalRenderModules.map((module) => {
               const widthClass = isGeneratingPdf ? getPdfWidthClass(module.width) : getWidthClass(module.width);
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
