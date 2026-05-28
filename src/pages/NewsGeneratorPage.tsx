@@ -187,6 +187,17 @@ export default function NewsGeneratorPage() {
   };
 
   const removeModule = (id: string) => setModules(modules.filter((m) => m.id !== id));
+  
+  const ungroupGallery = (id: string) => {
+    const galleryModule = modules.find(m => m.id === id);
+    if (!galleryModule || galleryModule.type !== 'image' || galleryModule.cols !== 3) return;
+    
+    // Na verdade, o sistema agrupa automaticamente imagens seguidas de 100% (3 cols)
+    // Para "desagrupar", podemos mudar a largura de uma delas ou inserir um separador.
+    // Mas o usuário quer um botão para desfazer o comportamento de carrossel.
+    // Vou adicionar uma propriedade 'preventGallery' ao módulo.
+    setModules(modules.map(m => m.id === id ? { ...m, preventGallery: !m.preventGallery } : m));
+  };
   const updateContent = (id: string, newContent: string) =>
     setModules(modules.map((m) => (m.id === id ? { ...m, content: newContent } : m)));
 
