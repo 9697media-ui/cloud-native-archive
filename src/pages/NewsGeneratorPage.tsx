@@ -130,7 +130,9 @@ export default function NewsGeneratorPage() {
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
   const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
+  const [activeHeightMenu, setActiveHeightMenu] = useState<string | null>(null);
   const widthMenuRef = useRef<HTMLDivElement>(null);
+  const heightMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
