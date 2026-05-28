@@ -515,7 +515,14 @@ export default function NewsGeneratorPage() {
           break-inside: avoid !important;
         }
         .page-ruler-bg {
-          background-image: repeating-linear-gradient(to bottom, transparent, transparent 296mm, hsl(var(--border)) 296mm, hsl(var(--border)) 297mm);
+          background-image: 
+            repeating-linear-gradient(to bottom, transparent, transparent 296mm, hsl(var(--border)) 296mm, hsl(var(--border)) 297mm);
+        }
+        .grid-background {
+          background-image: 
+            linear-gradient(to right, hsl(var(--border) / 0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, hsl(var(--border) / 0.1) 1px, transparent 1px);
+          background-size: calc(100% / 3) 150px;
         }
       `}</style>
 
