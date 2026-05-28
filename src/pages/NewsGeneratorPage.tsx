@@ -983,11 +983,13 @@ export default function NewsGeneratorPage() {
                   break;
                 case 'gallery':
                   contentRender = (
-                    <CarouselGallery 
-                      items={module.items} 
-                      isGeneratingPdf={isGeneratingPdf} 
-                      heightStyle={heightStyle}
-                    />
+                    <div className="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
+                      <CarouselGallery 
+                        items={module.items} 
+                        isGeneratingPdf={isGeneratingPdf} 
+                        heightStyle={heightStyle}
+                      />
+                    </div>
                   );
                   break;
                 default:
