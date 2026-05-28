@@ -1038,16 +1038,16 @@ export default function NewsGeneratorPage() {
                       style={{ overflow: 'hidden' }}
                     >
                       <p 
-                        className="text-slate-700 leading-tight text-center w-full"
+                        className="text-slate-700 leading-tight text-justify w-full"
                         style={{ 
                           fontSize: calculateFontSize(module.content, module.cols, module.rows),
                           lineHeight: '1.2',
                           margin: 0,
                           padding: 0,
                           wordBreak: 'break-word',
-                          display: '-webkit-box',
-                          WebkitLineClamp: Math.floor(((module.rows as number || 1) * 150) / 14),
-                          WebkitBoxOrient: 'vertical',
+                          textAlign: 'justify',
+                          textAlignLast: 'left',
+                          display: 'block',
                           overflow: 'hidden'
                         }}
                       >
