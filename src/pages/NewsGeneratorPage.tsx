@@ -959,7 +959,11 @@ export default function NewsGeneratorPage() {
               const gridStyle: React.CSSProperties = !isGeneratingPdf ? {
                 gridColumn: `span ${module.cols || 3}`,
                 gridRow: module.rows !== 'auto' ? `span ${module.rows}` : 'span 1',
-                zIndex: 20
+                height: '100%',
+                minHeight: module.rows !== 'auto' ? `${module.rows * 150}px` : '150px',
+                zIndex: 20,
+                display: 'flex',
+                flexDirection: 'column'
               } : {
                 ...heightStyle
               };
