@@ -128,6 +128,19 @@ export default function NewsGeneratorPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
+  const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
+  const widthMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (widthMenuRef.current && !widthMenuRef.current.contains(event.target as Node)) {
+        setActiveWidthMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -217,31 +230,19 @@ export default function NewsGeneratorPage() {
     setShowClearModal(false);
   };
 
-  const toggleWidth = (id: string) => {
+  const updateModuleWidth = (id: string, width: string) => {
     setModules(prevModules => {
       const newModules = prevModules.map((m) => {
         if (m.id !== id) return m;
-        let nextWidth = 'full';
-        if (m.width === 'full') nextWidth = 'half';
-        else if (m.width === 'half') nextWidth = 'two-thirds';
-        else if (m.width === 'two-thirds') nextWidth = 'third';
-        else if (m.width === 'third') nextWidth = 'full';
-        return { ...m, width: nextWidth };
+        return { ...m, width };
       });
-
-      // Aplicar regras de adaptação automática seguindo as especificações
-      const finalModules = newModules.map((m) => ({ ...m }));
       
+      const finalModules = newModules.map((m) => ({ ...m }));
       for (let i = 0; i < finalModules.length; i++) {
         const m = finalModules[i];
-        
-        // Regra 2: Se um elemento tiver 66%, o elemento seguinte deve se adaptar para 33%
         if (m.width === 'two-thirds' && i < finalModules.length - 1) {
           finalModules[i + 1].width = 'third';
         }
-
-        // Regra 3: Regra de Fechamento (Sem "Buracos" Visuais)
-        // Quando o ÚLTIMO é 50% ou 66%, o ANTERIOR se adapta para preencher a linha
         if (i === finalModules.length - 1 && i > 0) {
           const last = finalModules[i];
           const prev = finalModules[i - 1];
@@ -252,9 +253,9 @@ export default function NewsGeneratorPage() {
           }
         }
       }
-      
       return finalModules;
     });
+    setActiveWidthMenu(null);
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
@@ -718,16 +719,46 @@ export default function NewsGeneratorPage() {
                         <Icon size={13} className="text-muted-foreground flex-shrink-0" />
                         <span className="text-[11px] font-semibold text-foreground truncate">{rule.label}</span>
                       </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-1 flex-shrink-0 relative">
                         <button
                           type="button"
-                          onClick={() => toggleWidth(module.id)}
-                          className="flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-foreground text-[10px] font-bold bg-background border border-border transition-colors"
-                          title="Alternar Largura"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveWidthMenu(activeWidthMenu === module.id ? null : module.id);
+                          }}
+                          className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeWidthMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+                          title="Opções de Largura"
                         >
                           <WidthIcon size={10} />
                           {widthLabel}
                         </button>
+
+                        {activeWidthMenu === module.id && (
+                          <div 
+                            ref={widthMenuRef}
+                            className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-[100] p-1 animate-in fade-in zoom-in duration-200"
+                          >
+                            <div className="grid grid-cols-1 gap-1">
+                              {[
+                                { id: 'full', label: '100% (Cheio)', icon: Square },
+                                { id: 'two-thirds', label: '66% (2/3)', icon: LayoutGrid },
+                                { id: 'half', label: '50% (Metade)', icon: Columns },
+                                { id: 'third', label: '33% (1/3)', icon: LayoutGrid },
+                              ].map((option) => (
+                                <button
+                                  key={option.id}
+                                  type="button"
+                                  onClick={() => updateModuleWidth(module.id, option.id)}
+                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.width === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
+                                >
+                                  <option.icon size={10} />
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         <button
                           type="button"
                           onClick={() => removeModule(module.id)}
