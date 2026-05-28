@@ -785,52 +785,6 @@ export default function NewsGeneratorPage() {
                         <span className="flex items-center gap-1 px-1.5 py-1 bg-muted/60 text-muted-foreground border border-border/50 rounded-md text-[9px] font-black uppercase tracking-tighter" title="Dimensões atuais">
                           {widthLabel} x {module.rows === 'auto' ? 'AUTO' : `${module.rows}L`}
                         </span>
-                            <div className="grid grid-cols-1 gap-1">
-                              {[
-                                { val: 3, label: '3 Colunas (100%)', icon: Square },
-                                { val: 2, label: '2 Colunas (66%)', icon: LayoutGrid },
-                                { val: 1, label: '1 Coluna (33%)', icon: Columns },
-                              ].map((option) => (
-                                <button
-                                  key={option.val}
-                                  type="button"
-                                  onClick={() => updateModuleGrid(module.id, { cols: option.val })}
-                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.cols === option.val ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
-                                >
-                                  <option.icon size={10} />
-                                  {option.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {activeHeightMenu === module.id && (
-                          <div 
-                            ref={heightMenuRef}
-                            className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-[100] p-1 animate-in fade-in zoom-in duration-200"
-                          >
-                            <div className="grid grid-cols-1 gap-1">
-                              {[
-                                { val: 'auto', label: 'Automático', icon: ArrowUpDown },
-                                { val: 1, label: '1 Linha', icon: ArrowUpDown },
-                                { val: 2, label: '2 Linhas', icon: ArrowUpDown },
-                                { val: 3, label: '3 Linhas', icon: ArrowUpDown },
-                                { val: 4, label: '4 Linhas', icon: ArrowUpDown },
-                              ].map((option) => (
-                                <button
-                                  key={option.val}
-                                  type="button"
-                                  onClick={() => updateModuleGrid(module.id, { rows: option.val as any })}
-                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.rows === option.val ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
-                                >
-                                  <option.icon size={10} />
-                                  {option.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
 
                         <button
                           type="button"
