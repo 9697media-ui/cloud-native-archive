@@ -222,17 +222,20 @@ export default function NewsGeneratorPage() {
     }
   };
 
+  const getMaxCharacters = (cols: number, rows: number | 'auto') => {
+    if (rows === 'auto') return 2000;
+    // Estimativa: ~0.5 caracteres por pixel quadrado com fonte 14px
+    // Área = cols * rows * 150 (altura base) * 300 (largura base estimada por col)
+    return Math.floor((cols * (rows as number) * 150 * 250) / 100); 
+  };
+
   const calculateFontSize = (text: string, cols: number, rows: number | 'auto') => {
     if (rows === 'auto') return '16px';
     
-    const charCount = text.length || 1;
-    const area = cols * (rows as number) * 150 * 300; // Estimativa de área em pixels
+    const charCount = Math.max(text.length, 1);
+    const area = cols * (rows as number) * 150 * 250; 
     
-    // Fórmula base: quanto mais área por caractere, maior a fonte
-    // Multiplicamos por um fator de escala para chegar em valores de pixel
-    const idealSize = Math.sqrt(area / charCount) * 0.5;
-    
-    // Limites: 14px (mínimo leitura) até 22px (máximo parágrafo)
+    const idealSize = Math.sqrt(area / charCount) * 0.45;
     return `${Math.max(14, Math.min(22, idealSize))}px`;
   };
 
@@ -849,15 +852,23 @@ export default function NewsGeneratorPage() {
                       </div>
                     )}
 
-                    <div className="p-3 flex-1">
+                    <div className="p-3 flex-1 flex flex-col">
                       {module.type === 'paragraph' ? (
-                        <textarea
-                          id={`textarea-${module.id}`}
-                          value={module.content}
-                          onChange={(e) => updateContent(module.id, e.target.value)}
-                          placeholder={rule.placeholder}
-                          className="w-full h-full min-h-[110px] p-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-y transition-all"
-                        />
+                        <>
+                          <textarea
+                            id={`textarea-${module.id}`}
+                            value={module.content}
+                            maxLength={getMaxCharacters(module.cols || 3, module.rows)}
+                            onChange={(e) => updateContent(module.id, e.target.value)}
+                            placeholder={rule.placeholder}
+                            className="w-full flex-1 min-h-[110px] p-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-y transition-all"
+                          />
+                          <div className="flex justify-end mt-1">
+                            <span className={`text-[10px] font-bold ${module.content.length >= getMaxCharacters(module.cols || 3, module.rows) ? 'text-destructive' : 'text-muted-foreground/60'}`}>
+                              {module.content.length} / {getMaxCharacters(module.cols || 3, module.rows)}
+                            </span>
+                          </div>
+                        </>
                       ) : module.type === 'image' ? (
                         <div className="flex flex-col gap-2 h-full">
                           <input
@@ -1010,7 +1021,7 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="flex flex-col w-full h-full pointer-events-none justify-center overflow-y-auto"
+                      className="flex flex-col w-full h-full pointer-events-none justify-center overflow-hidden"
                     >
                       <p 
                         className="text-slate-700 leading-relaxed text-justify"
