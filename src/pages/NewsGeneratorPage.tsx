@@ -185,7 +185,11 @@ export default function NewsGeneratorPage() {
     setModules([...modules, { id: Date.now().toString(), type, content: '', width: 'full' }]);
   };
 
-  const removeModule = (id: string) => setModules(modules.filter((m) => m.id !== id));
+  const removeModule = (id: string) => {
+    const newModules = modules.filter((m) => m.id !== id);
+    setModules(newModules);
+    setTimeout(() => validateLayout(newModules), 300);
+  };
   const updateContent = (id: string, newContent: string) =>
     setModules(modules.map((m) => (m.id === id ? { ...m, content: newContent } : m)));
 
