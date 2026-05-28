@@ -233,54 +233,45 @@ export default function NewsGeneratorPage() {
   const updateModuleWidth = (id: string, width: string) => {
     setModules(prevModules => {
       // 1. Atualiza o item alvo mantendo os outros como estão
-      let newModules = prevModules.map(m => m.id === id ? { ...m, width } : { ...m });
-
-      // 2. Função auxiliar para pegar valor numérico
+      let newModules = prevModules.map(m => m.id === id ? { ...m, width: width } : { ...m });
+      
       const getVal = (w: string) => (w === 'full' ? 100 : w === 'two-thirds' ? 66.6 : w === 'half' ? 50 : 33.3);
 
-      // 3. Normalização: garante que cada linha some 100% ou comece uma nova
-      // Mas sem "travar" a largura se o usuário acabou de mudar
-      let result: any[] = [];
-      let currentLine: any[] = [];
-      let currentLineSum = 0;
-
-      for (let i = 0; i < newModules.length; i++) {
-        const m = newModules[i];
-        const val = getVal(m.width);
-
-        // Se o item não cabe na linha atual ou é 'full', fecha a linha anterior
-        if (currentLineSum + val > 100.1 || m.width === 'full') {
-          if (currentLine.length > 0) {
-            // Se a linha anterior tem buraco, expande o último item dela
-            if (currentLineSum < 99) {
-              const last = currentLine[currentLine.length - 1];
-              const needed = 100 - (currentLineSum - getVal(last.width));
-              if (needed >= 90) last.width = 'full';
-              else if (needed >= 65) last.width = 'two-thirds';
-              else if (needed >= 45) last.width = 'half';
-              else last.width = 'third';
-            }
-            result.push(...currentLine);
-          }
-          currentLine = [m];
-          currentLineSum = val;
-        } else {
-          currentLine.push(m);
-          currentLineSum += val;
-        }
+      // 2. Normalização de Fluxo (Hierarquia Visual)
+      const result = [...newModules];
+      for (let i = 0; i < result.length; i++) {
+        const current = result[i];
+        const next = result[i + 1];
+        if (current.width === 'two-thirds' && next && next.width !== 'third') next.width = 'third';
+        if (current.width === 'half' && next && next.width === 'two-thirds') next.width = 'half';
       }
 
-      // Processa a última linha
-      if (currentLine.length > 0) {
-        if (currentLineSum < 99) {
-          const last = currentLine[currentLine.length - 1];
-          const needed = 100 - (currentLineSum - getVal(last.width));
-          if (needed >= 90) last.width = 'full';
-          else if (needed >= 65) last.width = 'two-thirds';
-          else if (needed >= 45) last.width = 'half';
-          else last.width = 'third';
+      // 3. Regra de Fechamento: Evita buracos expandindo o último item de cada linha virtual
+      let lineSum = 0;
+      for (let i = 0; i < result.length; i++) {
+        const val = getVal(result[i].width);
+        if (lineSum + val > 100.1 || result[i].width === 'full') {
+          if (i > 0 && lineSum < 95) {
+            const lastInRow = result[i-1];
+            const needed = 100 - (lineSum - getVal(lastInRow.width));
+            if (needed >= 90) lastInRow.width = 'full';
+            else if (needed >= 60) lastInRow.width = 'two-thirds';
+            else if (needed >= 45) lastInRow.width = 'half';
+            else lastInRow.width = 'third';
+          }
+          lineSum = val;
+        } else {
+          lineSum += val;
         }
-        result.push(...currentLine);
+      }
+      // Processa última linha
+      if (lineSum < 95 && result.length > 0) {
+        const last = result[result.length - 1];
+        const needed = 100 - (lineSum - getVal(last.width));
+        if (needed >= 90) last.width = 'full';
+        else if (needed >= 60) last.width = 'two-thirds';
+        else if (needed >= 45) last.width = 'half';
+        else last.width = 'third';
       }
 
       return result;
@@ -420,42 +411,37 @@ export default function NewsGeneratorPage() {
     // Reaproveita a mesma lógica de normalização para o drop
     const normalizeModules = (modules: any[]) => {
       const getVal = (w: string) => (w === 'full' ? 100 : w === 'two-thirds' ? 66.6 : w === 'half' ? 50 : 33.3);
-      let result: any[] = [];
-      let currentLine: any[] = [];
-      let currentLineSum = 0;
-
-      for (const m of modules) {
-        const val = getVal(m.width);
-        if (currentLineSum + val > 100.1 || m.width === 'full') {
-          if (currentLine.length > 0) {
-            if (currentLineSum < 99) {
-              const last = currentLine[currentLine.length - 1];
-              const needed = 100 - (currentLineSum - getVal(last.width));
-              if (needed >= 90) last.width = 'full';
-              else if (needed >= 65) last.width = 'two-thirds';
-              else if (needed >= 45) last.width = 'half';
-              else last.width = 'third';
-            }
-            result.push(...currentLine);
+      const result = modules.map(m => ({ ...m }));
+      for (let i = 0; i < result.length; i++) {
+        const current = result[i];
+        const next = result[i + 1];
+        if (current.width === 'two-thirds' && next && next.width !== 'third') next.width = 'third';
+        if (current.width === 'half' && next && next.width === 'two-thirds') next.width = 'half';
+      }
+      let lineSum = 0;
+      for (let i = 0; i < result.length; i++) {
+        const val = getVal(result[i].width);
+        if (lineSum + val > 100.1 || result[i].width === 'full') {
+          if (i > 0 && lineSum < 95) {
+            const lastInRow = result[i-1];
+            const needed = 100 - (lineSum - getVal(lastInRow.width));
+            if (needed >= 90) lastInRow.width = 'full';
+            else if (needed >= 60) lastInRow.width = 'two-thirds';
+            else if (needed >= 45) lastInRow.width = 'half';
+            else lastInRow.width = 'third';
           }
-          currentLine = [m];
-          currentLineSum = val;
+          lineSum = val;
         } else {
-          currentLine.push(m);
-          currentLineSum += val;
+          lineSum += val;
         }
       }
-
-      if (currentLine.length > 0) {
-        if (currentLineSum < 99) {
-          const last = currentLine[currentLine.length - 1];
-          const needed = 100 - (currentLineSum - getVal(last.width));
-          if (needed >= 90) last.width = 'full';
-          else if (needed >= 65) last.width = 'two-thirds';
-          else if (needed >= 45) last.width = 'half';
-          else last.width = 'third';
-        }
-        result.push(...currentLine);
+      if (lineSum < 95 && result.length > 0) {
+        const last = result[result.length - 1];
+        const needed = 100 - (lineSum - getVal(last.width));
+        if (needed >= 90) last.width = 'full';
+        else if (needed >= 60) last.width = 'two-thirds';
+        else if (needed >= 45) last.width = 'half';
+        else last.width = 'third';
       }
       return result;
     };
