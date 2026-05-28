@@ -227,8 +227,6 @@ export default function NewsGeneratorPage() {
       const newModules = prevModules.map(m => m.id === id ? { ...m, ...updates } : m);
       return normalizeModules(newModules);
     });
-    setActiveWidthMenu(null);
-    setActiveHeightMenu(null);
   };
 
   const normalizeModules = (modules: any[]) => {
