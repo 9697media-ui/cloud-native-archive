@@ -259,7 +259,11 @@ export default function NewsGeneratorPage() {
       if (current.width === 'two-thirds' && next && next.width !== 'third' && next.width !== 'full') {
         next.width = 'third';
       }
+      if (current.width === 'half' && next && next.width === 'two-thirds') {
+        next.width = 'half';
+      }
     }
+
 
     // 2. Garante que as linhas fechem em 100% (Corte Inteligente de Largura)
     let lineSum = 0;
