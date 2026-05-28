@@ -187,6 +187,17 @@ export default function NewsGeneratorPage() {
   };
 
   const removeModule = (id: string) => setModules(modules.filter((m) => m.id !== id));
+  
+  const ungroupGallery = (id: string) => {
+    const galleryModule = modules.find(m => m.id === id);
+    if (!galleryModule || galleryModule.type !== 'image' || galleryModule.cols !== 3) return;
+    
+    // Na verdade, o sistema agrupa automaticamente imagens seguidas de 100% (3 cols)
+    // Para "desagrupar", podemos mudar a largura de uma delas ou inserir um separador.
+    // Mas o usuário quer um botão para desfazer o comportamento de carrossel.
+    // Vou adicionar uma propriedade 'preventGallery' ao módulo.
+    setModules(modules.map(m => m.id === id ? { ...m, preventGallery: !m.preventGallery } : m));
+  };
   const updateContent = (id: string, newContent: string) =>
     setModules(modules.map((m) => (m.id === id ? { ...m, content: newContent } : m)));
 
@@ -511,13 +522,12 @@ export default function NewsGeneratorPage() {
   modules.forEach((module) => {
     if (!module.content && module.type !== 'image') return;
 
-    if (module.type === 'image' && module.cols === 3 && module.content) {
+    if (module.type === 'image' && module.cols === 3 && module.content && !module.preventGallery) {
       if (!currentGalleryGroup) {
         currentGalleryGroup = { id: `gallery-${module.id}`, type: 'gallery', cols: 3, rows: module.rows, items: [module] };
         renderModules.push(currentGalleryGroup);
       } else {
         currentGalleryGroup.items.push(module);
-        // Se um item do grupo tiver altura definida, aplicamos ao grupo todo
         if (module.rows !== 'auto') currentGalleryGroup.rows = module.rows;
       }
     } else {
@@ -800,6 +810,17 @@ export default function NewsGeneratorPage() {
                         >
                           <Trash2 size={13} />
                         </button>
+
+                        {module.type === 'image' && module.cols === 3 && (
+                          <button
+                            type="button"
+                            onClick={() => ungroupGallery(module.id)}
+                            className={`p-1.5 rounded-md transition-colors ${module.preventGallery ? 'bg-primary/20 text-primary' : 'hover:bg-primary/10 text-muted-foreground hover:text-primary'}`}
+                            title={module.preventGallery ? "Ativar agrupamento em carrossel" : "Desativar agrupamento em carrossel"}
+                          >
+                            <Layers size={13} />
+                          </button>
+                        )}
                       </div>
                     </div>
 
