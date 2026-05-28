@@ -224,9 +224,10 @@ export default function NewsGeneratorPage() {
 
   const getMaxCharacters = (cols: number, rows: number | 'auto') => {
     if (rows === 'auto') return 2000;
-    // Estimativa segura para fonte 14px em slots de 150px de altura
+    // Reduzindo drasticamente para garantir que caiba com folga
+    // Slot 1x1 (150px altura) comporta cerca de 150-180 caracteres seguros
     const rowCount = rows as number;
-    return cols * rowCount * 220; 
+    return cols * rowCount * 160; 
   };
 
   const calculateFontSize = (text: string, cols: number, rows: number | 'auto') => {
@@ -1032,10 +1033,10 @@ export default function NewsGeneratorPage() {
                       className="flex flex-col w-full h-full pointer-events-none justify-start overflow-hidden"
                     >
                       <p 
-                        className="text-slate-700 leading-relaxed text-justify"
+                        className="text-slate-700 leading-tight text-justify"
                         style={{ 
                           fontSize: calculateFontSize(module.content, module.cols, module.rows),
-                          lineHeight: '1.4'
+                          lineHeight: '1.2'
                         }}
                       >
                         {module.content.split('\n').map((line: string, i: number) => (
