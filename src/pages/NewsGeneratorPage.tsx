@@ -224,10 +224,10 @@ export default function NewsGeneratorPage() {
 
   const getMaxCharacters = (cols: number, rows: number | 'auto') => {
     if (rows === 'auto') return 2000;
-    // Reduzindo drasticamente para garantir que caiba com folga
-    // Slot 1x1 (150px altura) comporta cerca de 150-180 caracteres seguros
+    // Fixamos o limite em 600 por slot para atender ao pedido, 
+    // mas a fonte precisará ser menor para acomodar tudo.
     const rowCount = rows as number;
-    return cols * rowCount * 160; 
+    return cols * rowCount * 600; 
   };
 
   const calculateFontSize = (text: string, cols: number, rows: number | 'auto') => {
@@ -237,11 +237,11 @@ export default function NewsGeneratorPage() {
     const rowCount = rows as number;
     const maxChars = getMaxCharacters(cols, rows);
     
-    // Mapeamento linear direto
+    // Mapeamento linear com mínimo reduzido para 10px para garantir que caiba 600 caracteres
     const fillRatio = Math.min(charCount / maxChars, 1);
-    const size = 22 - (fillRatio * (22 - 14));
+    const size = 22 - (fillRatio * (22 - 10));
     
-    return `${Math.max(14, Math.min(22, size))}px`;
+    return `${Math.max(10, Math.min(22, size))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -1030,7 +1030,7 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="flex flex-col w-full h-full pointer-events-none justify-start overflow-hidden"
+                      className="flex flex-col w-full h-full pointer-events-none justify-start overflow-y-auto"
                     >
                       <p 
                         className="text-slate-700 leading-tight text-justify"
