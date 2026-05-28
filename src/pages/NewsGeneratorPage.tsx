@@ -222,10 +222,18 @@ export default function NewsGeneratorPage() {
       if (m.id !== id) return m;
       let nextWidth = 'full';
       if (m.width === 'full') nextWidth = 'half';
-      else if (m.width === 'half') nextWidth = 'third';
+      else if (m.width === 'half') nextWidth = 'two-thirds';
+      else if (m.width === 'two-thirds') nextWidth = 'third';
       else if (m.width === 'third') nextWidth = 'full';
       return { ...m, width: nextWidth };
     }));
+  };
+
+  const getSidebarWidthClass = (widthStr: string) => {
+    if (widthStr === 'two-thirds') return 'col-span-2';
+    if (widthStr === 'half' && sidebarWidth > 640) return 'col-span-1'; // No grid de 2 colunas, 50% é 1 col
+    if (widthStr === 'third') return 'col-span-1';
+    return 'col-span-full';
   };
 
   const getWidthClass = (widthStr: string) => {
