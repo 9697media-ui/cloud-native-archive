@@ -893,7 +893,7 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'flex flex-wrap gap-4 w-full'}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'flex flex-wrap gap-4 w-full'} style={isGeneratingPdf ? { fontSize: 0 } : {}}>
             {finalRenderModules.map((module) => {
               const widthClass = isGeneratingPdf ? getPdfWidthClass(module.width) : getWidthClass(module.width);
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
@@ -904,7 +904,7 @@ export default function NewsGeneratorPage() {
               switch (module.type) {
                 case 'paragraph':
                   contentRender = (
-                    <div className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`}>
+                    <div className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`} style={isGeneratingPdf ? { fontSize: '12pt' } : {}}>
                       <p className="text-base md:text-lg text-slate-700 leading-relaxed text-justify">
                         {module.content.split('\n').map((line: string, i: number) => (
                           <React.Fragment key={i}>{renderFormattedText(line)}<br /></React.Fragment>
