@@ -1010,9 +1010,9 @@ export default function NewsGeneratorPage() {
                   break;
                 case 'image':
                   contentRender = (
-                    <figure 
-                      className="flex flex-col w-full h-full m-0 overflow-hidden rounded-xl shadow-md bg-muted/20"
-                    >
+                      <figure 
+                        className="flex flex-col w-full h-full m-0 overflow-hidden rounded-xl shadow-md bg-muted/20 pointer-events-none"
+                      >
                       <img
                         src={module.content}
                         alt="Notícia"
