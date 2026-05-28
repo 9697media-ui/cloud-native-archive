@@ -229,31 +229,31 @@ export default function NewsGeneratorPage() {
         return { ...m, width: nextWidth };
       });
 
-      // Aplicar regras de adaptação automática
-      return newModules.map((m, idx) => {
-        // Regra 2: Se um elemento tem 66%, o próximo deve ser 33% para fechar a linha
-        if (m.width === 'two-thirds' && idx < newModules.length - 1) {
-          const next = newModules[idx + 1];
-          if (next.width !== 'third' && next.width !== 'full') {
-            // Só ajustamos se não for "full" para não quebrar blocos intencionalmente grandes
-            // Mas o usuário disse "deve se adaptar automaticamente", então vamos forçar se for half
-            if (next.width === 'half') next.width = 'third';
-          }
+      // Aplicar regras de adaptação automática seguindo as especificações
+      const finalModules = newModules.map((m) => ({ ...m }));
+      
+      for (let i = 0; i < finalModules.length; i++) {
+        const m = finalModules[i];
+        
+        // Regra 2: Se um elemento tiver 66%, o elemento seguinte deve se adaptar para 33%
+        if (m.width === 'two-thirds' && i < finalModules.length - 1) {
+          finalModules[i + 1].width = 'third';
         }
 
-        // Regra 3: Regra de Fechamento (Sem Buracos)
-        // Quando o ÚLTIMO é 50% ou 66%, o ANTERIOR se adapta para preencher
-        if (idx === newModules.length - 1 && idx > 0) {
-          const prev = newModules[idx - 1];
-          if (m.width === 'half' && prev.width !== 'half') {
+        // Regra 3: Regra de Fechamento (Sem "Buracos" Visuais)
+        // Quando o ÚLTIMO é 50% ou 66%, o ANTERIOR se adapta para preencher a linha
+        if (i === finalModules.length - 1 && i > 0) {
+          const last = finalModules[i];
+          const prev = finalModules[i - 1];
+          if (last.width === 'half' && prev.width !== 'half') {
             prev.width = 'half';
-          } else if (m.width === 'two-thirds' && prev.width !== 'third') {
+          } else if (last.width === 'two-thirds' && prev.width !== 'third') {
             prev.width = 'third';
           }
         }
-
-        return m;
-      });
+      }
+      
+      return finalModules;
     });
   };
 
