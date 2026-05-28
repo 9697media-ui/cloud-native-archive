@@ -232,49 +232,10 @@ export default function NewsGeneratorPage() {
 
   const updateModuleWidth = (id: string, width: string) => {
     setModules(prevModules => {
-      // 1. Atualiza o item alvo mantendo os outros como estão
-      let newModules = prevModules.map(m => m.id === id ? { ...m, width: width } : { ...m });
-      
-      const getVal = (w: string) => (w === 'full' ? 100 : w === 'two-thirds' ? 66.6 : w === 'half' ? 50 : 33.3);
-
-      // 2. Normalização de Fluxo (Hierarquia Visual)
-      const result = [...newModules];
-      for (let i = 0; i < result.length; i++) {
-        const current = result[i];
-        const next = result[i + 1];
-        if (current.width === 'two-thirds' && next && next.width !== 'third') next.width = 'third';
-        if (current.width === 'half' && next && next.width === 'two-thirds') next.width = 'half';
-      }
-
-      // 3. Regra de Fechamento: Evita buracos expandindo o último item de cada linha virtual
-      let lineSum = 0;
-      for (let i = 0; i < result.length; i++) {
-        const val = getVal(result[i].width);
-        if (lineSum + val > 100.1 || result[i].width === 'full') {
-          if (i > 0 && lineSum < 95) {
-            const lastInRow = result[i-1];
-            const needed = 100 - (lineSum - getVal(lastInRow.width));
-            if (needed >= 90) lastInRow.width = 'full';
-            else if (needed >= 60) lastInRow.width = 'two-thirds';
-            else if (needed >= 45) lastInRow.width = 'half';
-            else lastInRow.width = 'third';
-          }
-          lineSum = val;
-        } else {
-          lineSum += val;
-        }
-      }
-      // Processa última linha
-      if (lineSum < 95 && result.length > 0) {
-        const last = result[result.length - 1];
-        const needed = 100 - (lineSum - getVal(last.width));
-        if (needed >= 90) last.width = 'full';
-        else if (needed >= 60) last.width = 'two-thirds';
-        else if (needed >= 45) last.width = 'half';
-        else last.width = 'third';
-      }
-
-      return result;
+      // 1. Apenas atualiza o item alvo. Sem normalização agressiva que sobrescreve a escolha do usuário.
+      // Seguimos o padrão de sistemas profissionais: o usuário define a largura e o grid (6 colunas) 
+      // cuida do posicionamento e do fluxo naturalmente.
+      return prevModules.map(m => m.id === id ? { ...m, width } : m);
     });
     setActiveWidthMenu(null);
   };
