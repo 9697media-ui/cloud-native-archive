@@ -238,23 +238,23 @@ export default function NewsGeneratorPage() {
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-grow';
-    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-grow';
-    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-grow';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-grow min-w-[30%]';
+    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-grow min-w-[25%]';
+    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-grow min-w-[20%]';
     return 'w-full flex-none';
   };
 
   const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] flex-grow';
-    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-grow';
-    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-grow';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-10.66px)] flex-grow min-w-[30%]';
+    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-grow min-w-[20%]';
+    if (widthStr === 'half') return 'w-[calc(50%-10.66px)] flex-grow min-w-[25%]';
     return 'w-full flex-none';
   };
 
   const getPdfWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] inline-block align-top mx-[2.66px] mb-6';
-    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] inline-block align-top mx-[5.33px] mb-6';
-    if (widthStr === 'half') return 'w-[calc(50%-8px)] inline-block align-top mx-[4px] mb-6';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-10.66px)] inline-block align-top mx-[5.33px] mb-6 flex-grow';
+    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] inline-block align-top mx-[5.33px] mb-6 flex-grow';
+    if (widthStr === 'half') return 'w-[calc(50%-10.66px)] inline-block align-top mx-[5.33px] mb-6 flex-grow';
     return 'w-full block mb-6';
   };
 
@@ -454,7 +454,32 @@ export default function NewsGeneratorPage() {
           break-inside: avoid !important;
         }
         .page-ruler-bg {
-          background-image: repeating-linear-gradient(to bottom, transparent, transparent 296mm, hsl(var(--border)) 296mm, hsl(var(--border)) 297mm);
+          background-image: repeating-linear-gradient(to bottom, transparent, transparent 276mm, rgba(148, 163, 184, 0.2) 276mm, rgba(148, 163, 184, 0.2) 277mm);
+          padding-bottom: 40px;
+        }
+        .page-break-container {
+          position: relative;
+        }
+        .page-break-marker {
+          position: absolute;
+          left: -48px;
+          right: -48px;
+          height: 1px;
+          border-top: 1px dashed #cbd5e1;
+          pointer-events: none;
+          z-index: 1;
+        }
+        .page-break-label {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%) translateY(-50%);
+          background: #f1f5f9;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-size: 10px;
+          color: #94a3b8;
+          font-weight: 600;
+          white-space: nowrap;
         }
       `}</style>
 
@@ -817,12 +842,25 @@ export default function NewsGeneratorPage() {
 
         <article
           id="pdf-content"
-          className={`bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-6 md:p-12 shadow-2xl rounded-sm text-slate-800
+          className={`bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-6 md:p-12 shadow-2xl rounded-sm text-slate-800 relative page-break-container
             ${isGeneratingPdf ? 'shadow-none p-0 max-w-none w-full' : 'page-ruler-bg print:shadow-none print:p-0 print:max-w-none print:w-full print:bg-none'}
           `}
           onDragOver={handleContainerDragOver}
           onDrop={handleDrop}
         >
+          {!isGeneratingPdf && (
+            <>
+              <div className="page-break-marker" style={{ top: '297mm' }}>
+                <span className="page-break-label">Início da Página 2</span>
+              </div>
+              <div className="page-break-marker" style={{ top: '594mm' }}>
+                <span className="page-break-label">Início da Página 3</span>
+              </div>
+              <div className="page-break-marker" style={{ top: '891mm' }}>
+                <span className="page-break-label">Início da Página 4</span>
+              </div>
+            </>
+          )}
           <div className={`border-b-4 border-primary pb-4 mb-8 ${isGeneratingPdf ? 'hidden' : 'print:hidden'}`}>
             <span className="text-xs font-bold uppercase tracking-widest text-primary flex justify-between items-center">
               <span>Pré-visualização</span>
@@ -852,7 +890,7 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'flex flex-wrap gap-4 w-full'} style={isGeneratingPdf ? { fontSize: 0 } : {}}>
+          <div className={isGeneratingPdf ? 'flex flex-wrap w-full' : 'flex flex-wrap gap-4 w-full'} style={isGeneratingPdf ? { fontSize: 0, padding: 0 } : {}}>
             {finalRenderModules.map((module) => {
               const widthClass = isGeneratingPdf ? getPdfWidthClass(module.width) : getWidthClass(module.width);
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
