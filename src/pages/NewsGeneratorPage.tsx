@@ -131,6 +131,7 @@ export default function NewsGeneratorPage() {
   const [isResizing, setIsResizing] = useState(false);
   const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
   const [layoutAssistant, setLayoutAssistant] = useState<{ isOpen: boolean; rowId?: string; remainingWidth: number; modulesInRow: any[] }>({ isOpen: false, remainingWidth: 0, modulesInRow: [] });
+  const [videoSuggestion, setVideoSuggestion] = useState<{ isOpen: boolean; moduleId: string } | null>(null);
   const widthMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
