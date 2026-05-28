@@ -14,6 +14,10 @@ import {
   LayoutGrid,
   PlusCircle,
   Bold,
+  Sparkles,
+  Type,
+  Layers,
+  Plus,
 } from 'lucide-react';
 
 const MODULE_RULES: Record<string, { label: string; max: number; icon: any; placeholder: string }> = {
@@ -398,189 +402,261 @@ export default function NewsGeneratorPage() {
       `}</style>
 
       {/* PAINEL DE EDIÇÃO */}
-      <div className="w-full lg:w-[420px] flex flex-col bg-card border-r border-border print:hidden">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <div>
-            <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-              <LayoutGrid size={20} className="text-primary" />
-              Editor Institucional
-            </h2>
-          </div>
-
-          <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/30">
-            <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-              Cabeçalho (Ordem Fixa Obrigatória)
-            </h3>
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-muted-foreground">1. Autor e Data</label>
-              <input
-                type="text"
-                value={headerData.author}
-                onChange={(e) => setHeaderData({ ...headerData, author: e.target.value })}
-                placeholder="Ex: Equipe de Jornalismo - 10/10/2026"
-                className="w-full p-2 text-sm font-medium border border-border rounded bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              <label className="block text-xs font-medium text-muted-foreground">2. Título Principal</label>
-              <input
-                type="text"
-                value={headerData.title}
-                onChange={(e) => setHeaderData({ ...headerData, title: e.target.value })}
-                placeholder="Digite o título da notícia..."
-                className="w-full p-2 text-base font-bold border border-border rounded bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              <label className="block text-xs font-medium text-muted-foreground">3. Subtítulo</label>
-              <input
-                type="text"
-                value={headerData.subtitle}
-                onChange={(e) => setHeaderData({ ...headerData, subtitle: e.target.value })}
-                placeholder="Linha fina de apoio..."
-                className="w-full p-2 text-sm border border-border rounded bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-              />
+      <aside className="w-full lg:w-[440px] flex flex-col bg-card border-r border-border print:hidden shadow-sm">
+        {/* Header da sidebar */}
+        <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-card to-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center ring-1 ring-primary/20">
+              <Sparkles size={18} className="text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-base font-bold text-foreground leading-tight">Editor Institucional</h2>
+              <p className="text-xs text-muted-foreground leading-tight mt-0.5">Construa sua notícia em blocos</p>
             </div>
           </div>
+        </div>
 
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
-              Adicionar Corpo (Arraste)
-            </h3>
-            <div className="flex gap-2">
+        <div className="flex-1 overflow-y-auto p-5 space-y-6">
+          {/* Cabeçalho */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Type size={14} className="text-muted-foreground" />
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Cabeçalho
+                </h3>
+              </div>
+              <span className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wide">Ordem fixa</span>
+            </div>
+
+            <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-3">
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">1</span>
+                  Autor e Data
+                </label>
+                <input
+                  type="text"
+                  value={headerData.author}
+                  onChange={(e) => setHeaderData({ ...headerData, author: e.target.value })}
+                  placeholder="Ex: Equipe de Jornalismo - 10/10/2026"
+                  className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">2</span>
+                  Título Principal
+                </label>
+                <input
+                  type="text"
+                  value={headerData.title}
+                  onChange={(e) => setHeaderData({ ...headerData, title: e.target.value })}
+                  placeholder="Digite o título da notícia..."
+                  className="w-full px-3 py-2 text-base font-bold border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">3</span>
+                  Subtítulo
+                </label>
+                <input
+                  type="text"
+                  value={headerData.subtitle}
+                  onChange={(e) => setHeaderData({ ...headerData, subtitle: e.target.value })}
+                  placeholder="Linha fina de apoio..."
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Caixa de ferramentas */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Plus size={14} className="text-muted-foreground" />
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                Adicionar Bloco
+              </h3>
+              <span className="text-[10px] text-muted-foreground/70 ml-auto">Clique ou arraste</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               {Object.entries(MODULE_RULES).map(([type, rule]) => {
                 const Icon = rule.icon;
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={type}
                     draggable
                     onDragStart={(e) => handleDragStartToolbox(e, type)}
                     onDragEnd={handleDragEnd}
                     onClick={() => addModule(type)}
-                    className="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg text-sm font-medium transition-all select-none bg-muted text-foreground hover:bg-accent border border-border cursor-grab active:cursor-grabbing"
+                    className="group flex flex-col items-center justify-center gap-2 p-4 rounded-xl text-sm font-medium transition-all select-none bg-background hover:bg-primary/5 text-foreground border-2 border-dashed border-border hover:border-primary/40 cursor-grab active:cursor-grabbing active:scale-95"
                   >
-                    <Icon size={16} />
-                    {rule.label}
+                    <div className="h-8 w-8 rounded-lg bg-muted group-hover:bg-primary/15 flex items-center justify-center transition-colors">
+                      <Icon size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <span className="text-xs leading-tight text-center">{rule.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Blocos do corpo */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Layers size={14} className="text-muted-foreground" />
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                Corpo da Notícia
+              </h3>
+              <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
+                {modules.length}
+              </span>
+            </div>
+
+            {modules.length === 0 && (
+              <div className="rounded-xl border-2 border-dashed border-border bg-muted/20 p-6 text-center">
+                <Layers size={24} className="mx-auto text-muted-foreground/40 mb-2" />
+                <p className="text-xs text-muted-foreground">Nenhum bloco ainda.</p>
+                <p className="text-[11px] text-muted-foreground/70 mt-0.5">Adicione um bloco acima para começar.</p>
+              </div>
+            )}
+
+
+            <div className="flex flex-wrap gap-3">
+              {modules.map((module, idx) => {
+                const rule = MODULE_RULES[module.type];
+                const Icon = rule.icon;
+                const isDraggingThis = dragItem?.id === module.id;
+                const isTarget = dropIndicator?.id === module.id;
+                const widthClass = getWidthClass(module.width);
+                const widthLabel = module.width === 'full' ? '100%' : module.width === 'half' ? '50%' : '33%';
+                const WidthIcon = module.width === 'full' ? Square : module.width === 'half' ? Columns : LayoutGrid;
+
+                return (
+                  <div
+                    key={module.id}
+                    draggable
+                    onDragStart={(e) => {
+                      const tagName = (e.nativeEvent.target as HTMLElement).tagName.toLowerCase();
+                      if (['textarea', 'input', 'button'].includes(tagName) || (e.nativeEvent.target as HTMLElement).closest('button')) {
+                        e.preventDefault();
+                        return;
+                      }
+                      handleDragStartList(e, module.id);
+                    }}
+                    onDragOver={(e) => handleModuleDragOver(e, module.id)}
+                    onDragEnd={handleDragEnd}
+                    onDrop={handleDrop}
+                    className={`bg-card border relative rounded-xl overflow-hidden shadow-sm hover:shadow-md flex flex-col group transition-all
+                      ${isDraggingThis ? 'opacity-30 border-dashed scale-95' : 'border-border hover:border-primary/40'}
+                      ${widthClass}`}
+                  >
+                    {isTarget && (
+                      <div className="absolute inset-0 bg-primary/10 border-2 border-primary z-10 pointer-events-none rounded-xl" />
+                    )}
+
+                    {/* Header do bloco */}
+                    <div className="flex items-center justify-between gap-2 px-3 py-2 bg-muted/40 border-b border-border">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <GripVertical size={14} className="text-muted-foreground/50 cursor-grab" />
+                        <span className="inline-flex items-center justify-center h-5 w-5 rounded-md bg-primary/15 text-primary text-[10px] font-bold flex-shrink-0">
+                          {idx + 1}
+                        </span>
+                        <Icon size={13} className="text-muted-foreground flex-shrink-0" />
+                        <span className="text-[11px] font-semibold text-foreground truncate">{rule.label}</span>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => toggleWidth(module.id)}
+                          className="flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-foreground text-[10px] font-bold bg-background border border-border transition-colors"
+                          title="Alternar Largura"
+                        >
+                          <WidthIcon size={10} />
+                          {widthLabel}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeModule(module.id)}
+                          className="p-1.5 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-md transition-colors"
+                          title="Excluir"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {module.type === 'paragraph' && (
+                      <div className="flex items-center gap-1 px-3 py-1.5 bg-muted/20 border-b border-border">
+                        <button
+                          type="button"
+                          onClick={() => insertBold(module.id)}
+                          className="p-1.5 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors"
+                          title="Aplicar Negrito (selecione o texto)"
+                        >
+                          <Bold size={13} />
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="p-3 flex-1">
+                      {module.type === 'paragraph' ? (
+                        <textarea
+                          id={`textarea-${module.id}`}
+                          value={module.content}
+                          onChange={(e) => updateContent(module.id, e.target.value)}
+                          placeholder={rule.placeholder}
+                          className="w-full h-full min-h-[110px] p-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-y transition-all"
+                        />
+                      ) : module.type === 'image' ? (
+                        <div className="flex flex-col gap-2 h-full">
+                          <input
+                            type="url"
+                            value={module.content}
+                            onChange={(e) => updateContent(module.id, e.target.value)}
+                            placeholder={rule.placeholder}
+                            className="w-full p-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                          />
+                          {module.content ? (
+                            <div className="relative rounded-lg overflow-hidden border border-border bg-muted">
+                              <img
+                                src={module.content}
+                                alt="Preview"
+                                className="w-full h-28 object-cover"
+                                onError={(e: any) => { e.target.style.display = 'none'; }}
+                              />
+                            </div>
+                          ) : (
+                            <div className="rounded-lg border border-dashed border-border bg-muted/30 h-20 flex items-center justify-center">
+                              <ImageIcon size={20} className="text-muted-foreground/40" />
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 );
               })}
             </div>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            {modules.map((module) => {
-              const rule = MODULE_RULES[module.type];
-              const Icon = rule.icon;
-              const isDraggingThis = dragItem?.id === module.id;
-              const isTarget = dropIndicator?.id === module.id;
-              const widthClass = getWidthClass(module.width);
-
-              return (
-                <div
-                  key={module.id}
-                  draggable
-                  onDragStart={(e) => {
-                    const tagName = (e.nativeEvent.target as HTMLElement).tagName.toLowerCase();
-                    if (['textarea', 'input', 'button'].includes(tagName) || (e.nativeEvent.target as HTMLElement).closest('button')) {
-                      e.preventDefault();
-                      return;
-                    }
-                    handleDragStartList(e, module.id);
-                  }}
-                  onDragOver={(e) => handleModuleDragOver(e, module.id)}
-                  onDragEnd={handleDragEnd}
-                  onDrop={handleDrop}
-                  className={`bg-card border relative rounded-xl overflow-hidden shadow-sm flex flex-col group transition-all
-                    ${isDraggingThis ? 'opacity-30 border-dashed' : 'border-border hover:border-primary/50'}
-                    ${widthClass}`}
-                >
-                  {isTarget && (
-                    <div className="absolute inset-0 bg-primary/10 border-2 border-primary z-10 pointer-events-none rounded-xl" />
-                  )}
-
-                  <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border-b border-border">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                      <GripVertical size={14} />
-                      <Icon size={14} />
-                      {rule.label}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => toggleWidth(module.id)}
-                        className="flex items-center gap-1 px-2 py-1 hover:bg-accent rounded text-foreground text-xs font-bold bg-muted transition-colors"
-                        title="Alternar Largura"
-                      >
-                        {module.width === 'full' && <><Square size={10} /> 100%</>}
-                        {module.width === 'half' && <><Columns size={10} /> 50%</>}
-                        {module.width === 'third' && <><LayoutGrid size={10} /> 33%</>}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeModule(module.id)}
-                        className="p-1 hover:bg-destructive/10 text-destructive rounded transition-colors"
-                        title="Excluir"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {module.type === 'paragraph' && (
-                    <div className="flex items-center gap-1 px-2 py-1 bg-muted/30 border-b border-border">
-                      <button
-                        type="button"
-                        onClick={() => insertBold(module.id)}
-                        className="p-1.5 hover:bg-accent rounded text-foreground transition-colors"
-                        title="Aplicar Negrito"
-                      >
-                        <Bold size={14} />
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="p-2 flex-1">
-                    {module.type === 'paragraph' ? (
-                      <textarea
-                        id={`textarea-${module.id}`}
-                        value={module.content}
-                        onChange={(e) => updateContent(module.id, e.target.value)}
-                        placeholder={rule.placeholder}
-                        className="w-full h-full min-h-[100px] p-2 text-sm border border-border rounded bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-y"
-                      />
-                    ) : module.type === 'image' ? (
-                      <div className="flex flex-col gap-2 h-full justify-between">
-                        <input
-                          type="url"
-                          value={module.content}
-                          onChange={(e) => updateContent(module.id, e.target.value)}
-                          placeholder={rule.placeholder}
-                          className="w-full p-2 text-sm border border-border rounded bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                        {module.content && (
-                          <img
-                            src={module.content}
-                            alt="Preview"
-                            className="w-full h-24 object-cover rounded mt-2"
-                            onError={(e: any) => { e.target.style.display = 'none'; }}
-                          />
-                        )}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          </section>
         </div>
 
+        {/* Footer da sidebar */}
         <div className="p-4 bg-card border-t border-border flex-shrink-0">
           <button
             type="button"
             onClick={handleNewArticle}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 rounded-lg font-semibold transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-background hover:bg-destructive/5 text-foreground hover:text-destructive border border-border hover:border-destructive/30 rounded-xl font-semibold text-sm transition-all"
           >
-            <PlusCircle size={18} />
+            <PlusCircle size={16} />
             Criar Nova Notícia
           </button>
         </div>
-      </div>
+      </aside>
+
 
       {/* PAINEL DE VISUALIZAÇÃO / PDF */}
       <div className="flex-1 flex flex-col min-h-0 p-4 md:p-10 bg-muted print:bg-white print:p-0 print:w-full print:h-auto print:block overflow-y-auto relative items-center">
