@@ -43,8 +43,8 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
       {/* MODO BLOG: Slideshow interativo */}
       {!isGeneratingPdf && (
         <div 
-          className="relative w-full rounded-xl overflow-hidden shadow-md group bg-muted"
-          style={heightStyle}
+          className="relative w-full h-full rounded-xl overflow-hidden shadow-md group bg-muted"
+          style={finalHeightStyle}
         >
           {items.map((item, idx) => (
             <img
