@@ -224,9 +224,9 @@ export default function NewsGeneratorPage() {
 
   const getMaxCharacters = (cols: number, rows: number | 'auto') => {
     if (rows === 'auto') return 2000;
-    // Estimativa de segurança: 300 caracteres por slot 1x1
+    // Estimativa segura para fonte 14px em slots de 150px de altura
     const rowCount = rows as number;
-    return cols * rowCount * 300; 
+    return cols * rowCount * 220; 
   };
 
   const calculateFontSize = (text: string, cols: number, rows: number | 'auto') => {
@@ -236,10 +236,9 @@ export default function NewsGeneratorPage() {
     const rowCount = rows as number;
     const maxChars = getMaxCharacters(cols, rows);
     
-    // Proporção inversa: quanto mais texto, menor a fonte
-    // Mapeia 0% preenchimento -> 22px e 100% preenchimento -> 14px
+    // Mapeamento linear direto
     const fillRatio = Math.min(charCount / maxChars, 1);
-    const size = 22 - (fillRatio * 8); 
+    const size = 22 - (fillRatio * (22 - 14));
     
     return `${Math.max(14, Math.min(22, size))}px`;
   };
@@ -1030,7 +1029,7 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="flex flex-col w-full h-full pointer-events-none justify-center overflow-hidden"
+                      className="flex flex-col w-full h-full pointer-events-none justify-start overflow-hidden"
                     >
                       <p 
                         className="text-slate-700 leading-relaxed text-justify"
