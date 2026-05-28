@@ -232,14 +232,15 @@ export default function NewsGeneratorPage() {
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
     
-    // Dimensões úteis considerando o padding de 12px de cada lado (total 24px)
-    const w = (cols * 264) - 24; 
-    const h = (rowCount * 150) - 24;
+    // Dimensões do bloco em pixels (aproximadamente)
+    const w = (cols * 280); 
+    const h = (rowCount * 150);
     
-    // Fator de densidade mais conservador para evitar corte (0.8 ~ 1.0)
-    const s = Math.sqrt((w * h) / (charCount * 0.9));
+    // Fator de ajuste para tentar preencher o máximo do bloco
+    // Ajustamos de 0.9 para 0.75 para permitir que a fonte cresça um pouco mais
+    const s = Math.sqrt((w * h) / (charCount * 0.72));
     
-    return `${Math.max(10, Math.min(20, s))}px`;
+    return `${Math.max(12, Math.min(22, s))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -1039,14 +1040,15 @@ export default function NewsGeneratorPage() {
                         className="text-slate-700 leading-tight text-justify w-full"
                         style={{ 
                           fontSize: calculateFontSize(module.content, module.cols, module.rows),
-                          lineHeight: '1.1',
+                          lineHeight: '1.2',
                           margin: 0,
                           padding: 0,
                           wordBreak: 'break-word',
                           textAlign: 'justify',
                           textAlignLast: 'left',
                           display: 'block',
-                          height: '100%',
+                          height: 'auto',
+                          minHeight: '100%',
                           width: '100%',
                           overflow: 'hidden'
                         }}
