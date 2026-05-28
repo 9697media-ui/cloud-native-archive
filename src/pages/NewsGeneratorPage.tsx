@@ -995,6 +995,31 @@ export default function NewsGeneratorPage() {
                     </figure>
                   );
                   break;
+                case 'video':
+                  contentRender = (
+                    <div className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`}>
+                      {isGeneratingPdf ? (
+                        <a
+                          href={module.content}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-primary text-primary-foreground px-6 py-4 rounded-xl shadow-md flex items-center justify-center gap-3 font-bold text-lg no-underline my-4 text-center"
+                        >
+                          <PlusCircle size={24} />
+                          CLIQUE PARA ASSISTIR O VÍDEO COMPLETO
+                        </a>
+                      ) : (
+                        <div className="relative aspect-video rounded-xl overflow-hidden shadow-md bg-muted flex items-center justify-center">
+                          <iframe
+                            src={module.content.includes('youtube.com') ? module.content.replace('watch?v=', 'embed/') : module.content}
+                            className="absolute inset-0 w-full h-full border-0"
+                            allowFullScreen
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                  break;
                 case 'gallery':
                   contentRender = <CarouselGallery items={module.items} isGeneratingPdf={isGeneratingPdf} />;
                   break;
