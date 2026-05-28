@@ -231,24 +231,113 @@ export default function NewsGeneratorPage() {
     setShowClearModal(false);
   };
 
-  const updateModuleWidth = (id: string, width: string) => {
-    setModules(prevModules => {
-      return prevModules.map(m => m.id === id ? { ...m, width } : m);
+  const getWidthValue = (widthStr: string): number => {
+    if (widthStr === 'full') return 100;
+    if (widthStr === 'two-thirds') return 66.66;
+    if (widthStr === 'half') return 50;
+    if (widthStr === 'third') return 33.33;
+    return 100;
+  };
+
+  const getWidthFromValue = (value: number): string => {
+    if (value >= 95) return 'full';
+    if (value >= 60) return 'two-thirds';
+    if (value >= 45) return 'half';
+    return 'third';
+  };
+
+  const validateLayout = (currentModules: any[]) => {
+    let currentRowTotal = 0;
+    let currentRowModules: any[] = [];
+    
+    for (let i = 0; i < currentModules.length; i++) {
+      const m = currentModules[i];
+      const w = getWidthValue(m.width);
+      
+      if (currentRowTotal + w > 100.1) {
+        if (currentRowTotal < 95) {
+          setLayoutAssistant({
+            isOpen: true,
+            remainingWidth: 100 - currentRowTotal,
+            modulesInRow: [...currentRowModules]
+          });
+          return false;
+        }
+        currentRowTotal = w;
+        currentRowModules = [m];
+      } else {
+        currentRowTotal += w;
+        currentRowModules.push(m);
+      }
+    }
+
+    if (currentRowTotal > 0 && currentRowTotal < 95) {
+      setLayoutAssistant({
+        isOpen: true,
+        remainingWidth: 100 - currentRowTotal,
+        modulesInRow: [...currentRowModules]
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
+  const applyAutoAdjustment = () => {
+    if (!layoutAssistant.modulesInRow.length) return;
+    const lastModuleId = layoutAssistant.modulesInRow[layoutAssistant.modulesInRow.length - 1].id;
+    const currentTotal = layoutAssistant.modulesInRow.reduce((acc, m) => acc + getWidthValue(m.width), 0);
+    const needed = 100 - (currentTotal - getWidthValue(layoutAssistant.modulesInRow[layoutAssistant.modulesInRow.length - 1].width));
+    const newWidth = getWidthFromValue(needed);
+    setModules(prev => prev.map(m => m.id === lastModuleId ? { ...m, width: newWidth } : m));
+    setLayoutAssistant({ ...layoutAssistant, isOpen: false });
+  };
+
+  const applyPullBlock = (blockToPullId: string) => {
+    const blockToPull = modules.find(m => m.id === blockToPullId);
+    if (!blockToPull) return;
+
+    setModules(prev => {
+      let newModules = [...prev];
+      newModules = newModules.filter(m => m.id !== blockToPullId);
+      const lastModuleId = layoutAssistant.modulesInRow[layoutAssistant.modulesInRow.length - 1].id;
+      const targetIndex = newModules.findIndex(m => m.id === lastModuleId);
+      const adjustedBlock = { ...blockToPull, width: getWidthFromValue(layoutAssistant.remainingWidth) };
+      newModules.splice(targetIndex + 1, 0, adjustedBlock);
+      return newModules;
     });
+    setLayoutAssistant({ ...layoutAssistant, isOpen: false });
+  };
+
+  const applyAddNewTailored = () => {
+    const newWidth = getWidthFromValue(layoutAssistant.remainingWidth);
+    const lastModuleId = layoutAssistant.modulesInRow[layoutAssistant.modulesInRow.length - 1].id;
+    const targetIndex = modules.findIndex(m => m.id === lastModuleId);
+    const newModule = { id: Date.now().toString(), type: 'paragraph', content: '', width: newWidth };
+    const newModules = [...modules];
+    newModules.splice(targetIndex + 1, 0, newModule);
+    setModules(newModules);
+    setLayoutAssistant({ ...layoutAssistant, isOpen: false });
+  };
+
+  const updateModuleWidth = (id: string, width: string) => {
+    const newModules = modules.map(m => m.id === id ? { ...m, width } : m);
+    setModules(newModules);
     setActiveWidthMenu(null);
+    setTimeout(() => validateLayout(newModules), 300);
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-grow';
-    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-grow';
-    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-grow';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-none';
+    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-none';
+    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-none';
     return 'w-full flex-none';
   };
 
   const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] flex-grow';
-    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-grow';
-    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-grow';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] flex-none';
+    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-none';
+    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-none';
     return 'w-full flex-none';
   };
 
