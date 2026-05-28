@@ -1038,13 +1038,15 @@ export default function NewsGeneratorPage() {
                       className="w-full h-full flex flex-col justify-center overflow-hidden"
                     >
                       <div
-                        className="text-slate-700 leading-snug text-justify w-full h-full flex items-center"
+                        className="text-slate-700 w-full h-full flex items-center"
                         style={{ 
                           fontSize: calculateFontSize(module.content, module.cols, module.rows),
                           textAlign: 'justify',
                           textAlignLast: 'left',
-                          wordBreak: 'break-word',
-                          hyphens: 'auto'
+                          hyphens: 'none',
+                          wordBreak: 'normal',
+                          overflowWrap: 'anywhere',
+                          lineHeight: '1.3'
                         }}
                       >
                         <span className="w-full">
