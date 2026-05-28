@@ -466,7 +466,7 @@ export default function NewsGeneratorPage() {
         style={{ width: sidebarOpen ? (windowWidth >= 1024 ? `${sidebarWidth}px` : '88vw') : '0px' }}
         className={`
           print:hidden bg-card border-r border-border shadow-xl lg:shadow-sm
-          flex flex-col transition-all duration-300 ease-out
+          flex flex-col ${isResizing ? '' : 'transition-all duration-300 ease-out'}
           fixed lg:relative inset-y-0 left-0 top-16 lg:top-0 z-40
           ${sidebarOpen
             ? 'max-w-[90vw] translate-x-0'
