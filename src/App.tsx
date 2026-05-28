@@ -78,6 +78,9 @@ const App = () => (
                   <Route path="/design-manual" element={
                     <ProtectedRoute><DesignManualPage /></ProtectedRoute>
                   } />
+                  <Route path="/noticias" element={
+                    <ProtectedRoute><NewsGeneratorPage /></ProtectedRoute>
+                  } />
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>
