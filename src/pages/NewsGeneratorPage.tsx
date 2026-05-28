@@ -759,18 +759,48 @@ export default function NewsGeneratorPage() {
                         <Icon size={13} className="text-muted-foreground flex-shrink-0" />
                         <span className="text-[11px] font-semibold text-foreground truncate">{rule.label}</span>
                       </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-1 flex-shrink-0 relative">
                         <button
                           type="button"
-                          onClick={() => toggleWidth(module.id)}
-                          className="flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-foreground text-[10px] font-bold bg-background border border-border transition-colors"
-                          title="Alternar Largura"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveWidthMenu(activeWidthMenu === module.id ? null : module.id);
+                          }}
+                          className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeWidthMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+                          title="Opções de Largura"
                         >
                           <WidthIcon size={10} />
                           {widthLabel}
                         </button>
+
+                        {activeWidthMenu === module.id && (
+                          <div 
+                            ref={widthMenuRef}
+                            className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-[100] p-1 animate-in fade-in zoom-in duration-200"
+                          >
+                            <div className="grid grid-cols-1 gap-1">
+                              {[
+                                { id: 'full', label: '100% (Cheio)', icon: Square },
+                                { id: 'two-thirds', label: '66% (2/3)', icon: LayoutGrid },
+                                { id: 'half', label: '50% (Metade)', icon: Columns },
+                                { id: 'third', label: '33% (1/3)', icon: LayoutGrid },
+                              ].map((option) => (
+                                <button
+                                  key={option.id}
+                                  type="button"
+                                  onClick={() => updateModuleWidth(module.id, option.id)}
+                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.width === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
+                                >
+                                  <option.icon size={10} />
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         <button
-                          type="button"
+                          type="button;
                           onClick={() => removeModule(module.id)}
                           className="p-1.5 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-md transition-colors"
                           title="Excluir"
