@@ -1144,17 +1144,47 @@ export default function NewsGeneratorPage() {
                     <div className="text-sm font-bold text-foreground">OPÇÃO 2: Puxar Bloco Existente</div>
                     <div className="text-xs text-muted-foreground mt-1">Selecione um bloco abaixo para preencher o espaço (ele será redimensionado para {layoutAssistant.remainingWidth.toFixed(0)}%):</div>
                     
-                    <div className="mt-3 grid grid-cols-1 gap-2 max-h-32 overflow-y-auto pr-2">
+                    <div className="mt-3 grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-2">
                       {modules
                         .filter(m => !layoutAssistant.modulesInRow.some(rm => rm.id === m.id))
                         .map((m, idx) => (
                           <button
                             key={m.id}
                             onClick={() => applyPullBlock(m.id)}
-                            className="flex items-center justify-between px-3 py-2 rounded-lg bg-background border border-border hover:border-primary hover:text-primary transition-all text-[10px] font-medium"
+                            className="flex flex-col p-3 rounded-lg bg-background border border-border hover:border-primary transition-all text-left group/item"
                           >
-                            <span>Bloco {idx + 1}: {MODULE_RULES[m.type].label} ({m.width})</span>
-                            <ChevronRight size={12} />
+                            <div className="flex items-center justify-between w-full mb-1">
+                              <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
+                                {idx + 1}. {MODULE_RULES[m.type].label}
+                              </span>
+                              <div className="flex items-center gap-1 text-[9px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                                <Square size={8} /> {m.width}
+                              </div>
+                            </div>
+                            
+                            {m.type === 'paragraph' && m.content && (
+                              <p className="text-[10px] text-muted-foreground line-clamp-1 italic">
+                                "{m.content}"
+                              </p>
+                            )}
+                            
+                            {m.type === 'image' && m.content && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className="h-6 w-10 rounded border border-border overflow-hidden bg-muted">
+                                  <img src={m.content} alt="" className="w-full h-full object-cover" />
+                                </div>
+                                <span className="text-[9px] text-muted-foreground truncate max-w-[150px]">{m.content}</span>
+                              </div>
+                            )}
+
+                            {m.type === 'video' && m.content && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className="h-6 w-10 rounded border border-border overflow-hidden bg-slate-900 flex items-center justify-center">
+                                  <LayoutGrid size={10} className="text-white opacity-50" />
+                                </div>
+                                <span className="text-[9px] text-muted-foreground truncate max-w-[150px]">{m.content}</span>
+                              </div>
+                            )}
                           </button>
                         ))
                       }
