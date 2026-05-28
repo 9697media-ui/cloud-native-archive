@@ -230,27 +230,44 @@ export default function NewsGeneratorPage() {
     setShowClearModal(false);
   };
 
+  const normalizeModules = (modules: any[]) => {
+    const getVal = (w: string) => (w === 'full' ? 100 : w === 'two-thirds' ? 66.6 : w === 'half' ? 50 : 33.3);
+    const result = modules.map(m => ({ ...m }));
+    
+    // Primeiro passo: correções automáticas de adjacência (opcional, mas ajuda a manter o fluxo)
+    for (let i = 0; i < result.length - 1; i++) {
+      const current = result[i];
+      const next = result[i + 1];
+      // Se um é 66% e o outro não é 33%, e caberiam na mesma linha, poderíamos ajustar,
+      // mas para "lógica de grandes empresas", respeitamos a escolha do usuário.
+      // A única regra rígida é: se a soma da linha ultrapassar 100%, o próximo quebra.
+    }
+
+    return result;
+  };
+
   const updateModuleWidth = (id: string, width: string) => {
     setModules(prevModules => {
-      // 1. Apenas atualiza o item alvo. Sem normalização agressiva que sobrescreve a escolha do usuário.
-      // Seguimos o padrão de sistemas profissionais: o usuário define a largura e o grid (6 colunas) 
-      // cuida do posicionamento e do fluxo naturalmente.
-      return prevModules.map(m => m.id === id ? { ...m, width } : m);
+      const newModules = prevModules.map(m => m.id === id ? { ...m, width } : m);
+      return normalizeModules(newModules);
     });
     setActiveWidthMenu(null);
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-8px)]';
-    if (widthStr === 'half') return 'w-full grow basis-[calc(50%-8px)]';
-    if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-8px)]';
+    // Para a sidebar, usamos larguras fixas baseadas em porcentagem para que o usuário veja a diferença
+    // Removemos o 'grow' para que um bloco de 33% não pareça 100% quando estiver sozinho.
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-8px)] flex-none';
+    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-none';
+    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-none';
     return 'w-full flex-none';
   };
 
   const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full md:grow md:basis-[calc(66.666667%-10.666px)]';
-    if (widthStr === 'third') return 'w-full md:grow md:basis-[calc(33.333333%-10.666px)]';
-    if (widthStr === 'half') return 'w-full md:grow md:basis-[calc(50%-8px)]';
+    // No preview principal, mantemos a lógica de grid responsiva
+    if (widthStr === 'two-thirds') return 'w-full md:w-[calc(66.666667%-10.666px)] flex-none';
+    if (widthStr === 'third') return 'w-full md:w-[calc(33.333333%-10.666px)] flex-none';
+    if (widthStr === 'half') return 'w-full md:w-[calc(50%-8px)] flex-none';
     return 'w-full flex-none';
   };
 
