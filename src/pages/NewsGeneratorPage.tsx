@@ -223,11 +223,8 @@ export default function NewsGeneratorPage() {
   };
 
   const getMaxCharacters = (cols: number, rows: number | 'auto') => {
-    if (rows === 'auto') return 2000;
-    // Fixamos o limite em 600 por slot para atender ao pedido, 
-    // mas a fonte precisará ser menor para acomodar tudo.
-    const rowCount = rows as number;
-    return cols * rowCount * 600; 
+    // Limite fixo de 600 caracteres por bloco conforme solicitado
+    return 600; 
   };
 
   const calculateFontSize = (text: string, cols: number, rows: number | 'auto') => {
