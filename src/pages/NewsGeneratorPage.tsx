@@ -387,17 +387,22 @@ export default function NewsGeneratorPage() {
     }
 
     const balancedModules = newModules.map((m, idx) => {
-      if (idx === newModules.length - 1) {
-        const prev = newModules[idx - 1];
-        if (prev) {
-          if (prev.width === 'half') return { ...m, width: 'half' };
-          if (prev.width === 'two-thirds') return { ...m, width: 'third' };
-          if (prev.width === 'third') return { ...m, width: 'two-thirds' };
-        }
-      } else if (idx < newModules.length - 1) {
+      // Regra 2: 66% -> 33% para o próximo
+      if (m.width === 'two-thirds' && idx < newModules.length - 1) {
         const next = newModules[idx + 1];
-        if (m.width === 'two-thirds' && (!next || next.width === 'full')) return { ...m, width: 'full' };
-        if (m.width === 'half' && (!next || next.width === 'full')) return { ...m, width: 'full' };
+        if (next.width !== 'third' && next.width !== 'full') {
+          next.width = 'third';
+        }
+      }
+
+      // Regra 3: Se o último é 50% ou 66%, o anterior se adapta
+      if (idx === newModules.length - 1 && idx > 0) {
+        const prev = newModules[idx - 1];
+        if (m.width === 'half' && prev.width !== 'half') {
+          prev.width = 'half';
+        } else if (m.width === 'two-thirds' && prev.width !== 'third') {
+          prev.width = 'third';
+        }
       }
       return m;
     });
