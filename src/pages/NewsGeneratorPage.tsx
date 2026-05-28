@@ -605,6 +605,10 @@ export default function NewsGeneratorPage() {
             padding: 24px;
           }
         }
+        /* Garantir que os blocos internos respeitem o padding visual de 12px quando encostados */
+        .module-content-wrapper {
+          padding: 12px;
+        }
       `}</style>
 
       {/* Backdrop mobile */}
@@ -1126,7 +1130,7 @@ export default function NewsGeneratorPage() {
                     onDragOver={(e) => handleModuleDragOver(e, dragId)}
                     onDragEnd={handleDragEnd}
                     onDrop={handleDrop}
-                    className={`flex-1 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow p-3`}
+                    className={`flex-1 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow module-content-wrapper`}
                   >
                     <div className="w-full h-full flex items-center justify-center">
                       {contentRender}
