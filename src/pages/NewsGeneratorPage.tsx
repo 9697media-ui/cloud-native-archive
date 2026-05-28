@@ -248,9 +248,9 @@ export default function NewsGeneratorPage() {
   };
 
   const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full md:grow md:basis-[calc(66.66%-5.33px)]';
-    if (widthStr === 'third') return 'w-full md:grow md:basis-[calc(33.33%-10.66px)]';
-    if (widthStr === 'half') return 'w-full md:grow md:basis-[calc(50%-8px)]';
+    if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-5.33px)]';
+    if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-10.66px)]';
+    if (widthStr === 'half') return 'w-full grow basis-[calc(50%-8px)]';
     return 'w-full flex-none';
   };
 
