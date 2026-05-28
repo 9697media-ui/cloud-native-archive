@@ -155,7 +155,7 @@ export default function NewsGeneratorPage() {
     const handleMouseMove = (e: MouseEvent) => {
       // Ajusta a largura baseada na posição do mouse
       // Adicionamos um pequeno buffer se necessário, mas clientX funciona bem para painel à esquerda
-      const newWidth = Math.max(340, Math.min(900, e.clientX));
+      const newWidth = Math.max(340, Math.min(1200, e.clientX)); // Aumentado o limite máximo para facilitar colunas largas
       setSidebarWidth(newWidth);
     };
 
