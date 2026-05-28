@@ -958,14 +958,12 @@ export default function NewsGeneratorPage() {
                 case 'image':
                   contentRender = (
                     <figure 
-                      className="flex flex-col w-full h-full m-0 overflow-hidden rounded-xl shadow-md"
+                      className="flex flex-col w-full h-full m-0 overflow-hidden rounded-xl shadow-md bg-muted/20"
                     >
                       <img
                         src={module.content}
                         alt="Notícia"
-                        className={`w-full object-cover pointer-events-none h-full flex-1 rounded-lg
-                          ${module.rows === 'auto' ? 'min-h-[200px] max-h-[600px]' : ''}
-                        `}
+                        className="w-full h-full object-cover pointer-events-none rounded-lg"
                         onError={(e: any) => {
                           e.target.onerror = null;
                           e.target.src = 'https://placehold.co/800x400/eeeeee/999999?text=Imagem+N%C3%A3o+Encontrada';
