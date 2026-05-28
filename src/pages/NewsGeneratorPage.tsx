@@ -926,7 +926,7 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 auto-rows-[150px] gap-4 p-4 w-full relative min-h-[600px] grid-background rounded-xl border-2 border-primary/5 bg-slate-50/30'}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'grid-container-modern auto-rows-[150px] w-full relative min-h-[600px] grid-background rounded-xl border-2 border-primary/5 bg-slate-50/30 group/grid'}>
             {!isGeneratingPdf && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 pointer-events-none">
                 {Array.from({ length: 12 }).map((_, i) => (
