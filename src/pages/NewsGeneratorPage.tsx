@@ -848,24 +848,24 @@ export default function NewsGeneratorPage() {
 
         <article
           id="pdf-content"
-          className={`bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-6 md:p-12 shadow-2xl rounded-sm text-slate-800 relative page-break-container
-            ${isGeneratingPdf ? 'shadow-none p-0 max-w-none w-full' : 'page-ruler-bg print:shadow-none print:p-0 print:max-w-none print:w-full print:bg-none'}
+          className={`bg-white mx-auto w-full max-w-[210mm] shadow-2xl rounded-sm text-slate-800 relative page-break-container
+            ${isGeneratingPdf ? 'shadow-none p-0 max-w-none w-full' : 'page-ruler-bg min-h-[297mm] p-6 md:p-12 mb-20 print:shadow-none print:p-0 print:max-w-none print:w-full print:bg-none'}
           `}
           onDragOver={handleContainerDragOver}
           onDrop={handleDrop}
         >
           {!isGeneratingPdf && (
-            <>
-              <div className="page-break-marker" style={{ top: '297mm' }}>
-                <span className="page-break-label">Início da Página 2</span>
+            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-sm">
+              <div className="absolute top-[297mm] left-0 right-0 h-[20px] bg-muted/50 border-y border-border flex items-center justify-center">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Quebra de Página 1</span>
               </div>
-              <div className="page-break-marker" style={{ top: '594mm' }}>
-                <span className="page-break-label">Início da Página 3</span>
+              <div className="absolute top-[594mm] left-0 right-0 h-[20px] bg-muted/50 border-y border-border flex items-center justify-center">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Quebra de Página 2</span>
               </div>
-              <div className="page-break-marker" style={{ top: '891mm' }}>
-                <span className="page-break-label">Início da Página 4</span>
+              <div className="absolute top-[891mm] left-0 right-0 h-[20px] bg-muted/50 border-y border-border flex items-center justify-center">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Quebra de Página 3</span>
               </div>
-            </>
+            </div>
           )}
           <div className={`border-b-4 border-primary pb-4 mb-8 ${isGeneratingPdf ? 'hidden' : 'print:hidden'}`}>
             <span className="text-xs font-bold uppercase tracking-widest text-primary flex justify-between items-center">
