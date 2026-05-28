@@ -294,31 +294,27 @@ export default function NewsGeneratorPage() {
     updateModuleGrid(id, { rows });
   };
 
-  const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-8px)]';
-    if (widthStr === 'half') return 'w-full grow basis-[calc(50%-8px)]';
-    if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-8px)]';
+  const getSidebarWidthClass = (cols: number) => {
+    if (cols === 2) return 'w-full grow basis-[calc(66.66%-8px)]';
+    if (cols === 1) return 'w-full grow basis-[calc(33.33%-8px)]';
     return 'w-full flex-none';
   };
 
-  const getHeightStyle = (heightStr: string, isPdf = false): React.CSSProperties => {
-    if (heightStr === 'small') return { height: isPdf ? '180px' : '150px', overflow: 'hidden' };
-    if (heightStr === 'medium') return { height: isPdf ? '320px' : '280px', overflow: 'hidden' };
-    if (heightStr === 'large') return { height: isPdf ? '480px' : '420px', overflow: 'hidden' };
-    return { height: 'auto' };
+  const getHeightStyle = (rows: number | 'auto', isPdf = false): React.CSSProperties => {
+    if (rows === 'auto') return { height: 'auto' };
+    const baseHeight = isPdf ? 180 : 150; // Altura base por linha
+    return { height: `${rows * baseHeight}px`, overflow: 'hidden' };
   };
 
-  const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full md:grow md:basis-[calc(66.666667%-10.666px)]';
-    if (widthStr === 'third') return 'w-full md:grow md:basis-[calc(33.333333%-10.666px)]';
-    if (widthStr === 'half') return 'w-full md:grow md:basis-[calc(50%-8px)]';
+  const getWidthClass = (cols: number) => {
+    if (cols === 2) return 'w-full md:grow md:basis-[calc(66.666667%-10.666px)]';
+    if (cols === 1) return 'w-full md:grow md:basis-[calc(33.333333%-10.666px)]';
     return 'w-full flex-none';
   };
 
-  const getPdfWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-8px)] inline-block align-top mx-[4px] mb-6';
-    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] inline-block align-top mx-[4px] mb-6';
-    if (widthStr === 'half') return 'w-[calc(50%-8px)] inline-block align-top mx-[4px] mb-6';
+  const getPdfWidthClass = (cols: number) => {
+    if (cols === 2) return 'w-[calc(66.66%-8px)] inline-block align-top mx-[4px] mb-6';
+    if (cols === 1) return 'w-[calc(33.33%-8px)] inline-block align-top mx-[4px] mb-6';
     return 'w-full block mb-6';
   };
 
