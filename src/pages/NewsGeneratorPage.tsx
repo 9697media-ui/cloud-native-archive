@@ -549,6 +549,22 @@ export default function NewsGeneratorPage() {
             linear-gradient(to bottom, hsl(var(--primary) / 0.05) 2px, transparent 2px);
           background-size: calc(100% / 3) 150px;
         }
+        .grid-container-modern {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 0;
+          padding: 0;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (min-width: 768px) {
+          .grid-container-modern {
+            grid-template-columns: repeat(3, 1fr);
+          }
+          .grid-container-modern:hover {
+            gap: 1rem;
+            padding: 1rem;
+          }
+        }
       `}</style>
 
       {/* Backdrop mobile */}
@@ -910,7 +926,7 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 auto-rows-[150px] gap-4 p-4 w-full relative min-h-[600px] grid-background rounded-xl border-2 border-primary/5 bg-slate-50/30'}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'grid-container-modern auto-rows-[150px] w-full relative min-h-[600px] grid-background rounded-xl border-2 border-primary/5 bg-slate-50/30 group/grid'}>
             {!isGeneratingPdf && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 pointer-events-none">
                 {Array.from({ length: 12 }).map((_, i) => (
@@ -943,7 +959,6 @@ export default function NewsGeneratorPage() {
               const gridStyle: React.CSSProperties = !isGeneratingPdf ? {
                 gridColumn: `span ${module.cols || 3}`,
                 gridRow: module.rows !== 'auto' ? `span ${module.rows}` : 'span 1',
-                height: module.rows !== 'auto' ? `${module.rows * 150 + (module.rows - 1) * 16}px` : '150px',
                 zIndex: 20
               } : {
                 ...heightStyle
