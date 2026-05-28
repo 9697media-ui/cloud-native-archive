@@ -258,46 +258,6 @@ export default function NewsGeneratorPage() {
     setActiveWidthMenu(null);
   };
 
-  const toggleWidth = (id: string) => {
-    setModules(prevModules => {
-      const newModules = prevModules.map((m) => {
-        if (m.id !== id) return m;
-        let nextWidth = 'full';
-        if (m.width === 'full') nextWidth = 'half';
-        else if (m.width === 'half') nextWidth = 'two-thirds';
-        else if (m.width === 'two-thirds') nextWidth = 'third';
-        else if (m.width === 'third') nextWidth = 'full';
-        return { ...m, width: nextWidth };
-      });
-
-      // Aplicar regras de adaptação automática seguindo as especificações
-      const finalModules = newModules.map((m) => ({ ...m }));
-      
-      for (let i = 0; i < finalModules.length; i++) {
-        const m = finalModules[i];
-        
-        // Regra 2: Se um elemento tiver 66%, o elemento seguinte deve se adaptar para 33%
-        if (m.width === 'two-thirds' && i < finalModules.length - 1) {
-          finalModules[i + 1].width = 'third';
-        }
-
-        // Regra 3: Regra de Fechamento (Sem "Buracos" Visuais)
-        // Quando o ÚLTIMO é 50% ou 66%, o ANTERIOR se adapta para preencher a linha
-        if (i === finalModules.length - 1 && i > 0) {
-          const last = finalModules[i];
-          const prev = finalModules[i - 1];
-          if (last.width === 'half' && prev.width !== 'half') {
-            prev.width = 'half';
-          } else if (last.width === 'two-thirds' && prev.width !== 'third') {
-            prev.width = 'third';
-          }
-        }
-      }
-      
-      return finalModules;
-    });
-  };
-
   const getSidebarWidthClass = (widthStr: string) => {
     if (widthStr === 'two-thirds') return 'col-span-4';
     if (widthStr === 'half') return 'col-span-3';
