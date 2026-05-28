@@ -1036,7 +1036,10 @@ export default function NewsGeneratorPage() {
                     >
                       <p 
                         className="text-slate-700 leading-relaxed text-justify"
-                        style={{ fontSize: calculateFontSize(module.content, module.cols, module.rows) }}
+                        style={{ 
+                          fontSize: calculateFontSize(module.content, module.cols, module.rows),
+                          lineHeight: '1.4'
+                        }}
                       >
                         {module.content.split('\n').map((line: string, i: number) => (
                           <React.Fragment key={i}>{renderFormattedText(line)}<br /></React.Fragment>
