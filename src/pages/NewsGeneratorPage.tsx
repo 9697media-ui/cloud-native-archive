@@ -230,6 +230,34 @@ export default function NewsGeneratorPage() {
     setShowClearModal(false);
   };
 
+  const updateModuleWidth = (id: string, width: string) => {
+    setModules(prevModules => {
+      const newModules = prevModules.map((m) => {
+        if (m.id !== id) return m;
+        return { ...m, width };
+      });
+      
+      const finalModules = newModules.map((m) => ({ ...m }));
+      for (let i = 0; i < finalModules.length; i++) {
+        const m = finalModules[i];
+        if (m.width === 'two-thirds' && i < finalModules.length - 1) {
+          finalModules[i + 1].width = 'third';
+        }
+        if (i === finalModules.length - 1 && i > 0) {
+          const last = finalModules[i];
+          const prev = finalModules[i - 1];
+          if (last.width === 'half' && prev.width !== 'half') {
+            prev.width = 'half';
+          } else if (last.width === 'two-thirds' && prev.width !== 'third') {
+            prev.width = 'third';
+          }
+        }
+      }
+      return finalModules;
+    });
+    setActiveWidthMenu(null);
+  };
+
   const toggleWidth = (id: string) => {
     setModules(prevModules => {
       const newModules = prevModules.map((m) => {
