@@ -18,6 +18,7 @@ import PublicEventsPage from "./pages/PublicEventsPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AuthConfirmPage from "./pages/AuthConfirmPage";
 import DesignManualPage from "./pages/DesignManualPage";
+import NewsGeneratorPage from "./pages/NewsGeneratorPage";
 import NotFound from "./pages/NotFound";
 import EmailPreview from "./pages/EmailPreview";
 
