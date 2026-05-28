@@ -198,7 +198,7 @@ export default function NewsGeneratorPage() {
     
     // Check for vertical video if the module is a video
     const targetModule = updatedModules.find(m => m.id === id);
-    if (targetModule?.type === 'video' && newContent) {
+    if (targetModule?.type === 'video' && newContent && targetModule.width !== 'third') {
       if (newContent.includes('youtube.com/shorts') || newContent.includes('tiktok.com')) {
         setVideoSuggestion({ isOpen: true, moduleId: id });
       } else if (newContent.match(/\.(mp4|webm|ogg|mov)$/i) || newContent.startsWith('data:video')) {
