@@ -998,7 +998,7 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="flex flex-col w-full h-full"
+                      className="flex flex-col w-full h-full pointer-events-none"
                     >
                       <p className="text-base md:text-lg text-slate-700 leading-relaxed text-justify">
                         {module.content.split('\n').map((line: string, i: number) => (
@@ -1010,9 +1010,9 @@ export default function NewsGeneratorPage() {
                   break;
                 case 'image':
                   contentRender = (
-                    <figure 
-                      className="flex flex-col w-full h-full m-0 overflow-hidden rounded-xl shadow-md bg-muted/20"
-                    >
+                      <figure 
+                        className="flex flex-col w-full h-full m-0 overflow-hidden rounded-xl shadow-md bg-muted/20 pointer-events-none"
+                      >
                       <img
                         src={module.content}
                         alt="Notícia"
@@ -1057,87 +1057,6 @@ export default function NewsGeneratorPage() {
                   {!isGeneratingPdf && (
                     <div className="absolute inset-0 border-2 border-transparent group-hover/module:border-primary/30 rounded-xl transition-all pointer-events-none z-20" />
                   )}
-                  {/* Resizers */}
-                  {!isGeneratingPdf && (
-                    <>
-                      <div 
-                        className="absolute -right-3 top-0 bottom-0 w-6 cursor-col-resize z-[60] opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setResizingModuleId(module.id);
-                          const startX = e.clientX;
-                          const startCols = module.cols || 1;
-                          const gridEl = document.querySelector('.grid-container-modern');
-                          if (!gridEl) return;
-                          
-                          const containerWidth = gridEl.clientWidth;
-                          const calculatedColWidth = containerWidth / 3;
-
-                          const onMouseMove = (moveEvent: MouseEvent) => {
-                            moveEvent.preventDefault();
-                            const deltaX = moveEvent.clientX - startX;
-                            const newCols = Math.max(1, Math.min(3, startCols + Math.round(deltaX / calculatedColWidth)));
-                            
-                            if (newCols !== resizingTargetCols) {
-                              setResizingTargetCols(newCols);
-                              // Apenas atualiza se couber na linha (lógica simples de grid CSS)
-                              // Se o total de colunas na linha exceder 3, o CSS joga pra baixo, 
-                              // mas aqui vamos sinalizar o impedimento visualmente
-                              updateModuleGrid(module.id, { cols: newCols });
-                            }
-                          };
-                          const onMouseUp = () => {
-                            setResizingModuleId(null);
-                            setResizingTargetCols(null);
-                            document.removeEventListener('mousemove', onMouseMove);
-                            document.removeEventListener('mouseup', onMouseUp);
-                            document.body.style.cursor = 'default';
-                          };
-                          document.body.style.cursor = 'col-resize';
-                          document.addEventListener('mousemove', onMouseMove);
-                          document.addEventListener('mouseup', onMouseUp);
-                        }}
-                      >
-                        <div className="w-2 h-16 bg-primary/60 rounded-full hover:bg-primary transition-colors shadow-[0_0_10px_rgba(0,0,0,0.1)] border border-white/20" />
-                      </div>
-                      <div 
-                        className="absolute -bottom-3 left-0 right-0 h-6 cursor-row-resize z-[60] opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setResizingModuleId(module.id);
-                          const startY = e.clientY;
-                          const startRows = module.rows === 'auto' ? 1 : module.rows;
-                          const rowHeight = 150; 
-
-                          const onMouseMove = (moveEvent: MouseEvent) => {
-                            moveEvent.preventDefault();
-                            const deltaY = moveEvent.clientY - startY;
-                            const newRows = Math.max(1, Math.min(4, startRows + Math.round(deltaY / rowHeight)));
-                            
-                            if (newRows !== resizingTargetRows) {
-                              setResizingTargetRows(newRows);
-                              updateModuleGrid(module.id, { rows: newRows as any });
-                            }
-                          };
-                          const onMouseUp = () => {
-                            setResizingModuleId(null);
-                            setResizingTargetRows(null);
-                            document.removeEventListener('mousemove', onMouseMove);
-                            document.removeEventListener('mouseup', onMouseUp);
-                            document.body.style.cursor = 'default';
-                          };
-                          document.body.style.cursor = 'row-resize';
-                          document.addEventListener('mousemove', onMouseMove);
-                          document.addEventListener('mouseup', onMouseUp);
-                        }}
-                      >
-                        <div className="w-16 h-2 bg-primary/60 rounded-full hover:bg-primary transition-colors shadow-[0_0_10px_rgba(0,0,0,0.1)] border border-white/20" />
-                      </div>
-                    </>
-                  )}
-
                   {isTarget && !isGeneratingPdf && (
                     <div className={`absolute pointer-events-none bg-primary/20 z-10
                       ${dropIndicator.position === 'left' ? 'top-0 left-0 bottom-0 w-1/2 border-l-4 border-primary' : ''}
@@ -1173,6 +1092,84 @@ export default function NewsGeneratorPage() {
                       {contentRender}
                     </div>
                   </div>
+
+                  {/* Resizers - Posicionados depois do conteúdo para garantir que fiquem no topo */}
+                  {!isGeneratingPdf && (
+                    <>
+                      <div 
+                        className="absolute -right-3 top-0 bottom-0 w-6 cursor-col-resize z-[100] opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setResizingModuleId(module.id);
+                          const startX = e.clientX;
+                          const startCols = module.cols || 1;
+                          const gridEl = document.querySelector('.grid-container-modern');
+                          if (!gridEl) return;
+                          
+                          const containerWidth = gridEl.clientWidth;
+                          const calculatedColWidth = containerWidth / 3;
+
+                          const onMouseMove = (moveEvent: MouseEvent) => {
+                            moveEvent.preventDefault();
+                            const deltaX = moveEvent.clientX - startX;
+                            const newCols = Math.max(1, Math.min(3, startCols + Math.round(deltaX / calculatedColWidth)));
+                            
+                            if (newCols !== resizingTargetCols) {
+                              setResizingTargetCols(newCols);
+                              updateModuleGrid(module.id, { cols: newCols });
+                            }
+                          };
+                          const onMouseUp = () => {
+                            setResizingModuleId(null);
+                            setResizingTargetCols(null);
+                            document.removeEventListener('mousemove', onMouseMove);
+                            document.removeEventListener('mouseup', onMouseUp);
+                            document.body.style.cursor = 'default';
+                          };
+                          document.body.style.cursor = 'col-resize';
+                          document.addEventListener('mousemove', onMouseMove);
+                          document.addEventListener('mouseup', onMouseUp);
+                        }}
+                      >
+                        <div className="w-2 h-16 bg-primary/60 rounded-full hover:bg-primary transition-colors shadow-[0_0_10px_rgba(0,0,0,0.1)] border border-white/20" />
+                      </div>
+                      <div 
+                        className="absolute -bottom-3 left-0 right-0 h-6 cursor-row-resize z-[100] opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setResizingModuleId(module.id);
+                          const startY = e.clientY;
+                          const startRows = module.rows === 'auto' ? 1 : module.rows;
+                          const rowHeight = 150; 
+
+                          const onMouseMove = (moveEvent: MouseEvent) => {
+                            moveEvent.preventDefault();
+                            const deltaY = moveEvent.clientY - startY;
+                            const newRows = Math.max(1, Math.min(4, startRows + Math.round(deltaY / rowHeight)));
+                            
+                            if (newRows !== resizingTargetRows) {
+                              setResizingTargetRows(newRows);
+                              updateModuleGrid(module.id, { rows: newRows as any });
+                            }
+                          };
+                          const onMouseUp = () => {
+                            setResizingModuleId(null);
+                            setResizingTargetRows(null);
+                            document.removeEventListener('mousemove', onMouseMove);
+                            document.removeEventListener('mouseup', onMouseUp);
+                            document.body.style.cursor = 'default';
+                          };
+                          document.body.style.cursor = 'row-resize';
+                          document.addEventListener('mousemove', onMouseMove);
+                          document.addEventListener('mouseup', onMouseUp);
+                        }}
+                      >
+                        <div className="w-16 h-2 bg-primary/60 rounded-full hover:bg-primary transition-colors shadow-[0_0_10px_rgba(0,0,0,0.1)] border border-white/20" />
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}
