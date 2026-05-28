@@ -1044,6 +1044,7 @@ export default function NewsGeneratorPage() {
                         onMouseDown={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          setResizingModuleId(module.id);
                           const startX = e.clientX;
                           const startCols = module.cols || 1;
                           const gridEl = document.querySelector('.grid-container-modern');
@@ -1056,11 +1057,18 @@ export default function NewsGeneratorPage() {
                             moveEvent.preventDefault();
                             const deltaX = moveEvent.clientX - startX;
                             const newCols = Math.max(1, Math.min(3, startCols + Math.round(deltaX / calculatedColWidth)));
-                            if (newCols !== module.cols) {
+                            
+                            if (newCols !== resizingTargetCols) {
+                              setResizingTargetCols(newCols);
+                              // Apenas atualiza se couber na linha (lógica simples de grid CSS)
+                              // Se o total de colunas na linha exceder 3, o CSS joga pra baixo, 
+                              // mas aqui vamos sinalizar o impedimento visualmente
                               updateModuleGrid(module.id, { cols: newCols });
                             }
                           };
                           const onMouseUp = () => {
+                            setResizingModuleId(null);
+                            setResizingTargetCols(null);
                             document.removeEventListener('mousemove', onMouseMove);
                             document.removeEventListener('mouseup', onMouseUp);
                             document.body.style.cursor = 'default';
@@ -1077,6 +1085,7 @@ export default function NewsGeneratorPage() {
                         onMouseDown={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          setResizingModuleId(module.id);
                           const startY = e.clientY;
                           const startRows = module.rows === 'auto' ? 1 : module.rows;
                           const rowHeight = 150; 
@@ -1085,11 +1094,15 @@ export default function NewsGeneratorPage() {
                             moveEvent.preventDefault();
                             const deltaY = moveEvent.clientY - startY;
                             const newRows = Math.max(1, Math.min(4, startRows + Math.round(deltaY / rowHeight)));
-                            if (newRows !== module.rows) {
+                            
+                            if (newRows !== resizingTargetRows) {
+                              setResizingTargetRows(newRows);
                               updateModuleGrid(module.id, { rows: newRows as any });
                             }
                           };
                           const onMouseUp = () => {
+                            setResizingModuleId(null);
+                            setResizingTargetRows(null);
                             document.removeEventListener('mousemove', onMouseMove);
                             document.removeEventListener('mouseup', onMouseUp);
                             document.body.style.cursor = 'default';
@@ -1111,6 +1124,13 @@ export default function NewsGeneratorPage() {
                       ${dropIndicator.position === 'top' ? 'top-0 left-0 right-0 h-1/2 border-t-4 border-primary' : ''}
                       ${dropIndicator.position === 'bottom' ? 'bottom-0 left-0 right-0 h-1/2 border-b-4 border-primary' : ''}
                     `} />
+                  )}
+
+                  {/* Alerta de Colisão/Impedimento */}
+                  {resizingModuleId && resizingModuleId !== module.id && (
+                    <div className="absolute inset-0 border-4 border-destructive/40 bg-destructive/5 z-[40] animate-pulse pointer-events-none rounded-xl flex items-center justify-center">
+                      <AlertCircle className="text-destructive opacity-40" size={32} />
+                    </div>
                   )}
 
                   <div
