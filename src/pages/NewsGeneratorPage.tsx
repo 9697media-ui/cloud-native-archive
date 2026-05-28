@@ -741,12 +741,27 @@ export default function NewsGeneratorPage() {
                           onClick={(e) => {
                             e.stopPropagation();
                             setActiveWidthMenu(activeWidthMenu === module.id ? null : module.id);
+                            setActiveHeightMenu(null);
                           }}
                           className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeWidthMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
                           title="Opções de Largura"
                         >
                           <WidthIcon size={10} />
                           {widthLabel}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveHeightMenu(activeHeightMenu === module.id ? null : module.id);
+                            setActiveWidthMenu(null);
+                          }}
+                          className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeHeightMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+                          title="Opções de Altura"
+                        >
+                          <ArrowUpDown size={10} />
+                          {module.height === 'auto' ? 'Auto' : module.height === 'small' ? 'P' : module.height === 'medium' ? 'M' : 'G'}
                         </button>
 
                         {activeWidthMenu === module.id && (
@@ -766,6 +781,32 @@ export default function NewsGeneratorPage() {
                                   type="button"
                                   onClick={() => updateModuleWidth(module.id, option.id)}
                                   className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.width === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
+                                >
+                                  <option.icon size={10} />
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {activeHeightMenu === module.id && (
+                          <div 
+                            ref={heightMenuRef}
+                            className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-[100] p-1 animate-in fade-in zoom-in duration-200"
+                          >
+                            <div className="grid grid-cols-1 gap-1">
+                              {[
+                                { id: 'auto', label: 'Automático', icon: ArrowUpDown },
+                                { id: 'small', label: 'Pequeno', icon: ArrowUpDown },
+                                { id: 'medium', label: 'Médio', icon: ArrowUpDown },
+                                { id: 'large', label: 'Grande', icon: ArrowUpDown },
+                              ].map((option) => (
+                                <button
+                                  key={option.id}
+                                  type="button"
+                                  onClick={() => updateModuleHeight(module.id, option.id)}
+                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.height === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
                                 >
                                   <option.icon size={10} />
                                   {option.label}
