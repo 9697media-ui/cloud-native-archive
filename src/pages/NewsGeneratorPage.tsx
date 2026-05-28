@@ -18,6 +18,7 @@ import {
   Type,
   Layers,
   Plus,
+  ArrowUpDown,
 } from 'lucide-react';
 
 const MODULE_RULES: Record<string, { label: string; max: number; icon: any; placeholder: string }> = {
@@ -25,7 +26,7 @@ const MODULE_RULES: Record<string, { label: string; max: number; icon: any; plac
   image: { label: 'Imagem (URL)', max: Infinity, icon: ImageIcon, placeholder: 'Cole o link/URL da imagem aqui...' },
 };
 
-function CarouselGallery({ items, isGeneratingPdf }: { items: any[]; isGeneratingPdf: boolean }) {
+function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]; isGeneratingPdf: boolean, heightStyle?: React.CSSProperties }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const next = () => setCurrentIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
@@ -35,13 +36,17 @@ function CarouselGallery({ items, isGeneratingPdf }: { items: any[]; isGeneratin
     <div className="w-full">
       {/* MODO BLOG: Slideshow interativo */}
       {!isGeneratingPdf && (
-        <div className="relative w-full rounded-xl overflow-hidden shadow-md group bg-muted">
+        <div 
+          className="relative w-full rounded-xl overflow-hidden shadow-md group bg-muted"
+          style={heightStyle}
+        >
           {items.map((item, idx) => (
             <img
               key={item.id}
               src={item.content}
               alt=""
-              className={`w-full h-[400px] object-cover transition-opacity duration-500 ${idx === currentIndex ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
+              className={`w-full h-full object-cover transition-opacity duration-500 ${idx === currentIndex ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
+              style={{ minHeight: heightStyle?.height === 'auto' ? '400px' : '0px' }}
               onError={(e: any) => {
                 e.target.onerror = null;
                 e.target.src = 'https://placehold.co/800x400/eeeeee/999999?text=Imagem+N%C3%A3o+Encontrada';
@@ -79,13 +84,13 @@ function CarouselGallery({ items, isGeneratingPdf }: { items: any[]; isGeneratin
 
       {/* MODO PDF: Grid em Blocos */}
       {isGeneratingPdf && (
-        <div style={{ width: '100%', fontSize: 0 }}>
+        <div style={{ width: '100%', fontSize: 0, ...heightStyle }}>
           {items.map((item, idx) => {
             const isOddTotal = items.length % 2 !== 0;
             const isFirst = idx === 0;
             const pdfStyle: React.CSSProperties = (isOddTotal && isFirst)
-              ? { width: '100%', display: 'block', marginBottom: '16px', aspectRatio: '21/9', objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' }
-              : { width: 'calc(50% - 8px)', display: 'inline-block', verticalAlign: 'top', margin: '4px', marginBottom: '16px', aspectRatio: '4/3', objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' };
+              ? { width: '100%', display: 'block', marginBottom: '16px', aspectRatio: heightStyle?.height ? undefined : '21/9', height: heightStyle?.height, objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' }
+              : { width: 'calc(50% - 8px)', display: 'inline-block', verticalAlign: 'top', margin: '4px', marginBottom: '16px', aspectRatio: heightStyle?.height ? undefined : '4/3', height: heightStyle?.height, objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' };
 
             return (
               <img
@@ -114,10 +119,10 @@ export default function NewsGeneratorPage() {
   });
 
   const [modules, setModules] = useState<any[]>([
-    { id: '4', type: 'paragraph', content: 'Nesta última semana, nossos alunos do 9º ano participaram da edição regional da Olimpíada de Matemática, trazendo **resultados históricos** para a nossa instituição. Abaixo conferimos os registros deste momento único!', width: 'full' },
-    { id: '5', type: 'image', content: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80', width: 'third' },
-    { id: '6', type: 'image', content: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80', width: 'third' },
-    { id: '7', type: 'image', content: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80', width: 'third' },
+    { id: '4', type: 'paragraph', content: 'Nesta última semana, nossos alunos do 9º ano participaram da edição regional da Olimpíada de Matemática, trazendo **resultados históricos** para a nossa instituição. Abaixo conferimos os registros deste momento único!', width: 'full', height: 'auto' },
+    { id: '5', type: 'image', content: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80', width: 'third', height: 'auto' },
+    { id: '6', type: 'image', content: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80', width: 'third', height: 'auto' },
+    { id: '7', type: 'image', content: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80', width: 'third', height: 'auto' },
   ]);
 
   const [dragItem, setDragItem] = useState<any>(null);
@@ -129,12 +134,17 @@ export default function NewsGeneratorPage() {
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
   const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
+  const [activeHeightMenu, setActiveHeightMenu] = useState<string | null>(null);
   const widthMenuRef = useRef<HTMLDivElement>(null);
+  const heightMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (widthMenuRef.current && !widthMenuRef.current.contains(event.target as Node)) {
         setActiveWidthMenu(null);
+      }
+      if (heightMenuRef.current && !heightMenuRef.current.contains(event.target as Node)) {
+        setActiveHeightMenu(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -181,7 +191,7 @@ export default function NewsGeneratorPage() {
   const handleNewArticle = () => setShowClearModal(true);
 
   const addModule = (type: string) => {
-    setModules([...modules, { id: Date.now().toString(), type, content: '', width: 'full' }]);
+    setModules([...modules, { id: Date.now().toString(), type, content: '', width: 'full', height: 'auto' }]);
   };
 
   const removeModule = (id: string) => setModules(modules.filter((m) => m.id !== id));
@@ -240,11 +250,25 @@ export default function NewsGeneratorPage() {
     setActiveWidthMenu(null);
   };
 
+  const updateModuleHeight = (id: string, height: string) => {
+    setModules(prevModules => {
+      return prevModules.map(m => m.id === id ? { ...m, height } : m);
+    });
+    setActiveHeightMenu(null);
+  };
+
   const getSidebarWidthClass = (widthStr: string) => {
     if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-8px)]';
     if (widthStr === 'half') return 'w-full grow basis-[calc(50%-8px)]';
     if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-8px)]';
     return 'w-full flex-none';
+  };
+
+  const getHeightStyle = (heightStr: string, isPdf = false): React.CSSProperties => {
+    if (heightStr === 'small') return { height: isPdf ? '180px' : '150px', overflow: 'hidden' };
+    if (heightStr === 'medium') return { height: isPdf ? '320px' : '280px', overflow: 'hidden' };
+    if (heightStr === 'large') return { height: isPdf ? '480px' : '420px', overflow: 'hidden' };
+    return { height: 'auto' };
   };
 
   const getWidthClass = (widthStr: string) => {
@@ -317,7 +341,7 @@ export default function NewsGeneratorPage() {
 
     let newItem: any;
     if (dragItem.source === 'toolbox') {
-      newItem = { id: Date.now().toString(), type: dragItem.type, content: '', width: 'full' };
+      newItem = { id: Date.now().toString(), type: dragItem.type, content: '', width: 'full', height: 'auto' };
     } else {
       const found = modules.find((m) => m.id === dragItem.id);
       if (!found) return;
@@ -466,10 +490,12 @@ export default function NewsGeneratorPage() {
 
     if (module.type === 'image' && module.width === 'full' && module.content) {
       if (!currentGalleryGroup) {
-        currentGalleryGroup = { id: `gallery-${module.id}`, type: 'gallery', width: 'full', items: [module] };
+        currentGalleryGroup = { id: `gallery-${module.id}`, type: 'gallery', width: 'full', height: module.height, items: [module] };
         renderModules.push(currentGalleryGroup);
       } else {
         currentGalleryGroup.items.push(module);
+        // Se um item do grupo tiver altura definida, aplicamos ao grupo todo
+        if (module.height !== 'auto') currentGalleryGroup.height = module.height;
       }
     } else {
       currentGalleryGroup = null;
@@ -721,12 +747,27 @@ export default function NewsGeneratorPage() {
                           onClick={(e) => {
                             e.stopPropagation();
                             setActiveWidthMenu(activeWidthMenu === module.id ? null : module.id);
+                            setActiveHeightMenu(null);
                           }}
                           className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeWidthMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
                           title="Opções de Largura"
                         >
                           <WidthIcon size={10} />
                           {widthLabel}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveHeightMenu(activeHeightMenu === module.id ? null : module.id);
+                            setActiveWidthMenu(null);
+                          }}
+                          className={`flex items-center gap-1 px-1.5 py-1 hover:bg-accent rounded-md text-[10px] font-bold border transition-colors ${activeHeightMenu === module.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+                          title="Opções de Altura"
+                        >
+                          <ArrowUpDown size={10} />
+                          {module.height === 'auto' ? 'Auto' : module.height === 'small' ? 'P' : module.height === 'medium' ? 'M' : 'G'}
                         </button>
 
                         {activeWidthMenu === module.id && (
@@ -746,6 +787,32 @@ export default function NewsGeneratorPage() {
                                   type="button"
                                   onClick={() => updateModuleWidth(module.id, option.id)}
                                   className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.width === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
+                                >
+                                  <option.icon size={10} />
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {activeHeightMenu === module.id && (
+                          <div 
+                            ref={heightMenuRef}
+                            className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-[100] p-1 animate-in fade-in zoom-in duration-200"
+                          >
+                            <div className="grid grid-cols-1 gap-1">
+                              {[
+                                { id: 'auto', label: 'Automático', icon: ArrowUpDown },
+                                { id: 'small', label: 'Pequeno', icon: ArrowUpDown },
+                                { id: 'medium', label: 'Médio', icon: ArrowUpDown },
+                                { id: 'large', label: 'Grande', icon: ArrowUpDown },
+                              ].map((option) => (
+                                <button
+                                  key={option.id}
+                                  type="button"
+                                  onClick={() => updateModuleHeight(module.id, option.id)}
+                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.height === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
                                 >
                                   <option.icon size={10} />
                                   {option.label}
@@ -899,12 +966,16 @@ export default function NewsGeneratorPage() {
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
               const isDraggingThis = dragItem?.id === dragId;
               const isTarget = dropIndicator?.id === dragId;
+              const heightStyle = getHeightStyle(module.height, isGeneratingPdf);
 
               let contentRender: React.ReactNode = null;
               switch (module.type) {
                 case 'paragraph':
                   contentRender = (
-                    <div className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`}>
+                    <div 
+                      className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`}
+                      style={heightStyle}
+                    >
                       <p className="text-base md:text-lg text-slate-700 leading-relaxed text-justify">
                         {module.content.split('\n').map((line: string, i: number) => (
                           <React.Fragment key={i}>{renderFormattedText(line)}<br /></React.Fragment>
@@ -915,12 +986,15 @@ export default function NewsGeneratorPage() {
                   break;
                 case 'image':
                   contentRender = (
-                    <figure className={`flex flex-col w-full m-0 ${module.width === 'full' ? 'h-auto' : 'flex-1 h-full'}`}>
+                    <figure 
+                      className={`flex flex-col w-full m-0 ${module.width === 'full' ? 'h-auto' : 'flex-1 h-full'}`}
+                      style={heightStyle}
+                    >
                       <img
                         src={module.content}
                         alt="Notícia"
                         className={`w-full object-cover rounded-xl shadow-md pointer-events-none
-                          ${module.width === 'full' ? 'max-h-[500px]' : (isGeneratingPdf ? 'aspect-video h-full' : 'h-full flex-1 min-h-[200px]')}
+                          ${module.height !== 'auto' ? 'h-full flex-1' : (module.width === 'full' ? 'max-h-[500px]' : (isGeneratingPdf ? 'aspect-video h-full' : 'h-full flex-1 min-h-[200px]'))}
                         `}
                         onError={(e: any) => {
                           e.target.onerror = null;
@@ -931,7 +1005,13 @@ export default function NewsGeneratorPage() {
                   );
                   break;
                 case 'gallery':
-                  contentRender = <CarouselGallery items={module.items} isGeneratingPdf={isGeneratingPdf} />;
+                  contentRender = (
+                    <CarouselGallery 
+                      items={module.items} 
+                      isGeneratingPdf={isGeneratingPdf} 
+                      heightStyle={heightStyle}
+                    />
+                  );
                   break;
                 default:
                   return null;
