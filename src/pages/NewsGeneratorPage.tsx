@@ -463,7 +463,7 @@ export default function NewsGeneratorPage() {
 
       {/* PAINEL DE EDIÇÃO */}
       <aside
-        style={{ width: sidebarOpen ? (window.innerWidth >= 1024 ? `${sidebarWidth}px` : '88vw') : '0px' }}
+        style={{ width: sidebarOpen ? (windowWidth >= 1024 ? `${sidebarWidth}px` : '88vw') : '0px' }}
         className={`
           print:hidden bg-card border-r border-border shadow-xl lg:shadow-sm
           flex flex-col transition-all duration-300 ease-out
