@@ -119,10 +119,10 @@ export default function NewsGeneratorPage() {
   });
 
   const [modules, setModules] = useState<any[]>([
-    { id: '4', type: 'paragraph', content: 'Nesta última semana, nossos alunos do 9º ano participaram da edição regional da Olimpíada de Matemática, trazendo **resultados históricos** para a nossa instituição. Abaixo conferimos os registros deste momento único!', width: 'full', height: 'auto' },
-    { id: '5', type: 'image', content: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80', width: 'third', height: 'auto' },
-    { id: '6', type: 'image', content: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80', width: 'third', height: 'auto' },
-    { id: '7', type: 'image', content: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80', width: 'third', height: 'auto' },
+    { id: '4', type: 'paragraph', content: 'Nesta última semana, nossos alunos do 9º ano participaram da edição regional da Olimpíada de Matemática, trazendo **resultados históricos** para a nossa instituição. Abaixo conferimos os registros deste momento único!', cols: 3, rows: 'auto' },
+    { id: '5', type: 'image', content: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80', cols: 1, rows: 1 },
+    { id: '6', type: 'image', content: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80', cols: 1, rows: 1 },
+    { id: '7', type: 'image', content: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80', cols: 1, rows: 1 },
   ]);
 
   const [dragItem, setDragItem] = useState<any>(null);
@@ -191,7 +191,7 @@ export default function NewsGeneratorPage() {
   const handleNewArticle = () => setShowClearModal(true);
 
   const addModule = (type: string) => {
-    setModules([...modules, { id: Date.now().toString(), type, content: '', width: 'full', height: 'auto' }]);
+    setModules([...modules, { id: Date.now().toString(), type, content: '', cols: 3, rows: 'auto' }]);
   };
 
   const removeModule = (id: string) => setModules(modules.filter((m) => m.id !== id));
@@ -240,101 +240,81 @@ export default function NewsGeneratorPage() {
     setShowClearModal(false);
   };
 
-  const updateModuleWidth = (id: string, width: string) => {
+  const updateModuleGrid = (id: string, updates: { cols?: number; rows?: number | 'auto' }) => {
     setModules(prevModules => {
-      const newModules = prevModules.map(m => m.id === id ? { ...m, width } : m);
+      const newModules = prevModules.map(m => m.id === id ? { ...m, ...updates } : m);
       return normalizeModules(newModules);
     });
     setActiveWidthMenu(null);
+    setActiveHeightMenu(null);
   };
 
   const normalizeModules = (modules: any[]) => {
-    const getVal = (w: string) => (w === 'full' ? 100 : w === 'two-thirds' ? 66.6 : w === 'half' ? 50 : 33.3);
     const result = modules.map(m => ({ ...m }));
     
-    // 1. Ajuste proativo de vizinhos para evitar quebras
-    for (let i = 0; i < result.length; i++) {
-      const current = result[i];
-      const next = result[i + 1];
-      if (current.width === 'two-thirds' && next && next.width !== 'third' && next.width !== 'full') {
-        next.width = 'third';
-      }
-      if (current.width === 'half' && next && next.width === 'two-thirds') {
-        next.width = 'half';
-      }
-    }
-
-
-    // 2. Garante que as linhas fechem em 100% (Corte Inteligente de Largura)
-    let lineSum = 0;
+    let currentRowCols = 0;
     let currentRowIndices: number[] = [];
 
     for (let i = 0; i < result.length; i++) {
-      const val = getVal(result[i].width);
+      const m = result[i];
+      const cols = m.cols || 3;
       
-      if (lineSum + val > 100.1 || result[i].width === 'full') {
-        // Fecha a linha anterior expandindo o último item se necessário
-        if (currentRowIndices.length > 0 && lineSum < 95) {
+      if (currentRowCols + cols > 3) {
+        // Se a linha atual tem espaço vazio, expande o último item da linha para ocupar o resto
+        if (currentRowIndices.length > 0 && currentRowCols < 3) {
           const lastIdx = currentRowIndices[currentRowIndices.length - 1];
-          const needed = 100 - (lineSum - getVal(result[lastIdx].width));
-          if (needed >= 90) result[lastIdx].width = 'full';
-          else if (needed >= 60) result[lastIdx].width = 'two-thirds';
-          else if (needed >= 45) result[lastIdx].width = 'half';
-          else result[lastIdx].width = 'third';
+          result[lastIdx].cols = 3 - (currentRowCols - result[lastIdx].cols);
         }
-        lineSum = val;
+        currentRowCols = cols;
         currentRowIndices = [i];
       } else {
-        lineSum += val;
+        currentRowCols += cols;
         currentRowIndices.push(i);
       }
     }
 
-    // Fecha a última linha
-    if (lineSum < 95 && result.length > 0) {
+    // Fecha a última linha se necessário
+    if (currentRowCols > 0 && currentRowCols < 3 && result.length > 0) {
       const lastIdx = result.length - 1;
-      const needed = 100 - (lineSum - getVal(result[lastIdx].width));
-      if (needed >= 90) result[lastIdx].width = 'full';
-      else if (needed >= 60) result[lastIdx].width = 'two-thirds';
-      else if (needed >= 45) result[lastIdx].width = 'half';
-      else result[lastIdx].width = 'third';
+      result[lastIdx].cols = 3 - (currentRowCols - result[lastIdx].cols);
     }
+
     return result;
   };
 
+  const updateModuleWidth = (id: string, width: string) => {
+    // Legado para compatibilidade se necessário, mas vamos migrar para updateModuleGrid
+    const cols = width === 'full' ? 3 : width === 'two-thirds' ? 2 : 1;
+    updateModuleGrid(id, { cols });
+  };
 
   const updateModuleHeight = (id: string, height: string) => {
-    setModules(prevModules => {
-      return prevModules.map(m => m.id === id ? { ...m, height } : m);
-    });
-    setActiveHeightMenu(null);
+    // Legado para compatibilidade
+    const rows: any = height === 'auto' ? 'auto' : height === 'small' ? 1 : height === 'medium' ? 2 : 3;
+    updateModuleGrid(id, { rows });
   };
 
-  const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-8px)]';
-    if (widthStr === 'half') return 'w-full grow basis-[calc(50%-8px)]';
-    if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-8px)]';
+  const getSidebarWidthClass = (cols: number) => {
+    if (cols === 2) return 'w-full grow basis-[calc(66.66%-8px)]';
+    if (cols === 1) return 'w-full grow basis-[calc(33.33%-8px)]';
     return 'w-full flex-none';
   };
 
-  const getHeightStyle = (heightStr: string, isPdf = false): React.CSSProperties => {
-    if (heightStr === 'small') return { height: isPdf ? '180px' : '150px', overflow: 'hidden' };
-    if (heightStr === 'medium') return { height: isPdf ? '320px' : '280px', overflow: 'hidden' };
-    if (heightStr === 'large') return { height: isPdf ? '480px' : '420px', overflow: 'hidden' };
-    return { height: 'auto' };
+  const getHeightStyle = (rows: number | 'auto', isPdf = false): React.CSSProperties => {
+    if (rows === 'auto') return { height: 'auto' };
+    const baseHeight = isPdf ? 180 : 150; // Altura base por linha
+    return { height: `${rows * baseHeight}px`, overflow: 'hidden' };
   };
 
-  const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full md:grow md:basis-[calc(66.666667%-10.666px)]';
-    if (widthStr === 'third') return 'w-full md:grow md:basis-[calc(33.333333%-10.666px)]';
-    if (widthStr === 'half') return 'w-full md:grow md:basis-[calc(50%-8px)]';
+  const getWidthClass = (cols: number) => {
+    if (cols === 2) return 'w-full md:grow md:basis-[calc(66.666667%-10.666px)]';
+    if (cols === 1) return 'w-full md:grow md:basis-[calc(33.333333%-10.666px)]';
     return 'w-full flex-none';
   };
 
-  const getPdfWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-8px)] inline-block align-top mx-[4px] mb-6';
-    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] inline-block align-top mx-[4px] mb-6';
-    if (widthStr === 'half') return 'w-[calc(50%-8px)] inline-block align-top mx-[4px] mb-6';
+  const getPdfWidthClass = (cols: number) => {
+    if (cols === 2) return 'w-[calc(66.66%-8px)] inline-block align-top mx-[4px] mb-6';
+    if (cols === 1) return 'w-[calc(33.33%-8px)] inline-block align-top mx-[4px] mb-6';
     return 'w-full block mb-6';
   };
 
@@ -413,19 +393,17 @@ export default function NewsGeneratorPage() {
         if (dropIndicator.position === 'left' || dropIndicator.position === 'right') {
           const target = newModules[targetIndex];
 
-          if (target.width === 'full') {
-            target.width = 'half';
-            newItem.width = 'half';
-          } else if (target.width === 'half') {
-            target.width = 'third';
-            newItem.width = 'third';
-            if (targetIndex > 0 && newModules[targetIndex - 1].width === 'half') {
-              newModules[targetIndex - 1].width = 'third';
-            } else if (targetIndex < newModules.length - 1 && newModules[targetIndex + 1].width === 'half') {
-              newModules[targetIndex + 1].width = 'third';
+          if (target.cols === 3) {
+            target.cols = 2;
+            newItem.cols = 1;
+          } else if (target.cols === 2) {
+            target.cols = 1;
+            newItem.cols = 1;
+            if (targetIndex > 0 && newModules[targetIndex - 1].cols === 2) {
+              newModules[targetIndex - 1].cols = 1;
             }
           } else {
-            newItem.width = 'third';
+            newItem.cols = 1;
           }
 
           if (dropIndicator.position === 'left') {
@@ -434,14 +412,14 @@ export default function NewsGeneratorPage() {
             newModules.splice(targetIndex + 1, 0, newItem);
           }
         } else {
-          newItem.width = 'full';
+          newItem.cols = 3;
           if (dropIndicator.position === 'bottom') {
             targetIndex += 1;
           }
           newModules.splice(targetIndex, 0, newItem);
         }
       } else {
-        newItem.width = 'full';
+        newItem.cols = 3;
         newModules.push(newItem);
       }
     }
@@ -504,14 +482,14 @@ export default function NewsGeneratorPage() {
   modules.forEach((module) => {
     if (!module.content && module.type !== 'image') return;
 
-    if (module.type === 'image' && module.width === 'full' && module.content) {
+    if (module.type === 'image' && module.cols === 3 && module.content) {
       if (!currentGalleryGroup) {
-        currentGalleryGroup = { id: `gallery-${module.id}`, type: 'gallery', width: 'full', height: module.height, items: [module] };
+        currentGalleryGroup = { id: `gallery-${module.id}`, type: 'gallery', cols: 3, rows: module.rows, items: [module] };
         renderModules.push(currentGalleryGroup);
       } else {
         currentGalleryGroup.items.push(module);
         // Se um item do grupo tiver altura definida, aplicamos ao grupo todo
-        if (module.height !== 'auto') currentGalleryGroup.height = module.height;
+        if (module.rows !== 'auto') currentGalleryGroup.rows = module.rows;
       }
     } else {
       currentGalleryGroup = null;
@@ -721,9 +699,9 @@ export default function NewsGeneratorPage() {
                 const Icon = rule.icon;
                 const isDraggingThis = dragItem?.id === module.id;
                 const isTarget = dropIndicator?.id === module.id;
-                const widthClass = getSidebarWidthClass(module.width);
-                const widthLabel = module.width === 'full' ? '100%' : module.width === 'half' ? '50%' : module.width === 'two-thirds' ? '66%' : '33%';
-                const WidthIcon = module.width === 'full' ? Square : module.width === 'half' ? Columns : LayoutGrid;
+                const widthClass = getSidebarWidthClass(module.cols || 3);
+                const widthLabel = `${module.cols === 3 ? '100%' : module.cols === 2 ? '66%' : '33%'}`;
+                const WidthIcon = module.cols === 3 ? Square : module.cols === 2 ? LayoutGrid : Columns;
 
                 return (
                   <div
@@ -783,7 +761,7 @@ export default function NewsGeneratorPage() {
                           title="Opções de Altura"
                         >
                           <ArrowUpDown size={10} />
-                          {module.height === 'auto' ? 'Auto' : module.height === 'small' ? 'P' : module.height === 'medium' ? 'M' : 'G'}
+                          {module.rows === 'auto' ? 'Auto' : `${module.rows}L`}
                         </button>
 
                         {activeWidthMenu === module.id && (
@@ -793,16 +771,15 @@ export default function NewsGeneratorPage() {
                           >
                             <div className="grid grid-cols-1 gap-1">
                               {[
-                                { id: 'full', label: '100% (Cheio)', icon: Square },
-                                { id: 'two-thirds', label: '66% (2/3)', icon: LayoutGrid },
-                                { id: 'half', label: '50% (Metade)', icon: Columns },
-                                { id: 'third', label: '33% (1/3)', icon: LayoutGrid },
+                                { val: 3, label: '3 Colunas (100%)', icon: Square },
+                                { val: 2, label: '2 Colunas (66%)', icon: LayoutGrid },
+                                { val: 1, label: '1 Coluna (33%)', icon: Columns },
                               ].map((option) => (
                                 <button
-                                  key={option.id}
+                                  key={option.val}
                                   type="button"
-                                  onClick={() => updateModuleWidth(module.id, option.id)}
-                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.width === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
+                                  onClick={() => updateModuleGrid(module.id, { cols: option.val })}
+                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.cols === option.val ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
                                 >
                                   <option.icon size={10} />
                                   {option.label}
@@ -819,16 +796,17 @@ export default function NewsGeneratorPage() {
                           >
                             <div className="grid grid-cols-1 gap-1">
                               {[
-                                { id: 'auto', label: 'Automático', icon: ArrowUpDown },
-                                { id: 'small', label: 'Pequeno', icon: ArrowUpDown },
-                                { id: 'medium', label: 'Médio', icon: ArrowUpDown },
-                                { id: 'large', label: 'Grande', icon: ArrowUpDown },
+                                { val: 'auto', label: 'Automático', icon: ArrowUpDown },
+                                { val: 1, label: '1 Linha', icon: ArrowUpDown },
+                                { val: 2, label: '2 Linhas', icon: ArrowUpDown },
+                                { val: 3, label: '3 Linhas', icon: ArrowUpDown },
+                                { val: 4, label: '4 Linhas', icon: ArrowUpDown },
                               ].map((option) => (
                                 <button
-                                  key={option.id}
+                                  key={option.val}
                                   type="button"
-                                  onClick={() => updateModuleHeight(module.id, option.id)}
-                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.height === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
+                                  onClick={() => updateModuleGrid(module.id, { rows: option.val as any })}
+                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.rows === option.val ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
                                 >
                                   <option.icon size={10} />
                                   {option.label}
@@ -976,21 +954,28 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'flex flex-wrap gap-4 w-full'}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 gap-6 w-full'}>
             {finalRenderModules.map((module) => {
-              const widthClass = isGeneratingPdf ? getPdfWidthClass(module.width) : getWidthClass(module.width);
+              const widthClass = isGeneratingPdf ? getPdfWidthClass(module.cols) : '';
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
               const isDraggingThis = dragItem?.id === dragId;
               const isTarget = dropIndicator?.id === dragId;
-              const heightStyle = getHeightStyle(module.height, isGeneratingPdf);
+              const heightStyle = getHeightStyle(module.rows, isGeneratingPdf);
+              
+              const gridStyle: React.CSSProperties = !isGeneratingPdf ? {
+                gridColumn: `span ${module.cols || 3}`,
+                gridRow: module.rows !== 'auto' ? `span ${module.rows}` : 'auto',
+                ...heightStyle
+              } : {
+                ...heightStyle
+              };
 
               let contentRender: React.ReactNode = null;
               switch (module.type) {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`}
-                      style={heightStyle}
+                      className="flex flex-col w-full h-full"
                     >
                       <p className="text-base md:text-lg text-slate-700 leading-relaxed text-justify">
                         {module.content.split('\n').map((line: string, i: number) => (
@@ -1003,14 +988,13 @@ export default function NewsGeneratorPage() {
                 case 'image':
                   contentRender = (
                     <figure 
-                      className={`flex flex-col w-full m-0 ${module.width === 'full' ? 'h-auto' : 'flex-1 h-full'}`}
-                      style={heightStyle}
+                      className="flex flex-col w-full h-full m-0 overflow-hidden rounded-xl shadow-md"
                     >
                       <img
                         src={module.content}
                         alt="Notícia"
-                        className={`w-full object-cover rounded-xl shadow-md pointer-events-none
-                          ${module.height !== 'auto' ? 'h-full flex-1' : (module.width === 'full' ? 'max-h-[500px]' : (isGeneratingPdf ? 'aspect-video h-full' : 'h-full flex-1 min-h-[200px]'))}
+                        className={`w-full object-cover pointer-events-none h-full flex-1
+                          ${module.rows === 'auto' ? 'min-h-[200px] max-h-[600px]' : ''}
                         `}
                         onError={(e: any) => {
                           e.target.onerror = null;
@@ -1036,7 +1020,7 @@ export default function NewsGeneratorPage() {
               return (
                 <div
                   key={module.id}
-                  style={isGeneratingPdf ? { pageBreakInside: 'avoid', breakInside: 'avoid' } : {}}
+                  style={isGeneratingPdf ? { pageBreakInside: 'avoid', breakInside: 'avoid', ...gridStyle } : gridStyle}
                   className={`
                     ${widthClass}
                     ${module.type === 'paragraph' ? '' : 'avoid-break'}
