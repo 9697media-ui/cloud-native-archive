@@ -1059,7 +1059,7 @@ export default function NewsGeneratorPage() {
                       <img
                         src={module.content}
                         alt="Notícia"
-                        className={`w-full object-cover pointer-events-none h-full flex-1
+                        className={`w-full object-cover pointer-events-none h-full flex-1 rounded-lg
                           ${module.rows === 'auto' ? 'min-h-[200px] max-h-[600px]' : ''}
                         `}
                         onError={(e: any) => {
