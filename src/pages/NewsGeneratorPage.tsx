@@ -32,13 +32,19 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
   const next = () => setCurrentIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
   const prev = () => setCurrentIndex((prev) => (prev === 0 ? items.length - 1 : prev - 1));
 
+  const finalHeightStyle = {
+    ...heightStyle,
+    height: isGeneratingPdf ? heightStyle?.height : '100%',
+    minHeight: !isGeneratingPdf ? '100%' : (heightStyle?.height === 'auto' ? '400px' : '0px')
+  };
+
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       {/* MODO BLOG: Slideshow interativo */}
       {!isGeneratingPdf && (
         <div 
-          className="relative w-full rounded-xl overflow-hidden shadow-md group bg-muted"
-          style={heightStyle}
+          className="relative w-full h-full rounded-xl overflow-hidden shadow-md group bg-muted"
+          style={finalHeightStyle}
         >
           {items.map((item, idx) => (
             <img
@@ -904,7 +910,7 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 auto-rows-[150px] gap-0 w-full relative min-h-[600px] grid-background rounded-xl border-2 border-primary/5 bg-slate-50/30'}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'grid grid-cols-1 md:grid-cols-3 auto-rows-[150px] gap-4 p-4 w-full relative min-h-[600px] grid-background rounded-xl border-2 border-primary/5 bg-slate-50/30'}>
             {!isGeneratingPdf && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 pointer-events-none">
                 {Array.from({ length: 12 }).map((_, i) => (
@@ -936,8 +942,9 @@ export default function NewsGeneratorPage() {
               
               const gridStyle: React.CSSProperties = !isGeneratingPdf ? {
                 gridColumn: `span ${module.cols || 3}`,
-                gridRow: module.rows !== 'auto' ? `span ${module.rows}` : 'auto',
-                ...heightStyle
+                gridRow: module.rows !== 'auto' ? `span ${module.rows}` : 'span 1',
+                height: module.rows !== 'auto' ? `${module.rows * 150 + (module.rows - 1) * 16}px` : '150px',
+                zIndex: 20
               } : {
                 ...heightStyle
               };
@@ -976,11 +983,13 @@ export default function NewsGeneratorPage() {
                   break;
                 case 'gallery':
                   contentRender = (
-                    <CarouselGallery 
-                      items={module.items} 
-                      isGeneratingPdf={isGeneratingPdf} 
-                      heightStyle={heightStyle}
-                    />
+                    <div className="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
+                      <CarouselGallery 
+                        items={module.items} 
+                        isGeneratingPdf={isGeneratingPdf} 
+                        heightStyle={heightStyle}
+                      />
+                    </div>
                   );
                   break;
                 default:
