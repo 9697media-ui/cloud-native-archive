@@ -1093,21 +1093,9 @@ export default function NewsGeneratorPage() {
                     flex flex-col
                     relative
                     border-2 border-transparent
-                    ${!isGeneratingPdf ? 'hover:border-primary/30 border-dashed rounded-lg transition-colors cursor-grab active:cursor-grabbing' : ''}
+                    ${!isGeneratingPdf ? 'hover:border-primary/30 border-dashed rounded-lg transition-colors group/module' : ''}
                     ${isDraggingThis ? 'opacity-30' : ''}
                   `}
-                  draggable={!isGeneratingPdf}
-                  onDragStart={(e) => {
-                    const tagName = (e.nativeEvent.target as HTMLElement).tagName.toLowerCase();
-                    if (['textarea', 'input', 'button'].includes(tagName) || (e.nativeEvent.target as HTMLElement).closest('button')) {
-                      e.preventDefault();
-                      return;
-                    }
-                    handleDragStartList(e, dragId);
-                  }}
-                  onDragOver={(e) => handleModuleDragOver(e, dragId)}
-                  onDragEnd={handleDragEnd}
-                  onDrop={handleDrop}
                 >
                   {isTarget && !isGeneratingPdf && (
                     <div className={`absolute pointer-events-none bg-primary/20 z-10
@@ -1118,7 +1106,23 @@ export default function NewsGeneratorPage() {
                     `} />
                   )}
 
-                  {contentRender}
+                  <div
+                    draggable={!isGeneratingPdf}
+                    onDragStart={(e) => {
+                      const tagName = (e.nativeEvent.target as HTMLElement).tagName.toLowerCase();
+                      if (['textarea', 'input', 'button'].includes(tagName) || (e.nativeEvent.target as HTMLElement).closest('button')) {
+                        e.preventDefault();
+                        return;
+                      }
+                      handleDragStartList(e, dragId);
+                    }}
+                    onDragOver={(e) => handleModuleDragOver(e, dragId)}
+                    onDragEnd={handleDragEnd}
+                    onDrop={handleDrop}
+                    className="flex-1 cursor-grab active:cursor-grabbing"
+                  >
+                    {contentRender}
+                  </div>
                 </div>
               );
             })}
