@@ -456,15 +456,25 @@ export default function NewsGeneratorPage() {
 
       {/* PAINEL DE EDIÇÃO */}
       <aside
+        style={{ width: sidebarOpen ? (window.innerWidth >= 1024 ? `${sidebarWidth}px` : '88vw') : '0px' }}
         className={`
           print:hidden bg-card border-r border-border shadow-xl lg:shadow-sm
           flex flex-col transition-all duration-300 ease-out
           fixed lg:relative inset-y-0 left-0 top-16 lg:top-0 z-40
           ${sidebarOpen
-            ? 'w-[88vw] max-w-[440px] lg:w-[440px] xl:w-[480px] 2xl:w-[520px] translate-x-0'
-            : '-translate-x-full lg:translate-x-0 lg:w-0 lg:overflow-hidden lg:border-r-0'}
+            ? 'max-w-[90vw] translate-x-0'
+            : '-translate-x-full lg:translate-x-0 lg:overflow-hidden lg:border-r-0'}
         `}
       >
+        {/* Handle de redimensionamento (apenas desktop) */}
+        {sidebarOpen && (
+          <div
+            onMouseDown={() => setIsResizing(true)}
+            className="hidden lg:block absolute -right-1 top-0 bottom-0 w-2 cursor-col-resize z-50 group"
+          >
+            <div className="absolute inset-y-0 right-0 w-[1px] bg-border group-hover:bg-primary/50 group-hover:w-1 transition-all" />
+          </div>
+        )}
         {/* Header da sidebar */}
         <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-card to-muted/30 flex-shrink-0">
           <div className="flex items-center gap-3">
