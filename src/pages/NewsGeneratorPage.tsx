@@ -26,7 +26,7 @@ const MODULE_RULES: Record<string, { label: string; max: number; icon: any; plac
   image: { label: 'Imagem (URL)', max: Infinity, icon: ImageIcon, placeholder: 'Cole o link/URL da imagem aqui...' },
 };
 
-function CarouselGallery({ items, isGeneratingPdf }: { items: any[]; isGeneratingPdf: boolean }) {
+function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]; isGeneratingPdf: boolean, heightStyle?: React.CSSProperties }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const next = () => setCurrentIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
