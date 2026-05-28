@@ -84,7 +84,7 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
 
       {/* MODO PDF: Grid em Blocos */}
       {isGeneratingPdf && (
-        <div style={{ width: '100%', fontSize: 0 }}>
+        <div style={{ width: '100%', fontSize: 0, ...heightStyle }}>
           {items.map((item, idx) => {
             const isOddTotal = items.length % 2 !== 0;
             const isFirst = idx === 0;
