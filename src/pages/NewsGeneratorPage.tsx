@@ -345,14 +345,53 @@ export default function NewsGeneratorPage() {
     const y = e.clientY - rect.top;
 
     let position: 'left' | 'right' | 'top' | 'bottom' = 'bottom';
-    if (x < rect.width * 0.25) position = 'left';
-    else if (x > rect.width * 0.75) position = 'right';
+    if (x < rect.width * 0.3) position = 'left';
+    else if (x > rect.width * 0.7) position = 'right';
     else if (y < rect.height * 0.5) position = 'top';
     else position = 'bottom';
 
     if (dropIndicator?.id !== targetId || dropIndicator?.position !== position) {
       setDropIndicator({ id: targetId, position });
     }
+  };
+
+  const handleGridCellDrop = (e: React.DragEvent, cellIndex: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!dragItem) return;
+
+    let newItem: any;
+    if (dragItem.source === 'toolbox') {
+      newItem = { 
+        id: Date.now().toString(), 
+        type: dragItem.type, 
+        content: '', 
+        cols: 1, 
+        rows: 1 
+      };
+    } else {
+      const found = modules.find((m) => m.id === dragItem.id);
+      if (!found) return;
+      newItem = { ...found };
+    }
+
+    const newModules = modules.filter(m => m.id !== newItem.id);
+    
+    // Calcular posição de inserção baseada na contagem de colunas
+    let totalColsBefore = 0;
+    let targetIdx = newModules.length;
+    for (let i = 0; i < newModules.length; i++) {
+      if (totalColsBefore >= cellIndex) {
+        targetIdx = i;
+        break;
+      }
+      totalColsBefore += newModules[i].cols;
+    }
+
+    newModules.splice(targetIdx, 0, newItem);
+    setModules(normalizeModules(newModules));
+    handleDragEnd();
   };
 
   const handleContainerDragOver = (e: React.DragEvent) => {
@@ -965,8 +1004,19 @@ export default function NewsGeneratorPage() {
             {!isGeneratingPdf && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 pointer-events-none opacity-40">
                 {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="border-2 border-primary/20 border-dashed m-1.5 rounded-lg flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{Math.floor(i/3) + 1}x{(i%3) + 1}</span>
+                  <div 
+                    key={i} 
+                    onDrop={(e) => handleGridCellDrop(e, i)}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    className="border-2 border-primary/20 border-dashed m-1.5 rounded-lg flex items-center justify-center pointer-events-auto hover:bg-primary/5 transition-colors group"
+                  >
+                    <div className="flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <PlusCircle size={16} className="text-primary/40" />
+                      <span className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{Math.floor(i/3) + 1}x{(i%3) + 1}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1043,21 +1093,9 @@ export default function NewsGeneratorPage() {
                     flex flex-col
                     relative
                     border-2 border-transparent
-                    ${!isGeneratingPdf ? 'hover:border-primary/30 border-dashed rounded-lg transition-colors cursor-grab active:cursor-grabbing' : ''}
+                    ${!isGeneratingPdf ? 'hover:border-primary/30 border-dashed rounded-lg transition-colors group/module' : ''}
                     ${isDraggingThis ? 'opacity-30' : ''}
                   `}
-                  draggable={!isGeneratingPdf}
-                  onDragStart={(e) => {
-                    const tagName = (e.nativeEvent.target as HTMLElement).tagName.toLowerCase();
-                    if (['textarea', 'input', 'button'].includes(tagName) || (e.nativeEvent.target as HTMLElement).closest('button')) {
-                      e.preventDefault();
-                      return;
-                    }
-                    handleDragStartList(e, dragId);
-                  }}
-                  onDragOver={(e) => handleModuleDragOver(e, dragId)}
-                  onDragEnd={handleDragEnd}
-                  onDrop={handleDrop}
                 >
                   {isTarget && !isGeneratingPdf && (
                     <div className={`absolute pointer-events-none bg-primary/20 z-10
@@ -1068,7 +1106,23 @@ export default function NewsGeneratorPage() {
                     `} />
                   )}
 
-                  {contentRender}
+                  <div
+                    draggable={!isGeneratingPdf}
+                    onDragStart={(e) => {
+                      const tagName = (e.nativeEvent.target as HTMLElement).tagName.toLowerCase();
+                      if (['textarea', 'input', 'button'].includes(tagName) || (e.nativeEvent.target as HTMLElement).closest('button')) {
+                        e.preventDefault();
+                        return;
+                      }
+                      handleDragStartList(e, dragId);
+                    }}
+                    onDragOver={(e) => handleModuleDragOver(e, dragId)}
+                    onDragEnd={handleDragEnd}
+                    onDrop={handleDrop}
+                    className="flex-1 cursor-grab active:cursor-grabbing"
+                  >
+                    {contentRender}
+                  </div>
                 </div>
               );
             })}
