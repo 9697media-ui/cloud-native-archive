@@ -131,6 +131,7 @@ export default function NewsGeneratorPage() {
   const [isResizing, setIsResizing] = useState(false);
   const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
   const [layoutAssistant, setLayoutAssistant] = useState<{ isOpen: boolean; rowId?: string; remainingWidth: number; modulesInRow: any[] }>({ isOpen: false, remainingWidth: 0, modulesInRow: [] });
+  const [videoSuggestion, setVideoSuggestion] = useState<{ isOpen: boolean; moduleId: string } | null>(null);
   const widthMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -191,8 +192,26 @@ export default function NewsGeneratorPage() {
     setModules(newModules);
     setTimeout(() => validateLayout(newModules), 300);
   };
-  const updateContent = (id: string, newContent: string) =>
-    setModules(modules.map((m) => (m.id === id ? { ...m, content: newContent } : m)));
+  const updateContent = (id: string, newContent: string) => {
+    const updatedModules = modules.map((m) => (m.id === id ? { ...m, content: newContent } : m));
+    setModules(updatedModules);
+    
+    // Check for vertical video if the module is a video
+    const targetModule = updatedModules.find(m => m.id === id);
+    if (targetModule?.type === 'video' && newContent && targetModule.width !== 'third') {
+      if (newContent.includes('youtube.com/shorts') || newContent.includes('tiktok.com')) {
+        setVideoSuggestion({ isOpen: true, moduleId: id });
+      } else if (newContent.match(/\.(mp4|webm|ogg|mov)$/i) || newContent.startsWith('data:video')) {
+        const video = document.createElement('video');
+        video.src = newContent;
+        video.onloadedmetadata = () => {
+          if (video.videoHeight > video.videoWidth) {
+            setVideoSuggestion({ isOpen: true, moduleId: id });
+          }
+        };
+      }
+    }
+  };
 
   const insertBold = (id: string) => {
     const textarea = document.getElementById(`textarea-${id}`) as HTMLTextAreaElement | null;
@@ -1009,10 +1028,11 @@ export default function NewsGeneratorPage() {
                           CLIQUE PARA ASSISTIR O VÍDEO COMPLETO
                         </a>
                       ) : (
-                        <div className="relative aspect-video rounded-xl overflow-hidden shadow-md bg-muted flex items-center justify-center">
+                        <div className={`relative rounded-xl overflow-hidden shadow-md bg-muted flex items-center justify-center ${module.width === 'third' ? 'aspect-[3/4]' : 'aspect-video'}`}>
                           <iframe
                             src={module.content.includes('youtube.com') ? module.content.replace('watch?v=', 'embed/') : module.content}
-                            className="absolute inset-0 w-full h-full border-0"
+                            className="absolute inset-0 w-full h-full border-0 object-cover"
+                            style={{ objectFit: 'cover' }}
                             allowFullScreen
                           />
                         </div>
@@ -1208,7 +1228,48 @@ export default function NewsGeneratorPage() {
               >
                 <div className="h-10 w-10 rounded-lg bg-muted group-hover:bg-primary/15 flex items-center justify-center flex-shrink-0 transition-colors">
                   <PlusCircle size={20} className="group-hover:text-primary transition-colors" />
+      {/* Pop-up Sugestão de Vídeo Vertical */}
+      {videoSuggestion?.isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-card border border-border w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-6 border-b border-border bg-gradient-to-br from-amber-500/10 to-transparent">
+              <div className="flex items-center gap-3 text-amber-600 mb-2">
+                <LayoutGrid size={24} />
+                <h3 className="text-xl font-bold">Vídeo Vertical Detectado</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Este vídeo parece ser vertical (formato celular). Sugerimos usar a largura de <strong>33%</strong> para melhor visualização e auto-crop proporcional.
+              </p>
+            </div>
+            
+            <div className="p-6 space-y-3">
+              <button
+                onClick={() => {
+                  updateModuleWidth(videoSuggestion.moduleId, 'third');
+                  setVideoSuggestion(null);
+                }}
+                className="w-full group flex items-start gap-4 p-4 rounded-xl border border-primary/30 bg-primary/5 hover:border-primary/50 hover:bg-primary/10 transition-all text-left"
+              >
+                <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
+                  <LayoutGrid size={20} className="text-primary" />
                 </div>
+                <div>
+                  <div className="text-sm font-bold text-foreground">Aplicar 33% (Recomendado)</div>
+                  <div className="text-xs text-muted-foreground mt-1">Otimiza o espaço para vídeos gravados em pé.</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setVideoSuggestion(null)}
+                className="w-full flex items-center justify-center py-3 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Manter largura atual
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
                 <div>
                   <div className="text-sm font-bold text-foreground">OPÇÃO 3: Adicionar Novo Bloco Sob Medida</div>
                   <div className="text-xs text-muted-foreground mt-1">Cria um novo parágrafo vazio com exatamente {layoutAssistant.remainingWidth.toFixed(0)}% de largura.</div>
