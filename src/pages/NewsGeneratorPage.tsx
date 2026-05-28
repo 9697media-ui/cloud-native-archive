@@ -605,6 +605,10 @@ export default function NewsGeneratorPage() {
             padding: 24px;
           }
         }
+        /* Garantir que os blocos internos respeitem o padding visual de 12px quando encostados */
+        .module-content-wrapper {
+          padding: 12px;
+        }
       `}</style>
 
       {/* Backdrop mobile */}
