@@ -1047,7 +1047,6 @@ export default function NewsGeneratorPage() {
                           wordBreak: 'break-word',
                           textAlign: 'justify',
                           textAlignLast: 'left',
-                          display: 'block',
                           width: '100%',
                           height: '100%',
                           overflow: 'hidden',
