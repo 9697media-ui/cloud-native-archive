@@ -1014,7 +1014,7 @@ export default function NewsGeneratorPage() {
                           e.stopPropagation();
                           const startX = e.clientX;
                           const startCols = module.cols || 1;
-                          const containerWidth = document.getElementById('pdf-content')?.offsetWidth || 800;
+                          const containerWidth = document.getElementById('pdf-content')?.querySelector('.grid-background')?.clientWidth || 800;
                           const colWidth = containerWidth / 3;
 
                           const onMouseMove = (moveEvent: MouseEvent) => {
