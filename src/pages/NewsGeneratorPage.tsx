@@ -238,19 +238,41 @@ export default function NewsGeneratorPage() {
       });
       
       const finalModules = newModules.map((m) => ({ ...m }));
+      let currentRowWidth = 0;
+      let currentRowStart = 0;
+
+      const getWidthValue = (w: string) => {
+        if (w === 'full') return 100;
+        if (w === 'two-thirds') return 66;
+        if (w === 'half') return 50;
+        if (w === 'third') return 33;
+        return 100;
+      };
+
       for (let i = 0; i < finalModules.length; i++) {
         const m = finalModules[i];
-        if (m.width === 'two-thirds' && i < finalModules.length - 1) {
-          finalModules[i + 1].width = 'third';
-        }
-        if (i === finalModules.length - 1 && i > 0) {
-          const last = finalModules[i];
-          const prev = finalModules[i - 1];
-          if (last.width === 'half' && prev.width !== 'half') {
-            prev.width = 'half';
-          } else if (last.width === 'two-thirds' && prev.width !== 'third') {
-            prev.width = 'third';
+        const val = getWidthValue(m.width);
+        
+        if (currentRowWidth + val > 100 || m.width === 'full') {
+          // A linha anterior terminou. Vamos verificar se houve buraco.
+          if (currentRowWidth > 0 && currentRowWidth < 100 && i > 0) {
+            // Arredonda o ÚLTIMO item da linha anterior para preencher o que falta
+            const lastInRow = finalModules[i - 1];
+            if (currentRowWidth <= 50) lastInRow.width = 'full';
+            else if (currentRowWidth <= 67) lastInRow.width = 'two-thirds';
+            else lastInRow.width = 'full';
           }
+          currentRowWidth = val;
+          currentRowStart = i;
+        } else {
+          currentRowWidth += val;
+        }
+
+        // Se for o último item da lista, também precisamos fechar a linha
+        if (i === finalModules.length - 1 && currentRowWidth < 100) {
+          if (currentRowWidth <= 50) m.width = 'full';
+          else if (currentRowWidth <= 67) m.width = 'two-thirds';
+          else m.width = 'full';
         }
       }
       return finalModules;
