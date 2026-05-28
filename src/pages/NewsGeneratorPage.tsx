@@ -1043,10 +1043,12 @@ export default function NewsGeneratorPage() {
                   return null;
               }
 
+              const pushOffset = !isGeneratingPdf ? (pageOffsets[module.id] || 0) : 0;
               return (
                 <div
                   key={module.id}
-                  style={isGeneratingPdf ? { pageBreakInside: 'avoid', breakInside: 'avoid' } : {}}
+                  data-module-id={module.id}
+                  style={isGeneratingPdf ? { pageBreakInside: 'avoid', breakInside: 'avoid' } : (pushOffset ? { marginTop: `${pushOffset}px` } : {})}
                   className={`
                     ${widthClass}
                     ${module.type === 'paragraph' ? '' : 'avoid-break'}
