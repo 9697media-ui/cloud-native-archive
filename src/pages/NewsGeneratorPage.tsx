@@ -960,12 +960,16 @@ export default function NewsGeneratorPage() {
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
               const isDraggingThis = dragItem?.id === dragId;
               const isTarget = dropIndicator?.id === dragId;
+              const heightStyle = getHeightStyle(module.height, isGeneratingPdf);
 
               let contentRender: React.ReactNode = null;
               switch (module.type) {
                 case 'paragraph':
                   contentRender = (
-                    <div className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`}>
+                    <div 
+                      className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`}
+                      style={heightStyle}
+                    >
                       <p className="text-base md:text-lg text-slate-700 leading-relaxed text-justify">
                         {module.content.split('\n').map((line: string, i: number) => (
                           <React.Fragment key={i}>{renderFormattedText(line)}<br /></React.Fragment>
@@ -976,12 +980,15 @@ export default function NewsGeneratorPage() {
                   break;
                 case 'image':
                   contentRender = (
-                    <figure className={`flex flex-col w-full m-0 ${module.width === 'full' ? 'h-auto' : 'flex-1 h-full'}`}>
+                    <figure 
+                      className={`flex flex-col w-full m-0 ${module.width === 'full' ? 'h-auto' : 'flex-1 h-full'}`}
+                      style={heightStyle}
+                    >
                       <img
                         src={module.content}
                         alt="Notícia"
                         className={`w-full object-cover rounded-xl shadow-md pointer-events-none
-                          ${module.width === 'full' ? 'max-h-[500px]' : (isGeneratingPdf ? 'aspect-video h-full' : 'h-full flex-1 min-h-[200px]')}
+                          ${module.height !== 'auto' ? 'h-full flex-1' : (module.width === 'full' ? 'max-h-[500px]' : (isGeneratingPdf ? 'aspect-video h-full' : 'h-full flex-1 min-h-[200px]'))}
                         `}
                         onError={(e: any) => {
                           e.target.onerror = null;
@@ -992,7 +999,11 @@ export default function NewsGeneratorPage() {
                   );
                   break;
                 case 'gallery':
-                  contentRender = <CarouselGallery items={module.items} isGeneratingPdf={isGeneratingPdf} />;
+                  contentRender = (
+                    <div style={heightStyle}>
+                      <CarouselGallery items={module.items} isGeneratingPdf={isGeneratingPdf} />
+                    </div>
+                  );
                   break;
                 default:
                   return null;
