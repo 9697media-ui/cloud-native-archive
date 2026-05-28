@@ -192,8 +192,26 @@ export default function NewsGeneratorPage() {
     setModules(newModules);
     setTimeout(() => validateLayout(newModules), 300);
   };
-  const updateContent = (id: string, newContent: string) =>
-    setModules(modules.map((m) => (m.id === id ? { ...m, content: newContent } : m)));
+  const updateContent = (id: string, newContent: string) => {
+    const updatedModules = modules.map((m) => (m.id === id ? { ...m, content: newContent } : m));
+    setModules(updatedModules);
+    
+    // Check for vertical video if the module is a video
+    const module = modules.find(m => m.id === id);
+    if (module?.type === 'video' && newContent) {
+      if (newContent.includes('youtube.com/shorts') || newContent.includes('tiktok.com')) {
+        setVideoSuggestion({ isOpen: true, moduleId: id });
+      } else if (newContent.match(/\.(mp4|webm|ogg|mov)$/i) || newContent.startsWith('data:video')) {
+        const video = document.createElement('video');
+        video.src = newContent;
+        video.onloadedmetadata = () => {
+          if (video.videoHeight > video.videoWidth) {
+            setVideoSuggestion({ isOpen: true, moduleId: id });
+          }
+        };
+      }
+    }
+  };
 
   const insertBold = (id: string) => {
     const textarea = document.getElementById(`textarea-${id}`) as HTMLTextAreaElement | null;
