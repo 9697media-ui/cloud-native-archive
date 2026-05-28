@@ -1059,7 +1059,7 @@ export default function NewsGeneratorPage() {
                       <img
                         src={module.content}
                         alt="Notícia"
-                        className={`w-full object-cover pointer-events-none h-full flex-1
+                        className={`w-full object-cover pointer-events-none h-full flex-1 rounded-lg
                           ${module.rows === 'auto' ? 'min-h-[200px] max-h-[600px]' : ''}
                         `}
                         onError={(e: any) => {
@@ -1093,10 +1093,56 @@ export default function NewsGeneratorPage() {
                     flex flex-col
                     relative
                     border-2 border-transparent
-                    ${!isGeneratingPdf ? 'hover:border-primary/30 border-dashed rounded-lg transition-colors group/module' : ''}
+                    ${!isGeneratingPdf ? 'hover:border-primary/40 rounded-xl transition-all group/module bg-white/50 backdrop-blur-sm shadow-sm' : ''}
                     ${isDraggingThis ? 'opacity-30' : ''}
                   `}
                 >
+                  {/* Resizers */}
+                  {!isGeneratingPdf && (
+                    <>
+                      <div 
+                        className="absolute -right-1 top-0 bottom-0 w-2 cursor-col-resize z-30 opacity-0 group-hover/module:opacity-100 hover:bg-primary/30 transition-all rounded-full"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          const startX = e.clientX;
+                          const startCols = module.cols || 1;
+                          const onMouseMove = (moveEvent: MouseEvent) => {
+                            const deltaX = moveEvent.clientX - startX;
+                            const colWidth = 200; // Aproximado
+                            const newCols = Math.max(1, Math.min(3, startCols + Math.round(deltaX / colWidth)));
+                            if (newCols !== module.cols) updateModuleGrid(module.id, { cols: newCols });
+                          };
+                          const onMouseUp = () => {
+                            document.removeEventListener('mousemove', onMouseMove);
+                            document.removeEventListener('mouseup', onMouseUp);
+                          };
+                          document.addEventListener('mousemove', onMouseMove);
+                          document.addEventListener('mouseup', onMouseUp);
+                        }}
+                      />
+                      <div 
+                        className="absolute -bottom-1 left-0 right-0 h-2 cursor-row-resize z-30 opacity-0 group-hover/module:opacity-100 hover:bg-primary/30 transition-all rounded-full"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          const startY = e.clientY;
+                          const startRows = module.rows === 'auto' ? 1 : module.rows;
+                          const onMouseMove = (moveEvent: MouseEvent) => {
+                            const deltaY = moveEvent.clientY - startY;
+                            const rowHeight = 150; // Baseado no grid-background
+                            const newRows = Math.max(1, Math.min(4, startRows + Math.round(deltaY / rowHeight)));
+                            if (newRows !== module.rows) updateModuleGrid(module.id, { rows: newRows });
+                          };
+                          const onMouseUp = () => {
+                            document.removeEventListener('mousemove', onMouseMove);
+                            document.removeEventListener('mouseup', onMouseUp);
+                          };
+                          document.addEventListener('mousemove', onMouseMove);
+                          document.addEventListener('mouseup', onMouseUp);
+                        }}
+                      />
+                    </>
+                  )}
+
                   {isTarget && !isGeneratingPdf && (
                     <div className={`absolute pointer-events-none bg-primary/20 z-10
                       ${dropIndicator.position === 'left' ? 'top-0 left-0 bottom-0 w-1/2 border-l-4 border-primary' : ''}
@@ -1119,9 +1165,11 @@ export default function NewsGeneratorPage() {
                     onDragOver={(e) => handleModuleDragOver(e, dragId)}
                     onDragEnd={handleDragEnd}
                     onDrop={handleDrop}
-                    className="flex-1 cursor-grab active:cursor-grabbing"
+                    className="flex-1 flex items-center justify-center p-4 cursor-grab active:cursor-grabbing h-full w-full overflow-hidden"
                   >
-                    {contentRender}
+                    <div className="w-full h-full flex items-center justify-center">
+                      {contentRender}
+                    </div>
                   </div>
                 </div>
               );
