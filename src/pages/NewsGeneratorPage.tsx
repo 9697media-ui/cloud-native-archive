@@ -115,10 +115,10 @@ export default function NewsGeneratorPage() {
   });
 
   const [modules, setModules] = useState<any[]>([
-    { id: '4', type: 'paragraph', content: 'Nesta última semana, nossos alunos do 9º ano participaram da edição regional da Olimpíada de Matemática, trazendo **resultados históricos** para a nossa instituição. Abaixo conferimos os registros deste momento único!', width: 'full' },
-    { id: '5', type: 'image', content: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80', width: 'third' },
-    { id: '6', type: 'image', content: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80', width: 'third' },
-    { id: '7', type: 'image', content: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80', width: 'third' },
+    { id: '4', type: 'paragraph', content: 'Nesta última semana, nossos alunos do 9º ano participaram da edição regional da Olimpíada de Matemática, trazendo **resultados históricos** para a nossa instituição. Abaixo conferimos os registros deste momento único!', width: 'full', height: 'auto' },
+    { id: '5', type: 'image', content: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80', width: 'third', height: 'auto' },
+    { id: '6', type: 'image', content: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80', width: 'third', height: 'auto' },
+    { id: '7', type: 'image', content: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80', width: 'third', height: 'auto' },
   ]);
 
   const [dragItem, setDragItem] = useState<any>(null);
