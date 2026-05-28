@@ -18,7 +18,7 @@ import {
   Type,
   Layers,
   Plus,
-  ArrowsUpDown,
+  ArrowUpDown,
 } from 'lucide-react';
 
 const MODULE_RULES: Record<string, { label: string; max: number; icon: any; placeholder: string }> = {
