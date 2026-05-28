@@ -32,8 +32,14 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
   const next = () => setCurrentIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
   const prev = () => setCurrentIndex((prev) => (prev === 0 ? items.length - 1 : prev - 1));
 
+  const finalHeightStyle = {
+    ...heightStyle,
+    height: isGeneratingPdf ? heightStyle?.height : '100%',
+    minHeight: !isGeneratingPdf ? '100%' : (heightStyle?.height === 'auto' ? '400px' : '0px')
+  };
+
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       {/* MODO BLOG: Slideshow interativo */}
       {!isGeneratingPdf && (
         <div 
