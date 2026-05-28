@@ -79,12 +79,12 @@ function CarouselGallery({ items, isGeneratingPdf }: { items: any[]; isGeneratin
 
       {/* MODO PDF: Grid em Blocos */}
       {isGeneratingPdf && (
-        <div style={{ width: '100%', fontSize: 0 }}>
+        <div style={{ width: '100%', fontSize: 0, margin: '0 -4px' }}>
           {items.map((item, idx) => {
             const isOddTotal = items.length % 2 !== 0;
             const isFirst = idx === 0;
             const pdfStyle: React.CSSProperties = (isOddTotal && isFirst)
-              ? { width: '100%', display: 'block', marginBottom: '16px', aspectRatio: '21/9', objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' }
+              ? { width: 'calc(100% - 8px)', display: 'block', margin: '4px', marginBottom: '16px', aspectRatio: '21/9', objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' }
               : { width: 'calc(50% - 8px)', display: 'inline-block', verticalAlign: 'top', margin: '4px', marginBottom: '16px', aspectRatio: '4/3', objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' };
 
             return (
@@ -241,22 +241,22 @@ export default function NewsGeneratorPage() {
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-8px)]';
-    if (widthStr === 'half') return 'w-full grow basis-[calc(50%-8px)]';
+    if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-4px)]';
+    if (widthStr === 'half') return 'w-full grow basis-[calc(50%-6px)]';
     if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-8px)]';
     return 'w-full flex-none';
   };
 
   const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full md:grow md:basis-[calc(66.666667%-10.666px)]';
-    if (widthStr === 'third') return 'w-full md:grow md:basis-[calc(33.333333%-10.666px)]';
-    if (widthStr === 'half') return 'w-full md:grow md:basis-[calc(50%-8px)]';
+    if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-5.33px)]';
+    if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-10.66px)]';
+    if (widthStr === 'half') return 'w-full grow basis-[calc(50%-8px)]';
     return 'w-full flex-none';
   };
 
   const getPdfWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-8px)] inline-block align-top mx-[4px] mb-6';
-    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] inline-block align-top mx-[4px] mb-6';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] inline-block align-top mx-[2.66px] mb-6';
+    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] inline-block align-top mx-[5.33px] mb-6';
     if (widthStr === 'half') return 'w-[calc(50%-8px)] inline-block align-top mx-[4px] mb-6';
     return 'w-full block mb-6';
   };
@@ -673,14 +673,14 @@ export default function NewsGeneratorPage() {
             )}
 
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-x-3 gap-y-3">
               {modules.map((module, idx) => {
                 const rule = MODULE_RULES[module.type];
                 const Icon = rule.icon;
                 const isDraggingThis = dragItem?.id === module.id;
                 const isTarget = dropIndicator?.id === module.id;
                 const widthClass = getSidebarWidthClass(module.width);
-                const widthLabel = module.width === 'full' ? '100%' : module.width === 'half' ? '50%' : module.width === 'two-thirds' ? '66%' : '33%';
+                const widthLabel = module.width === 'full' ? '100%' : module.width === 'half' ? '50%' : module.width === 'two-thirds' ? '66.6%' : '33.3%';
                 const WidthIcon = module.width === 'full' ? Square : module.width === 'half' ? Columns : LayoutGrid;
 
                 return (
@@ -737,9 +737,9 @@ export default function NewsGeneratorPage() {
                             <div className="grid grid-cols-1 gap-1">
                               {[
                                 { id: 'full', label: '100% (Cheio)', icon: Square },
-                                { id: 'two-thirds', label: '66% (2/3)', icon: LayoutGrid },
+                                { id: 'two-thirds', label: '66.6% (2/3)', icon: LayoutGrid },
                                 { id: 'half', label: '50% (Metade)', icon: Columns },
-                                { id: 'third', label: '33% (1/3)', icon: LayoutGrid },
+                                { id: 'third', label: '33.3% (1/3)', icon: LayoutGrid },
                               ].map((option) => (
                                 <button
                                   key={option.id}
@@ -893,7 +893,7 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'block w-full' : 'flex flex-wrap gap-4 w-full'}>
+          <div className={isGeneratingPdf ? 'block w-full' : 'flex flex-wrap gap-4 w-full'} style={isGeneratingPdf ? { fontSize: 0 } : {}}>
             {finalRenderModules.map((module) => {
               const widthClass = isGeneratingPdf ? getPdfWidthClass(module.width) : getWidthClass(module.width);
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
@@ -904,7 +904,7 @@ export default function NewsGeneratorPage() {
               switch (module.type) {
                 case 'paragraph':
                   contentRender = (
-                    <div className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`}>
+                    <div className={`flex flex-col w-full ${module.width === 'full' ? '' : 'flex-1 h-full'}`} style={isGeneratingPdf ? { fontSize: '12pt' } : {}}>
                       <p className="text-base md:text-lg text-slate-700 leading-relaxed text-justify">
                         {module.content.split('\n').map((line: string, i: number) => (
                           <React.Fragment key={i}>{renderFormattedText(line)}<br /></React.Fragment>
