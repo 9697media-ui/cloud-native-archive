@@ -1130,7 +1130,7 @@ export default function NewsGeneratorPage() {
                     onDragOver={(e) => handleModuleDragOver(e, dragId)}
                     onDragEnd={handleDragEnd}
                     onDrop={handleDrop}
-                    className={`flex-1 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow p-3`}
+                    className={`flex-1 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing h-full w-full overflow-hidden rounded-xl bg-white shadow-sm group-hover/module:shadow-md transition-shadow module-content-wrapper`}
                   >
                     <div className="w-full h-full flex items-center justify-center">
                       {contentRender}
