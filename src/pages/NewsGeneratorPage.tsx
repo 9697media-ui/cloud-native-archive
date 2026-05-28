@@ -366,6 +366,10 @@ export default function NewsGeneratorPage() {
       }
     }
 
+    setModules(newModules);
+    handleDragEnd();
+  };
+
   const handlePrint = async () => {
     setIsGeneratingPdf(true);
     setPdfError(false);
