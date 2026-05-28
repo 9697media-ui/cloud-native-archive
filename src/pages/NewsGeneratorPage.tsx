@@ -1004,8 +1004,19 @@ export default function NewsGeneratorPage() {
             {!isGeneratingPdf && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 pointer-events-none opacity-40">
                 {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="border-2 border-primary/20 border-dashed m-1.5 rounded-lg flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{Math.floor(i/3) + 1}x{(i%3) + 1}</span>
+                  <div 
+                    key={i} 
+                    onDrop={(e) => handleGridCellDrop(e, i)}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    className="border-2 border-primary/20 border-dashed m-1.5 rounded-lg flex items-center justify-center pointer-events-auto hover:bg-primary/5 transition-colors group"
+                  >
+                    <div className="flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <PlusCircle size={16} className="text-primary/40" />
+                      <span className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{Math.floor(i/3) + 1}x{(i%3) + 1}</span>
+                    </div>
                   </div>
                 ))}
               </div>
