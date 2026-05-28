@@ -761,7 +761,7 @@ export default function NewsGeneratorPage() {
                           title="Opções de Altura"
                         >
                           <ArrowUpDown size={10} />
-                          {module.height === 'auto' ? 'Auto' : module.height === 'small' ? 'P' : module.height === 'medium' ? 'M' : 'G'}
+                          {module.rows === 'auto' ? 'Auto' : `${module.rows}L`}
                         </button>
 
                         {activeWidthMenu === module.id && (
@@ -771,16 +771,15 @@ export default function NewsGeneratorPage() {
                           >
                             <div className="grid grid-cols-1 gap-1">
                               {[
-                                { id: 'full', label: '100% (Cheio)', icon: Square },
-                                { id: 'two-thirds', label: '66% (2/3)', icon: LayoutGrid },
-                                { id: 'half', label: '50% (Metade)', icon: Columns },
-                                { id: 'third', label: '33% (1/3)', icon: LayoutGrid },
+                                { val: 3, label: '3 Colunas (100%)', icon: Square },
+                                { val: 2, label: '2 Colunas (66%)', icon: LayoutGrid },
+                                { val: 1, label: '1 Coluna (33%)', icon: Columns },
                               ].map((option) => (
                                 <button
-                                  key={option.id}
+                                  key={option.val}
                                   type="button"
-                                  onClick={() => updateModuleWidth(module.id, option.id)}
-                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.width === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
+                                  onClick={() => updateModuleGrid(module.id, { cols: option.val })}
+                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.cols === option.val ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
                                 >
                                   <option.icon size={10} />
                                   {option.label}
@@ -797,16 +796,17 @@ export default function NewsGeneratorPage() {
                           >
                             <div className="grid grid-cols-1 gap-1">
                               {[
-                                { id: 'auto', label: 'Automático', icon: ArrowUpDown },
-                                { id: 'small', label: 'Pequeno', icon: ArrowUpDown },
-                                { id: 'medium', label: 'Médio', icon: ArrowUpDown },
-                                { id: 'large', label: 'Grande', icon: ArrowUpDown },
+                                { val: 'auto', label: 'Automático', icon: ArrowUpDown },
+                                { val: 1, label: '1 Linha', icon: ArrowUpDown },
+                                { val: 2, label: '2 Linhas', icon: ArrowUpDown },
+                                { val: 3, label: '3 Linhas', icon: ArrowUpDown },
+                                { val: 4, label: '4 Linhas', icon: ArrowUpDown },
                               ].map((option) => (
                                 <button
-                                  key={option.id}
+                                  key={option.val}
                                   type="button"
-                                  onClick={() => updateModuleHeight(module.id, option.id)}
-                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.height === option.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
+                                  onClick={() => updateModuleGrid(module.id, { rows: option.val as any })}
+                                  className={`flex items-center gap-2 w-full px-2 py-1.5 text-[10px] font-medium rounded-md transition-colors ${module.rows === option.val ? 'bg-primary/10 text-primary' : 'hover:bg-accent text-foreground'}`}
                                 >
                                   <option.icon size={10} />
                                   {option.label}
