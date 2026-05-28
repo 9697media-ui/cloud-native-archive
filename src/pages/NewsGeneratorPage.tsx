@@ -232,14 +232,14 @@ export default function NewsGeneratorPage() {
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
     
-    // Dimensões úteis com padding mínimo
-    const w = (cols * 260); 
-    const h = (rowCount * 150);
+    // Dimensões úteis considerando o padding de 12px de cada lado (total 24px)
+    const w = (cols * 264) - 24; 
+    const h = (rowCount * 150) - 24;
     
-    // Fator de densidade agressivo para ocupar todo o bloco
-    const s = Math.sqrt((w * h) / (charCount * 0.5));
+    // Fator de densidade mais conservador para evitar corte (0.8 ~ 1.0)
+    const s = Math.sqrt((w * h) / (charCount * 0.9));
     
-    return `${Math.max(12, Math.min(22, s))}px`;
+    return `${Math.max(10, Math.min(20, s))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -1033,8 +1033,7 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="w-full h-full flex flex-col justify-start"
-                      style={{ overflow: 'hidden' }}
+                      className="w-full h-full flex flex-col justify-start overflow-hidden"
                     >
                       <p 
                         className="text-slate-700 leading-tight text-justify w-full"
