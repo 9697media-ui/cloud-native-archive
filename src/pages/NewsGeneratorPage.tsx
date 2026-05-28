@@ -435,11 +435,6 @@ export default function NewsGeneratorPage() {
           } else if (target.width === 'half') {
             target.width = 'third';
             newItem.width = 'third';
-            if (targetIndex > 0 && newModules[targetIndex - 1].width === 'half') {
-              newModules[targetIndex - 1].width = 'third';
-            } else if (targetIndex < newModules.length - 1 && newModules[targetIndex + 1].width === 'half') {
-              newModules[targetIndex + 1].width = 'third';
-            }
           } else {
             newItem.width = 'third';
           }
@@ -463,6 +458,7 @@ export default function NewsGeneratorPage() {
     }
 
     setModules(newModules);
+    setTimeout(() => validateLayout(newModules), 300);
     handleDragEnd();
   };
 
