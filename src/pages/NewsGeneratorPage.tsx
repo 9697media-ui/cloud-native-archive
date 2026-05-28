@@ -1046,7 +1046,8 @@ export default function NewsGeneratorPage() {
                           hyphens: 'none',
                           wordBreak: 'normal',
                           overflowWrap: 'anywhere',
-                          lineHeight: '1.3'
+                          lineHeight: '1.3',
+                          transition: 'font-size 0.3s ease-out'
                         }}
                       >
                         <span className="w-full">
