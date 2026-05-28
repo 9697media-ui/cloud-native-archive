@@ -224,10 +224,9 @@ export default function NewsGeneratorPage() {
 
   const getMaxCharacters = (cols: number, rows: number | 'auto') => {
     if (rows === 'auto') return 2000;
-    // Estimativa mais conservadora para garantir que caiba em 14px
-    // 1x1 (250x150) -> ~350 caracteres
+    // Estimativa de segurança: 300 caracteres por slot 1x1
     const rowCount = rows as number;
-    return cols * rowCount * 350; 
+    return cols * rowCount * 300; 
   };
 
   const calculateFontSize = (text: string, cols: number, rows: number | 'auto') => {
@@ -237,13 +236,10 @@ export default function NewsGeneratorPage() {
     const rowCount = rows as number;
     const maxChars = getMaxCharacters(cols, rows);
     
-    // Se o texto estiver perto do limite, usa o tamanho mínimo
-    if (charCount >= maxChars * 0.9) return '14px';
-    
-    // Cálculo baseado na proporção de preenchimento
-    // 0 = vazio (22px), 1 = cheio (14px)
-    const fillRatio = charCount / maxChars;
-    const size = 22 - (fillRatio * (22 - 14));
+    // Proporção inversa: quanto mais texto, menor a fonte
+    // Mapeia 0% preenchimento -> 22px e 100% preenchimento -> 14px
+    const fillRatio = Math.min(charCount / maxChars, 1);
+    const size = 22 - (fillRatio * 8); 
     
     return `${Math.max(14, Math.min(22, size))}px`;
   };
