@@ -1003,45 +1003,58 @@ export default function NewsGeneratorPage() {
                   {!isGeneratingPdf && (
                     <>
                       <div 
-                        className="absolute -right-1 top-0 bottom-0 w-2 cursor-col-resize z-30 opacity-0 group-hover/module:opacity-100 hover:bg-primary/30 transition-all rounded-full"
+                        className="absolute -right-2 top-0 bottom-0 w-4 cursor-col-resize z-50 opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
                         onMouseDown={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           const startX = e.clientX;
                           const startCols = module.cols || 1;
+                          const containerWidth = document.getElementById('pdf-content')?.offsetWidth || 800;
+                          const colWidth = containerWidth / 3;
+
                           const onMouseMove = (moveEvent: MouseEvent) => {
                             const deltaX = moveEvent.clientX - startX;
-                            const colWidth = 200; // Aproximado
                             const newCols = Math.max(1, Math.min(3, startCols + Math.round(deltaX / colWidth)));
                             if (newCols !== module.cols) updateModuleGrid(module.id, { cols: newCols });
                           };
                           const onMouseUp = () => {
                             document.removeEventListener('mousemove', onMouseMove);
                             document.removeEventListener('mouseup', onMouseUp);
+                            document.body.style.cursor = 'default';
                           };
+                          document.body.style.cursor = 'col-resize';
                           document.addEventListener('mousemove', onMouseMove);
                           document.addEventListener('mouseup', onMouseUp);
                         }}
-                      />
+                      >
+                        <div className="w-1.5 h-12 bg-primary/40 rounded-full hover:bg-primary transition-colors" />
+                      </div>
                       <div 
-                        className="absolute -bottom-1 left-0 right-0 h-2 cursor-row-resize z-30 opacity-0 group-hover/module:opacity-100 hover:bg-primary/30 transition-all rounded-full"
+                        className="absolute -bottom-2 left-0 right-0 h-4 cursor-row-resize z-50 opacity-0 group-hover/module:opacity-100 transition-all flex items-center justify-center"
                         onMouseDown={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           const startY = e.clientY;
                           const startRows = module.rows === 'auto' ? 1 : module.rows;
+                          const rowHeight = 150; 
+
                           const onMouseMove = (moveEvent: MouseEvent) => {
                             const deltaY = moveEvent.clientY - startY;
-                            const rowHeight = 150; // Baseado no grid-background
                             const newRows = Math.max(1, Math.min(4, startRows + Math.round(deltaY / rowHeight)));
-                            if (newRows !== module.rows) updateModuleGrid(module.id, { rows: newRows });
+                            if (newRows !== module.rows) updateModuleGrid(module.id, { rows: newRows as any });
                           };
                           const onMouseUp = () => {
                             document.removeEventListener('mousemove', onMouseMove);
                             document.removeEventListener('mouseup', onMouseUp);
+                            document.body.style.cursor = 'default';
                           };
+                          document.body.style.cursor = 'row-resize';
                           document.addEventListener('mousemove', onMouseMove);
                           document.addEventListener('mouseup', onMouseUp);
                         }}
-                      />
+                      >
+                        <div className="w-12 h-1.5 bg-primary/40 rounded-full hover:bg-primary transition-colors" />
+                      </div>
                     </>
                   )}
 
