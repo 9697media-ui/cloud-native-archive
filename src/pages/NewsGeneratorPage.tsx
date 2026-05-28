@@ -89,8 +89,8 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
             const isOddTotal = items.length % 2 !== 0;
             const isFirst = idx === 0;
             const pdfStyle: React.CSSProperties = (isOddTotal && isFirst)
-              ? { width: '100%', display: 'block', marginBottom: '16px', aspectRatio: '21/9', objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' }
-              : { width: 'calc(50% - 8px)', display: 'inline-block', verticalAlign: 'top', margin: '4px', marginBottom: '16px', aspectRatio: '4/3', objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' };
+              ? { width: '100%', display: 'block', marginBottom: '16px', aspectRatio: heightStyle?.height ? undefined : '21/9', height: heightStyle?.height, objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' }
+              : { width: 'calc(50% - 8px)', display: 'inline-block', verticalAlign: 'top', margin: '4px', marginBottom: '16px', aspectRatio: heightStyle?.height ? undefined : '4/3', height: heightStyle?.height, objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' };
 
             return (
               <img
