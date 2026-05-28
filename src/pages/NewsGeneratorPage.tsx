@@ -187,7 +187,7 @@ export default function NewsGeneratorPage() {
   const handleNewArticle = () => setShowClearModal(true);
 
   const addModule = (type: string) => {
-    setModules([...modules, { id: Date.now().toString(), type, content: '', width: 'full' }]);
+    setModules([...modules, { id: Date.now().toString(), type, content: '', width: 'full', height: 'auto' }]);
   };
 
   const removeModule = (id: string) => setModules(modules.filter((m) => m.id !== id));
