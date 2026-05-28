@@ -549,6 +549,22 @@ export default function NewsGeneratorPage() {
             linear-gradient(to bottom, hsl(var(--primary) / 0.05) 2px, transparent 2px);
           background-size: calc(100% / 3) 150px;
         }
+        .grid-container-modern {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 0;
+          padding: 0;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (min-width: 768px) {
+          .grid-container-modern {
+            grid-template-columns: repeat(3, 1fr);
+          }
+          .grid-container-modern:hover {
+            gap: 1rem;
+            padding: 1rem;
+          }
+        }
       `}</style>
 
       {/* Backdrop mobile */}
