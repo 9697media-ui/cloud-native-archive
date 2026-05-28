@@ -244,6 +244,7 @@ export default function NewsGeneratorPage() {
   };
 
   const getPdfWidthClass = (widthStr: string) => {
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-8px)] inline-block align-top mx-[4px] mb-6';
     if (widthStr === 'third') return 'w-[calc(33.33%-8px)] inline-block align-top mx-[4px] mb-6';
     if (widthStr === 'half') return 'w-[calc(50%-8px)] inline-block align-top mx-[4px] mb-6';
     return 'w-full block mb-6';
