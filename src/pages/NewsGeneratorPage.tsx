@@ -402,70 +402,128 @@ export default function NewsGeneratorPage() {
       `}</style>
 
       {/* PAINEL DE EDIÇÃO */}
-      <div className="w-full lg:w-[420px] flex flex-col bg-card border-r border-border print:hidden">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <div>
-            <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
-              <LayoutGrid size={20} className="text-primary" />
-              Editor Institucional
-            </h2>
-          </div>
-
-          <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/30">
-            <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-              Cabeçalho (Ordem Fixa Obrigatória)
-            </h3>
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-muted-foreground">1. Autor e Data</label>
-              <input
-                type="text"
-                value={headerData.author}
-                onChange={(e) => setHeaderData({ ...headerData, author: e.target.value })}
-                placeholder="Ex: Equipe de Jornalismo - 10/10/2026"
-                className="w-full p-2 text-sm font-medium border border-border rounded bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              <label className="block text-xs font-medium text-muted-foreground">2. Título Principal</label>
-              <input
-                type="text"
-                value={headerData.title}
-                onChange={(e) => setHeaderData({ ...headerData, title: e.target.value })}
-                placeholder="Digite o título da notícia..."
-                className="w-full p-2 text-base font-bold border border-border rounded bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              <label className="block text-xs font-medium text-muted-foreground">3. Subtítulo</label>
-              <input
-                type="text"
-                value={headerData.subtitle}
-                onChange={(e) => setHeaderData({ ...headerData, subtitle: e.target.value })}
-                placeholder="Linha fina de apoio..."
-                className="w-full p-2 text-sm border border-border rounded bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-              />
+      <aside className="w-full lg:w-[440px] flex flex-col bg-card border-r border-border print:hidden shadow-sm">
+        {/* Header da sidebar */}
+        <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-card to-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center ring-1 ring-primary/20">
+              <Sparkles size={18} className="text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-base font-bold text-foreground leading-tight">Editor Institucional</h2>
+              <p className="text-xs text-muted-foreground leading-tight mt-0.5">Construa sua notícia em blocos</p>
             </div>
           </div>
+        </div>
 
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
-              Adicionar Corpo (Arraste)
-            </h3>
-            <div className="flex gap-2">
+        <div className="flex-1 overflow-y-auto p-5 space-y-6">
+          {/* Cabeçalho */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Type size={14} className="text-muted-foreground" />
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Cabeçalho
+                </h3>
+              </div>
+              <span className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wide">Ordem fixa</span>
+            </div>
+
+            <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-3">
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">1</span>
+                  Autor e Data
+                </label>
+                <input
+                  type="text"
+                  value={headerData.author}
+                  onChange={(e) => setHeaderData({ ...headerData, author: e.target.value })}
+                  placeholder="Ex: Equipe de Jornalismo - 10/10/2026"
+                  className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">2</span>
+                  Título Principal
+                </label>
+                <input
+                  type="text"
+                  value={headerData.title}
+                  onChange={(e) => setHeaderData({ ...headerData, title: e.target.value })}
+                  placeholder="Digite o título da notícia..."
+                  className="w-full px-3 py-2 text-base font-bold border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">3</span>
+                  Subtítulo
+                </label>
+                <input
+                  type="text"
+                  value={headerData.subtitle}
+                  onChange={(e) => setHeaderData({ ...headerData, subtitle: e.target.value })}
+                  placeholder="Linha fina de apoio..."
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Caixa de ferramentas */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Plus size={14} className="text-muted-foreground" />
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                Adicionar Bloco
+              </h3>
+              <span className="text-[10px] text-muted-foreground/70 ml-auto">Clique ou arraste</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               {Object.entries(MODULE_RULES).map(([type, rule]) => {
                 const Icon = rule.icon;
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={type}
                     draggable
                     onDragStart={(e) => handleDragStartToolbox(e, type)}
                     onDragEnd={handleDragEnd}
                     onClick={() => addModule(type)}
-                    className="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg text-sm font-medium transition-all select-none bg-muted text-foreground hover:bg-accent border border-border cursor-grab active:cursor-grabbing"
+                    className="group flex flex-col items-center justify-center gap-2 p-4 rounded-xl text-sm font-medium transition-all select-none bg-background hover:bg-primary/5 text-foreground border-2 border-dashed border-border hover:border-primary/40 cursor-grab active:cursor-grabbing active:scale-95"
                   >
-                    <Icon size={16} />
-                    {rule.label}
-                  </div>
+                    <div className="h-8 w-8 rounded-lg bg-muted group-hover:bg-primary/15 flex items-center justify-center transition-colors">
+                      <Icon size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <span className="text-xs leading-tight text-center">{rule.label}</span>
+                  </button>
                 );
               })}
             </div>
-          </div>
+          </section>
+
+          {/* Blocos do corpo */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Layers size={14} className="text-muted-foreground" />
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                Corpo da Notícia
+              </h3>
+              <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
+                {modules.length}
+              </span>
+            </div>
+
+            {modules.length === 0 && (
+              <div className="rounded-xl border-2 border-dashed border-border bg-muted/20 p-6 text-center">
+                <Layers size={24} className="mx-auto text-muted-foreground/40 mb-2" />
+                <p className="text-xs text-muted-foreground">Nenhum bloco ainda.</p>
+                <p className="text-[11px] text-muted-foreground/70 mt-0.5">Adicione um bloco acima para começar.</p>
+              </div>
+            )}
+
 
           <div className="flex flex-wrap gap-3">
             {modules.map((module) => {
