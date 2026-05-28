@@ -129,6 +129,7 @@ export default function NewsGeneratorPage() {
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
   const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
+  const [layoutAssistant, setLayoutAssistant] = useState<{ isOpen: boolean; rowId?: string; remainingWidth: number; modulesInRow: any[] }>({ isOpen: false, remainingWidth: 0, modulesInRow: [] });
   const widthMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -184,7 +185,11 @@ export default function NewsGeneratorPage() {
     setModules([...modules, { id: Date.now().toString(), type, content: '', width: 'full' }]);
   };
 
-  const removeModule = (id: string) => setModules(modules.filter((m) => m.id !== id));
+  const removeModule = (id: string) => {
+    const newModules = modules.filter((m) => m.id !== id);
+    setModules(newModules);
+    setTimeout(() => validateLayout(newModules), 300);
+  };
   const updateContent = (id: string, newContent: string) =>
     setModules(modules.map((m) => (m.id === id ? { ...m, content: newContent } : m)));
 
@@ -230,24 +235,114 @@ export default function NewsGeneratorPage() {
     setShowClearModal(false);
   };
 
-  const updateModuleWidth = (id: string, width: string) => {
-    setModules(prevModules => {
-      return prevModules.map(m => m.id === id ? { ...m, width } : m);
+  const getWidthValue = (widthStr: string): number => {
+    if (widthStr === 'full') return 100;
+    if (widthStr === 'two-thirds') return 66.66;
+    if (widthStr === 'half') return 50;
+    if (widthStr === 'third') return 33.33;
+    return 100;
+  };
+
+  const getWidthFromValue = (value: number): string => {
+    if (value >= 95) return 'full';
+    if (value >= 60) return 'two-thirds';
+    if (value >= 45) return 'half';
+    return 'third';
+  };
+
+  const validateLayout = (currentModules: any[]) => {
+    let currentRowTotal = 0;
+    let currentRowModules: any[] = [];
+    
+    for (let i = 0; i < currentModules.length; i++) {
+      const m = currentModules[i];
+      const w = getWidthValue(m.width);
+      
+      if (currentRowTotal + w > 100.1) {
+        if (currentRowTotal < 95) {
+          setLayoutAssistant({
+            isOpen: true,
+            remainingWidth: 100 - currentRowTotal,
+            modulesInRow: [...currentRowModules]
+          });
+          return false;
+        }
+        currentRowTotal = w;
+        currentRowModules = [m];
+      } else {
+        currentRowTotal += w;
+        currentRowModules.push(m);
+      }
+    }
+
+    if (currentRowTotal > 0 && currentRowTotal < 95) {
+      setLayoutAssistant({
+        isOpen: true,
+        remainingWidth: 100 - currentRowTotal,
+        modulesInRow: [...currentRowModules]
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
+  const applyAutoAdjustment = () => {
+    if (!layoutAssistant.modulesInRow.length) return;
+    const lastModuleId = layoutAssistant.modulesInRow[layoutAssistant.modulesInRow.length - 1].id;
+    const currentTotal = layoutAssistant.modulesInRow.reduce((acc, m) => acc + getWidthValue(m.width), 0);
+    const needed = 100 - (currentTotal - getWidthValue(layoutAssistant.modulesInRow[layoutAssistant.modulesInRow.length - 1].width));
+    const newWidth = getWidthFromValue(needed);
+    setModules(prev => prev.map(m => m.id === lastModuleId ? { ...m, width: newWidth } : m));
+    setLayoutAssistant({ ...layoutAssistant, isOpen: false });
+  };
+
+  const applyPullBlock = (blockToPullId: string) => {
+    const blockToPull = modules.find(m => m.id === blockToPullId);
+    if (!blockToPull) return;
+
+    setModules(prev => {
+      let newModules = [...prev];
+      newModules = newModules.filter(m => m.id !== blockToPullId);
+      const lastModuleId = layoutAssistant.modulesInRow[layoutAssistant.modulesInRow.length - 1].id;
+      const targetIndex = newModules.findIndex(m => m.id === lastModuleId);
+      const adjustedBlock = { ...blockToPull, width: getWidthFromValue(layoutAssistant.remainingWidth) };
+      newModules.splice(targetIndex + 1, 0, adjustedBlock);
+      return newModules;
     });
+    setLayoutAssistant({ ...layoutAssistant, isOpen: false });
+  };
+
+  const applyAddNewTailored = () => {
+    const newWidth = getWidthFromValue(layoutAssistant.remainingWidth);
+    const lastModuleId = layoutAssistant.modulesInRow[layoutAssistant.modulesInRow.length - 1].id;
+    const targetIndex = modules.findIndex(m => m.id === lastModuleId);
+    const newModule = { id: Date.now().toString(), type: 'paragraph', content: '', width: newWidth };
+    const newModules = [...modules];
+    newModules.splice(targetIndex + 1, 0, newModule);
+    setModules(newModules);
+    setLayoutAssistant({ ...layoutAssistant, isOpen: false });
+  };
+
+  const updateModuleWidth = (id: string, width: string) => {
+    const newModules = modules.map(m => m.id === id ? { ...m, width } : m);
+    setModules(newModules);
+    setTimeout(() => validateLayout(newModules), 300);
     setActiveWidthMenu(null);
+    setTimeout(() => validateLayout(newModules), 300);
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-grow';
-    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-grow';
-    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-grow';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-none';
+    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-none';
+    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-none';
     return 'w-full flex-none';
   };
 
   const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] flex-grow';
-    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-grow';
-    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-grow';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] flex-none';
+    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-none';
+    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-none';
     return 'w-full flex-none';
   };
 
@@ -973,6 +1068,95 @@ export default function NewsGeneratorPage() {
           </div>
         </div>
       )}
+
+      {/* Pop-up Assistente de Layout (Anti-Buraco) */}
+      {layoutAssistant.isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-card border border-border w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-6 border-b border-border bg-gradient-to-br from-primary/10 to-transparent">
+              <div className="flex items-center gap-3 text-primary mb-2">
+                <AlertCircle size={24} />
+                <h3 className="text-xl font-bold">Assistente de Layout</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Detectamos um espaço vazio na sua linha. O layout atual soma apenas {100 - layoutAssistant.remainingWidth}% de 100%. Como deseja corrigir?
+              </p>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* OPÇÃO 1 */}
+              <button
+                onClick={applyAutoAdjustment}
+                className="w-full group flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+              >
+                <div className="h-10 w-10 rounded-lg bg-muted group-hover:bg-primary/15 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <LayoutGrid size={20} className="group-hover:text-primary transition-colors" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-foreground">OPÇÃO 1: Preenchimento Automático</div>
+                  <div className="text-xs text-muted-foreground mt-1">Expande o último bloco da linha para ocupar os {layoutAssistant.remainingWidth.toFixed(0)}% restantes.</div>
+                </div>
+              </button>
+
+              {/* OPÇÃO 2 */}
+              <div className="space-y-2">
+                <div className="group flex items-start gap-4 p-4 rounded-xl border border-border bg-muted/20 opacity-80">
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                    <GripVertical size={20} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-foreground">OPÇÃO 2: Puxar Bloco Existente</div>
+                    <div className="text-xs text-muted-foreground mt-1">Selecione um bloco abaixo para preencher o espaço (ele será redimensionado para {layoutAssistant.remainingWidth.toFixed(0)}%):</div>
+                    
+                    <div className="mt-3 grid grid-cols-1 gap-2 max-h-32 overflow-y-auto pr-2">
+                      {modules
+                        .filter(m => !layoutAssistant.modulesInRow.some(rm => rm.id === m.id))
+                        .map((m, idx) => (
+                          <button
+                            key={m.id}
+                            onClick={() => applyPullBlock(m.id)}
+                            className="flex items-center justify-between px-3 py-2 rounded-lg bg-background border border-border hover:border-primary hover:text-primary transition-all text-[10px] font-medium"
+                          >
+                            <span>Bloco {idx + 1}: {MODULE_RULES[m.type].label} ({m.width})</span>
+                            <ChevronRight size={12} />
+                          </button>
+                        ))
+                      }
+                      {modules.length <= layoutAssistant.modulesInRow.length && (
+                        <div className="text-[10px] text-muted-foreground italic text-center py-2">Nenhum outro bloco disponível para puxar.</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* OPÇÃO 3 */}
+              <button
+                onClick={applyAddNewTailored}
+                className="w-full group flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+              >
+                <div className="h-10 w-10 rounded-lg bg-muted group-hover:bg-primary/15 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <PlusCircle size={20} className="group-hover:text-primary transition-colors" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-foreground">OPÇÃO 3: Adicionar Novo Bloco Sob Medida</div>
+                  <div className="text-xs text-muted-foreground mt-1">Cria um novo parágrafo vazio com exatamente {layoutAssistant.remainingWidth.toFixed(0)}% de largura.</div>
+                </div>
+              </button>
+            </div>
+
+            <div className="p-4 bg-muted/30 border-t border-border flex justify-end gap-3">
+              <button
+                onClick={() => setLayoutAssistant({ ...layoutAssistant, isOpen: false })}
+                className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Ignorar (manter buraco)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
