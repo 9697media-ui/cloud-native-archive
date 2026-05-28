@@ -222,6 +222,20 @@ export default function NewsGeneratorPage() {
     }
   };
 
+  const calculateFontSize = (text: string, cols: number, rows: number | 'auto') => {
+    if (rows === 'auto') return '16px';
+    
+    const charCount = text.length || 1;
+    const area = cols * (rows as number) * 150 * 300; // Estimativa de área em pixels
+    
+    // Fórmula base: quanto mais área por caractere, maior a fonte
+    // Multiplicamos por um fator de escala para chegar em valores de pixel
+    const idealSize = Math.sqrt(area / charCount) * 0.5;
+    
+    // Limites: 14px (mínimo leitura) até 22px (máximo parágrafo)
+    return `${Math.max(14, Math.min(22, idealSize))}px`;
+  };
+
   const renderFormattedText = (text: string) => {
     if (!text) return null;
     const parts = text.split(/(\*\*.*?\*\*)/g);
@@ -996,9 +1010,12 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="flex flex-col w-full h-full pointer-events-none"
+                      className="flex flex-col w-full h-full pointer-events-none justify-center overflow-y-auto"
                     >
-                      <p className="text-base md:text-lg text-slate-700 leading-relaxed text-justify">
+                      <p 
+                        className="text-slate-700 leading-relaxed text-justify"
+                        style={{ fontSize: calculateFontSize(module.content, module.cols, module.rows) }}
+                      >
                         {module.content.split('\n').map((line: string, i: number) => (
                           <React.Fragment key={i}>{renderFormattedText(line)}<br /></React.Fragment>
                         ))}
