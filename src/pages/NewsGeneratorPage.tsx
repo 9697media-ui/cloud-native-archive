@@ -228,22 +228,22 @@ export default function NewsGeneratorPage() {
   };
 
   const calculateFontSize = (text: string, cols: number, rows: number | 'auto') => {
-    if (rows === 'auto' || !text) return '16px';
+    if (rows === 'auto' || !text) return '18px';
     
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
     
-    // Área relativa disponível (cols * rows)
-    const area = cols * rowCount;
+    // Área real estimada do conteúdo (cada slot ~250x150)
+    // Subtraímos folga para margens e paddings
+    const availableWidth = (cols * 280) - 40;
+    const availableHeight = (rowCount * 150) - 40;
+    const totalArea = availableWidth * availableHeight;
     
-    // Se for 1x1 e tiver 600 caracteres, ratio é 1/600
-    const ratio = area / charCount;
+    // Cálculo baseado na área por caractere para preencher o bloco
+    // Ajustamos o fator para que a fonte preencha melhor o espaço
+    const idealSize = Math.sqrt(totalArea / (charCount * 0.55));
     
-    // Usamos uma escala logarítmica ou raiz para o tamanho da fonte
-    // Multiplicador ajustado para que 1/600 resulte em ~10px e 1/50 resulte em ~22px
-    const idealSize = 8 + Math.sqrt(ratio * 1200);
-    
-    return `${Math.max(10, Math.min(22, idealSize))}px`;
+    return `${Math.max(12, Math.min(22, idealSize))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -1032,7 +1032,7 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="flex flex-col w-full h-full pointer-events-none justify-start"
+                      className="flex flex-col w-full h-full pointer-events-none justify-center"
                     >
                       <p 
                         className="text-slate-700 leading-tight text-justify"
