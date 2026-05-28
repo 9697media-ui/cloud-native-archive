@@ -129,6 +129,7 @@ export default function NewsGeneratorPage() {
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
   const [activeWidthMenu, setActiveWidthMenu] = useState<string | null>(null);
+  const [layoutAssistant, setLayoutAssistant] = useState<{ isOpen: boolean; rowId?: string; remainingWidth: number; modulesInRow: any[] }>({ isOpen: false, remainingWidth: 0, modulesInRow: [] });
   const widthMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
