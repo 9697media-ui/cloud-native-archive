@@ -237,6 +237,7 @@ export default function NewsGeneratorPage() {
   };
 
   const getWidthClass = (widthStr: string) => {
+    if (widthStr === 'two-thirds') return 'w-full md:grow md:basis-[calc(66.666667%-10.666px)]';
     if (widthStr === 'third') return 'w-full md:grow md:basis-[calc(33.333333%-10.666px)]';
     if (widthStr === 'half') return 'w-full md:grow md:basis-[calc(50%-8px)]';
     return 'w-full flex-none';
