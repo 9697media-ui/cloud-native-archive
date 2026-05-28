@@ -233,15 +233,12 @@ export default function NewsGeneratorPage() {
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
     
-    // Área real estimada do conteúdo (cada slot ~250x150)
-    // Subtraímos folga para margens e paddings
-    const availableWidth = (cols * 280) - 40;
-    const availableHeight = (rowCount * 150) - 40;
+    // Área real disponível considerando o padding de 12px de cada lado (total 24px)
+    const availableWidth = (cols * 280) - 24;
+    const availableHeight = (rowCount * 150) - 24;
     const totalArea = availableWidth * availableHeight;
     
-    // Cálculo baseado na área por caractere para preencher o bloco
-    // Ajustamos o fator para que a fonte preencha melhor o espaço
-    const idealSize = Math.sqrt(totalArea / (charCount * 0.55));
+    const idealSize = Math.sqrt(totalArea / (charCount * 0.6));
     
     return `${Math.max(12, Math.min(22, idealSize))}px`;
   };
@@ -605,9 +602,9 @@ export default function NewsGeneratorPage() {
             padding: 24px;
           }
         }
-        /* Garantir que os blocos internos respeitem o padding visual de 12px quando encostados */
+        /* Padding fixo de 12px em todos os blocos */
         .module-content-wrapper {
-          padding: 12px;
+          padding: 12px !important;
         }
       `}</style>
 
