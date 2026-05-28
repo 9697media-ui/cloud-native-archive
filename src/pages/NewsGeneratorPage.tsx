@@ -232,68 +232,22 @@ export default function NewsGeneratorPage() {
 
   const updateModuleWidth = (id: string, width: string) => {
     setModules(prevModules => {
-      const newModules = prevModules.map(m => m.id === id ? { ...m, width } : m);
-      
-      const normalizeModules = (modules: any[]) => {
-        const getVal = (w: string) => (w === 'full' ? 100 : w === 'two-thirds' ? 66.6 : w === 'half' ? 50 : 33.3);
-        const result = modules.map(m => ({ ...m }));
-        
-        let lineSum = 0;
-        let lineStartIndex = 0;
-
-        for (let i = 0; i < result.length; i++) {
-          const val = getVal(result[i].width);
-          
-          if (lineSum + val > 100.1 || result[i].width === 'full') {
-            // Se a linha anterior não terminou em 100%, expande o último item dessa linha
-            if (i > 0 && lineSum < 95 && lineSum > 0) {
-              const lastInRow = result[i - 1];
-              const currentVal = getVal(lastInRow.width);
-              const needed = 100 - (lineSum - currentVal);
-              
-              if (needed >= 90) lastInRow.width = 'full';
-              else if (needed >= 60) lastInRow.width = 'two-thirds';
-              else if (needed >= 45) lastInRow.width = 'half';
-              else lastInRow.width = 'third';
-            }
-            lineSum = val;
-            lineStartIndex = i;
-          } else {
-            lineSum += val;
-          }
-        }
-
-        // Ajusta a última linha do documento
-        if (lineSum < 95 && result.length > 0) {
-          const last = result[result.length - 1];
-          const currentVal = getVal(last.width);
-          const needed = 100 - (lineSum - currentVal);
-          
-          if (needed >= 90) last.width = 'full';
-          else if (needed >= 60) last.width = 'two-thirds';
-          else if (needed >= 45) last.width = 'half';
-          else last.width = 'third';
-        }
-        
-        return result;
-      };
-
-      return normalizeModules(newModules);
+      return prevModules.map(m => m.id === id ? { ...m, width } : m);
     });
     setActiveWidthMenu(null);
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-4px)]';
-    if (widthStr === 'half') return 'w-full grow basis-[calc(50%-6px)]';
-    if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-8px)]';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-4px)] flex-none';
+    if (widthStr === 'half') return 'w-[calc(50%-6px)] flex-none';
+    if (widthStr === 'third') return 'w-[calc(33.33%-8px)] flex-none';
     return 'w-full flex-none';
   };
 
   const getWidthClass = (widthStr: string) => {
-    if (widthStr === 'two-thirds') return 'w-full grow basis-[calc(66.66%-5.33px)]';
-    if (widthStr === 'third') return 'w-full grow basis-[calc(33.33%-10.66px)]';
-    if (widthStr === 'half') return 'w-full grow basis-[calc(50%-8px)]';
+    if (widthStr === 'two-thirds') return 'w-[calc(66.66%-5.33px)] flex-none';
+    if (widthStr === 'third') return 'w-[calc(33.33%-10.66px)] flex-none';
+    if (widthStr === 'half') return 'w-[calc(50%-8px)] flex-none';
     return 'w-full flex-none';
   };
 
@@ -411,13 +365,6 @@ export default function NewsGeneratorPage() {
         newModules.push(newItem);
       }
     }
-
-    // Removemos a normalização automática que forçava 100%
-    setModules(newModules);
-    handleDragEnd();
-  };
-    handleDragEnd();
-  };
 
   const handlePrint = async () => {
     setIsGeneratingPdf(true);
