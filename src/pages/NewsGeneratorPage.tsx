@@ -613,7 +613,7 @@ export default function NewsGeneratorPage() {
             )}
 
 
-            <div className="flex flex-col gap-3">
+            <div className={`grid gap-3 ${sidebarWidth > 640 ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {modules.map((module, idx) => {
                 const rule = MODULE_RULES[module.type];
                 const Icon = rule.icon;
