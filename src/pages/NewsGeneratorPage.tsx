@@ -1196,7 +1196,12 @@ export default function NewsGeneratorPage() {
                 </div>
               </div>
 
-              {/* OPÇÃO 3 */}
+              {/* OPÇÃO 3 (Agora Opção 2 no visual para blocos existentes) */}
+              <div className="pt-2">
+                <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Blocos Existentes</div>
+                {/* A lista de blocos já foi movida para cima para ser a 'Opção 2' visual */}
+              </div>
+
               <button
                 onClick={applyAddNewTailored}
                 className="w-full group flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
