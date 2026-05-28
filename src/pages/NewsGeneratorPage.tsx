@@ -223,7 +223,6 @@ export default function NewsGeneratorPage() {
   };
 
   const getMaxCharacters = (cols: number, rows: number | 'auto') => {
-    // Limite fixo de 600 caracteres por bloco conforme solicitado
     return 600; 
   };
 
@@ -233,15 +232,16 @@ export default function NewsGeneratorPage() {
     const charCount = Math.max(text.length, 1);
     const rowCount = rows as number;
     
-    // Largura e altura estimadas (menos padding interno reduzido para preencher melhor)
-    const w = (cols * 310) - 16;
-    const h = (rowCount * 150) - 16;
+    // Dimensões do bloco menos o padding de 12px de cada lado (total 24px)
+    // 3 colunas em A4 (210mm ~ 794px) -> cada col ~264px
+    const w = (cols * 264) - 24; 
+    const h = (rowCount * 150) - 24;
     
-    // Cálculo de fonte para preenchimento máximo: s = sqrt(Área / (Caracteres * Fator de forma))
-    // O fator 0.55 a 0.7 costuma ser ideal para considerar espaços e quebras
-    const s = Math.sqrt((w * h) / (charCount * 0.65));
+    // Fator para preenchimento: Área / (Caracteres * constante de densidade)
+    // 0.6 é uma média boa para parágrafos com espaços
+    const s = Math.sqrt((w * h) / (charCount * 0.6));
     
-    return `${Math.max(12, Math.min(24, s))}px`;
+    return `${Math.max(10, Math.min(22, s))}px`;
   };
 
   const renderFormattedText = (text: string) => {
@@ -603,9 +603,10 @@ export default function NewsGeneratorPage() {
             padding: 24px;
           }
         }
-        /* Padding interno dos blocos reduzido para preencher melhor o espaço */
+        /* Padding de 12px quando os blocos se encontram, conforme a regra */
         .module-content-wrapper {
-          padding: 8px !important;
+          padding: 12px !important;
+          box-sizing: border-box;
         }
       `}</style>
 
@@ -1034,7 +1035,7 @@ export default function NewsGeneratorPage() {
                 case 'paragraph':
                   contentRender = (
                     <div 
-                      className="flex flex-col w-full h-full pointer-events-none justify-center"
+                      className="w-full h-full flex items-center justify-center overflow-hidden"
                     >
                       <p 
                         className="text-slate-700 leading-tight text-justify"
