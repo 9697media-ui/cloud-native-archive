@@ -125,6 +125,7 @@ export default function NewsGeneratorPage() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfError, setPdfError] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleNewArticle = () => setShowClearModal(true);
 
@@ -386,7 +387,7 @@ export default function NewsGeneratorPage() {
   );
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-4rem)] bg-muted/30">
+    <div className="relative flex flex-col lg:flex-row h-[calc(100vh-4rem)] bg-muted/30">
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 15mm; }
@@ -401,20 +402,59 @@ export default function NewsGeneratorPage() {
         }
       `}</style>
 
+      {/* Backdrop mobile */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden fixed inset-0 top-16 bg-foreground/40 backdrop-blur-sm z-30 print:hidden"
+        />
+      )}
+
+      {/* Botão flutuante para abrir quando fechada */}
+      {!sidebarOpen && (
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          className="fixed lg:absolute top-20 lg:top-4 left-4 z-40 h-11 px-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all flex items-center gap-2 text-sm font-semibold print:hidden"
+          title="Abrir editor"
+        >
+          <ChevronRight size={18} />
+          <span>Editor</span>
+        </button>
+      )}
+
       {/* PAINEL DE EDIÇÃO */}
-      <aside className="w-full lg:w-[440px] flex flex-col bg-card border-r border-border print:hidden shadow-sm">
+      <aside
+        className={`
+          print:hidden bg-card border-r border-border shadow-xl lg:shadow-sm
+          flex flex-col transition-all duration-300 ease-out
+          fixed lg:relative inset-y-0 left-0 top-16 lg:top-0 z-40
+          ${sidebarOpen
+            ? 'w-[88vw] max-w-[400px] lg:w-[380px] xl:w-[420px] translate-x-0'
+            : '-translate-x-full lg:translate-x-0 lg:w-0 lg:overflow-hidden lg:border-r-0'}
+        `}
+      >
         {/* Header da sidebar */}
         <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-card to-muted/30 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center ring-1 ring-primary/20">
+            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center ring-1 ring-primary/20 flex-shrink-0">
               <Sparkles size={18} className="text-primary" />
             </div>
-            <div className="min-w-0">
-              <h2 className="text-base font-bold text-foreground leading-tight">Editor Institucional</h2>
-              <p className="text-xs text-muted-foreground leading-tight mt-0.5">Construa sua notícia em blocos</p>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-base font-bold text-foreground leading-tight truncate">Editor Institucional</h2>
+              <p className="text-xs text-muted-foreground leading-tight mt-0.5 truncate">Construa sua notícia em blocos</p>
             </div>
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(false)}
+              className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+              title="Recolher painel"
+            >
+              <ChevronLeft size={18} />
+            </button>
           </div>
         </div>
+
 
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
           {/* Cabeçalho */}
