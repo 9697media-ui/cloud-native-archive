@@ -999,7 +999,7 @@ export default function NewsGeneratorPage() {
             </div>
           )}
 
-          <div className={isGeneratingPdf ? 'flex flex-wrap w-full' : 'flex flex-wrap gap-4 w-full relative z-10'} style={isGeneratingPdf ? { fontSize: 0, padding: 0 } : {}}>
+          <div ref={modulesContainerRef} className={isGeneratingPdf ? 'flex flex-wrap w-full' : 'flex flex-wrap gap-4 w-full relative z-10'} style={isGeneratingPdf ? { fontSize: 0, padding: 0 } : {}}>
             {finalRenderModules.map((module) => {
               const widthClass = isGeneratingPdf ? getPdfWidthClass(module.width) : getWidthClass(module.width);
               const dragId = module.type === 'gallery' ? module.items[0].id : module.id;
