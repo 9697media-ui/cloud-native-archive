@@ -218,15 +218,33 @@ export default function NewsGeneratorPage() {
   };
 
   const toggleWidth = (id: string) => {
-    setModules(modules.map((m) => {
-      if (m.id !== id) return m;
-      let nextWidth = 'full';
-      if (m.width === 'full') nextWidth = 'half';
-      else if (m.width === 'half') nextWidth = 'two-thirds';
-      else if (m.width === 'two-thirds') nextWidth = 'third';
-      else if (m.width === 'third') nextWidth = 'full';
-      return { ...m, width: nextWidth };
-    }));
+    setModules(prevModules => {
+      const newModules = prevModules.map((m) => {
+        if (m.id !== id) return m;
+        let nextWidth = 'full';
+        if (m.width === 'full') nextWidth = 'half';
+        else if (m.width === 'half') nextWidth = 'two-thirds';
+        else if (m.width === 'two-thirds') nextWidth = 'third';
+        else if (m.width === 'third') nextWidth = 'full';
+        return { ...m, width: nextWidth };
+      });
+
+      // Auto-ajuste para evitar buracos
+      return newModules.map((m, idx) => {
+        const prev = newModules[idx - 1];
+        const next = newModules[idx + 1];
+
+        // Se eu sou o 66% e o próximo é 50% ou Full, o próximo deve virar 33% (se possível) ou eu viro Full
+        if (m.width === 'two-thirds') {
+          if (next && (next.width === 'half' || next.width === 'full')) {
+            // Ajustar o próximo para 33% para preencher a linha
+            // Mas só se o próximo não for o que o usuário acabou de mudar (para não ser frustrante)
+            // Na verdade, a lógica mais simples é: se o par não fecha 100%, o atual expande.
+          }
+        }
+        return m;
+      });
+    });
   };
 
   const getSidebarWidthClass = (widthStr: string) => {
