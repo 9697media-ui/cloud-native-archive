@@ -36,13 +36,17 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
     <div className="w-full">
       {/* MODO BLOG: Slideshow interativo */}
       {!isGeneratingPdf && (
-        <div className="relative w-full rounded-xl overflow-hidden shadow-md group bg-muted">
+        <div 
+          className="relative w-full rounded-xl overflow-hidden shadow-md group bg-muted"
+          style={heightStyle}
+        >
           {items.map((item, idx) => (
             <img
               key={item.id}
               src={item.content}
               alt=""
-              className={`w-full h-[400px] object-cover transition-opacity duration-500 ${idx === currentIndex ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
+              className={`w-full h-full object-cover transition-opacity duration-500 ${idx === currentIndex ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
+              style={{ minHeight: heightStyle?.height === 'auto' ? '400px' : '0px' }}
               onError={(e: any) => {
                 e.target.onerror = null;
                 e.target.src = 'https://placehold.co/800x400/eeeeee/999999?text=Imagem+N%C3%A3o+Encontrada';
