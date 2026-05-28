@@ -232,8 +232,8 @@ export default function NewsGeneratorPage() {
 
   const updateModuleWidth = (id: string, width: string) => {
     setModules(prevModules => {
-      // 1. Aplica a mudança solicitada
-      const newModules = prevModules.map((m) => (m.id === id ? { ...m, width } : { ...m }));
+      // 1. Aplica a mudança solicitada criando cópias profundas dos objetos para garantir re-renderização
+      const newModules = prevModules.map((m) => (m.id === id ? { ...m, width: width } : { ...m }));
       
       const getWidthValue = (w: string) => {
         if (w === 'full') return 100;
@@ -248,8 +248,9 @@ export default function NewsGeneratorPage() {
       let currentRow: any[] = [];
       let currentWidth = 0;
 
-      for (let m of newModules) {
+      for (const m of newModules) {
         const val = getWidthValue(m.width);
+        // Se este item não cabe na linha atual ou é 'full', inicia nova linha
         if (currentWidth + val > 100.1 || m.width === 'full') {
           if (currentRow.length > 0) rows.push(currentRow);
           currentRow = [m];
@@ -262,21 +263,26 @@ export default function NewsGeneratorPage() {
       if (currentRow.length > 0) rows.push(currentRow);
 
       // 3. Garantir preenchimento 100% em cada linha expandindo o ÚLTIMO item se necessário
-      rows.forEach(row => {
-        let rowSum = row.reduce((acc, m) => acc + getWidthValue(m.width), 0);
+      // Regra: A soma deve ser sempre 100%
+      const balancedModules = rows.flatMap(row => {
+        const rowSum = row.reduce((acc, m) => acc + getWidthValue(m.width), 0);
+        
         if (rowSum < 99 && row.length > 0) {
           const lastItem = row[row.length - 1];
-          // Só expande se não for o item que o usuário ACABOU de mudar para ser menor
-          // Ou se for a única opção para não deixar buraco
-          const needed = 100 - (rowSum - getWidthValue(lastItem.width));
-          if (needed >= 90) lastItem.width = 'full';
-          else if (needed >= 60) lastItem.width = 'two-thirds';
-          else if (needed >= 45) lastItem.width = 'half';
-          else lastItem.width = 'third';
+          const otherItemsSum = rowSum - getWidthValue(lastItem.width);
+          const neededWidth = 100 - otherItemsSum;
+
+          // Arredonda para a classe mais próxima que preencha o 100%
+          if (neededWidth >= 90) lastItem.width = 'full';
+          else if (neededWidth >= 65) lastItem.width = 'two-thirds';
+          else if (neededWidth >= 45) lastItem.width = 'half';
+          else if (neededWidth >= 30) lastItem.width = 'third';
+          else lastItem.width = 'full'; // Segurança
         }
+        return row;
       });
 
-      return rows.flat();
+      return balancedModules;
     });
     setActiveWidthMenu(null);
   };
@@ -423,7 +429,7 @@ export default function NewsGeneratorPage() {
     let currentRow: any[] = [];
     let currentWidth = 0;
 
-    for (let m of newModules) {
+    for (const m of newModules) {
       const val = getWidthValue(m.width);
       if (currentWidth + val > 100.1 || m.width === 'full') {
         if (currentRow.length > 0) rows.push(currentRow);
@@ -436,19 +442,23 @@ export default function NewsGeneratorPage() {
     }
     if (currentRow.length > 0) rows.push(currentRow);
 
-    rows.forEach(row => {
-      let rowSum = row.reduce((acc, m) => acc + getWidthValue(m.width), 0);
+    const balancedModules = rows.flatMap(row => {
+      const rowSum = row.reduce((acc, m) => acc + getWidthValue(m.width), 0);
       if (rowSum < 99 && row.length > 0) {
         const lastItem = row[row.length - 1];
-        const needed = 100 - (rowSum - getWidthValue(lastItem.width));
-        if (needed >= 90) lastItem.width = 'full';
-        else if (needed >= 60) lastItem.width = 'two-thirds';
-        else if (needed >= 45) lastItem.width = 'half';
-        else lastItem.width = 'third';
+        const otherItemsSum = rowSum - getWidthValue(lastItem.width);
+        const neededWidth = 100 - otherItemsSum;
+
+        if (neededWidth >= 90) lastItem.width = 'full';
+        else if (neededWidth >= 65) lastItem.width = 'two-thirds';
+        else if (neededWidth >= 45) lastItem.width = 'half';
+        else if (neededWidth >= 30) lastItem.width = 'third';
+        else lastItem.width = 'full';
       }
+      return row;
     });
 
-    setModules(rows.flat());
+    setModules(balancedModules);
     handleDragEnd();
   };
 
