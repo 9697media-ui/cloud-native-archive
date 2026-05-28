@@ -1016,14 +1016,11 @@ export default function NewsGeneratorPage() {
                 default:
                   return null;
               }
-                default:
-                  return null;
-              }
 
               return (
                 <div
                   key={module.id}
-                  style={isGeneratingPdf ? { pageBreakInside: 'avoid', breakInside: 'avoid' } : {}}
+                  style={isGeneratingPdf ? { pageBreakInside: 'avoid', breakInside: 'avoid', ...gridStyle } : gridStyle}
                   className={`
                     ${widthClass}
                     ${module.type === 'paragraph' ? '' : 'avoid-break'}
