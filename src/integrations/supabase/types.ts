@@ -247,6 +247,7 @@ export type Database = {
           created_at: string
           delegated_units: string[] | null
           email: string | null
+          google_refresh_token: string | null
           id: string
           is_active: boolean | null
           is_beta_tester: boolean | null
@@ -263,6 +264,7 @@ export type Database = {
           created_at?: string
           delegated_units?: string[] | null
           email?: string | null
+          google_refresh_token?: string | null
           id?: string
           is_active?: boolean | null
           is_beta_tester?: boolean | null
@@ -279,6 +281,7 @@ export type Database = {
           created_at?: string
           delegated_units?: string[] | null
           email?: string | null
+          google_refresh_token?: string | null
           id?: string
           is_active?: boolean | null
           is_beta_tester?: boolean | null
