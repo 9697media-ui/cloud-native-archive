@@ -17,7 +17,16 @@ import {
   Trash2,
   Copy,
   Check,
-  LogIn
+  LogIn,
+  Download,
+  Maximize2,
+  X,
+  FileCode,
+  FileSpreadsheet,
+  FileVideo,
+  FileImage,
+  FileArchive,
+  File
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
