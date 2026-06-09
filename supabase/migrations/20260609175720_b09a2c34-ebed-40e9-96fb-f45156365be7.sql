@@ -1,0 +1,30 @@
+-- Revoke execution permissions from 'anon' and 'authenticated' roles for SECURITY DEFINER functions
+REVOKE EXECUTE ON FUNCTION public.sync_profile_permission_to_role() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.auto_confirm_user() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.sync_user_role_from_permission_level() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.auto_assign_admin_role() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.process_audit_log() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.sync_profile_to_user_roles() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_user_first_login() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_access_request_approval() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.sync_user_role_from_profile() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.sync_user_role_to_profile() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_profile_role_sync() FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.enforce_single_active_version() FROM anon, authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.get_user_role(uuid) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.get_user_unit(uuid) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.is_manager_of_unit(uuid, text) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.is_manager(uuid) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.can_manage_unit(text) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.has_unit_access(text) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.check_is_admin(uuid) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.get_user_delegated_units(uuid) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.get_user_unit_v2(uuid) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.check_audit_log_access(text) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.is_admin(uuid) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.check_is_manager(uuid) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.check_profile_unit_access(uuid) FROM anon, authenticated;
