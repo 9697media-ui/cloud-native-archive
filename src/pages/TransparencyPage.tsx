@@ -491,9 +491,13 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
   
   if (isEmbed && isOpen) {
-    // If we are in an iframe, we shouldn't use a fixed-size dialog 
-    // because it will be trapped. Instead, we open in a new window/tab for full screen.
-    window.open(driveUrl, '_blank');
+    // Attempt to open in top-level window if possible
+    try {
+      window.top!.location.href = driveUrl;
+    } catch (e) {
+      // Fallback if top window is restricted (cross-origin)
+      window.location.href = driveUrl;
+    }
     onClose();
     return null;
   }
