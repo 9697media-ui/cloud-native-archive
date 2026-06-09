@@ -132,19 +132,8 @@ const TransparencyPage = () => {
         if (root) {
           // Find the exact content container
           const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
-          
-          // Check if a file is being viewed in "full screen"
-          const isViewingFile = !!document.querySelector('.fixed.inset-0.z-\\[9999\\]');
-          
-          let height;
-          if (isViewingFile) {
-            // When viewing a file, we want the iframe to take over the viewport
-            height = window.innerHeight;
-            // Also notify parent to maybe scroll to top
-            window.parent.postMessage({ type: 'file-opened' }, '*');
-          } else {
-            height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
-          }
+          // Using offsetHeight to get the exact pixel height including borders
+          const height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
           
           if (height > 0) {
             window.parent.postMessage({ type: 'resize-iframe', height }, '*');
@@ -152,8 +141,12 @@ const TransparencyPage = () => {
         }
       };
 
+      // Periodic check to ensure height is always accurate as folders expand/collapse
       const interval = setInterval(calculateHeight, 500);
-      const resizeObserver = new ResizeObserver(() => calculateHeight());
+
+      const resizeObserver = new ResizeObserver(() => {
+        calculateHeight();
+      });
 
       const root = document.getElementById('root');
       if (root) {
@@ -269,56 +262,18 @@ const TransparencyPage = () => {
   const copyEmbedCode = (id: string) => {
     const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
     const embedCode = `
-<style>
-  .ana-iframe-container {
-    position: relative;
-    width: 100%;
-    transition: all 0.3s ease;
-  }
-  .ana-iframe-container.file-open {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 999999;
-    background: #000;
-  }
-  #iframe-${id} {
-    width: 100%;
-    border: none;
-    display: block;
-  }
-</style>
-<div id="container-${id}" class="ana-iframe-container">
-  <iframe id="iframe-${id}" src="${embedUrl}" frameborder="0" scrolling="no"></iframe>
-</div>
+<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;"></iframe>
 <script>
   window.addEventListener('message', function(e) {
-    var iframe = document.getElementById('iframe-${id}');
-    var container = document.getElementById('container-${id}');
-    if (!iframe || !container) return;
-
     if (e.data.type === 'resize-iframe' && e.data.height) {
-      iframe.style.height = e.data.height + 'px';
-    }
-    if (e.data.type === 'file-opened') {
-      container.classList.add('file-open');
-      iframe.style.height = '100vh';
-      document.body.style.overflow = 'hidden';
-    }
-    if (e.data.type === 'file-closed') {
-      container.classList.remove('file-open');
-      document.body.style.overflow = '';
-      // Trigger a resize to go back to normal
-      iframe.contentWindow.postMessage('request-resize', '*');
+      document.getElementById('iframe-${id}').style.height = e.data.height + 'px';
     }
   }, false);
 </script>`.trim();
     
     navigator.clipboard.writeText(embedCode);
     setCopiedId(id);
-    toast.success('Novo código embed (Tela Cheia) copiado!');
+    toast.success('Código embed inteligente copiado!');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -536,37 +491,11 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
   
   if (isEmbed && isOpen) {
-    return (
-      <div className="fixed inset-0 z-[9999] bg-black flex flex-col w-screen h-screen" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-        <div className="flex items-center justify-between p-4 bg-background border-b z-50">
-          <div className="flex items-center gap-3">
-            <FileIcon mimeType={item.mimeType} className="h-5 w-5" />
-            <span className="text-lg font-medium truncate max-w-[60vw]">{item.name}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
-                <Download className="h-4 w-4 mr-2" /> Download
-              </a>
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => {
-              onClose();
-              window.parent.postMessage({ type: 'file-closed' }, '*');
-            }}>
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-        <div className="flex-1 w-full h-full bg-muted/20 relative">
-          <iframe 
-            src={driveUrl} 
-            className="w-full h-full border-none" 
-            title={item.name}
-            allow="autoplay"
-          />
-        </div>
-      </div>
-    );
+    // Open in a new tab to ensure it is full screen and not trapped in the iframe
+    // Most browsers block same-window navigation from iframes to external domains like Google Drive
+    window.open(driveUrl, '_blank');
+    onClose();
+    return null;
   }
 
   return (
