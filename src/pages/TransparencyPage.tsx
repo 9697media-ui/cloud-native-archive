@@ -248,6 +248,31 @@ const TransparencyPage = () => {
     }
   };
 
+  const handleBatchSave = async (itemsWithNames: { id: string, name: string, originalName: string }[]) => {
+    try {
+      const inserts = itemsWithNames.map(item => ({
+        folder_id: item.id,
+        label: item.name,
+        original_folder_name: item.originalName
+      }));
+
+      const { error } = await supabase
+        .from('transparency_configs')
+        .insert(inserts);
+      
+      if (error) throw error;
+      
+      toast.success(`${inserts.length} pastas adicionadas com sucesso!`);
+      setIsBatchAdding(false);
+      setSelectedItems([]);
+      setBatchAddingStep('select');
+      fetchConfigs();
+    } catch (error: any) {
+      console.error('Error batch adding:', error);
+      toast.error('Erro ao salvar em lote');
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase.from('transparency_configs').delete().eq('id', id);
