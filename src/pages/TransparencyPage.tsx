@@ -69,8 +69,31 @@ const TransparencyPage = () => {
   }, [user]);
 
   useEffect(() => {
+    // Check if we just returned from a successful Google OAuth flow
+    const hash = window.location.hash;
+    if (hash && (hash.includes('access_token=') || hash.includes('type=recovery'))) {
+      const handleOAuthResponse = async () => {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (session?.provider_token || session?.provider_refresh_token) {
+          // Save the refresh token to the profile
+          if (session.provider_refresh_token) {
+            await supabase
+              .from('profiles')
+              .update({ google_refresh_token: session.provider_refresh_token })
+              .eq('user_id', user?.id);
+            
+            toast.success('Conectado ao Google Drive com sucesso!');
+            setHasGoogleAuth(true);
+            // Clean up the URL
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        }
+      };
+      handleOAuthResponse();
+    }
+
     checkGoogleAuth();
-  }, [checkGoogleAuth]);
+  }, [checkGoogleAuth, user]);
 
   const handleGoogleLogin = async () => {
     setIsAuthenticating(true);
