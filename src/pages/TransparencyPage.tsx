@@ -70,6 +70,7 @@ const TransparencyPage = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
+  const [editingConfig, setEditingConfig] = useState<{ id: string, label: string } | null>(null);
 
   const checkGoogleAuth = useCallback(async () => {
     const { data } = await supabase
