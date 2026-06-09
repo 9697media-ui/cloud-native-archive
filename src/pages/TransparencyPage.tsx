@@ -796,6 +796,7 @@ const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName:
 };
 
 const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number }) => {
+  const [searchParams] = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -817,7 +818,14 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         } catch (err) { toast.error('Erro ao abrir pasta'); }
         finally { setLoading(false); }
       } else { setIsOpen(!isOpen); }
-    } else { setViewingFile(true); }
+    } else { 
+      const isEmbed = searchParams.get('embed') === 'true';
+      if (isEmbed) {
+        window.open(`https://drive.google.com/file/d/${item.id}/preview`, '_blank');
+      } else {
+        setViewingFile(true); 
+      }
+    }
   };
 
   return (
@@ -827,13 +835,21 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         <span className="text-sm flex-1 truncate">{item.name}</span>
         {!isFolder && (
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => { e.stopPropagation(); setViewingFile(true); }}><Maximize2 className="h-3.5 w-3.5" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => { 
+              e.stopPropagation(); 
+              const isEmbed = searchParams.get('embed') === 'true';
+              if (isEmbed) {
+                window.open(`https://drive.google.com/file/d/${item.id}/preview`, '_blank');
+              } else {
+                setViewingFile(true); 
+              }
+            }}><Maximize2 className="h-3.5 w-3.5" /></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" asChild onClick={(e) => e.stopPropagation()}><a href={`https://drive.google.com/file/d/${item.id}/preview`} target="_blank" rel="noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" asChild onClick={(e) => e.stopPropagation()}><a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer"><Download className="h-3.5 w-3.5" /></a></Button>
           </div>
         )}
       </div>
-      {!isFolder && <FileViewerDialog item={item} isOpen={viewingFile} onClose={() => setViewingFile(false)} />}
+      {!isFolder && !searchParams.get('embed') && <FileViewerDialog item={item} isOpen={viewingFile} onClose={() => setViewingFile(false)} />}
       {isOpen && <div className="flex flex-col">{loading ? <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Carregando...</div> : children.map(child => <DriveItemComponent key={child.id} item={child} depth={depth + 1} />)}</div>}
     </div>
   );
