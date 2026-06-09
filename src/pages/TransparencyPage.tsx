@@ -931,7 +931,19 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         finally { setLoading(false); }
       } else { setIsOpen(!isOpen); }
     } else { 
-      setViewingFile(true);
+      const isEmbed = searchParams.get('embed') === 'true';
+      if (isEmbed) {
+        // Find if we are in an iframe
+        const inIframe = window.self !== window.top;
+        if (inIframe) {
+          // If we are in an iframe, we need to communicate with parent to show the file
+          setViewingFile(true);
+        } else {
+          setViewingFile(true);
+        }
+      } else {
+        setViewingFile(true); 
+      }
     }
   };
 
