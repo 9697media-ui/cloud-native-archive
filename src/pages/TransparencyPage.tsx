@@ -744,14 +744,17 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
     <div 
       id={`viewer-${item.id}`}
       className={cn(
-        "fixed left-0 top-0 right-0 bottom-0 z-[2147483647] flex flex-col bg-background overflow-hidden w-full h-full"
+        "fixed inset-0 z-[2147483647] flex flex-col bg-background overflow-hidden w-screen h-screen"
       )}
       style={{ 
         position: 'fixed', 
-        width: '100%', 
-        height: '100%',
+        top: 0,
+        left: 0,
+        width: '100vw', 
+        height: '100vh',
         margin: 0,
-        padding: 0
+        padding: 0,
+        zIndex: 2147483647
       }}
     >
       <div className="p-2 border-b flex flex-row items-center justify-between bg-background h-10 shrink-0 w-full">
@@ -861,7 +864,22 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         finally { setLoading(false); }
       } else { setIsOpen(!isOpen); }
     } else { 
-      setViewingFile(true); 
+      const isEmbed = searchParams.get('embed') === 'true';
+      if (isEmbed) {
+        // Find if we are in an iframe
+        const inIframe = window.self !== window.top;
+        if (inIframe) {
+          // If we are in an iframe, we need to communicate with parent to show the file
+          // Since the user wants it in the SAME PAGE/SITE and not a new tab, 
+          // but says it's "stuck in the container", we'll try to use the viewer dialog 
+          // but signal the parent to go fullscreen if possible.
+          setViewingFile(true);
+        } else {
+          setViewingFile(true);
+        }
+      } else {
+        setViewingFile(true); 
+      }
     }
   };
 
