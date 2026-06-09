@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -15,7 +15,8 @@ import {
   Plus,
   Trash2,
   Copy,
-  Check
+  Check,
+  LogIn
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +55,44 @@ const TransparencyPage = () => {
   const [newLabel, setNewLabel] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
+
+  const checkGoogleAuth = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('google_refresh_token')
+      .eq('user_id', user.id)
+      .single();
+    setHasGoogleAuth(!!data?.google_refresh_token);
+  }, [user]);
+
+  useEffect(() => {
+    checkGoogleAuth();
+  }, [checkGoogleAuth]);
+
+  const handleGoogleLogin = async () => {
+    setIsAuthenticating(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          scopes: 'https://www.googleapis.com/auth/drive.readonly',
+          redirectTo: window.location.origin + '/portal-transparencia',
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error Google OAuth:', error);
+      toast.error('Erro ao iniciar autenticação Google');
+      setIsAuthenticating(false);
+    }
+  };
 
   useEffect(() => {
     fetchConfigs();
@@ -136,6 +175,29 @@ const TransparencyPage = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
+      {!hasGoogleAuth && (
+        <Card className="mb-8 border-amber-200 bg-amber-50">
+          <CardHeader>
+            <CardTitle className="text-amber-800 flex items-center gap-2">
+              <LogIn className="h-5 w-5" /> Autenticação Necessária
+            </CardTitle>
+            <CardDescription className="text-amber-700">
+              Para visualizar os arquivos do Google Drive em tempo real, você precisa autorizar o acesso à sua conta.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={handleGoogleLogin} 
+              disabled={isAuthenticating}
+              className="bg-[#4285F4] hover:bg-[#357abd]"
+            >
+              {isAuthenticating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
+              Conectar com Google Drive
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1>
@@ -254,22 +316,57 @@ const TransparencyPage = () => {
 const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName: string }) => {
   const [items, setItems] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Simulate API call to fetch files/folders from Drive
-    const timer = setTimeout(() => {
-      setItems([
-        { id: 'f1', name: 'Contratos 2024', mimeType: 'application/vnd.google-apps.folder' },
-        { id: 'f2', name: 'Relatórios Financeiros', mimeType: 'application/vnd.google-apps.folder' },
-        { id: 'd1', name: 'Estatuto Social.pdf', mimeType: 'application/pdf' },
-        { id: 'd2', name: 'Ata de Reunião.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
-      ]);
+  const fetchFiles = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+        body: { action: 'list_files', folderId }
+      });
+
+      if (error) throw error;
+      if (data.error === 'google_auth_required') {
+        setError('authentication_required');
+        return;
+      }
+      
+      setItems(data.files || []);
+    } catch (err: any) {
+      console.error('Error fetching drive files:', err);
+      setError(err.message || 'Erro ao carregar arquivos');
+    } finally {
       setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    }
   }, [folderId]);
 
+  useEffect(() => {
+    fetchFiles();
+  }, [fetchFiles]);
+
   if (loading) return <div className="flex items-center justify-center p-8"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+  
+  if (error === 'authentication_required') {
+    return (
+      <div className="p-8 text-center border rounded-lg bg-muted/20">
+        <p className="text-sm text-muted-foreground mb-4">Autenticação com Google Drive necessária para visualizar esta pasta.</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center text-destructive">
+        <p className="text-sm">{error}</p>
+        <Button variant="ghost" size="sm" onClick={fetchFiles} className="mt-2">Tentar novamente</Button>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return <div className="p-8 text-center text-muted-foreground text-sm">Nenhum arquivo encontrado nesta pasta.</div>;
+  }
 
   return (
     <div className="space-y-1">
@@ -286,20 +383,24 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
   const [loading, setLoading] = useState(false);
   const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
 
-  const toggleFolder = () => {
+  const toggleFolder = async () => {
     if (!isFolder) return;
     
     if (!isOpen && children.length === 0) {
       setLoading(true);
-      // Simulate subfolder load
-      setTimeout(() => {
-        setChildren([
-          { id: `${item.id}-1`, name: `Subpasta ${item.name}`, mimeType: 'application/vnd.google-apps.folder' },
-          { id: `${item.id}-2`, name: `Arquivo de ${item.name}.pdf`, mimeType: 'application/pdf' },
-        ]);
-        setLoading(false);
+      try {
+        const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+          body: { action: 'list_files', folderId: item.id }
+        });
+        if (error) throw error;
+        setChildren(data.files || []);
         setIsOpen(true);
-      }, 600);
+      } catch (err) {
+        console.error('Error fetching subfolder:', err);
+        toast.error('Erro ao abrir pasta');
+      } finally {
+        setLoading(false);
+      }
     } else {
       setIsOpen(!isOpen);
     }
