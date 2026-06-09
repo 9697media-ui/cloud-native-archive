@@ -744,32 +744,34 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
         </div>
       </div>
       
-      <div 
-        className={cn(
-          "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
-          isOpen ? "grid-template-rows-[1fr] opacity-100 mt-1" : "grid-template-rows-[0fr] opacity-0 mt-0"
-        )}
-      >
-        <div className="overflow-hidden">
-          <div className="flex flex-col">
-            {loading ? (
-              <div className="p-2 ml-12 text-xs text-muted-foreground flex items-center gap-2 animate-pulse">
-                <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
-              </div>
-            ) : (
-              children.map(child => (
-                <BatchDriveItem 
-                  key={child.id} 
-                  item={child} 
-                  depth={depth + 1} 
-                  selectedIds={selectedIds}
-                  onToggleSelection={onToggleSelection}
-                />
-              ))
-            )}
+      {isOpen && (
+        <div 
+          className={cn(
+            "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
+            isOpen ? "grid-template-rows-[1fr] opacity-100" : "grid-template-rows-[0fr] opacity-0"
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="flex flex-col">
+              {loading ? (
+                <div className="p-2 ml-12 text-xs text-muted-foreground flex items-center gap-2 animate-pulse">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
+                </div>
+              ) : (
+                children.map(child => (
+                  <BatchDriveItem 
+                    key={child.id} 
+                    item={child} 
+                    depth={depth + 1} 
+                    selectedIds={selectedIds}
+                    onToggleSelection={onToggleSelection}
+                  />
+                ))
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
