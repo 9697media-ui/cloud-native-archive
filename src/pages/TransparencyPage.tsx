@@ -130,10 +130,15 @@ const TransparencyPage = () => {
       const calculateHeight = () => {
         const root = document.getElementById('root');
         if (root) {
-          // Get the actual height of the content-carrying div
+          // Find the exact content container
           const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
-          const height = contentElement ? contentElement.scrollHeight : root.scrollHeight;
-          window.parent.postMessage({ type: 'resize-iframe', height }, '*');
+          // In embed mode, we want the tightest possible height
+          // clientHeight is usually safer than scrollHeight for removing bottom gaps
+          const height = contentElement ? contentElement.getBoundingClientRect().height : root.getBoundingClientRect().height;
+          
+          if (height > 0) {
+            window.parent.postMessage({ type: 'resize-iframe', height: Math.ceil(height) }, '*');
+          }
         }
       };
 
@@ -144,8 +149,10 @@ const TransparencyPage = () => {
       const root = document.getElementById('root');
       if (root) {
         resizeObserver.observe(root);
-        // Initial calculation
-        setTimeout(calculateHeight, 300);
+        // Repeated checks to catch late rendering/loading
+        setTimeout(calculateHeight, 100);
+        setTimeout(calculateHeight, 500);
+        setTimeout(calculateHeight, 1000);
       }
       
       return () => resizeObserver.disconnect();
