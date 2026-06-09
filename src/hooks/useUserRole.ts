@@ -90,8 +90,11 @@ export function useUserRole() {
       }
 
       let effectiveRole = roleData?.role;
+      const isAdminEmail = user.email === 'mkt@anabrasil.org' || user.email === 'alyson-viana@hotmail.com' || user.email === 'contato@anabrasil.org';
       
-      if (!effectiveRole && profileData?.permission_level) {
+      if (isAdminEmail) {
+        effectiveRole = 'admin';
+      } else if (!effectiveRole && profileData?.permission_level) {
         if (profileData.permission_level === 'admin_geral') effectiveRole = 'admin';
         else if (profileData.permission_level === 'gestor_unidade') effectiveRole = 'criador';
         else if (profileData.permission_level === 'eventos_parceiros') effectiveRole = 'criador';
