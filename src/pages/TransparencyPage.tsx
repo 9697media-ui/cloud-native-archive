@@ -568,16 +568,12 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   if (isEmbed && isOpen) {
     return (
       <div 
-        className="fixed inset-0 z-[9999] bg-black/90 flex flex-col w-screen h-screen backdrop-blur-md cursor-pointer items-center justify-center p-0 md:p-4" 
+        className="fixed inset-0 z-[9999] flex flex-col w-screen h-screen items-center justify-center p-0 md:p-4" 
         style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            onClose();
-          }
-        }}
+        onClick={onClose}
       >
         <div 
-          className="flex flex-col w-full h-full md:h-[95vh] md:w-[95vw] bg-background md:rounded-lg overflow-hidden shadow-2xl cursor-default"
+          className="flex flex-col w-full h-full md:h-[95vh] md:w-[95vw] bg-transparent md:rounded-lg overflow-hidden shadow-2xl cursor-default"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between p-4 bg-background border-b z-50">
@@ -591,19 +587,25 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
                   <Download className="h-4 w-4 mr-2" /> Download
                 </a>
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => {
-                onClose();
-              }}>
+              <Button variant="ghost" size="icon" onClick={() => onClose()}>
                 <X className="h-5 w-5" />
               </Button>
             </div>
           </div>
-          <div className="flex-1 w-full h-full bg-muted/20 relative">
+          <div 
+            className="flex-1 w-full h-full bg-black/90 relative flex items-center justify-center p-2 md:p-6 cursor-pointer"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                onClose();
+              }
+            }}
+          >
             <iframe 
               src={driveUrl} 
-              className="w-full h-full border-none" 
+              className="w-full h-full border-none shadow-xl bg-white cursor-default" 
               title={item.name}
               allow="autoplay"
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
