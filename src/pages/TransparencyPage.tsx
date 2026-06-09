@@ -87,7 +87,6 @@ const TransparencyPage = () => {
       if (isGoogleAuth) {
         setLoading(true);
         try {
-          // Pequeno delay para garantir que o cliente processou o hash
           await new Promise(resolve => setTimeout(resolve, 500));
           const { data: { session } } = await supabase.auth.getSession();
           
@@ -102,20 +101,15 @@ const TransparencyPage = () => {
             if (!updateError) {
               toast.success('Google Drive conectado globalmente!');
               setHasGoogleAuth(true);
-            } else {
-              alert("Erro ao salvar token: " + updateError.message);
             }
           } else {
-            // Verifica se já temos algo salvo antes de dar erro
             const { data } = await supabase.from('global_settings').select('value').eq('key', 'google_drive_refresh_token').maybeSingle();
             if (data?.value) {
               setHasGoogleAuth(true);
-            } else {
-              alert("Atenção: O Google não enviou a chave de acesso offline (Refresh Token). Tente remover o acesso do aplicativo 'ANA Brasil' na sua conta Google e tente novamente para forçar uma nova autorização.");
             }
           }
         } catch (err: any) {
-          alert('Erro no processamento: ' + err.message);
+          console.error(err);
         } finally {
           searchParams.delete('type');
           setSearchParams(searchParams, { replace: true });
@@ -129,6 +123,23 @@ const TransparencyPage = () => {
     handleOAuthResponse();
     checkGoogleAuth();
   }, [checkGoogleAuth, searchParams, setSearchParams]);
+
+  // Handle iframe height communication
+  useEffect(() => {
+    if (searchParams.get('embed') === 'true') {
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          const height = entry.target.scrollHeight;
+          window.parent.postMessage({ type: 'resize-iframe', height }, '*');
+        }
+      });
+
+      const root = document.getElementById('root');
+      if (root) resizeObserver.observe(root);
+      
+      return () => resizeObserver.disconnect();
+    }
+  }, [searchParams, loading, configs]);
 
   const handleGoogleLogin = async () => {
     setIsAuthenticating(true);
@@ -229,10 +240,20 @@ const TransparencyPage = () => {
   };
 
   const copyEmbedCode = (id: string) => {
-    const embedCode = `<iframe src="${window.location.origin}/portal-transparencia?id=${id}&embed=true" width="100%" height="600" frameborder="0"></iframe>`;
+    const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
+    const embedCode = `
+<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;"></iframe>
+<script>
+  window.addEventListener('message', function(e) {
+    if (e.data.type === 'resize-iframe' && e.data.height) {
+      document.getElementById('iframe-${id}').style.height = e.data.height + 'px';
+    }
+  }, false);
+</script>`.trim();
+    
     navigator.clipboard.writeText(embedCode);
     setCopiedId(id);
-    toast.success('Código embed copiado!');
+    toast.success('Código embed inteligente copiado!');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
