@@ -78,36 +78,49 @@ const TransparencyPage = () => {
       if (isGoogleAuth) {
         setLoading(true);
         try {
-          // Pequeno delay para garantir que o Supabase processou o retorno
-          await new Promise(resolve => setTimeout(resolve, 800));
+          // Pequeno delay para garantir que o Supabase processou o retorno no cliente
+          await new Promise(resolve => setTimeout(resolve, 1000));
           const { data: { session } } = await supabase.auth.getSession();
           
           if (session?.provider_refresh_token) {
+            // Tenta salvar o token diretamente no banco de dados usando o cliente autenticado
             const { error: updateError } = await supabase
               .from('global_settings')
               .upsert({ 
                 key: 'google_drive_refresh_token', 
                 value: { refresh_token: session.provider_refresh_token } 
-              });
+              }, { onConflict: 'key' });
             
             if (!updateError) {
               toast.success('Google Drive conectado globalmente!');
               setHasGoogleAuth(true);
             } else {
-              console.error("Error saving global setting:", updateError);
+              console.error("Erro ao salvar token global:", updateError);
+              toast.error('Erro ao salvar conexão global: ' + updateError.message);
             }
           } else {
-            // Se cair aqui, o Google não enviou o refresh_token (provavelmente já autorizado antes)
-            // Vamos apenas checar se já temos um token salvo
-            await checkGoogleAuth();
+            // Se não houver refresh token na sessão, verifica se já existe no banco
+            const { data } = await supabase
+              .from('global_settings')
+              .select('value')
+              .eq('key', 'google_drive_refresh_token')
+              .maybeSingle();
+            
+            if (data?.value) {
+              setHasGoogleAuth(true);
+            } else {
+              toast.error('O Google não enviou a chave de acesso. Tente novamente clicando em "Conectar".');
+            }
           }
         } catch (err) {
-          console.error('Error handling OAuth:', err);
+          console.error('Erro no processamento do OAuth:', err);
         } finally {
+          // Limpa a URL para evitar loops
           searchParams.delete('type');
           setSearchParams(searchParams, { replace: true });
           window.location.hash = '';
           setLoading(false);
+          checkGoogleAuth();
         }
       }
     };
