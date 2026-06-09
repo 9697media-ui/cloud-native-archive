@@ -191,8 +191,8 @@ export default function AppLayout() {
       )}
 
       <main className={cn(
-        "flex-1 overflow-auto",
-        !isCleanView && "mx-auto w-full"
+        "flex-1",
+        !isCleanView ? "overflow-auto mx-auto w-full" : "overflow-visible"
       )}>
         <Outlet />
       </main>
