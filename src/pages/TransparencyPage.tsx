@@ -477,18 +477,34 @@ const TransparencyPage = () => {
         </Card>
       )}
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1>
           <p className="text-muted-foreground">Gerencie as pastas do Google Drive exibidas no portal.</p>
         </div>
         
-        <Dialog open={isAdding} onOpenChange={setIsAdding}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" /> Nova Pasta
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const next: Record<string, 'asc' | 'desc' | 'none'> = { none: 'asc', asc: 'desc', desc: 'none' };
+              setSortOrder(next[sortOrder]);
+            }}
+            className="gap-2 h-10"
+          >
+            {sortOrder === 'none' && <ArrowUpDown className="h-4 w-4" />}
+            {sortOrder === 'asc' && <ArrowUp className="h-4 w-4" />}
+            {sortOrder === 'desc' && <ArrowDown className="h-4 w-4" />}
+            Ordenar {sortOrder !== 'none' && (sortOrder === 'asc' ? '(A-Z)' : '(Z-A)')}
+          </Button>
+
+          <Dialog open={isAdding} onOpenChange={setIsAdding}>
+            <DialogTrigger asChild>
+              <Button className="gap-2 h-10">
+                <Plus className="h-4 w-4" /> Nova Pasta
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Adicionar Pasta do Google Drive</DialogTitle>
