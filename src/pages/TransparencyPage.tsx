@@ -273,17 +273,17 @@ const TransparencyPage = () => {
 
   if (isEmbed) {
     return (
-      <div className="p-0 bg-transparent w-full overflow-hidden">
+      <div className="p-0 bg-transparent w-full overflow-hidden m-0">
         {loading ? (
-          <div className="flex justify-center py-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex justify-center py-2">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : filteredConfigs.length === 0 ? (
-          <div className="p-4 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
+          <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
         ) : (
-          <div className="flex flex-col gap-4 w-full">
+          <div className="flex flex-col gap-0 w-full m-0 p-0">
             {filteredConfigs.map((config) => (
-              <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full">
+              <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
                 <div className="bg-muted/50 p-3 border-b flex items-center gap-2">
                   <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
                   <span className="text-sm font-medium">{config.label}</span>
