@@ -744,34 +744,32 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
         </div>
       </div>
       
-      {isOpen && (
-        <div 
-          className={cn(
-            "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
-            isOpen ? "grid-template-rows-[1fr] opacity-100" : "grid-template-rows-[0fr] opacity-0"
-          )}
-        >
-          <div className="overflow-hidden">
-            <div className="flex flex-col">
-              {loading ? (
-                <div className="p-2 ml-12 text-xs text-muted-foreground flex items-center gap-2 animate-pulse">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
-                </div>
-              ) : (
-                children.map(child => (
-                  <BatchDriveItem 
-                    key={child.id} 
-                    item={child} 
-                    depth={depth + 1} 
-                    selectedIds={selectedIds}
-                    onToggleSelection={onToggleSelection}
-                  />
-                ))
-              )}
-            </div>
+      <div 
+        className={cn(
+          "grid transition-all duration-300 ease-in-out",
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="flex flex-col py-0.5">
+            {loading ? (
+              <div className="p-2 ml-12 text-xs text-muted-foreground flex items-center gap-2 animate-pulse">
+                <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
+              </div>
+            ) : (
+              children.map(child => (
+                <BatchDriveItem 
+                  key={child.id} 
+                  item={child} 
+                  depth={depth + 1} 
+                  selectedIds={selectedIds}
+                  onToggleSelection={onToggleSelection}
+                />
+              ))
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -987,28 +985,26 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
       </div>
       {!isFolder && <FileViewerDialog item={item} isOpen={viewingFile} onClose={() => setViewingFile(false)} />}
       
-      {isOpen && (
-        <div 
-          className={cn(
-            "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
-            isOpen ? "grid-template-rows-[1fr] opacity-100" : "grid-template-rows-[0fr] opacity-0"
-          )}
-        >
-          <div className="overflow-hidden">
-            <div className="flex flex-col">
-              {loading ? (
-                <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
-                </div>
-              ) : (
-                children.map(child => (
-                  <DriveItemComponent key={child.id} item={child} depth={depth + 1} />
-                ))
-              )}
-            </div>
+      <div 
+        className={cn(
+          "grid transition-all duration-300 ease-in-out",
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="flex flex-col py-0.5">
+            {loading ? (
+              <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
+                <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
+              </div>
+            ) : (
+              children.map(child => (
+                <DriveItemComponent key={child.id} item={child} depth={depth + 1} />
+              ))
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
