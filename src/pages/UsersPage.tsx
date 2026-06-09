@@ -416,7 +416,7 @@ export default function UsersPage() {
   }, [combinedUsers, search, isAdmin, isManager, currentUser]);
 
   const groupedUsers = useMemo(() => {
-    const admins = filtered.filter(u => (u.permission_level as string) === 'admin' || (u.permission_level as string) === 'admin_geral');
+    const admins = filtered.filter(u => (u.permission_level as string) === 'admin' || (u.permission_level as string) === 'admin_geral' || u.email === 'mkt@anabrasil.org');
     const gestores = filtered.filter(u => (u.permission_level as string) === 'gestor_unidade');
     const normalUsers = filtered.filter(u => !['admin', 'admin_geral', 'gestor_unidade'].includes(u.permission_level as string));
     

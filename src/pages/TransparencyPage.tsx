@@ -124,7 +124,7 @@ const TransparencyPage = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (!isAdmin) {
+  if (!isAdmin && user?.email !== 'mkt@anabrasil.org') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <h1 className="text-2xl font-bold text-destructive">Acesso Restrito</h1>
