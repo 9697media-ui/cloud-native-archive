@@ -707,7 +707,7 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
     <div className="flex flex-col">
       <div 
         className={cn(
-          "flex items-center gap-2 p-2 rounded-md transition-colors cursor-pointer",
+          "flex items-center gap-2 p-2 rounded-md transition-all duration-200 cursor-pointer group relative overflow-hidden",
           isSelected ? "bg-primary/10 hover:bg-primary/20" : "hover:bg-muted/50"
         )}
         style={{ paddingLeft: `${depth * 20 + 8}px` }}
@@ -715,22 +715,44 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
       >
         <div className="flex items-center gap-2">
           {isFolder ? (
-            <div onClick={toggleFolder} className="p-1 hover:bg-muted rounded">
-              <ChevronRight className={cn("h-4 w-4 transition-transform duration-200", isOpen ? "rotate-90" : "rotate-0")} />
+            <div onClick={toggleFolder} className="p-1 hover:bg-muted rounded transition-colors duration-200">
+              <ChevronRight className={cn("h-4 w-4 transition-transform duration-300 ease-in-out", isOpen ? "rotate-90" : "rotate-0")} />
             </div>
           ) : <div className="w-6" />}
           <Check className={cn("h-4 w-4 transition-opacity", isSelected ? "opacity-100 text-primary" : "opacity-0")} />
           <FileIcon mimeType={item.mimeType} className="h-4 w-4" />
         </div>
-        <span className={cn("text-sm flex-1 truncate transition-all duration-300", showEmpty && "text-muted-foreground italic")}>
-          {showEmpty ? "Pasta vazia" : item.name}
-        </span>
+        
+        <div className="flex-1 relative h-5 overflow-hidden">
+          <span 
+            className={cn(
+              "text-sm absolute inset-0 truncate transition-all duration-500 ease-in-out transform",
+              showEmpty ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+            )}
+          >
+            {item.name}
+          </span>
+          <span 
+            className={cn(
+              "text-sm absolute inset-0 truncate transition-all duration-500 ease-in-out transform text-muted-foreground italic font-normal flex items-center gap-2",
+              showEmpty ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+            )}
+          >
+            <div className="w-1 h-1 rounded-full bg-muted-foreground animate-ping" />
+            Pasta vazia
+          </span>
+        </div>
       </div>
       
-      {isOpen && (
-        <div className="flex flex-col">
+      <div 
+        className={cn(
+          "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
+          isOpen ? "grid-template-rows-[1fr] opacity-100" : "grid-template-rows-[0fr] opacity-0"
+        )}
+      >
+        <div className="flex flex-col overflow-hidden">
           {loading ? (
-            <div className="p-2 ml-12 text-xs text-muted-foreground flex items-center gap-2">
+            <div className="p-2 ml-12 text-xs text-muted-foreground flex items-center gap-2 animate-pulse">
               <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
             </div>
           ) : (
@@ -745,7 +767,7 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
             ))
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -913,18 +935,43 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
 
   return (
     <div className="flex flex-col">
-      <div className={cn("flex items-center gap-2 p-2 rounded-md transition-colors cursor-pointer group", isFolder ? "hover:bg-muted font-medium" : "hover:bg-muted/50")} style={{ paddingLeft: `${depth * 20 + 8}px` }} onClick={handleClick}>
+      <div 
+        className={cn(
+          "flex items-center gap-2 p-2 rounded-md transition-all duration-200 cursor-pointer group relative overflow-hidden", 
+          isFolder ? "hover:bg-muted font-medium" : "hover:bg-muted/50"
+        )} 
+        style={{ paddingLeft: `${depth * 20 + 8}px` }} 
+        onClick={handleClick}
+      >
         <div className="flex items-center gap-2">
           {isFolder && (
-            <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", isOpen ? "rotate-90" : "rotate-0")} />
+            <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform duration-300 ease-in-out", isOpen ? "rotate-90" : "rotate-0")} />
           )}
           <FileIcon mimeType={item.mimeType} className="h-4 w-4" />
         </div>
-        <span className={cn("text-sm flex-1 truncate transition-all duration-300", showEmpty && "text-muted-foreground italic opacity-70")}>
-          {showEmpty ? "Pasta vazia" : item.name}
-        </span>
+        
+        <div className="flex-1 relative h-5 overflow-hidden">
+          <span 
+            className={cn(
+              "text-sm absolute inset-0 truncate transition-all duration-500 ease-in-out transform",
+              showEmpty ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+            )}
+          >
+            {item.name}
+          </span>
+          <span 
+            className={cn(
+              "text-sm absolute inset-0 truncate transition-all duration-500 ease-in-out transform text-muted-foreground italic font-normal flex items-center gap-2",
+              showEmpty ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+            )}
+          >
+            <div className="w-1 h-1 rounded-full bg-muted-foreground animate-ping" />
+            Pasta vazia
+          </span>
+        </div>
+
         {!isFolder && (
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => { 
               e.stopPropagation(); 
               setViewingFile(true); 
@@ -935,7 +982,25 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         )}
       </div>
       {!isFolder && <FileViewerDialog item={item} isOpen={viewingFile} onClose={() => setViewingFile(false)} />}
-      {isOpen && <div className="flex flex-col">{loading ? <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Carregando...</div> : children.map(child => <DriveItemComponent key={child.id} item={child} depth={depth + 1} />)}</div>}
+      
+      <div 
+        className={cn(
+          "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
+          isOpen ? "grid-template-rows-[1fr] opacity-100" : "grid-template-rows-[0fr] opacity-0"
+        )}
+      >
+        <div className="flex flex-col overflow-hidden">
+          {loading ? (
+            <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
+              <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
+            </div>
+          ) : (
+            children.map(child => (
+              <DriveItemComponent key={child.id} item={child} depth={depth + 1} />
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 };
