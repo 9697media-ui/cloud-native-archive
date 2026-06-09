@@ -302,17 +302,13 @@ const TransparencyPage = () => {
           <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
         ) : (
           <div className="flex flex-col gap-0 w-full m-0 p-0">
-            {filteredConfigs.map((config) => (
-              <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
-                <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2">
-                  <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
-                  <span className="text-sm font-medium">{config.label}</span>
-                </div>
-                <div className="p-4 flex flex-col gap-1 w-full overflow-visible">
-                  <DriveExplorer folderId={config.folder_id} folderName={config.label} />
-                </div>
-              </div>
-            ))}
+             {filteredConfigs.map((config) => (
+               <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
+                 <div className="p-0 flex flex-col gap-0 w-full overflow-visible">
+                   <DriveExplorer folderId={config.folder_id} folderName={config.label} />
+                 </div>
+               </div>
+             ))}
           </div>
         )}
       </div>
@@ -582,6 +578,8 @@ const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName:
   const [items, setItems] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const fetchFiles = useCallback(async () => {
     setLoading(true);
@@ -629,15 +627,50 @@ const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName:
     );
   }
 
-  if (items.length === 0) {
-    return <div className="p-8 text-center text-muted-foreground text-sm">Nenhum arquivo encontrado nesta pasta.</div>;
-  }
+  const filteredAndSortedItems = items
+    .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+      } else {
+        return b.name.localeCompare(a.name, undefined, { numeric: true, sensitivity: 'base' });
+      }
+    });
 
   return (
-    <div className="space-y-1">
-      {items.map(item => (
-        <DriveItemComponent key={item.id} item={item} depth={0} />
-      ))}
+    <div className="space-y-0">
+      <div className="bg-muted/50 p-1.5 border-b flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 flex-1">
+          <Search className="h-3.5 w-3.5 text-muted-foreground" />
+          <input 
+            type="text"
+            placeholder="Buscar arquivos..."
+            className="bg-transparent border-none text-xs focus:ring-0 w-full p-0 h-6 outline-none"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-6 w-6" 
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+            title={sortOrder === 'asc' ? "Ordenar Z-A" : "Ordenar A-Z"}
+          >
+            {sortOrder === 'asc' ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 -rotate-90" />}
+          </Button>
+        </div>
+      </div>
+      <div className="p-4 space-y-1">
+        {filteredAndSortedItems.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground text-sm">Nenhum resultado encontrado.</div>
+        ) : (
+          filteredAndSortedItems.map(item => (
+            <DriveItemComponent key={item.id} item={item} depth={0} />
+          ))
+        )}
+      </div>
     </div>
   );
 };
