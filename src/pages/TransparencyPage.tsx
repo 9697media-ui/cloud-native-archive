@@ -64,6 +64,7 @@ const TransparencyPage = () => {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [newFolderId, setNewFolderId] = useState('');
   const [newLabel, setNewLabel] = useState('');
+  const [originalFolderName, setOriginalFolderName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
