@@ -71,40 +71,41 @@ const TransparencyPage = () => {
   }, []);
 
   useEffect(() => {
-    // Check if we just returned from a successful Google OAuth flow
-    const hash = window.location.hash;
-    const isGoogleAuth = searchParams.get('type') === 'google_auth' || hash.includes('access_token=');
-    
-    if (isGoogleAuth) {
-      const handleOAuthResponse = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.provider_refresh_token) {
-          // Save the token to global settings
-          const { error: updateError } = await supabase
-            .from('global_settings')
-            .upsert({ 
-              key: 'google_drive_refresh_token', 
-              value: { refresh_token: session.provider_refresh_token } 
-            });
+    const handleOAuthResponse = async () => {
+      const hash = window.location.hash;
+      const isGoogleAuth = searchParams.get('type') === 'google_auth' || hash.includes('access_token=');
+      
+      if (isGoogleAuth) {
+        setLoading(true);
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
           
-          if (!updateError) {
-            toast.success('Google Drive conectado globalmente!');
-            setHasGoogleAuth(true);
+          if (session?.provider_refresh_token) {
+            const { error: updateError } = await supabase
+              .from('global_settings')
+              .upsert({ 
+                key: 'google_drive_refresh_token', 
+                value: { refresh_token: session.provider_refresh_token } 
+              });
+            
+            if (!updateError) {
+              toast.success('Google Drive conectado globalmente!');
+              await checkGoogleAuth();
+            }
           }
-
-          // In standard OAuth, Supabase logs in the user. 
-          // Since this is a global integration, we stay logged in but 
-          // the admin profile will be loaded based on this email.
-          // We remove the query param to clean the URL.
+        } catch (err) {
+          console.error('Error handling OAuth:', err);
+        } finally {
+          // Limpa a URL e atualiza o estado
           searchParams.delete('type');
-          setSearchParams(searchParams);
+          setSearchParams(searchParams, { replace: true });
           window.location.hash = '';
+          setLoading(false);
         }
-      };
-      handleOAuthResponse();
-    }
+      }
+    };
 
+    handleOAuthResponse();
     checkGoogleAuth();
   }, [checkGoogleAuth, searchParams, setSearchParams]);
 
@@ -121,6 +122,7 @@ const TransparencyPage = () => {
           },
           scopes: 'https://www.googleapis.com/auth/drive.readonly',
           redirectTo: window.location.origin + '/portal-transparencia?type=google_auth',
+          skipBrowserRedirect: false
         },
       });
       if (error) throw error;
