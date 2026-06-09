@@ -3,7 +3,7 @@ body.is-embedded,
 #root.is-embedded {
   height: auto !important;
   min-height: 0 !important;
-  overflow: visible !important;
+  overflow: hidden !important;
   background: transparent !important;
   padding: 0 !important;
   margin: 0 !important;
