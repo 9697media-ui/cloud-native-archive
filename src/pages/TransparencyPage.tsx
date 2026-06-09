@@ -493,10 +493,9 @@ const FileViewerDialog = ({ item, isOpen, onClose, isEmbed }: { item: DriveItem,
     // If we are in an iframe (embed mode), redirect the entire window to Google Drive
     // This makes it open in the same tab but taking over the full page, not just the container
     try {
-      window.top!.location.href = driveUrl;
+      window.top!.location.replace(driveUrl);
     } catch (e) {
-      // Fallback if top window is restricted
-      window.location.href = driveUrl;
+      window.parent.location.replace(driveUrl);
     }
     onClose();
     return null;
@@ -701,12 +700,12 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
               <Maximize2 className="h-3.5 w-3.5" />
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" title="Janela Tela Cheia" asChild onClick={(e) => e.stopPropagation()}>
-              <a href={`https://drive.google.com/file/d/${item.id}/preview`} target={isEmbed ? "_parent" : "_self"} rel="noreferrer">
+              <a href={`https://drive.google.com/file/d/${item.id}/preview`} target="_top" rel="noreferrer">
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" title="Download" asChild onClick={(e) => e.stopPropagation()}>
-              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target={isEmbed ? "_parent" : "_self"} rel="noreferrer">
+              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_top" rel="noreferrer">
                 <Download className="h-3.5 w-3.5" />
               </a>
             </Button>
