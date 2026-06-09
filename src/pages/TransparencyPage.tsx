@@ -172,10 +172,22 @@ const TransparencyPage = () => {
       return;
     }
 
+    // Extract ID if a full URL was pasted
+    let folderId = newFolderId.trim();
+    if (folderId.includes('drive.google.com')) {
+      const match = folderId.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+      if (match) {
+        folderId = match[1];
+      }
+    } else if (folderId.includes('?')) {
+      // Remove query parameters like ?hl=pt-br
+      folderId = folderId.split('?')[0];
+    }
+
     try {
       const { error } = await supabase
         .from('transparency_configs')
-        .insert([{ folder_id: newFolderId, label: newLabel }]);
+        .insert([{ folder_id: folderId, label: newLabel }]);
       
       if (error) throw error;
       
