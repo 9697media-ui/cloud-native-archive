@@ -148,12 +148,9 @@ const TransparencyPage = () => {
       const calculateHeight = () => {
         const root = document.getElementById('root');
         if (root) {
-          // Check if any FileViewerDialog is open by searching for the viewer- prefix in ID
           const openViewer = document.querySelector('[id^="viewer-"]');
           
           if (openViewer) {
-            // If a viewer is open, tell the parent to expand to full viewport height
-            // We do this as fast as possible to minimize flicker
             window.parent.postMessage({ type: 'resize-iframe', height: window.innerHeight, isFullscreen: true }, '*');
           } else {
             const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
@@ -164,14 +161,22 @@ const TransparencyPage = () => {
           }
         }
       };
-      // Use requestAnimationFrame for smoother updates when possible
-      let animationFrame: number;
-      const loop = () => {
+
+      // Set up MutationObserver to detect when the viewer is added to the DOM immediately
+      const observer = new MutationObserver(() => {
         calculateHeight();
-        animationFrame = requestAnimationFrame(loop);
+      });
+
+      observer.observe(document.body, { 
+        childList: true, 
+        subtree: true 
+      });
+
+      const interval = setInterval(calculateHeight, 100);
+      return () => {
+        observer.disconnect();
+        clearInterval(interval);
       };
-      animationFrame = requestAnimationFrame(loop);
-      return () => cancelAnimationFrame(animationFrame);
     }
   }, [searchParams, loading, configs]);
 
