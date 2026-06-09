@@ -486,8 +486,22 @@ const TransparencyPage = () => {
   );
 };
 
-const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
+const FileViewerDialog = ({ item, isOpen, onClose, isEmbed }: { item: DriveItem, isOpen: boolean, onClose: () => void, isEmbed: boolean }) => {
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
+
+  if (isEmbed && isOpen) {
+    // If we are in an iframe (embed mode), redirect the entire window to Google Drive
+    // This makes it open in the same tab but taking over the full page, not just the container
+    try {
+      window.top!.location.href = driveUrl;
+    } catch (e) {
+      // Fallback if top window is restricted
+      window.location.href = driveUrl;
+    }
+    onClose();
+    return null;
+  }
+
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -634,6 +648,7 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewingFile, setViewingFile] = useState(false);
+  const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'true';
   const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
 
   const handleClick = async () => {
@@ -704,6 +719,7 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
           item={item} 
           isOpen={viewingFile} 
           onClose={() => setViewingFile(false)} 
+          isEmbed={isEmbed}
         />
       )}
       
