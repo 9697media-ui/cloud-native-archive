@@ -19,6 +19,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AuthConfirmPage from "./pages/AuthConfirmPage";
 import DesignManualPage from "./pages/DesignManualPage";
 import NewsGeneratorPage from "./pages/NewsGeneratorPage";
+import TransparencyPage from "./pages/TransparencyPage";
 import NotFound from "./pages/NotFound";
 import EmailPreview from "./pages/EmailPreview";
 
@@ -80,6 +81,9 @@ const App = () => (
                   } />
                   <Route path="/noticias" element={
                     <ProtectedRoute><NewsGeneratorPage /></ProtectedRoute>
+                  } />
+                  <Route path="/portal-transparencia" element={
+                    <ProtectedRoute><TransparencyPage /></ProtectedRoute>
                   } />
                   <Route path="*" element={<NotFound />} />
                 </Route>

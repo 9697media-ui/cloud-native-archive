@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History, Globe, FlaskConical, BookOpen, Newspaper } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, LogIn, LogOut, Menu, Settings, UserCircle, History, Globe, FlaskConical, BookOpen, Newspaper, FileSearch } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -43,6 +43,7 @@ const navItems: NavItem[] = [
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
   { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, adminOnly: true },
   { to: '/design-manual', label: 'Manual Design', icon: BookOpen, requireAuth: true, mktOrAdminOnly: true },
+  { to: '/portal-transparencia', label: 'Portal Transparência', icon: FileSearch, requireAuth: true, adminOnly: true },
 ];
 
 export default function AppLayout() {
