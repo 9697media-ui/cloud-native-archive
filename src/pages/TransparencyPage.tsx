@@ -17,7 +17,16 @@ import {
   Trash2,
   Copy,
   Check,
-  LogIn
+  LogIn,
+  Download,
+  Maximize2,
+  X,
+  FileCode,
+  FileSpreadsheet,
+  FileVideo,
+  FileImage,
+  FileArchive,
+  File
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -403,6 +412,79 @@ const TransparencyPage = () => {
   );
 };
 
+const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
+  const isPDF = item.mimeType === 'application/pdf';
+  const isImage = item.mimeType.startsWith('image/');
+  const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-4 border-b flex flex-row items-center justify-between space-y-0">
+          <div className="flex items-center gap-3">
+            <FileIcon mimeType={item.mimeType} className="h-5 w-5" />
+            <DialogTitle className="text-lg truncate max-w-[60vw]">{item.name}</DialogTitle>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
+                <Download className="h-4 w-4 mr-2" /> Download
+              </a>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </DialogHeader>
+        <div className="flex-1 bg-muted/20 relative">
+          <iframe 
+            src={driveUrl} 
+            className="w-full h-full border-none" 
+            title={item.name}
+            allow="autoplay"
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const FileIcon = ({ mimeType, className }: { mimeType: string, className?: string }) => {
+  if (mimeType === 'application/vnd.google-apps.folder') {
+    return <Folder className={cn("text-amber-500 fill-amber-500", className)} />;
+  }
+  
+  if (mimeType === 'application/pdf') {
+    return <FileText className={cn("text-red-500", className)} />;
+  }
+  
+  if (mimeType.includes('word') || mimeType.includes('officedocument.wordprocessingml')) {
+    return <FileCode className={cn("text-blue-600", className)} />;
+  }
+  
+  if (mimeType.includes('excel') || mimeType.includes('spreadsheet') || mimeType.includes('officedocument.spreadsheetml')) {
+    return <FileSpreadsheet className={cn("text-emerald-600", className)} />;
+  }
+  
+  if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) {
+    return <FileText className={cn("text-orange-600", className)} />;
+  }
+  
+  if (mimeType.startsWith('image/')) {
+    return <FileImage className={cn("text-purple-500", className)} />;
+  }
+  
+  if (mimeType.startsWith('video/')) {
+    return <FileVideo className={cn("text-slate-700", className)} />;
+  }
+  
+  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('compressed')) {
+    return <FileArchive className={cn("text-amber-700", className)} />;
+  }
+
+  return <File className={cn("text-slate-400", className)} />;
+};
+
 // Component to explore the drive folder structure
 const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName: string }) => {
   const [items, setItems] = useState<DriveItem[]>([]);
@@ -472,28 +554,31 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [viewingFile, setViewingFile] = useState(false);
   const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
 
-  const toggleFolder = async () => {
-    if (!isFolder) return;
-    
-    if (!isOpen && children.length === 0) {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
-          body: { action: 'list_files', folderId: item.id }
-        });
-        if (error) throw error;
-        setChildren(data.files || []);
-        setIsOpen(true);
-      } catch (err) {
-        console.error('Error fetching subfolder:', err);
-        toast.error('Erro ao abrir pasta');
-      } finally {
-        setLoading(false);
+  const handleClick = async () => {
+    if (isFolder) {
+      if (!isOpen && children.length === 0) {
+        setLoading(true);
+        try {
+          const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+            body: { action: 'list_files', folderId: item.id }
+          });
+          if (error) throw error;
+          setChildren(data.files || []);
+          setIsOpen(true);
+        } catch (err) {
+          console.error('Error fetching subfolder:', err);
+          toast.error('Erro ao abrir pasta');
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setIsOpen(!isOpen);
       }
     } else {
-      setIsOpen(!isOpen);
+      setViewingFile(true);
     }
   };
 
@@ -502,30 +587,46 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
       <div 
         className={cn(
           "flex items-center gap-2 p-2 rounded-md transition-colors cursor-pointer group",
-          isFolder ? "hover:bg-muted" : "hover:bg-muted/50"
+          isFolder ? "hover:bg-muted font-medium" : "hover:bg-muted/50"
         )}
         style={{ paddingLeft: `${depth * 20 + 8}px` }}
-        onClick={toggleFolder}
+        onClick={handleClick}
       >
-        {isFolder ? (
-          <div className="flex items-center gap-2">
-            {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-            <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 pl-6">
-            <FileText className="h-4 w-4 text-blue-500" />
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {isFolder && (
+            isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          )}
+          <FileIcon mimeType={item.mimeType} className="h-4 w-4" />
+        </div>
+        
         <span className="text-sm flex-1 truncate">{item.name}</span>
+        
         {!isFolder && (
-          <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" asChild>
-            <a href={`https://drive.google.com/open?id=${item.id}`} target="_blank" rel="noreferrer">
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          </Button>
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => { e.stopPropagation(); setViewingFile(true); }}>
+              <Maximize2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" asChild onClick={(e) => e.stopPropagation()}>
+              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
+                <Download className="h-3.5 w-3.5" />
+              </a>
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" asChild onClick={(e) => e.stopPropagation()}>
+              <a href={`https://drive.google.com/open?id=${item.id}`} target="_blank" rel="noreferrer">
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </Button>
+          </div>
         )}
       </div>
+      
+      {!isFolder && (
+        <FileViewerDialog 
+          item={item} 
+          isOpen={viewingFile} 
+          onClose={() => setViewingFile(false)} 
+        />
+      )}
       
       {isOpen && (
         <div className="flex flex-col">
