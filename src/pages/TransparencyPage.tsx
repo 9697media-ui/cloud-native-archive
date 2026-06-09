@@ -27,7 +27,10 @@ import {
   FileImage,
   FileArchive,
   File,
-  Edit2
+  Edit2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
