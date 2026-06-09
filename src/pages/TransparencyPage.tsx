@@ -70,6 +70,10 @@ const TransparencyPage = () => {
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
   const [editingConfig, setEditingConfig] = useState<{ id: string, label: string } | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'none'>('none');
+  const [isBatchAdding, setIsBatchAdding] = useState(false);
+  const [batchStep, setBatchAddingStep] = useState<'select' | 'rename'>('select');
+  const [selectedItems, setSelectedItems] = useState<DriveItem[]>([]);
+  const rootBatchFolderId = "14JkYMo16TCP1YT2ZO-EH1g2OJ-rdB0Mg";
 
   const checkGoogleAuth = useCallback(async () => {
     const { data } = await supabase
