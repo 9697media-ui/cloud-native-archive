@@ -271,9 +271,12 @@ const TransparencyPage = () => {
       });
 
       if (error) throw error;
-      if (data?.name && !newLabel) {
-        setNewLabel(data.name);
-        toast.info(`Título preenchido automaticamente: ${data.name}`);
+      if (data?.name) {
+        setOriginalFolderName(data.name);
+        if (!newLabel) {
+          setNewLabel(data.name);
+          toast.info(`Título preenchido automaticamente: ${data.name}`);
+        }
       }
     } catch (err) {
       console.error('Error fetching folder name:', err);
