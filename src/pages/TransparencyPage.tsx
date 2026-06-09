@@ -490,6 +490,11 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
   const containerRef = React.useRef<HTMLDivElement>(null);
 
+  // If we are in an embed (iframe), we MUST NOT use a fixed container inside the iframe 
+  // because it will be trapped. Instead, we must open in a new tab for "full screen" behavior
+  // as an iframe cannot break out of its parent's bounds without top-level redirection.
+  const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'true';
+
   const toggleFullScreen = () => {
     if (!containerRef.current) return;
     
@@ -518,6 +523,14 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  // For embed mode, since it's inside an iframe in Elementor, we use a new tab
+  // to ensure it occupies the full device window as requested.
+  if (isEmbed) {
+    window.open(driveUrl, '_blank');
+    onClose();
+    return null;
+  }
 
   return (
     <div 
