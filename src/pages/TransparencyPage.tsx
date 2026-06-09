@@ -991,16 +991,18 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
           isOpen ? "grid-template-rows-[1fr] opacity-100" : "grid-template-rows-[0fr] opacity-0"
         )}
       >
-        <div className="flex flex-col overflow-hidden">
-          {loading ? (
-            <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
-              <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
-            </div>
-          ) : (
-            children.map(child => (
-              <DriveItemComponent key={child.id} item={child} depth={depth + 1} />
-            ))
-          )}
+        <div className="overflow-hidden">
+          <div className="flex flex-col">
+            {loading ? (
+              <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
+                <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
+              </div>
+            ) : (
+              children.map(child => (
+                <DriveItemComponent key={child.id} item={child} depth={depth + 1} />
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
