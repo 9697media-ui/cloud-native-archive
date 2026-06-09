@@ -252,7 +252,7 @@ const TransparencyPage = () => {
 
   if (isEmbed) {
     return (
-      <div className="p-0 bg-transparent w-full">
+      <div className="p-0 bg-transparent w-full overflow-hidden">
         {loading ? (
           <div className="flex justify-center py-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
