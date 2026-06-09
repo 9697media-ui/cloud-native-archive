@@ -605,7 +605,7 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
       setLoading(true);
       try {
         const { data } = await supabase.functions.invoke('google-drive-proxy', {
-          body: { action: 'list_files', folderId: item.id }
+          body: { action: 'list_files', folderId: actualId }
         });
         setChildren(data.files || []);
         setIsOpen(true);
