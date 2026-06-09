@@ -78,7 +78,20 @@ const TransparencyPage = () => {
   const [isBatchAdding, setIsBatchAdding] = useState(false);
   const [batchStep, setBatchAddingStep] = useState<'select' | 'rename'>('select');
   const [selectedItems, setSelectedItems] = useState<DriveItem[]>([]);
+  const [expandedConfigs, setExpandedConfigs] = useState<Set<string>>(new Set());
   const rootBatchFolderId = "14JkYMo16TCP1YT2ZO-EH1g2OJ-rdB0Mg";
+
+  const toggleConfig = (id: string) => {
+    setExpandedConfigs(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   const checkGoogleAuth = useCallback(async () => {
     const { data } = await supabase
