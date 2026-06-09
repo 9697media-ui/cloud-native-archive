@@ -390,8 +390,8 @@ const TransparencyPage = () => {
 
   const sortedConfigs = [...filteredConfigs].sort((a, b) => {
     if (sortOrder === 'none') return 0;
-    const nameA = (a.original_folder_name || a.label).toLowerCase();
-    const nameB = (b.original_folder_name || b.label).toLowerCase();
+    const nameA = (a.original_folder_name || a.label || '').toLowerCase();
+    const nameB = (b.original_folder_name || b.label || '').toLowerCase();
     if (sortOrder === 'asc') return nameA.localeCompare(nameB);
     return nameB.localeCompare(nameA);
   });
