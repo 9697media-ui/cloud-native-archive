@@ -477,7 +477,7 @@ const TransparencyPage = () => {
                           {config.original_folder_name && config.original_folder_name !== config.label && (
                             <span className="text-sm font-normal text-muted-foreground">({config.original_folder_name})</span>
                           )}
-                          {isExpanded ? <ChevronDown className="h-5 w-5 text-muted-foreground ml-2" /> : <ChevronRight className="h-5 w-5 text-muted-foreground ml-2" />}
+                          <ChevronRight className={cn("h-5 w-5 text-muted-foreground ml-2 transition-transform duration-200", isExpanded ? "rotate-90" : "rotate-0")} />
                         </CardTitle>
                         <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
                       </div>
@@ -669,6 +669,7 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showEmpty, setShowEmpty] = useState(false);
   const isFolder = item.mimeType === 'application/vnd.google-apps.folder' || 
                  (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetMimeType === 'application/vnd.google-apps.folder');
   const actualId = (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetId) || item.id;
@@ -676,21 +677,29 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
 
   const toggleFolder = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isOpen && children.length === 0) {
-      setLoading(true);
-      try {
-        const { data } = await supabase.functions.invoke('google-drive-proxy', {
-          body: { action: 'list_files', folderId: actualId }
-        });
-        setChildren(data.files || []);
-        setIsOpen(true);
-      } catch (err) {
-        toast.error('Erro ao abrir pasta');
-      } finally {
-        setLoading(false);
+    if (isFolder) {
+      if (!isOpen && children.length === 0) {
+        setLoading(true);
+        try {
+          const { data } = await supabase.functions.invoke('google-drive-proxy', {
+            body: { action: 'list_files', folderId: actualId }
+          });
+          const files = data.files || [];
+          if (files.length === 0) {
+            setShowEmpty(true);
+            setTimeout(() => setShowEmpty(false), 2000);
+            return;
+          }
+          setChildren(files);
+          setIsOpen(true);
+        } catch (err) {
+          toast.error('Erro ao abrir pasta');
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setIsOpen(!isOpen);
       }
-    } else {
-      setIsOpen(!isOpen);
     }
   };
 
@@ -707,13 +716,15 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
         <div className="flex items-center gap-2">
           {isFolder ? (
             <div onClick={toggleFolder} className="p-1 hover:bg-muted rounded">
-              {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              <ChevronRight className={cn("h-4 w-4 transition-transform duration-200", isOpen ? "rotate-90" : "rotate-0")} />
             </div>
           ) : <div className="w-6" />}
           <Check className={cn("h-4 w-4 transition-opacity", isSelected ? "opacity-100 text-primary" : "opacity-0")} />
           <FileIcon mimeType={item.mimeType} className="h-4 w-4" />
         </div>
-        <span className={cn("text-sm flex-1 truncate", isSelected && "font-medium")}>{item.name}</span>
+        <span className={cn("text-sm flex-1 truncate transition-all duration-300", showEmpty && "text-muted-foreground italic")}>
+          {showEmpty ? "Pasta vazia" : item.name}
+        </span>
       </div>
       
       {isOpen && (
@@ -868,6 +879,7 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewingFile, setViewingFile] = useState(false);
+  const [showEmpty, setShowEmpty] = useState(false);
   const isFolder = item.mimeType === 'application/vnd.google-apps.folder' || 
                  (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetMimeType === 'application/vnd.google-apps.folder');
   const actualId = (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetId) || item.id;
@@ -880,7 +892,13 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         try {
           const { data, error } = await supabase.functions.invoke('google-drive-proxy', { body: { action: 'list_files', folderId: actualId } });
           if (error) throw error;
-          const sortedFiles = (data.files || []).sort((a: any, b: any) => 
+          const files = (data.files || []);
+          if (files.length === 0) {
+            setShowEmpty(true);
+            setTimeout(() => setShowEmpty(false), 2000);
+            return;
+          }
+          const sortedFiles = files.sort((a: any, b: any) => 
             (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase(), undefined, { numeric: true, sensitivity: 'base' })
           );
           setChildren(sortedFiles);
@@ -889,30 +907,22 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         finally { setLoading(false); }
       } else { setIsOpen(!isOpen); }
     } else { 
-      const isEmbed = searchParams.get('embed') === 'true';
-      if (isEmbed) {
-        // Find if we are in an iframe
-        const inIframe = window.self !== window.top;
-        if (inIframe) {
-          // If we are in an iframe, we need to communicate with parent to show the file
-          // Since the user wants it in the SAME PAGE/SITE and not a new tab, 
-          // but says it's "stuck in the container", we'll try to use the viewer dialog 
-          // but signal the parent to go fullscreen if possible.
-          setViewingFile(true);
-        } else {
-          setViewingFile(true);
-        }
-      } else {
-        setViewingFile(true); 
-      }
+      setViewingFile(true);
     }
   };
 
   return (
     <div className="flex flex-col">
       <div className={cn("flex items-center gap-2 p-2 rounded-md transition-colors cursor-pointer group", isFolder ? "hover:bg-muted font-medium" : "hover:bg-muted/50")} style={{ paddingLeft: `${depth * 20 + 8}px` }} onClick={handleClick}>
-        <div className="flex items-center gap-2">{isFolder && (isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />)}<FileIcon mimeType={item.mimeType} className="h-4 w-4" /></div>
-        <span className="text-sm flex-1 truncate">{item.name}</span>
+        <div className="flex items-center gap-2">
+          {isFolder && (
+            <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", isOpen ? "rotate-90" : "rotate-0")} />
+          )}
+          <FileIcon mimeType={item.mimeType} className="h-4 w-4" />
+        </div>
+        <span className={cn("text-sm flex-1 truncate transition-all duration-300", showEmpty && "text-muted-foreground italic opacity-70")}>
+          {showEmpty ? "Pasta vazia" : item.name}
+        </span>
         {!isFolder && (
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => { 
