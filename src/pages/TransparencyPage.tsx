@@ -132,8 +132,19 @@ const TransparencyPage = () => {
         if (root) {
           // Find the exact content container
           const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
-          // Using offsetHeight to get the exact pixel height including borders
-          const height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
+          
+          // Check if a file is being viewed in "full screen"
+          const isViewingFile = !!document.querySelector('.fixed.inset-0.z-\\[9999\\]');
+          
+          let height;
+          if (isViewingFile) {
+            // When viewing a file, we want the iframe to take over the viewport
+            height = window.innerHeight;
+            // Also notify parent to maybe scroll to top
+            window.parent.postMessage({ type: 'file-opened' }, '*');
+          } else {
+            height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
+          }
           
           if (height > 0) {
             window.parent.postMessage({ type: 'resize-iframe', height }, '*');
@@ -141,12 +152,8 @@ const TransparencyPage = () => {
         }
       };
 
-      // Periodic check to ensure height is always accurate as folders expand/collapse
       const interval = setInterval(calculateHeight, 500);
-
-      const resizeObserver = new ResizeObserver(() => {
-        calculateHeight();
-      });
+      const resizeObserver = new ResizeObserver(() => calculateHeight());
 
       const root = document.getElementById('root');
       if (root) {
@@ -262,18 +269,56 @@ const TransparencyPage = () => {
   const copyEmbedCode = (id: string) => {
     const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
     const embedCode = `
-<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;"></iframe>
+<style>
+  .ana-iframe-container {
+    position: relative;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  .ana-iframe-container.file-open {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999999;
+    background: #000;
+  }
+  #iframe-${id} {
+    width: 100%;
+    border: none;
+    display: block;
+  }
+</style>
+<div id="container-${id}" class="ana-iframe-container">
+  <iframe id="iframe-${id}" src="${embedUrl}" frameborder="0" scrolling="no"></iframe>
+</div>
 <script>
   window.addEventListener('message', function(e) {
+    var iframe = document.getElementById('iframe-${id}');
+    var container = document.getElementById('container-${id}');
+    if (!iframe || !container) return;
+
     if (e.data.type === 'resize-iframe' && e.data.height) {
-      document.getElementById('iframe-${id}').style.height = e.data.height + 'px';
+      iframe.style.height = e.data.height + 'px';
+    }
+    if (e.data.type === 'file-opened') {
+      container.classList.add('file-open');
+      iframe.style.height = '100vh';
+      document.body.style.overflow = 'hidden';
+    }
+    if (e.data.type === 'file-closed') {
+      container.classList.remove('file-open');
+      document.body.style.overflow = '';
+      // Trigger a resize to go back to normal
+      iframe.contentWindow.postMessage('request-resize', '*');
     }
   }, false);
 </script>`.trim();
     
     navigator.clipboard.writeText(embedCode);
     setCopiedId(id);
-    toast.success('Código embed inteligente copiado!');
+    toast.success('Novo código embed (Tela Cheia) copiado!');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -504,7 +549,10 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
                 <Download className="h-4 w-4 mr-2" /> Download
               </a>
             </Button>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={() => {
+              onClose();
+              window.parent.postMessage({ type: 'file-closed' }, '*');
+            }}>
               <X className="h-5 w-5" />
             </Button>
           </div>
