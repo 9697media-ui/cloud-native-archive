@@ -91,14 +91,19 @@ const TransparencyPage = () => {
           }
 
           // 2. IMPORTANT: We do NOT want to keep this Google-based session.
-          // We clear the session so it doesn't overwrite the admin user.
-          // The user will need to log back in with their admin credentials.
           await supabase.auth.signOut();
-          toast.info('Por favor, faça login novamente com sua conta Admin para continuar gerenciando.');
+          
+          const previousAdminEmail = localStorage.getItem('pre_oauth_admin_email');
+          if (previousAdminEmail) {
+            toast.info(`Integração concluída. Por favor, entre novamente como ${previousAdminEmail}.`);
+            localStorage.removeItem('pre_oauth_admin_email');
+          } else {
+            toast.info('Por favor, faça login novamente com sua conta Admin para continuar gerenciando.');
+          }
           
           // Clean up the URL hash and redirect to login
           window.location.hash = '';
-          setTimeout(() => window.location.href = '/login', 2000);
+          setTimeout(() => window.location.href = '/login', 2500);
         }
       };
       handleOAuthResponse();
@@ -108,6 +113,10 @@ const TransparencyPage = () => {
   }, [checkGoogleAuth]);
 
   const handleGoogleLogin = async () => {
+    // Save current user email to localStorage before redirecting
+    if (user?.email) {
+      localStorage.setItem('pre_oauth_admin_email', user.email);
+    }
     setIsAuthenticating(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -199,7 +208,7 @@ const TransparencyPage = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (!isAdmin && user?.email !== 'mkt@anabrasil.org') {
+  if (!isAdmin && user?.email !== 'mkt@anabrasil.org' && user?.email !== 'transparencia@anabrasil.org') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <h1 className="text-2xl font-bold text-destructive">Acesso Restrito</h1>

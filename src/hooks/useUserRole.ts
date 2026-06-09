@@ -90,7 +90,7 @@ export function useUserRole() {
       }
 
       let effectiveRole = roleData?.role;
-      const isAdminEmail = user.email === 'mkt@anabrasil.org' || user.email === 'alyson-viana@hotmail.com' || user.email === 'contato@anabrasil.org';
+      const isAdminEmail = user.email === 'mkt@anabrasil.org' || user.email === 'alyson-viana@hotmail.com' || user.email === 'contato@anabrasil.org' || user.email === 'transparencia@anabrasil.org';
       
       if (isAdminEmail) {
         effectiveRole = 'admin';
@@ -124,7 +124,7 @@ export function useUserRole() {
     fetchRole();
   }, [user, isAuthenticated, activePersona]);
 
-  const isAdminEmail = user?.email === 'mkt@anabrasil.org' || user?.email === 'alyson-viana@hotmail.com' || user?.email === 'contato@anabrasil.org';
+  const isAdminEmail = user?.email === 'mkt@anabrasil.org' || user?.email === 'alyson-viana@hotmail.com' || user?.email === 'contato@anabrasil.org' || user?.email === 'transparencia@anabrasil.org';
   const isAdmin = role === 'admin' || permissionLevel === 'admin_geral' || isAdminEmail;
   const isCreator = role === 'criador' || isAdmin;
   const isManager = role === 'editor' || isCreator || permissionLevel === 'gestor_unidade' || permissionLevel === 'eventos_parceiros' || permissionLevel === 'admin_geral' || isAdminEmail;
