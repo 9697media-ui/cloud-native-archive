@@ -12,10 +12,12 @@ body.is-embedded,
 }
 
 /* Force hide all scrolls in embed mode */
+html.is-embedded, body.is-embedded {
+  overflow: hidden !important; /* Prevents internal scrolling */
+  scrollbar-width: none !important;
+}
+
 .is-embedded ::-webkit-scrollbar {
-  display: none;
+  display: none !important;
 }
-.is-embedded {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+
