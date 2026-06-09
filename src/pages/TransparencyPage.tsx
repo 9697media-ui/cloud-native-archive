@@ -358,6 +358,20 @@ const TransparencyPage = () => {
             {sortOrder === 'desc' && <ArrowDown className="h-4 w-4" />}
             Ordenar {sortOrder !== 'none' && (sortOrder === 'asc' ? '(A-Z)' : '(Z-A)')}
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setIsBatchAdding(true);
+              setBatchAddingStep('select');
+              setSelectedItems([]);
+            }}
+            className="gap-2 h-10"
+          >
+            <Layers className="h-4 w-4" />
+            Adicionar em Lote
+          </Button>
+
           <Dialog open={isAdding} onOpenChange={setIsAdding}>
             <DialogTrigger asChild><Button className="gap-2 h-10"><Plus className="h-4 w-4" /> Nova Pasta</Button></DialogTrigger>
             <DialogContent>
