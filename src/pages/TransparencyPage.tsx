@@ -140,8 +140,6 @@ const TransparencyPage = () => {
           if (isViewingFile) {
             // When viewing a file, we want the iframe to take over the viewport
             height = window.innerHeight;
-            // Also notify parent to maybe scroll to top
-            window.parent.postMessage({ type: 'file-opened' }, '*');
           } else {
             height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
           }
