@@ -76,9 +76,10 @@ export default function AppLayout() {
   const NavContent = ({ onClick }: { onClick?: () => void }) => (
     <>
       {navItems.filter(item => {
-        if (item.adminOnly) return isAdmin;
-        if (item.managerOnly) return isAdmin || isManager;
-        if (item.mktOrAdminOnly) return isAdmin || user?.email === 'mkt@anabrasil.org';
+        const isAdminEmail = user?.email === 'mkt@anabrasil.org' || user?.email === 'alyson-viana@hotmail.com' || user?.email === 'contato@anabrasil.org';
+        if (item.adminOnly) return isAdmin || isAdminEmail;
+        if (item.managerOnly) return isAdmin || isManager || isAdminEmail;
+        if (item.mktOrAdminOnly) return isAdmin || isAdminEmail;
         if (item.auditoriaOnly) return canViewAuditoria;
         if (item.requireAuth) return isAuthenticated;
         return true;
