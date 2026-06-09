@@ -861,7 +861,22 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         finally { setLoading(false); }
       } else { setIsOpen(!isOpen); }
     } else { 
-      setViewingFile(true); 
+      const isEmbed = searchParams.get('embed') === 'true';
+      if (isEmbed) {
+        // Find if we are in an iframe
+        const inIframe = window.self !== window.top;
+        if (inIframe) {
+          // If we are in an iframe, we need to communicate with parent to show the file
+          // Since the user wants it in the SAME PAGE/SITE and not a new tab, 
+          // but says it's "stuck in the container", we'll try to use the viewer dialog 
+          // but signal the parent to go fullscreen if possible.
+          setViewingFile(true);
+        } else {
+          setViewingFile(true);
+        }
+      } else {
+        setViewingFile(true); 
+      }
     }
   };
 
