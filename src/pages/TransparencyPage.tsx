@@ -332,12 +332,11 @@ const TransparencyPage = () => {
 
   const filteredConfigs = embedId ? configs.filter(c => c.id === embedId) : configs;
   const sortedConfigs = [...filteredConfigs].sort((a, b) => {
-    const nameA = (a.label || a.original_folder_name || '').toLowerCase();
-    const nameB = (b.label || b.original_folder_name || '').toLowerCase();
+    const nameA = (a.original_folder_name || a.label || '').toLowerCase();
+    const nameB = (b.original_folder_name || b.label || '').toLowerCase();
     
-    if (sortOrder === 'desc') return nameB.localeCompare(nameA);
-    // Default to 'asc' (A-Z) if sortOrder is 'asc' or 'none'
-    return nameA.localeCompare(nameB);
+    if (sortOrder === 'desc') return nameB.localeCompare(nameA, undefined, { numeric: true, sensitivity: 'base' });
+    return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
   });
 
   if (isEmbed) {
@@ -788,7 +787,7 @@ const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName:
       if (error) throw error;
       if (data.error === 'google_auth_required') { setError('authentication_required'); return; }
       const sortedFiles = (data.files || []).sort((a: any, b: any) => 
-        (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase())
+        (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase(), undefined, { numeric: true, sensitivity: 'base' })
       );
       setItems(sortedFiles);
     } catch (err: any) { setError(err.message || 'Erro ao carregar arquivos'); }
@@ -824,7 +823,7 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
           const { data, error } = await supabase.functions.invoke('google-drive-proxy', { body: { action: 'list_files', folderId: actualId } });
           if (error) throw error;
           const sortedFiles = (data.files || []).sort((a: any, b: any) => 
-            (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase())
+            (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase(), undefined, { numeric: true, sensitivity: 'base' })
           );
           setChildren(sortedFiles);
           setIsOpen(true);
