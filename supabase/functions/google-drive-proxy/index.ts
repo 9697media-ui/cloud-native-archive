@@ -14,32 +14,23 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: { Authorization: req.headers.get("Authorization")! },
-        },
-      }
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
-
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
-
-    if (!user) throw new Error("Não autorizado");
 
     const { action, folderId, nextPageToken } = await req.json();
     const googleClientId = Deno.env.get("GOOGLE_CLIENT_ID");
     const googleClientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET");
 
-    // Fetch refresh token from profile
-    const { data: profile } = await supabaseClient
-      .from("profiles")
-      .select("google_refresh_token")
-      .eq("user_id", user.id)
-      .single();
+    // Fetch refresh token from global settings instead of a specific user profile
+    const { data: setting } = await supabaseClient
+      .from("global_settings")
+      .select("value")
+      .eq("key", "google_drive_refresh_token")
+      .maybeSingle();
 
-    if (!profile?.google_refresh_token) {
+    const refreshToken = setting?.value?.refresh_token;
+
+    if (!refreshToken) {
       return new Response(JSON.stringify({ error: "google_auth_required" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
@@ -52,13 +43,20 @@ serve(async (req) => {
       body: new URLSearchParams({
         client_id: googleClientId!,
         client_secret: googleClientSecret!,
-        refresh_token: profile.google_refresh_token,
+        refresh_token: refreshToken,
         grant_type: "refresh_token",
       }),
     });
 
     const tokens = await tokenResponse.json();
     const accessToken = tokens.access_token;
+
+    if (!accessToken) {
+        return new Response(JSON.stringify({ error: "Could not refresh access token", details: tokens }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 401,
+        });
+    }
 
     if (action === "list_files") {
       const q = `'${folderId}' in parents and trashed = false`;
