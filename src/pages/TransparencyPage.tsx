@@ -365,7 +365,7 @@ const TransparencyPage = () => {
                     {isExpanded ? <ChevronDown className="h-5 w-5 text-muted-foreground" /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
                   </div>
                   {isExpanded && (
-                    <div className="p-4 flex flex-col gap-1 w-full overflow-visible">
+                    <div className="p-4 flex flex-col gap-1 w-full overflow-visible border-t">
                       <DriveExplorer folderId={config.folder_id} folderName={config.label} />
                     </div>
                   )}
