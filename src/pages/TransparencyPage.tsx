@@ -780,14 +780,17 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewingFile, setViewingFile] = useState(false);
-  const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+  const isFolder = item.mimeType === 'application/vnd.google-apps.folder' || 
+                 (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetMimeType === 'application/vnd.google-apps.folder');
+  const actualId = (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetId) || item.id;
+  const actualMimeType = (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetMimeType) || item.mimeType;
 
   const handleClick = async () => {
     if (isFolder) {
       if (!isOpen && children.length === 0) {
         setLoading(true);
         try {
-          const { data, error } = await supabase.functions.invoke('google-drive-proxy', { body: { action: 'list_files', folderId: item.id } });
+          const { data, error } = await supabase.functions.invoke('google-drive-proxy', { body: { action: 'list_files', folderId: actualId } });
           if (error) throw error;
           setChildren(data.files || []);
           setIsOpen(true);
