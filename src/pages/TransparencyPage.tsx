@@ -27,7 +27,10 @@ import {
   FileImage,
   FileArchive,
   File,
-  Edit2
+  Edit2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,11 +46,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-// This is a simplified representation of the Google Drive folder structure.
-// In a real production app, we would use an Edge Function to proxy requests to the Google Drive API.
-// Since we don't have Google API keys yet, we'll implement the UI and the structure
-// and simulate the data fetching.
 
 interface DriveItem {
   id: string;
@@ -71,6 +69,7 @@ const TransparencyPage = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
   const [editingConfig, setEditingConfig] = useState<{ id: string, label: string } | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'none'>('none');
 
   const checkGoogleAuth = useCallback(async () => {
     const { data } = await supabase
@@ -105,11 +104,6 @@ const TransparencyPage = () => {
               toast.success('Google Drive conectado globalmente!');
               setHasGoogleAuth(true);
             }
-          } else {
-            const { data } = await supabase.from('global_settings').select('value').eq('key', 'google_drive_refresh_token').maybeSingle();
-            if (data?.value) {
-              setHasGoogleAuth(true);
-            }
           }
         } catch (err: any) {
           console.error(err);
@@ -127,54 +121,30 @@ const TransparencyPage = () => {
     checkGoogleAuth();
   }, [checkGoogleAuth, searchParams, setSearchParams]);
 
-  // Handle iframe height communication
   useEffect(() => {
     if (searchParams.get('embed') === 'true') {
       const calculateHeight = () => {
         const root = document.getElementById('root');
         if (root) {
-          // Find the exact content container
           const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
-          // Using offsetHeight to get the exact pixel height including borders
           const height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
-          
           if (height > 0) {
             window.parent.postMessage({ type: 'resize-iframe', height }, '*');
           }
         }
       };
-
-      // Periodic check to ensure height is always accurate as folders expand/collapse
       const interval = setInterval(calculateHeight, 500);
-
-      const resizeObserver = new ResizeObserver(() => {
-        calculateHeight();
-      });
-
-      const root = document.getElementById('root');
-      if (root) {
-        resizeObserver.observe(root);
-        calculateHeight();
-      }
-      
-      return () => {
-        resizeObserver.disconnect();
-        clearInterval(interval);
-      };
+      return () => clearInterval(interval);
     }
   }, [searchParams, loading, configs]);
 
   const handleGoogleLogin = async () => {
     setIsAuthenticating(true);
     try {
-      // Force prompt=consent to ensure we ALWAYS get a refresh_token from Google
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
+          queryParams: { access_type: 'offline', prompt: 'consent' },
           scopes: 'https://www.googleapis.com/auth/drive.readonly',
           redirectTo: window.location.origin + '/portal-transparencia?type=google_auth',
           skipBrowserRedirect: false
@@ -188,9 +158,19 @@ const TransparencyPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchConfigs();
-  }, []);
+  const syncOriginalName = async (config: any) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+        body: { action: 'get_folder_name', folderId: config.folder_id }
+      });
+      if (!error && data?.name) {
+        await supabase.from('transparency_configs').update({ original_folder_name: data.name }).eq('id', config.id);
+        setConfigs(prev => prev.map(c => c.id === config.id ? { ...c, original_folder_name: data.name } : c));
+      }
+    } catch (err) {
+      console.error('Error syncing name:', err);
+    }
+  };
 
   const fetchConfigs = async () => {
     try {
@@ -198,16 +178,11 @@ const TransparencyPage = () => {
         .from('transparency_configs')
         .select('*')
         .order('created_at', { ascending: false });
-      
       if (error) throw error;
       const fetchedConfigs = data || [];
       setConfigs(fetchedConfigs);
-      
-      // Auto-sync missing original names
       fetchedConfigs.forEach(config => {
-        if (!config.original_folder_name) {
-          syncOriginalName(config);
-        }
+        if (!config.original_folder_name) syncOriginalName(config);
       });
     } catch (error) {
       console.error('Error fetching configs:', error);
@@ -217,71 +192,30 @@ const TransparencyPage = () => {
     }
   };
 
-  const handleAddConfig = async () => {
-    if (!newFolderId || !newLabel) {
-      toast.error('Preencha todos os campos');
-      return;
-    }
-
-    const folderId = extractFolderId(newFolderId);
-
-    try {
-      const { error } = await supabase
-        .from('transparency_configs')
-        .insert([{ 
-          folder_id: folderId, 
-          label: newLabel,
-          original_folder_name: originalFolderName 
-        }]);
-      
-      if (error) throw error;
-      
-      toast.success('Configuração adicionada');
-      setNewFolderId('');
-      setNewLabel('');
-      setOriginalFolderName('');
-      setIsAdding(false);
-      fetchConfigs();
-    } catch (error: any) {
-      console.error('Error adding config:', error);
-      toast.error('Erro ao salvar configuração: ' + (error.message || 'Erro desconhecido'));
-    }
-  };
+  useEffect(() => {
+    fetchConfigs();
+  }, []);
 
   const extractFolderId = (input: string) => {
     let id = input.trim();
-    const patterns = [
-      /\/folders\/([a-zA-Z0-9_-]{25,})/,
-      /[?&]id=([a-zA-Z0-9_-]{25,})/,
-      /\/file\/d\/([a-zA-Z0-9_-]{25,})/,
-      /\/d\/([a-zA-Z0-9_-]{25,})/
-    ];
-
+    const patterns = [/\/folders\/([a-zA-Z0-9_-]{25,})/, /[?&]id=([a-zA-Z0-9_-]{25,})/, /\/file\/d\/([a-zA-Z0-9_-]{25,})/, /\/d\/([a-zA-Z0-9_-]{25,})/];
     for (const pattern of patterns) {
       const match = id.match(pattern);
-      if (match && match[1]) {
-        id = match[1];
-        break;
-      }
+      if (match && match[1]) { id = match[1]; break; }
     }
-
     return id.includes('?') ? id.split('?')[0] : id;
   };
 
   const [isFetchingName, setIsFetchingName] = useState(false);
-
   const fetchFolderName = async (input: string) => {
     const id = extractFolderId(input);
     if (id.length < 25) return;
-
     setIsFetchingName(true);
     try {
       const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
         body: { action: 'get_folder_name', folderId: id }
       });
-
-      if (error) throw error;
-      if (data?.name) {
+      if (!error && data?.name) {
         setOriginalFolderName(data.name);
         if (!newLabel) {
           setNewLabel(data.name);
@@ -295,78 +229,50 @@ const TransparencyPage = () => {
     }
   };
 
+  const handleAddConfig = async () => {
+    if (!newFolderId || !newLabel) { toast.error('Preencha todos os campos'); return; }
+    const folderId = extractFolderId(newFolderId);
+    try {
+      const { error } = await supabase.from('transparency_configs').insert([{ folder_id: folderId, label: newLabel, original_folder_name: originalFolderName }]);
+      if (error) throw error;
+      toast.success('Configuração adicionada');
+      setNewFolderId(''); setNewLabel(''); setOriginalFolderName(''); setIsAdding(false);
+      fetchConfigs();
+    } catch (error: any) {
+      toast.error('Erro ao salvar configuração');
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('transparency_configs')
-        .delete()
-        .eq('id', id);
-      
+      const { error } = await supabase.from('transparency_configs').delete().eq('id', id);
       if (error) throw error;
-      
       toast.success('Configuração removida');
       fetchConfigs();
     } catch (error) {
-      console.error('Error deleting config:', error);
       toast.error('Erro ao remover configuração');
     }
   };
 
   const handleUpdateLabel = async () => {
     if (!editingConfig) return;
-
     try {
-      const { error } = await supabase
-        .from('transparency_configs')
-        .update({ label: editingConfig.label })
-        .eq('id', editingConfig.id);
-      
+      const { error } = await supabase.from('transparency_configs').update({ label: editingConfig.label }).eq('id', editingConfig.id);
       if (error) throw error;
-      
       toast.success('Nome atualizado');
       setEditingConfig(null);
       fetchConfigs();
     } catch (error) {
-      console.error('Error updating config:', error);
       toast.error('Erro ao atualizar nome');
-    }
-  };
-
-  const syncOriginalName = async (config: any) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
-        body: { action: 'get_folder_name', folderId: config.folder_id }
-      });
-      
-      if (!error && data?.name) {
-        await supabase
-          .from('transparency_configs')
-          .update({ original_folder_name: data.name })
-          .eq('id', config.id);
-        
-        // Refresh local state without full reload
-        setConfigs(prev => prev.map(c => c.id === config.id ? { ...c, original_folder_name: data.name } : c));
-      }
-    } catch (err) {
-      console.error('Error syncing name:', err);
     }
   };
 
   const copyEmbedCode = (id: string) => {
     const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
-    const embedCode = `
-<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;"></iframe>
-<script>
-  window.addEventListener('message', function(e) {
-    if (e.data.type === 'resize-iframe' && e.data.height) {
-      document.getElementById('iframe-${id}').style.height = e.data.height + 'px';
-    }
-  }, false);
-</script>`.trim();
-    
+    const embedCode = `<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;"></iframe><script>window.addEventListener('message', function(e) { if (e.data.type === 'resize-iframe' && e.data.height) { document.getElementById('iframe-${id}').style.height = e.data.height + 'px'; } }, false);</script>`;
     navigator.clipboard.writeText(embedCode);
     setCopiedId(id);
-    toast.success('Código embed inteligente copiado!');
+    toast.success('Código embed copiado!');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -374,36 +280,28 @@ const TransparencyPage = () => {
   const embedId = searchParams.get('id');
 
   if (!isEmbed && !isAdmin && user?.email !== 'mkt@anabrasil.org' && user?.email !== 'transparencia@anabrasil.org' && user?.email !== 'contato@anabrasil.org') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-        <h1 className="text-2xl font-bold text-destructive">Acesso Restrito</h1>
-        <p className="text-muted-foreground">Somente administradores podem acessar esta página.</p>
-      </div>
-    );
+    return <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4"><h1 className="text-2xl font-bold text-destructive">Acesso Restrito</h1></div>;
   }
 
   const filteredConfigs = embedId ? configs.filter(c => c.id === embedId) : configs;
+  const sortedConfigs = [...filteredConfigs].sort((a, b) => {
+    if (sortOrder === 'none') return 0;
+    const nameA = (a.original_folder_name || a.label || '').toLowerCase();
+    const nameB = (b.original_folder_name || b.label || '').toLowerCase();
+    if (sortOrder === 'asc') return nameA.localeCompare(nameB);
+    return nameB.localeCompare(nameA);
+  });
 
   if (isEmbed) {
     return (
       <div className="p-0 bg-transparent w-full overflow-hidden m-0">
-        {loading ? (
-          <div className="flex justify-center py-2">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : filteredConfigs.length === 0 ? (
-          <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
-        ) : (
+        {loading ? <div className="flex justify-center py-2"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> : 
+         sortedConfigs.length === 0 ? <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada.</div> : (
           <div className="flex flex-col gap-0 w-full m-0 p-0">
-            {filteredConfigs.map((config) => (
+            {sortedConfigs.map((config) => (
               <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
-                <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2">
-                  <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
-                  <span className="text-sm font-medium">{config.label}</span>
-                </div>
-                <div className="p-4 flex flex-col gap-1 w-full overflow-visible">
-                  <DriveExplorer folderId={config.folder_id} folderName={config.label} />
-                </div>
+                <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2"><Folder className="h-4 w-4 text-amber-500 fill-amber-500" /><span className="text-sm font-medium">{config.label}</span></div>
+                <div className="p-4 flex flex-col gap-1 w-full overflow-visible"><DriveExplorer folderId={config.folder_id} folderName={config.label} /></div>
               </div>
             ))}
           </div>
@@ -414,134 +312,39 @@ const TransparencyPage = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
-      {hasGoogleAuth ? (
-        <Card className="mb-8 border-green-200 bg-green-50/50">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-                  <Check className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-green-800 text-lg">Google Drive Conectado</CardTitle>
-                  <CardDescription className="text-green-700">
-                    A integração global está ativa e os arquivos estão sendo sincronizados.
-                  </CardDescription>
-                </div>
-              </div>
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={handleGoogleLogin} 
-                disabled={isAuthenticating}
-                className="border-green-200 hover:bg-green-100 text-green-700"
-              >
-                {isAuthenticating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Settings className="mr-2 h-4 w-4" />}
-                Alterar Conta
-              </Button>
-            </div>
-          </CardHeader>
-        </Card>
-      ) : (
+      {hasGoogleAuth === false && (
         <Card className="mb-8 border-amber-200 bg-amber-50">
-          <CardHeader>
-            <CardTitle className="text-amber-800 flex items-center gap-2">
-              <LogIn className="h-5 w-5" /> Conexão Necessária
-            </CardTitle>
-            <CardDescription className="text-amber-700">
-              Para visualizar os arquivos do Google Drive em tempo real, um administrador precisa autorizar o acesso uma única vez para todo o sistema.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={handleGoogleLogin} 
-              disabled={isAuthenticating}
-              className="bg-[#4285F4] hover:bg-[#357abd]"
-            >
-              {isAuthenticating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-              Conectar Google Drive (Global)
-            </Button>
-          </CardContent>
+          <CardHeader><CardTitle className="text-amber-800 flex items-center gap-2"><LogIn className="h-5 w-5" /> Conexão Necessária</CardTitle></CardHeader>
+          <CardContent><Button onClick={handleGoogleLogin} className="bg-[#4285F4] hover:bg-[#357abd]">{isAuthenticating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />} Conectar Google Drive</Button></CardContent>
         </Card>
       )}
 
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1>
-          <p className="text-muted-foreground">Gerencie as pastas do Google Drive exibidas no portal.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div><h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1></div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => { const next: Record<string, any> = { none: 'asc', asc: 'desc', desc: 'none' }; setSortOrder(next[sortOrder]); }} className="gap-2 h-10">
+            {sortOrder === 'none' && <ArrowUpDown className="h-4 w-4" />}
+            {sortOrder === 'asc' && <ArrowUp className="h-4 w-4" />}
+            {sortOrder === 'desc' && <ArrowDown className="h-4 w-4" />}
+            Ordenar {sortOrder !== 'none' && (sortOrder === 'asc' ? '(A-Z)' : '(Z-A)')}
+          </Button>
+          <Dialog open={isAdding} onOpenChange={setIsAdding}>
+            <DialogTrigger asChild><Button className="gap-2 h-10"><Plus className="h-4 w-4" /> Nova Pasta</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Adicionar Pasta</DialogTitle></DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2"><label className="text-sm font-medium">Nome / Rótulo</label><Input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} /></div>
+                <div className="space-y-2"><label className="text-sm font-medium">Link ou ID da Pasta</label><div className="relative"><Input value={newFolderId} onChange={(e) => { setNewFolderId(e.target.value); if (e.target.value.length > 20) fetchFolderName(e.target.value); }} className={isFetchingName ? "pr-10" : ""} />{isFetchingName && <div className="absolute right-3 top-1/2 -translate-y-1/2"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>}</div></div>
+              </div>
+              <DialogFooter><Button onClick={handleAddConfig}>Salvar</Button></DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
-        
-        <Dialog open={isAdding} onOpenChange={setIsAdding}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" /> Nova Pasta
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Adicionar Pasta do Google Drive</DialogTitle>
-              <DialogDescription>
-                Insira o link completo ou o ID da pasta do Google Drive.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Nome / Rótulo</label>
-                <Input 
-                  placeholder="Ex: Documentos Financeiros 2024" 
-                  value={newLabel}
-                  onChange={(e) => setNewLabel(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Link ou ID da Pasta</label>
-                <div className="relative">
-                  <Input 
-                    placeholder="Cole o link completo ou o ID aqui" 
-                    value={newFolderId}
-                    onChange={(e) => {
-                      setNewFolderId(e.target.value);
-                      if (e.target.value.length > 20) {
-                        fetchFolderName(e.target.value);
-                      }
-                    }}
-                    className={isFetchingName ? "pr-10" : ""}
-                  />
-                  {isFetchingName && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-                <p className="text-[10px] text-muted-foreground">
-                  Dica: O sistema tentará identificar o nome da pasta automaticamente ao colar o link.
-                </p>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAdding(false)}>Cancelar</Button>
-              <Button onClick={handleAddConfig}>Salvar Configuração</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      ) : configs.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Folder className="h-12 w-12 text-muted-foreground mb-4 opacity-20" />
-            <h3 className="text-lg font-medium">Nenhuma pasta configurada</h3>
-            <p className="text-muted-foreground mb-6">Comece adicionando uma pasta do Google Drive para exibir no portal.</p>
-            <Button variant="outline" onClick={() => setIsAdding(true)}>Configurar primeira pasta</Button>
-          </CardContent>
-        </Card>
-      ) : (
+      {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : (
         <div className="grid gap-6">
-          {filteredConfigs.map((config) => (
+          {sortedConfigs.map((config) => (
             <Card key={config.id} className="overflow-hidden">
               <CardHeader className="bg-muted/30 pb-4">
                 <div className="flex justify-between items-start">
@@ -549,39 +352,15 @@ const TransparencyPage = () => {
                     <CardTitle className="text-xl">
                       {config.label}
                       {config.original_folder_name && config.original_folder_name !== config.label && (
-                        <span className="text-sm font-normal text-muted-foreground ml-2">
-                          ({config.original_folder_name})
-                        </span>
+                        <span className="text-sm font-normal text-muted-foreground ml-2">({config.original_folder_name})</span>
                       )}
                     </CardTitle>
                     <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-muted-foreground hover:text-primary"
-                      onClick={() => setEditingConfig({ id: config.id, label: config.label })}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="gap-2"
-                      onClick={() => copyEmbedCode(config.id)}
-                    >
-                      {copiedId === config.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      Embed
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => handleDelete(config.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setEditingConfig({ id: config.id, label: config.label })}><Edit2 className="h-4 w-4" /></Button>
+                    <Button variant="outline" size="sm" onClick={() => copyEmbedCode(config.id)}>{copiedId === config.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Embed</Button>
+                    <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(config.id)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 </div>
               </CardHeader>
@@ -592,17 +371,10 @@ const TransparencyPage = () => {
                       <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
                       <span className="text-sm font-medium">
                         {config.label}
-                        {config.original_folder_name && config.original_folder_name !== config.label && (
-                          <span className="text-xs font-normal text-muted-foreground ml-2">
-                            ({config.original_folder_name})
-                          </span>
-                        )}
+                        {config.original_folder_name && config.original_folder_name !== config.label && <span className="text-xs font-normal text-muted-foreground ml-2">({config.original_folder_name})</span>}
                       </span>
                     </div>
-                    {/* Simulated Drive Explorer */}
-                    <div className="p-4 min-h-[200px] flex flex-col gap-1">
-                      <DriveExplorer folderId={config.folder_id} folderName={config.label} />
-                    </div>
+                    <div className="p-4 min-h-[200px] flex flex-col gap-1"><DriveExplorer folderId={config.folder_id} folderName={config.label} /></div>
                   </div>
                 </div>
               </CardContent>
@@ -612,24 +384,9 @@ const TransparencyPage = () => {
       )}
       <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Nome da Pasta</DialogTitle>
-            <DialogDescription>
-              Altere o nome exibido para esta pasta no portal.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <label className="text-sm font-medium mb-2 block">Nome / Rótulo</label>
-            <Input 
-              value={editingConfig?.label || ''}
-              onChange={(e) => setEditingConfig(prev => prev ? { ...prev, label: e.target.value } : null)}
-              placeholder="Digite o novo nome"
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingConfig(null)}>Cancelar</Button>
-            <Button onClick={handleUpdateLabel}>Salvar Alterações</Button>
-          </DialogFooter>
+          <DialogHeader><DialogTitle>Editar Nome</DialogTitle></DialogHeader>
+          <div className="py-4"><Input value={editingConfig?.label || ''} onChange={(e) => setEditingConfig(prev => prev ? { ...prev, label: e.target.value } : null)} /></div>
+          <DialogFooter><Button onClick={handleUpdateLabel}>Salvar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
@@ -637,140 +394,57 @@ const TransparencyPage = () => {
 };
 
 const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
-  const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
-  
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-[99999] flex flex-col bg-background overflow-hidden w-full h-full">
       <div className="p-2 border-b flex flex-row items-center justify-between bg-background h-10 shrink-0 w-full">
-        <div className="flex items-center gap-1.5 overflow-hidden">
-          <FileIcon mimeType={item.mimeType} className="h-4 w-4 shrink-0" />
-          <span className="text-sm font-medium truncate max-w-[70vw] leading-tight">{item.name}</span>
-        </div>
+        <div className="flex items-center gap-1.5 overflow-hidden"><FileIcon mimeType={item.mimeType} className="h-4 w-4 shrink-0" /><span className="text-sm font-medium truncate max-w-[70vw] leading-tight">{item.name}</span></div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-7 px-2 text-xs" asChild>
-            <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
-              <Download className="h-3.5 w-3.5 mr-1" /> Download
-            </a>
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
+          <Button variant="outline" size="sm" className="h-7 px-2 text-xs" asChild><a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer"><Download className="h-3.5 w-3.5 mr-1" /> Download</a></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}><X className="h-4 w-4" /></Button>
         </div>
       </div>
-      <div className="flex-1 bg-white relative w-full h-full">
-        <iframe 
-          src={driveUrl} 
-          className="w-full h-full border-none absolute inset-0" 
-          title={item.name}
-          allow="autoplay; fullscreen"
-          allowFullScreen
-        />
-      </div>
+      <div className="flex-1 bg-white relative w-full h-full"><iframe src={`https://drive.google.com/file/d/${item.id}/preview`} className="w-full h-full border-none absolute inset-0" title={item.name} allow="autoplay; fullscreen" allowFullScreen /></div>
     </div>
   );
 };
 
 const FileIcon = ({ mimeType, className }: { mimeType: string, className?: string }) => {
-  if (mimeType === 'application/vnd.google-apps.folder') {
-    return <Folder className={cn("text-amber-500 fill-amber-500", className)} />;
-  }
-  
-  if (mimeType === 'application/pdf') {
-    return <FileText className={cn("text-red-500", className)} />;
-  }
-  
-  if (mimeType.includes('word') || mimeType.includes('officedocument.wordprocessingml')) {
-    return <FileCode className={cn("text-blue-600", className)} />;
-  }
-  
-  if (mimeType.includes('excel') || mimeType.includes('spreadsheet') || mimeType.includes('officedocument.spreadsheetml')) {
-    return <FileSpreadsheet className={cn("text-emerald-600", className)} />;
-  }
-  
-  if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) {
-    return <FileText className={cn("text-orange-600", className)} />;
-  }
-  
-  if (mimeType.startsWith('image/')) {
-    return <FileImage className={cn("text-purple-500", className)} />;
-  }
-  
-  if (mimeType.startsWith('video/')) {
-    return <FileVideo className={cn("text-slate-700", className)} />;
-  }
-  
-  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('compressed')) {
-    return <FileArchive className={cn("text-amber-700", className)} />;
-  }
-
+  if (mimeType === 'application/vnd.google-apps.folder') return <Folder className={cn("text-amber-500 fill-amber-500", className)} />;
+  if (mimeType === 'application/pdf') return <FileText className={cn("text-red-500", className)} />;
+  if (mimeType.includes('word') || mimeType.includes('officedocument.wordprocessingml')) return <FileCode className={cn("text-blue-600", className)} />;
+  if (mimeType.includes('excel') || mimeType.includes('spreadsheet') || mimeType.includes('officedocument.spreadsheetml')) return <FileSpreadsheet className={cn("text-emerald-600", className)} />;
+  if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return <FileText className={cn("text-orange-600", className)} />;
+  if (mimeType.startsWith('image/')) return <FileImage className={cn("text-purple-500", className)} />;
+  if (mimeType.startsWith('video/')) return <FileVideo className={cn("text-slate-700", className)} />;
+  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('compressed')) return <FileArchive className={cn("text-amber-700", className)} />;
   return <File className={cn("text-slate-400", className)} />;
 };
 
-// Component to explore the drive folder structure
 const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName: string }) => {
   const [items, setItems] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchFiles = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true); setError(null);
     try {
-      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
-        body: { action: 'list_files', folderId }
-      });
-
+      const { data, error } = await supabase.functions.invoke('google-drive-proxy', { body: { action: 'list_files', folderId } });
       if (error) throw error;
-      if (data.error === 'google_auth_required') {
-        setError('authentication_required');
-        return;
-      }
-      
+      if (data.error === 'google_auth_required') { setError('authentication_required'); return; }
       setItems(data.files || []);
-    } catch (err: any) {
-      console.error('Error fetching drive files:', err);
-      setError(err.message || 'Erro ao carregar arquivos');
-    } finally {
-      setLoading(false);
-    }
+    } catch (err: any) { setError(err.message || 'Erro ao carregar arquivos'); }
+    finally { setLoading(false); }
   }, [folderId]);
 
-  useEffect(() => {
-    fetchFiles();
-  }, [fetchFiles]);
+  useEffect(() => { fetchFiles(); }, [fetchFiles]);
 
   if (loading) return <div className="flex items-center justify-center p-8"><Loader2 className="h-5 w-5 animate-spin" /></div>;
-  
-  if (error === 'authentication_required') {
-    return (
-      <div className="p-8 text-center border rounded-lg bg-muted/20">
-        <p className="text-sm text-muted-foreground mb-4">Autenticação com Google Drive necessária para visualizar esta pasta.</p>
-      </div>
-    );
-  }
+  if (error === 'authentication_required') return <div className="p-8 text-center border rounded-lg bg-muted/20"><p className="text-sm text-muted-foreground mb-4">Autenticação necessária.</p></div>;
+  if (error) return <div className="p-8 text-center text-destructive"><p className="text-sm">{error}</p><Button variant="ghost" size="sm" onClick={fetchFiles} className="mt-2">Tentar novamente</Button></div>;
+  if (items.length === 0) return <div className="p-8 text-center text-muted-foreground text-sm">Nenhum arquivo encontrado.</div>;
 
-  if (error) {
-    return (
-      <div className="p-8 text-center text-destructive">
-        <p className="text-sm">{error}</p>
-        <Button variant="ghost" size="sm" onClick={fetchFiles} className="mt-2">Tentar novamente</Button>
-      </div>
-    );
-  }
-
-  if (items.length === 0) {
-    return <div className="p-8 text-center text-muted-foreground text-sm">Nenhum arquivo encontrado nesta pasta.</div>;
-  }
-
-  return (
-    <div className="space-y-1">
-      {items.map(item => (
-        <DriveItemComponent key={item.id} item={item} depth={0} />
-      ))}
-    </div>
-  );
+  return <div className="space-y-1">{items.map(item => <DriveItemComponent key={item.id} item={item} depth={0} />)}</div>;
 };
 
 const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number }) => {
@@ -785,85 +459,31 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
       if (!isOpen && children.length === 0) {
         setLoading(true);
         try {
-          const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
-            body: { action: 'list_files', folderId: item.id }
-          });
+          const { data, error } = await supabase.functions.invoke('google-drive-proxy', { body: { action: 'list_files', folderId: item.id } });
           if (error) throw error;
           setChildren(data.files || []);
           setIsOpen(true);
-        } catch (err) {
-          console.error('Error fetching subfolder:', err);
-          toast.error('Erro ao abrir pasta');
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setIsOpen(!isOpen);
-      }
-    } else {
-      setViewingFile(true);
-    }
+        } catch (err) { toast.error('Erro ao abrir pasta'); }
+        finally { setLoading(false); }
+      } else { setIsOpen(!isOpen); }
+    } else { setViewingFile(true); }
   };
 
   return (
     <div className="flex flex-col">
-      <div 
-        className={cn(
-          "flex items-center gap-2 p-2 rounded-md transition-colors cursor-pointer group",
-          isFolder ? "hover:bg-muted font-medium" : "hover:bg-muted/50"
-        )}
-        style={{ paddingLeft: `${depth * 20 + 8}px` }}
-        onClick={handleClick}
-      >
-        <div className="flex items-center gap-2">
-          {isFolder && (
-            isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          )}
-          <FileIcon mimeType={item.mimeType} className="h-4 w-4" />
-        </div>
-        
+      <div className={cn("flex items-center gap-2 p-2 rounded-md transition-colors cursor-pointer group", isFolder ? "hover:bg-muted font-medium" : "hover:bg-muted/50")} style={{ paddingLeft: `${depth * 20 + 8}px` }} onClick={handleClick}>
+        <div className="flex items-center gap-2">{isFolder && (isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />)}<FileIcon mimeType={item.mimeType} className="h-4 w-4" /></div>
         <span className="text-sm flex-1 truncate">{item.name}</span>
-        
         {!isFolder && (
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" title="Tela Cheia" onClick={(e) => { e.stopPropagation(); setViewingFile(true); }}>
-              <Maximize2 className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" title="Janela Tela Cheia" asChild onClick={(e) => e.stopPropagation()}>
-              <a href={`https://drive.google.com/file/d/${item.id}/preview`} target="_blank" rel="noreferrer">
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" title="Download" asChild onClick={(e) => e.stopPropagation()}>
-              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
-                <Download className="h-3.5 w-3.5" />
-              </a>
-            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => { e.stopPropagation(); setViewingFile(true); }}><Maximize2 className="h-3.5 w-3.5" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" asChild onClick={(e) => e.stopPropagation()}><a href={`https://drive.google.com/file/d/${item.id}/preview`} target="_blank" rel="noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" asChild onClick={(e) => e.stopPropagation()}><a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer"><Download className="h-3.5 w-3.5" /></a></Button>
           </div>
         )}
       </div>
-      
-      {!isFolder && (
-        <FileViewerDialog 
-          item={item} 
-          isOpen={viewingFile} 
-          onClose={() => setViewingFile(false)} 
-        />
-      )}
-      
-      {isOpen && (
-        <div className="flex flex-col">
-          {loading ? (
-            <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground">
-              <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
-            </div>
-          ) : (
-            children.map(child => (
-              <DriveItemComponent key={child.id} item={child} depth={depth + 1} />
-            ))
-          )}
-        </div>
-      )}
+      {!isFolder && <FileViewerDialog item={item} isOpen={viewingFile} onClose={() => setViewingFile(false)} />}
+      {isOpen && <div className="flex flex-col">{loading ? <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Carregando...</div> : children.map(child => <DriveItemComponent key={child.id} item={child} depth={depth + 1} />)}</div>}
     </div>
   );
 };
