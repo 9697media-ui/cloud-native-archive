@@ -496,6 +496,7 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <style dangerouslySetInnerHTML={{ __html: `
+          /* Remove o fundo escuro (overlay) e o botão de fechar padrão do Radix UI */
           [data-radix-portal] > [data-state=open].fixed.inset-0.z-50.bg-black\\/80 { 
             display: none !important;
           }
@@ -503,7 +504,7 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
             display: none !important;
           }
         ` }} />
-        <DialogHeader className="p-2 border-b flex flex-row items-center justify-between space-y-0 bg-background h-10">
+        <DialogHeader className="p-2 border-b flex flex-row items-center justify-between space-y-0 bg-background h-10 shrink-0">
           <div className="flex items-center gap-1.5 overflow-hidden">
             <FileIcon mimeType={item.mimeType} className="h-4 w-4 shrink-0" />
             <DialogTitle className="text-sm font-medium truncate max-w-[70vw] leading-tight">{item.name}</DialogTitle>
@@ -519,10 +520,10 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
             </Button>
           </div>
         </DialogHeader>
-        <div className="flex-1 bg-white relative">
+        <div className="flex-1 bg-white relative w-full h-full">
           <iframe 
             src={driveUrl} 
-            className="w-full h-full border-none" 
+            className="w-full h-full border-none absolute inset-0" 
             title={item.name}
             allow="autoplay; fullscreen"
             allowFullScreen
