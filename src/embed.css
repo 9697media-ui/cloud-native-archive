@@ -5,15 +5,19 @@ body.is-embedded,
   min-height: 0 !important;
   overflow: visible !important;
   background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .is-embedded main {
   overflow: visible !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* Force hide all scrolls in embed mode */
 html.is-embedded, body.is-embedded {
-  overflow: hidden !important; /* Prevents internal scrolling */
+  overflow: hidden !important; 
   scrollbar-width: none !important;
 }
 
