@@ -701,12 +701,12 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
               <Maximize2 className="h-3.5 w-3.5" />
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" title="Janela Tela Cheia" asChild onClick={(e) => e.stopPropagation()}>
-              <a href={`https://drive.google.com/file/d/${item.id}/preview`} target={isEmbed ? "_top" : "_blank"} rel="noreferrer">
+              <a href={`https://drive.google.com/file/d/${item.id}/preview`} target={isEmbed ? "_parent" : "_self"} rel="noreferrer">
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" title="Download" asChild onClick={(e) => e.stopPropagation()}>
-              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
+              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target={isEmbed ? "_parent" : "_self"} rel="noreferrer">
                 <Download className="h-3.5 w-3.5" />
               </a>
             </Button>
