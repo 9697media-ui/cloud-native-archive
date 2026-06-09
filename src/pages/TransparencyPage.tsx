@@ -52,6 +52,10 @@ interface DriveItem {
   id: string;
   name: string;
   mimeType: string;
+  shortcutDetails?: {
+    targetId: string;
+    targetMimeType: string;
+  };
   children?: DriveItem[];
 }
 
@@ -590,7 +594,9 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+  const isFolder = item.mimeType === 'application/vnd.google-apps.folder' || 
+                 (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetMimeType === 'application/vnd.google-apps.folder');
+  const actualId = (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetId) || item.id;
   const isSelected = selectedIds.includes(item.id);
 
   const toggleFolder = async (e: React.MouseEvent) => {
@@ -599,7 +605,7 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
       setLoading(true);
       try {
         const { data } = await supabase.functions.invoke('google-drive-proxy', {
-          body: { action: 'list_files', folderId: item.id }
+          body: { action: 'list_files', folderId: actualId }
         });
         setChildren(data.files || []);
         setIsOpen(true);
@@ -731,7 +737,10 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
 };
 
 const FileIcon = ({ mimeType, className }: { mimeType: string, className?: string }) => {
-  if (mimeType === 'application/vnd.google-apps.folder') return <Folder className={cn("text-amber-500 fill-amber-500", className)} />;
+  const isShortcut = mimeType === 'application/vnd.google-apps.shortcut';
+  const folderMimeType = 'application/vnd.google-apps.folder';
+
+  if (mimeType === folderMimeType) return <Folder className={cn("text-amber-500 fill-amber-500", className)} />;
   if (mimeType === 'application/pdf') return <FileText className={cn("text-red-500", className)} />;
   if (mimeType.includes('word') || mimeType.includes('officedocument.wordprocessingml')) return <FileCode className={cn("text-blue-600", className)} />;
   if (mimeType.includes('excel') || mimeType.includes('spreadsheet') || mimeType.includes('officedocument.spreadsheetml')) return <FileSpreadsheet className={cn("text-emerald-600", className)} />;
@@ -773,14 +782,17 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewingFile, setViewingFile] = useState(false);
-  const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+  const isFolder = item.mimeType === 'application/vnd.google-apps.folder' || 
+                 (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetMimeType === 'application/vnd.google-apps.folder');
+  const actualId = (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetId) || item.id;
+  const actualMimeType = (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetMimeType) || item.mimeType;
 
   const handleClick = async () => {
     if (isFolder) {
       if (!isOpen && children.length === 0) {
         setLoading(true);
         try {
-          const { data, error } = await supabase.functions.invoke('google-drive-proxy', { body: { action: 'list_files', folderId: item.id } });
+          const { data, error } = await supabase.functions.invoke('google-drive-proxy', { body: { action: 'list_files', folderId: actualId } });
           if (error) throw error;
           setChildren(data.files || []);
           setIsOpen(true);
