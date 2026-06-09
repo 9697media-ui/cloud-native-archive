@@ -214,13 +214,25 @@ const TransparencyPage = () => {
 
     // Extract ID if a full URL was pasted
     let folderId = newFolderId.trim();
-    if (folderId.includes('drive.google.com')) {
-      const match = folderId.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-      if (match) {
+    
+    // Regular expressions for different Google Drive URL formats
+    const patterns = [
+      /\/folders\/([a-zA-Z0-9_-]{25,})/,       // drive.google.com/drive/folders/ID
+      /[?&]id=([a-zA-Z0-9_-]{25,})/,           // drive.google.com/open?id=ID
+      /\/file\/d\/([a-zA-Z0-9_-]{25,})/,       // drive.google.com/file/d/ID/view
+      /\/d\/([a-zA-Z0-9_-]{25,})/              // drive.google.com/d/ID
+    ];
+
+    for (const pattern of patterns) {
+      const match = folderId.match(pattern);
+      if (match && match[1]) {
         folderId = match[1];
+        break;
       }
-    } else if (folderId.includes('?')) {
-      // Remove query parameters like ?hl=pt-br
+    }
+
+    // Clean up any remaining query parameters if it's still looking like a partial URL/ID
+    if (folderId.includes('?')) {
       folderId = folderId.split('?')[0];
     }
 
@@ -388,7 +400,7 @@ const TransparencyPage = () => {
             <DialogHeader>
               <DialogTitle>Adicionar Pasta do Google Drive</DialogTitle>
               <DialogDescription>
-                Insira o ID da pasta do Google Drive e um nome para identificação.
+                Insira o link completo ou o ID da pasta do Google Drive.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -401,14 +413,14 @@ const TransparencyPage = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Google Drive Folder ID</label>
+                <label className="text-sm font-medium">Link ou ID da Pasta</label>
                 <Input 
-                  placeholder="ID da pasta (encontrado na URL do Drive)" 
+                  placeholder="Cole o link completo ou o ID aqui" 
                   value={newFolderId}
                   onChange={(e) => setNewFolderId(e.target.value)}
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  Dica: O ID é a parte final da URL: drive.google.com/drive/folders/<strong>ID_AQUI</strong>
+                  Dica: Você pode colar o link direto do seu navegador ou apenas o ID.
                 </p>
               </div>
             </div>
