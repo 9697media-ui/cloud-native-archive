@@ -575,6 +575,28 @@ const TransparencyPage = () => {
           ))}
         </div>
       )}
+      <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Nome da Pasta</DialogTitle>
+            <DialogDescription>
+              Altere o nome exibido para esta pasta no portal.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium mb-2 block">Nome / Rótulo</label>
+            <Input 
+              value={editingConfig?.label || ''}
+              onChange={(e) => setEditingConfig(prev => prev ? { ...prev, label: e.target.value } : null)}
+              placeholder="Digite o novo nome"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingConfig(null)}>Cancelar</Button>
+            <Button onClick={handleUpdateLabel}>Salvar Alterações</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
