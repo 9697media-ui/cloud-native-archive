@@ -316,7 +316,7 @@ const TransparencyPage = () => {
 
   const copyEmbedCode = (id: string) => {
     const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
-    const embedCode = `<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;" allow="fullscreen"></iframe><script>window.addEventListener('message', function(e) { if (e.data.type === 'resize-iframe' && e.data.height) { document.getElementById('iframe-${id}').style.height = e.data.height + 'px'; } }, false);</script>`;
+    const embedCode = `<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;" allow="fullscreen; clipboard-write"></iframe><script>window.addEventListener('message', function(e) { if (e.data.type === 'resize-iframe' && e.data.height) { document.getElementById('iframe-${id}').style.height = e.data.height + 'px'; } }, false);</script>`;
     navigator.clipboard.writeText(embedCode);
     setCopiedId(id);
     toast.success('Código embed copiado!');
@@ -737,9 +737,10 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
     <div 
       id={`viewer-${item.id}`}
       className={cn(
-        "fixed inset-0 z-[99999] flex flex-col bg-background overflow-hidden w-full h-full",
+        "fixed inset-0 z-[9999999] flex flex-col bg-background overflow-hidden w-[100vw] h-[100vh]",
         isFullscreen ? "p-0" : ""
       )}
+      style={{ left: 0, top: 0, right: 0, bottom: 0, position: 'fixed' }}
     >
       <div className="p-2 border-b flex flex-row items-center justify-between bg-background h-10 shrink-0 w-full">
         <div className="flex items-center gap-1.5 overflow-hidden">
