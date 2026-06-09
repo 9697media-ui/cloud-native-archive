@@ -269,7 +269,7 @@ const TransparencyPage = () => {
 
   const copyEmbedCode = (id: string) => {
     const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
-    const embedCode = `<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;"></iframe><script>window.addEventListener('message', function(e) { if (e.data.type === 'resize-iframe' && e.data.height) { document.getElementById('iframe-${id}').style.height = e.data.height + 'px'; } }, false);</script>`;
+    const embedCode = `<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;" allow="fullscreen"></iframe><script>window.addEventListener('message', function(e) { if (e.data.type === 'resize-iframe' && e.data.height) { document.getElementById('iframe-${id}').style.height = e.data.height + 'px'; } }, false);</script>`;
     navigator.clipboard.writeText(embedCode);
     setCopiedId(id);
     toast.success('Código embed copiado!');
