@@ -60,6 +60,7 @@ export default function AppLayout() {
   const hideFooterParam = queryParams.get('hideFooter') === 'true';
   const hideHeaderParam = queryParams.get('hideHeader') === 'true';
   const hideTitleParam = queryParams.get('hideTitle') === 'true';
+  const isEmbedParam = queryParams.get('embed') === 'true';
   const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
 
   useEffect(() => {
@@ -71,7 +72,7 @@ export default function AppLayout() {
   const { eligible: betaEligible, rawEnabled: betaOn, toggleBeta } = useBetaPreference();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
-  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
+  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam || isEmbedParam;
 
   const NavContent = ({ onClick }: { onClick?: () => void }) => (
     <>
@@ -109,8 +110,8 @@ export default function AppLayout() {
 
   return (
     <div className={cn("flex min-h-screen flex-col bg-background", isCleanView && "h-full")}>
-      {!hideHeaderParam && <ImpersonationBanner />}
-      {!hideHeaderParam && (
+      {!hideHeaderParam && !isEmbedParam && <ImpersonationBanner />}
+      {!hideHeaderParam && !isEmbedParam && (
         <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
           <div className="flex h-16 w-full items-center gap-4 px-4 lg:px-8">
             {isMobile && (
@@ -197,7 +198,7 @@ export default function AppLayout() {
       </main>
 
 
-      {!hideHeaderParam && (
+      {!hideHeaderParam && !isEmbedParam && (
         <div className={cn(
           "fixed bottom-6 right-6 z-[60] duration-500 flex items-center gap-3",
           isFirstRender && "animate-in fade-in slide-in-from-bottom-4"

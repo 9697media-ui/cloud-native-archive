@@ -236,11 +236,44 @@ const TransparencyPage = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (!isAdmin && user?.email !== 'mkt@anabrasil.org' && user?.email !== 'transparencia@anabrasil.org' && user?.email !== 'contato@anabrasil.org') {
+  const isEmbed = searchParams.get('embed') === 'true';
+  const embedId = searchParams.get('id');
+
+  if (!isEmbed && !isAdmin && user?.email !== 'mkt@anabrasil.org' && user?.email !== 'transparencia@anabrasil.org' && user?.email !== 'contato@anabrasil.org') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <h1 className="text-2xl font-bold text-destructive">Acesso Restrito</h1>
         <p className="text-muted-foreground">Somente administradores podem acessar esta página.</p>
+      </div>
+    );
+  }
+
+  const filteredConfigs = embedId ? configs.filter(c => c.id === embedId) : configs;
+
+  if (isEmbed) {
+    return (
+      <div className="p-0 bg-transparent">
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : filteredConfigs.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
+        ) : (
+          <div className="grid gap-6">
+            {filteredConfigs.map((config) => (
+              <div key={config.id} className="bg-card border rounded-lg overflow-hidden">
+                <div className="bg-muted/50 p-3 border-b flex items-center gap-2">
+                  <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
+                  <span className="text-sm font-medium">{config.label}</span>
+                </div>
+                <div className="p-4 min-h-[200px] flex flex-col gap-1">
+                  <DriveExplorer folderId={config.folder_id} folderName={config.label} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
@@ -361,7 +394,7 @@ const TransparencyPage = () => {
         </Card>
       ) : (
         <div className="grid gap-6">
-          {configs.map((config) => (
+          {filteredConfigs.map((config) => (
             <Card key={config.id} className="overflow-hidden">
               <CardHeader className="bg-muted/30 pb-4">
                 <div className="flex justify-between items-start">
@@ -430,9 +463,6 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
               <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
                 <Download className="h-4 w-4 mr-2" /> Download
               </a>
-            </Button>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
             </Button>
           </div>
         </DialogHeader>
