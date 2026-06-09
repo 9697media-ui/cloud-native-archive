@@ -46,6 +46,7 @@ interface DriveItem {
 
 const TransparencyPage = () => {
   const { isAdmin } = useUserRole();
+  const { user } = useAuth();
   const [configs, setConfigs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
