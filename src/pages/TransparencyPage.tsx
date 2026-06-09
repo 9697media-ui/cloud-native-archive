@@ -486,8 +486,22 @@ const TransparencyPage = () => {
   );
 };
 
-const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
+const FileViewerDialog = ({ item, isOpen, onClose, isEmbed }: { item: DriveItem, isOpen: boolean, onClose: () => void, isEmbed: boolean }) => {
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
+
+  if (isEmbed && isOpen) {
+    // If we are in an iframe (embed mode), redirect the entire window to Google Drive
+    // This makes it open in the same tab but taking over the full page, not just the container
+    try {
+      window.top!.location.href = driveUrl;
+    } catch (e) {
+      // Fallback if top window is restricted
+      window.location.href = driveUrl;
+    }
+    onClose();
+    return null;
+  }
+
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
