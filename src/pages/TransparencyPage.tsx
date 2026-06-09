@@ -73,41 +73,39 @@ const TransparencyPage = () => {
     const hash = window.location.hash;
     if (hash && (hash.includes('access_token=') || hash.includes('type=recovery'))) {
       const handleOAuthResponse = async () => {
+        // We get the session that just was created by OAuth
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (session?.provider_token || session?.provider_refresh_token) {
-          if (session.provider_refresh_token) {
-            // Save the refresh token to GLOBAL settings instead of a user profile
-            const { error: updateError } = await supabase
-              .from('global_settings')
-              .upsert({ 
-                key: 'google_drive_refresh_token', 
-                value: { refresh_token: session.provider_refresh_token } 
-              });
-            
-            if (updateError) {
-              console.error('Error updating global settings with Google token:', updateError);
-              toast.error('Erro ao salvar conexão global');
-            } else {
-              toast.success('Google Drive conectado globalmente com sucesso!');
-              setHasGoogleAuth(true);
-              
-              // Opcional: Deslogar do Google para não interferir na conta admin do portal
-              // mas o Supabase já terá trocado a sessão. 
-              // O usuário pode precisar logar novamente com sua conta Admin do portal.
-              toast.info('Você pode precisar entrar novamente com sua conta Admin do Portal.');
-            }
-            
-            // Clean up the URL hash
-            window.history.replaceState(null, '', window.location.pathname);
+        if (session?.provider_refresh_token) {
+          // 1. Save the token to global settings
+          const { error: updateError } = await supabase
+            .from('global_settings')
+            .upsert({ 
+              key: 'google_drive_refresh_token', 
+              value: { refresh_token: session.provider_refresh_token } 
+            });
+          
+          if (!updateError) {
+            toast.success('Google Drive conectado globalmente!');
+            setHasGoogleAuth(true);
           }
+
+          // 2. IMPORTANT: We do NOT want to keep this Google-based session.
+          // We clear the session so it doesn't overwrite the admin user.
+          // The user will need to log back in with their admin credentials.
+          await supabase.auth.signOut();
+          toast.info('Por favor, faça login novamente com sua conta Admin para continuar gerenciando.');
+          
+          // Clean up the URL hash and redirect to login
+          window.location.hash = '';
+          setTimeout(() => window.location.href = '/login', 2000);
         }
       };
       handleOAuthResponse();
     }
 
     checkGoogleAuth();
-  }, [checkGoogleAuth, user]);
+  }, [checkGoogleAuth]);
 
   const handleGoogleLogin = async () => {
     setIsAuthenticating(true);
