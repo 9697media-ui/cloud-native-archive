@@ -578,7 +578,7 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
         }}
       >
         <div 
-          className="flex flex-col w-full h-full max-w-5xl mx-auto my-auto md:h-[90vh] md:w-[90vw] bg-background md:rounded-lg overflow-hidden shadow-2xl cursor-default"
+          className="flex flex-col w-full h-full md:h-[95vh] md:w-[95vw] bg-background md:rounded-lg overflow-hidden shadow-2xl cursor-default"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between p-4 bg-background border-b z-50">
