@@ -1,0 +1,21 @@
+html.is-embedded, 
+body.is-embedded, 
+#root.is-embedded {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+.is-embedded main {
+  overflow: visible !important;
+}
+
+/* Force hide all scrolls in embed mode */
+.is-embedded ::-webkit-scrollbar {
+  display: none;
+}
+.is-embedded {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
