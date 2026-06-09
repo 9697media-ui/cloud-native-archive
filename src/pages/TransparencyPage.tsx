@@ -634,8 +634,7 @@ const TransparencyPage = () => {
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          ))}
+            ))}
         </div>
       )}
       <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
