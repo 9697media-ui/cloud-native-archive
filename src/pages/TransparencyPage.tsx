@@ -219,16 +219,42 @@ const TransparencyPage = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
-      {!hasGoogleAuth && (
+      {hasGoogleAuth ? (
+        <Card className="mb-8 border-green-200 bg-green-50/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                  <Check className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-green-800 text-lg">Google Drive Conectado</CardTitle>
+                  <CardDescription className="text-green-700">
+                    A integração global está ativa e os arquivos estão sendo sincronizados.
+                  </CardDescription>
+                </div>
+              </div>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleGoogleLogin} 
+                disabled={isAuthenticating}
+                className="border-green-200 hover:bg-green-100 text-green-700"
+              >
+                {isAuthenticating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Settings className="mr-2 h-4 w-4" />}
+                Alterar Conta
+              </Button>
+            </div>
+          </CardHeader>
+        </Card>
+      ) : (
         <Card className="mb-8 border-amber-200 bg-amber-50">
           <CardHeader>
             <CardTitle className="text-amber-800 flex items-center gap-2">
-              <LogIn className="h-5 w-5" /> Conexão com Google Drive
+              <LogIn className="h-5 w-5" /> Conexão Necessária
             </CardTitle>
             <CardDescription className="text-amber-700">
-              {hasGoogleAuth 
-                ? "A integração global está ativa. Você pode atualizar a conta conectada se necessário."
-                : "Para visualizar os arquivos do Google Drive em tempo real, um administrador precisa autorizar o acesso uma única vez para todo o sistema."}
+              Para visualizar os arquivos do Google Drive em tempo real, um administrador precisa autorizar o acesso uma única vez para todo o sistema.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -238,7 +264,7 @@ const TransparencyPage = () => {
               className="bg-[#4285F4] hover:bg-[#357abd]"
             >
               {isAuthenticating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-              {hasGoogleAuth ? "Atualizar Conta Google (Global)" : "Conectar Google Drive (Global)"}
+              Conectar Google Drive (Global)
             </Button>
           </CardContent>
         </Card>
