@@ -60,6 +60,7 @@ export default function AppLayout() {
   const hideFooterParam = queryParams.get('hideFooter') === 'true';
   const hideHeaderParam = queryParams.get('hideHeader') === 'true';
   const hideTitleParam = queryParams.get('hideTitle') === 'true';
+  const isEmbedParam = queryParams.get('embed') === 'true';
   const [showLoginLocal, setShowLoginLocal] = useState(!hideLoginParam);
 
   useEffect(() => {
