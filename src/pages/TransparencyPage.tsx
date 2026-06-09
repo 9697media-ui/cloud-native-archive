@@ -594,7 +594,9 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+  const isFolder = item.mimeType === 'application/vnd.google-apps.folder' || 
+                 (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetMimeType === 'application/vnd.google-apps.folder');
+  const actualId = (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetId) || item.id;
   const isSelected = selectedIds.includes(item.id);
 
   const toggleFolder = async (e: React.MouseEvent) => {
