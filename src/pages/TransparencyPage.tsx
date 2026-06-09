@@ -52,6 +52,10 @@ interface DriveItem {
   id: string;
   name: string;
   mimeType: string;
+  shortcutDetails?: {
+    targetId: string;
+    targetMimeType: string;
+  };
   children?: DriveItem[];
 }
 
