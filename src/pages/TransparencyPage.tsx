@@ -345,12 +345,33 @@ const TransparencyPage = () => {
         {loading ? <div className="flex justify-center py-2"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> : 
          sortedConfigs.length === 0 ? <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada.</div> : (
           <div className="flex flex-col gap-0 w-full m-0 p-0">
-            {sortedConfigs.map((config) => (
-              <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
-                <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2"><Folder className="h-4 w-4 text-amber-500 fill-amber-500" /><span className="text-sm font-medium">{config.label}</span></div>
-                <div className="p-4 flex flex-col gap-1 w-full overflow-visible"><DriveExplorer folderId={config.folder_id} folderName={config.label} /></div>
-              </div>
-            ))}
+            {sortedConfigs.map((config) => {
+              const isExpanded = expandedConfigs.has(config.id);
+              return (
+                <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0 mb-4 last:mb-0">
+                  <div 
+                    className="bg-muted/50 p-3 border-b flex items-center justify-between cursor-pointer hover:bg-muted/80 transition-colors"
+                    onClick={() => toggleConfig(config.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 bg-amber-100 rounded-md">
+                        <Folder className="h-5 w-5 text-amber-500 fill-amber-500" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">{config.label}</span>
+                        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">ID: {config.folder_id}</span>
+                      </div>
+                    </div>
+                    {isExpanded ? <ChevronDown className="h-5 w-5 text-muted-foreground" /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+                  </div>
+                  {isExpanded && (
+                    <div className="p-4 flex flex-col gap-1 w-full overflow-visible">
+                      <DriveExplorer folderId={config.folder_id} folderName={config.label} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
