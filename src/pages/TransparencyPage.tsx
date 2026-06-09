@@ -516,7 +516,7 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={toggleFullScreen}>
-            <Maximize2 className="h-3.5 w-3.5 mr-1" /> F11 / Tela Cheia
+            <Maximize2 className="h-3.5 w-3.5 mr-1" /> Tela Cheia
           </Button>
           <Button variant="outline" size="sm" className="h-7 px-2 text-xs" asChild>
             <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
