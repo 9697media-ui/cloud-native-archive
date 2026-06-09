@@ -74,6 +74,7 @@ const TransparencyPage = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
   const [editingConfig, setEditingConfig] = useState<{ id: string, label: string } | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'none'>('none');
 
   const checkGoogleAuth = useCallback(async () => {
     const { data } = await supabase
