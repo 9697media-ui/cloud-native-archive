@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -48,6 +49,7 @@ interface DriveItem {
 const TransparencyPage = () => {
   const { isAdmin } = useUserRole();
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [configs, setConfigs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
@@ -71,7 +73,9 @@ const TransparencyPage = () => {
   useEffect(() => {
     // Check if we just returned from a successful Google OAuth flow
     const hash = window.location.hash;
-    if (hash && (hash.includes('access_token=') || hash.includes('type=recovery'))) {
+    const isGoogleAuth = searchParams.get('type') === 'google_auth' || hash.includes('access_token=');
+    
+    if (isGoogleAuth) {
       const handleOAuthResponse = async () => {
         // We get the session that just was created by OAuth
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -88,6 +92,8 @@ const TransparencyPage = () => {
           if (!updateError) {
             toast.success('Google Drive conectado globalmente!');
             setHasGoogleAuth(true);
+          } else {
+            console.error('Error saving token:', updateError);
           }
 
           // 2. IMPORTANT: We do NOT want to keep this Google-based session.
@@ -97,20 +103,20 @@ const TransparencyPage = () => {
           if (previousAdminEmail) {
             toast.info(`Integração concluída. Por favor, entre novamente como ${previousAdminEmail}.`);
             localStorage.removeItem('pre_oauth_admin_email');
-          } else {
-            toast.info('Por favor, faça login novamente com sua conta Admin para continuar gerenciando.');
           }
           
-          // Clean up the URL hash and redirect to login
+          // Clean up the URL and redirect to login
           window.location.hash = '';
-          setTimeout(() => window.location.href = '/login', 2500);
+          searchParams.delete('type');
+          setSearchParams(searchParams);
+          setTimeout(() => window.location.href = '/login', 2000);
         }
       };
       handleOAuthResponse();
     }
 
     checkGoogleAuth();
-  }, [checkGoogleAuth]);
+  }, [checkGoogleAuth, searchParams, setSearchParams]);
 
   const handleGoogleLogin = async () => {
     // Save current user email to localStorage before redirecting
@@ -127,7 +133,7 @@ const TransparencyPage = () => {
             prompt: 'consent',
           },
           scopes: 'https://www.googleapis.com/auth/drive.readonly',
-          redirectTo: window.location.origin + '/portal-transparencia',
+          redirectTo: window.location.origin + '/portal-transparencia?type=google_auth',
         },
       });
       if (error) throw error;
