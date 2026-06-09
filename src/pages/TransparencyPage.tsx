@@ -719,6 +719,7 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
           item={item} 
           isOpen={viewingFile} 
           onClose={() => setViewingFile(false)} 
+          isEmbed={isEmbed}
         />
       )}
       
