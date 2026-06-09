@@ -817,7 +817,9 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         } catch (err) { toast.error('Erro ao abrir pasta'); }
         finally { setLoading(false); }
       } else { setIsOpen(!isOpen); }
-    } else { setViewingFile(true); }
+    } else { 
+      window.open(`https://drive.google.com/file/d/${item.id}/preview`, '_blank');
+    }
   };
 
   return (
