@@ -196,9 +196,9 @@ const TransparencyPage = () => {
       setNewLabel('');
       setIsAdding(false);
       fetchConfigs();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding config:', error);
-      toast.error('Erro ao salvar configuração');
+      toast.error('Erro ao salvar configuração: ' + (error.message || 'Erro desconhecido'));
     }
   };
 
