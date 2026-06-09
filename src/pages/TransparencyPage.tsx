@@ -324,6 +324,26 @@ const TransparencyPage = () => {
     }
   };
 
+  const syncOriginalName = async (config: any) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+        body: { action: 'get_folder_name', folderId: config.folder_id }
+      });
+      
+      if (!error && data?.name) {
+        await supabase
+          .from('transparency_configs')
+          .update({ original_folder_name: data.name })
+          .eq('id', config.id);
+        
+        // Refresh local state without full reload
+        setConfigs(prev => prev.map(c => c.id === config.id ? { ...c, original_folder_name: data.name } : c));
+      }
+    } catch (err) {
+      console.error('Error syncing name:', err);
+    }
+  };
+
   const copyEmbedCode = (id: string) => {
     const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
     const embedCode = `
