@@ -55,6 +55,44 @@ const TransparencyPage = () => {
   const [newLabel, setNewLabel] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
+
+  const checkGoogleAuth = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('google_refresh_token')
+      .eq('user_id', user.id)
+      .single();
+    setHasGoogleAuth(!!data?.google_refresh_token);
+  }, [user]);
+
+  useEffect(() => {
+    checkGoogleAuth();
+  }, [checkGoogleAuth]);
+
+  const handleGoogleLogin = async () => {
+    setIsAuthenticating(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          scopes: 'https://www.googleapis.com/auth/drive.readonly',
+          redirectTo: window.location.origin + '/portal-transparencia',
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error Google OAuth:', error);
+      toast.error('Erro ao iniciar autenticação Google');
+      setIsAuthenticating(false);
+    }
+  };
 
   useEffect(() => {
     fetchConfigs();
