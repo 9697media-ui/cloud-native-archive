@@ -229,6 +229,7 @@ const TransparencyPage = () => {
       toast.success('Configuração adicionada');
       setNewFolderId('');
       setNewLabel('');
+      setOriginalFolderName('');
       setIsAdding(false);
       fetchConfigs();
     } catch (error: any) {
