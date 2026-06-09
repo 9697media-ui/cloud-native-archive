@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -488,47 +488,21 @@ const TransparencyPage = () => {
 
 const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
-  const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'true';
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  // If we are in embed mode, the only way to occupy the "full window" of the device 
-  // is to open in a new tab, as iframes are trapped by browser security.
-  if (isEmbed) {
-    window.open(driveUrl, '_blank');
-    onClose();
-    return null;
-  }
-
+  
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent 
-        className="max-w-none w-screen h-screen p-0 m-0 overflow-hidden flex flex-col rounded-none border-none shadow-none z-[99999] top-0 left-0 translate-x-0 translate-y-0 sm:rounded-none fixed"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+      {/* Target the overlay to make it invisible/removed as requested */}
+      <DialogContent className="max-w-none w-screen h-screen p-0 m-0 overflow-hidden flex flex-col rounded-none border-none shadow-none z-[9999] top-0 left-0 translate-x-0 translate-y-0 sm:rounded-none">
         <style dangerouslySetInnerHTML={{ __html: `
           [data-radix-portal] > [data-state=open].fixed.inset-0.z-50.bg-black\\/80 { 
-            display: none !important;
-          }
-          [data-radix-portal] button[class*="absolute right-4 top-4"] {
-            display: none !important;
+            background-color: transparent !important;
+            backdrop-filter: none !important;
           }
         ` }} />
-        <div className="p-2 border-b flex flex-row items-center justify-between bg-background h-10 shrink-0 w-full">
+        <DialogHeader className="p-2 border-b flex flex-row items-center justify-between space-y-0 bg-background h-10">
           <div className="flex items-center gap-1.5 overflow-hidden">
             <FileIcon mimeType={item.mimeType} className="h-4 w-4 shrink-0" />
-            <span className="text-sm font-medium truncate max-w-[60vw] leading-tight">{item.name}</span>
+            <DialogTitle className="text-sm font-medium truncate max-w-[70vw] leading-tight">{item.name}</DialogTitle>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="h-7 px-2 text-xs" asChild>
@@ -540,14 +514,13 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
               <X className="h-4 w-4" />
             </Button>
           </div>
-        </div>
-        <div className="flex-1 bg-white relative w-full h-full">
+        </DialogHeader>
+        <div className="flex-1 bg-white relative">
           <iframe 
             src={driveUrl} 
-            className="w-full h-full border-none absolute inset-0" 
+            className="w-full h-full border-none" 
             title={item.name}
-            allow="autoplay; fullscreen"
-            allowFullScreen
+            allow="autoplay"
           />
         </div>
       </DialogContent>
