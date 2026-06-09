@@ -386,6 +386,8 @@ const TransparencyPage = () => {
     );
   }
 
+  const filteredConfigs = embedId ? configs.filter(c => c.id === embedId) : configs;
+
   const sortedConfigs = [...filteredConfigs].sort((a, b) => {
     if (sortOrder === 'none') return 0;
     const nameA = (a.original_folder_name || a.label).toLowerCase();
@@ -401,11 +403,11 @@ const TransparencyPage = () => {
           <div className="flex justify-center py-2">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-        ) : filteredConfigs.length === 0 ? (
+        ) : sortedConfigs.length === 0 ? (
           <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
         ) : (
           <div className="flex flex-col gap-0 w-full m-0 p-0">
-            {filteredConfigs.map((config) => (
+            {sortedConfigs.map((config) => (
               <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
                 <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2">
                   <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
