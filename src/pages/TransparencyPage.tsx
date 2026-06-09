@@ -477,7 +477,7 @@ const TransparencyPage = () => {
                           {config.original_folder_name && config.original_folder_name !== config.label && (
                             <span className="text-sm font-normal text-muted-foreground">({config.original_folder_name})</span>
                           )}
-                          {isExpanded ? <ChevronDown className="h-5 w-5 text-muted-foreground ml-2" /> : <ChevronRight className="h-5 w-5 text-muted-foreground ml-2" />}
+                          <ChevronRight className={cn("h-5 w-5 text-muted-foreground ml-2 transition-transform duration-200", isExpanded ? "rotate-90" : "rotate-0")} />
                         </CardTitle>
                         <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
                       </div>
