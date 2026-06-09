@@ -72,7 +72,7 @@ export default function AppLayout() {
   const { eligible: betaEligible, rawEnabled: betaOn, toggleBeta } = useBetaPreference();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
-  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam;
+  const isCleanView = isEmbedded || hideLoginParam || hideFooterParam || hideHeaderParam || hideTitleParam || isEmbedParam;
 
   const NavContent = ({ onClick }: { onClick?: () => void }) => (
     <>
