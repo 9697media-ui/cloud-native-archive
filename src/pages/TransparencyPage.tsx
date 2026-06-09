@@ -218,7 +218,11 @@ const TransparencyPage = () => {
     try {
       const { error } = await supabase
         .from('transparency_configs')
-        .insert([{ folder_id: folderId, label: newLabel }]);
+        .insert([{ 
+          folder_id: folderId, 
+          label: newLabel,
+          original_folder_name: originalFolderName 
+        }]);
       
       if (error) throw error;
       
