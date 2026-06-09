@@ -667,24 +667,18 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
 const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      // Small delay to ensure the DOM is ready
-      const timer = setTimeout(() => {
-        const viewerElement = document.getElementById(`viewer-${item.id}`);
-        if (viewerElement) {
-          try {
-            if (viewerElement.requestFullscreen) {
-              viewerElement.requestFullscreen();
-            }
-          } catch (err) {
-            console.error('Fullscreen error:', err);
-          }
-        }
-      }, 100);
-      return () => clearTimeout(timer);
+  const toggleFullscreen = () => {
+    const viewerElement = document.getElementById(`viewer-${item.id}`);
+    if (!viewerElement) return;
+
+    if (!document.fullscreenElement) {
+      viewerElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
     }
-  }, [isOpen, item.id]);
+  };
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -710,6 +704,9 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
           <span className="text-sm font-medium truncate max-w-[70vw] leading-tight">{item.name}</span>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={toggleFullscreen}>
+            <Maximize2 className="h-3.5 w-3.5 mr-1" /> {isFullscreen ? 'Sair Tela Cheia' : 'Tela Cheia'}
+          </Button>
           <Button variant="outline" size="sm" className="h-7 px-2 text-xs" asChild>
             <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
               <Download className="h-3.5 w-3.5 mr-1" /> Download
