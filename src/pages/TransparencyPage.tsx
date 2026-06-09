@@ -148,10 +148,18 @@ const TransparencyPage = () => {
       const calculateHeight = () => {
         const root = document.getElementById('root');
         if (root) {
-          const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
-          const height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
-          if (height > 0) {
-            window.parent.postMessage({ type: 'resize-iframe', height }, '*');
+          // Check if any FileViewerDialog is open
+          const hasOpenViewer = !!document.querySelector('[id^="viewer-"]');
+          
+          if (hasOpenViewer) {
+            // If a viewer is open, tell the parent to expand to full viewport height
+            window.parent.postMessage({ type: 'resize-iframe', height: window.innerHeight, isFullscreen: true }, '*');
+          } else {
+            const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
+            const height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
+            if (height > 0) {
+              window.parent.postMessage({ type: 'resize-iframe', height, isFullscreen: false }, '*');
+            }
           }
         }
       };
@@ -316,10 +324,32 @@ const TransparencyPage = () => {
 
   const copyEmbedCode = (id: string) => {
     const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
-    const embedCode = `<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden;" allow="fullscreen; clipboard-write"></iframe><script>window.addEventListener('message', function(e) { if (e.data.type === 'resize-iframe' && e.data.height) { document.getElementById('iframe-${id}').style.height = e.data.height + 'px'; } }, false);</script>`;
+    const embedCode = `<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden; transition: height 0.3s ease-in-out;" allow="fullscreen; clipboard-write"></iframe>
+<script>
+window.addEventListener('message', function(e) {
+  if (e.data.type === 'resize-iframe' && e.data.height) {
+    var iframe = document.getElementById('iframe-${id}');
+    if (e.data.isFullscreen) {
+      iframe.style.position = 'fixed';
+      iframe.style.top = '0';
+      iframe.style.left = '0';
+      iframe.style.width = '100vw';
+      iframe.style.height = '100vh';
+      iframe.style.zIndex = '2147483647';
+      document.body.style.overflow = 'hidden';
+    } else {
+      iframe.style.position = 'relative';
+      iframe.style.width = '100%';
+      iframe.style.height = e.data.height + 'px';
+      iframe.style.zIndex = 'auto';
+      document.body.style.overflow = 'auto';
+    }
+  }
+}, false);
+</script>`;
     navigator.clipboard.writeText(embedCode);
     setCopiedId(id);
-    toast.success('Código embed copiado!');
+    toast.success('Código embed atualizado copiado!');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
