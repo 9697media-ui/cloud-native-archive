@@ -431,9 +431,6 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
                 <Download className="h-4 w-4 mr-2" /> Download
               </a>
             </Button>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
           </div>
         </DialogHeader>
         <div className="flex-1 bg-muted/20 relative">
