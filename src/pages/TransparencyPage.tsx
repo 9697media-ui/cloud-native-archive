@@ -491,15 +491,34 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
   
   if (isEmbed && isOpen) {
-    // Attempt to open in top-level window to stay in same tab but full size
-    try {
-      window.top!.location.href = driveUrl;
-    } catch (e) {
-      // Fallback if top window is restricted
-      window.location.href = driveUrl;
-    }
-    onClose();
-    return null;
+    return (
+      <div className="fixed inset-0 z-[9999] bg-black flex flex-col w-screen h-screen" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+        <div className="flex items-center justify-between p-4 bg-background border-b z-50">
+          <div className="flex items-center gap-3">
+            <FileIcon mimeType={item.mimeType} className="h-5 w-5" />
+            <span className="text-lg font-medium truncate max-w-[60vw]">{item.name}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
+                <Download className="h-4 w-4 mr-2" /> Download
+              </a>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+        <div className="flex-1 w-full h-full bg-muted/20 relative">
+          <iframe 
+            src={driveUrl} 
+            className="w-full h-full border-none" 
+            title={item.name}
+            allow="autoplay"
+          />
+        </div>
+      </div>
+    );
   }
 
   return (
