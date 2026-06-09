@@ -148,11 +148,12 @@ const TransparencyPage = () => {
       const calculateHeight = () => {
         const root = document.getElementById('root');
         if (root) {
-          // Check if any FileViewerDialog is open
-          const hasOpenViewer = !!document.querySelector('[id^="viewer-"]');
+          // Check if any FileViewerDialog is open by searching for the viewer- prefix in ID
+          const openViewer = document.querySelector('[id^="viewer-"]');
           
-          if (hasOpenViewer) {
+          if (openViewer) {
             // If a viewer is open, tell the parent to expand to full viewport height
+            // We do this as fast as possible to minimize flicker
             window.parent.postMessage({ type: 'resize-iframe', height: window.innerHeight, isFullscreen: true }, '*');
           } else {
             const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
@@ -163,8 +164,14 @@ const TransparencyPage = () => {
           }
         }
       };
-      const interval = setInterval(calculateHeight, 500);
-      return () => clearInterval(interval);
+      // Use requestAnimationFrame for smoother updates when possible
+      let animationFrame: number;
+      const loop = () => {
+        calculateHeight();
+        animationFrame = requestAnimationFrame(loop);
+      };
+      animationFrame = requestAnimationFrame(loop);
+      return () => cancelAnimationFrame(animationFrame);
     }
   }, [searchParams, loading, configs]);
 
@@ -330,12 +337,13 @@ window.addEventListener('message', function(e) {
   if (e.data.type === 'resize-iframe' && e.data.height) {
     var iframe = document.getElementById('iframe-${id}');
     if (e.data.isFullscreen) {
-      iframe.style.position = 'fixed';
-      iframe.style.top = '0';
-      iframe.style.left = '0';
-      iframe.style.width = '100vw';
-      iframe.style.height = '100vh';
-      iframe.style.zIndex = '2147483647';
+      // Apply fullscreen styles immediately to avoid flickering
+      iframe.style.setProperty('position', 'fixed', 'important');
+      iframe.style.setProperty('top', '0', 'important');
+      iframe.style.setProperty('left', '0', 'important');
+      iframe.style.setProperty('width', '100vw', 'important');
+      iframe.style.setProperty('height', '100vh', 'important');
+      iframe.style.setProperty('z-index', '2147483647', 'important');
       document.body.style.overflow = 'hidden';
     } else {
       iframe.style.position = 'relative';
