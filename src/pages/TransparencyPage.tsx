@@ -714,7 +714,7 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
     <div 
       id={`viewer-${item.id}`}
       className={cn(
-        "fixed inset-0 z-[9999999] flex flex-col bg-background overflow-hidden w-[100vw] h-[100vh]",
+        "fixed inset-0 z-[2147483647] flex flex-col bg-background overflow-hidden w-[100vw] h-[100vh]",
         isFullscreen ? "p-0" : ""
       )}
       style={{ left: 0, top: 0, right: 0, bottom: 0, position: 'fixed' }}
