@@ -549,12 +549,21 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
       // Send message immediately when file opens
       window.parent.postMessage({ type: 'file-opened' }, '*');
       
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+      
+      window.addEventListener('keydown', handleKeyDown);
+      
       return () => {
         // Send message when component unmounts (file closed)
         window.parent.postMessage({ type: 'file-closed' }, '*');
+        window.removeEventListener('keydown', handleKeyDown);
       };
     }
-  }, [isEmbed, isOpen]);
+  }, [isEmbed, isOpen, onClose]);
 
   if (isEmbed && isOpen) {
     return (
