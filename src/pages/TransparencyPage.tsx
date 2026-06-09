@@ -707,7 +707,7 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
     <div className="flex flex-col">
       <div 
         className={cn(
-          "flex items-center gap-2 p-2 rounded-md transition-colors cursor-pointer",
+          "flex items-center gap-2 p-2 rounded-md transition-all duration-200 cursor-pointer group relative overflow-hidden",
           isSelected ? "bg-primary/10 hover:bg-primary/20" : "hover:bg-muted/50"
         )}
         style={{ paddingLeft: `${depth * 20 + 8}px` }}
@@ -715,16 +715,33 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
       >
         <div className="flex items-center gap-2">
           {isFolder ? (
-            <div onClick={toggleFolder} className="p-1 hover:bg-muted rounded">
-              <ChevronRight className={cn("h-4 w-4 transition-transform duration-200", isOpen ? "rotate-90" : "rotate-0")} />
+            <div onClick={toggleFolder} className="p-1 hover:bg-muted rounded transition-colors duration-200">
+              <ChevronRight className={cn("h-4 w-4 transition-transform duration-300 ease-in-out", isOpen ? "rotate-90" : "rotate-0")} />
             </div>
           ) : <div className="w-6" />}
           <Check className={cn("h-4 w-4 transition-opacity", isSelected ? "opacity-100 text-primary" : "opacity-0")} />
           <FileIcon mimeType={item.mimeType} className="h-4 w-4" />
         </div>
-        <span className={cn("text-sm flex-1 truncate transition-all duration-300", showEmpty && "text-muted-foreground italic")}>
-          {showEmpty ? "Pasta vazia" : item.name}
-        </span>
+        
+        <div className="flex-1 relative h-5 overflow-hidden">
+          <span 
+            className={cn(
+              "text-sm absolute inset-0 truncate transition-all duration-500 ease-in-out transform",
+              showEmpty ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+            )}
+          >
+            {item.name}
+          </span>
+          <span 
+            className={cn(
+              "text-sm absolute inset-0 truncate transition-all duration-500 ease-in-out transform text-muted-foreground italic font-normal flex items-center gap-2",
+              showEmpty ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+            )}
+          >
+            <div className="w-1 h-1 rounded-full bg-muted-foreground animate-ping" />
+            Pasta vazia
+          </span>
+        </div>
       </div>
       
       <div 
