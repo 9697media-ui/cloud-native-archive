@@ -434,6 +434,13 @@ const TransparencyPage = () => {
         </DialogContent>
       </Dialog>
     </div>
+      <BatchAddDialog 
+        isOpen={isBatchAdding} 
+        onClose={() => setIsBatchAdding(false)} 
+        rootFolderId={rootBatchFolderId}
+        onSave={handleBatchSave}
+      />
+    </div>
   );
 };
 
@@ -446,6 +453,14 @@ const BatchAddDialog = ({ isOpen, onClose, rootFolderId, onSave }: {
   const [step, setStep] = useState<'select' | 'rename'>('select');
   const [selectedItems, setSelectedItems] = useState<DriveItem[]>([]);
   const [renameList, setRenameList] = useState<{ id: string, name: string, originalName: string }[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setStep('select');
+      setSelectedItems([]);
+      setRenameList([]);
+    }
+  }, [isOpen]);
 
   const toggleItemSelection = (item: DriveItem) => {
     setSelectedItems(prev => {
