@@ -467,7 +467,7 @@ const TransparencyPage = () => {
               <CardContent className="p-0 border-t">
                 <div className="p-6">
                   <div className="bg-card border rounded-lg overflow-hidden">
-                    <div className="bg-muted/50 p-3 border-b flex items-center gap-2">
+                    <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2">
                       <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
                       <span className="text-sm font-medium">{config.label}</span>
                     </div>
