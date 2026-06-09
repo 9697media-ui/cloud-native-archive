@@ -433,7 +433,6 @@ const TransparencyPage = () => {
           <DialogFooter><Button onClick={handleUpdateLabel}>Salvar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
       <BatchAddDialog 
         isOpen={isBatchAdding} 
         onClose={() => setIsBatchAdding(false)} 
