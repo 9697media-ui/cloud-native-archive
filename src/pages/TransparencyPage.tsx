@@ -26,7 +26,8 @@ import {
   FileVideo,
   FileImage,
   FileArchive,
-  File
+  File,
+  Edit2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,6 +70,7 @@ const TransparencyPage = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
+  const [editingConfig, setEditingConfig] = useState<{ id: string, label: string } | null>(null);
 
   const checkGoogleAuth = useCallback(async () => {
     const { data } = await supabase
@@ -302,6 +304,26 @@ const TransparencyPage = () => {
     }
   };
 
+  const handleUpdateLabel = async () => {
+    if (!editingConfig) return;
+
+    try {
+      const { error } = await supabase
+        .from('transparency_configs')
+        .update({ label: editingConfig.label })
+        .eq('id', editingConfig.id);
+      
+      if (error) throw error;
+      
+      toast.success('Nome atualizado');
+      setEditingConfig(null);
+      fetchConfigs();
+    } catch (error) {
+      console.error('Error updating config:', error);
+      toast.error('Erro ao atualizar nome');
+    }
+  };
+
   const copyEmbedCode = (id: string) => {
     const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
     const embedCode = `
@@ -508,6 +530,14 @@ const TransparencyPage = () => {
                   </div>
                   <div className="flex gap-2">
                     <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-muted-foreground hover:text-primary"
+                      onClick={() => setEditingConfig({ id: config.id, label: config.label })}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button 
                       variant="outline" 
                       size="sm" 
                       className="gap-2"
@@ -545,6 +575,28 @@ const TransparencyPage = () => {
           ))}
         </div>
       )}
+      <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Nome da Pasta</DialogTitle>
+            <DialogDescription>
+              Altere o nome exibido para esta pasta no portal.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium mb-2 block">Nome / Rótulo</label>
+            <Input 
+              value={editingConfig?.label || ''}
+              onChange={(e) => setEditingConfig(prev => prev ? { ...prev, label: e.target.value } : null)}
+              placeholder="Digite o novo nome"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingConfig(null)}>Cancelar</Button>
+            <Button onClick={handleUpdateLabel}>Salvar Alterações</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
