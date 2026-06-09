@@ -132,15 +132,17 @@ const TransparencyPage = () => {
         if (root) {
           // Find the exact content container
           const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
-          // In embed mode, we want the tightest possible height
-          // clientHeight is usually safer than scrollHeight for removing bottom gaps
-          const height = contentElement ? contentElement.getBoundingClientRect().height : root.getBoundingClientRect().height;
+          // Using offsetHeight to get the exact pixel height including borders
+          const height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
           
           if (height > 0) {
-            window.parent.postMessage({ type: 'resize-iframe', height: Math.ceil(height) }, '*');
+            window.parent.postMessage({ type: 'resize-iframe', height }, '*');
           }
         }
       };
+
+      // Periodic check to ensure height is always accurate as folders expand/collapse
+      const interval = setInterval(calculateHeight, 500);
 
       const resizeObserver = new ResizeObserver(() => {
         calculateHeight();
@@ -149,13 +151,13 @@ const TransparencyPage = () => {
       const root = document.getElementById('root');
       if (root) {
         resizeObserver.observe(root);
-        // Repeated checks to catch late rendering/loading
-        setTimeout(calculateHeight, 100);
-        setTimeout(calculateHeight, 500);
-        setTimeout(calculateHeight, 1000);
+        calculateHeight();
       }
       
-      return () => resizeObserver.disconnect();
+      return () => {
+        resizeObserver.disconnect();
+        clearInterval(interval);
+      };
     }
   }, [searchParams, loading, configs]);
 
@@ -485,10 +487,17 @@ const TransparencyPage = () => {
 };
 
 const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
-  const isPDF = item.mimeType === 'application/pdf';
-  const isImage = item.mimeType.startsWith('image/');
+  const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'true';
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
   
+  if (isEmbed && isOpen) {
+    // If we are in an iframe, we shouldn't use a fixed-size dialog 
+    // because it will be trapped. Instead, we open in a new window/tab for full screen.
+    window.open(driveUrl, '_blank');
+    onClose();
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0 overflow-hidden flex flex-col">
