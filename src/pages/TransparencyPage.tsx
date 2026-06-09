@@ -549,27 +549,35 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
       // Send message immediately when file opens
       window.parent.postMessage({ type: 'file-opened' }, '*');
       
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+      
+      window.addEventListener('keydown', handleKeyDown);
+      
       return () => {
         // Send message when component unmounts (file closed)
         window.parent.postMessage({ type: 'file-closed' }, '*');
+        window.removeEventListener('keydown', handleKeyDown);
       };
     }
-  }, [isEmbed, isOpen]);
+  }, [isEmbed, isOpen, onClose]);
 
   if (isEmbed && isOpen) {
     return (
       <div 
-        className="fixed inset-0 z-[9999] bg-black/80 flex flex-col w-screen h-screen backdrop-blur-sm cursor-pointer" 
+        className="fixed inset-0 z-[9999] bg-black/90 flex flex-col w-screen h-screen backdrop-blur-md cursor-pointer items-center justify-center p-0 md:p-4" 
         style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
         onClick={(e) => {
-          // If clicking the container (backdrop), close it
           if (e.target === e.currentTarget) {
             onClose();
           }
         }}
       >
         <div 
-          className="flex flex-col w-full h-full max-w-5xl mx-auto my-auto md:h-[90vh] md:w-[90vw] bg-background md:rounded-lg overflow-hidden shadow-2xl cursor-default"
+          className="flex flex-col w-full h-full md:h-[95vh] md:w-[95vw] bg-background md:rounded-lg overflow-hidden shadow-2xl cursor-default"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between p-4 bg-background border-b z-50">
