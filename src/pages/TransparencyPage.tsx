@@ -119,7 +119,7 @@ const TransparencyPage = () => {
   const handleGoogleLogin = async () => {
     setIsAuthenticating(true);
     try {
-      // Use the standard redirect flow but the token will be saved globally
+      // Force prompt=consent to ensure we ALWAYS get a refresh_token from Google
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
