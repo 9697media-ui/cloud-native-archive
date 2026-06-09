@@ -76,7 +76,7 @@ serve(async (req) => {
       const q = `'${folderId}' in parents and trashed = false`;
       const url = new URL("https://www.googleapis.com/drive/v3/files");
       url.searchParams.set("q", q);
-      url.searchParams.set("fields", "nextPageToken, files(id, name, mimeType)");
+      url.searchParams.set("fields", "nextPageToken, files(id, name, mimeType, shortcutDetails)");
       url.searchParams.set("orderBy", "folder,name");
       if (nextPageToken) url.searchParams.set("pageToken", nextPageToken);
 
