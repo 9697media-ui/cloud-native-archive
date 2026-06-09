@@ -715,10 +715,10 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
     <div 
       id={`viewer-${item.id}`}
       className={cn(
-        "fixed inset-0 z-[2147483647] flex flex-col bg-background overflow-hidden w-[100vw] h-[100vh]",
-        isFullscreen ? "p-0" : ""
+        "fixed inset-0 z-[2147483647] flex flex-col bg-background overflow-hidden",
+        isFullscreen ? "w-[100vw] h-[100vh]" : "w-full h-full"
       )}
-      style={{ left: 0, top: 0, right: 0, bottom: 0, position: 'fixed' }}
+      style={{ left: 0, top: 0, right: 0, bottom: 0, position: 'fixed', width: '100%', height: '100%' }}
     >
       <div className="p-2 border-b flex flex-row items-center justify-between bg-background h-10 shrink-0 w-full">
         <div className="flex items-center gap-1.5 overflow-hidden">
@@ -817,18 +817,16 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
         try {
           const { data, error } = await supabase.functions.invoke('google-drive-proxy', { body: { action: 'list_files', folderId: actualId } });
           if (error) throw error;
-          setChildren(data.files || []);
+          const sortedFiles = (data.files || []).sort((a: any, b: any) => 
+            (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase())
+          );
+          setChildren(sortedFiles);
           setIsOpen(true);
         } catch (err) { toast.error('Erro ao abrir pasta'); }
         finally { setLoading(false); }
       } else { setIsOpen(!isOpen); }
     } else { 
-      const isEmbed = searchParams.get('embed') === 'true';
-      if (isEmbed) {
-        window.open(`https://drive.google.com/file/d/${item.id}/preview`, '_blank');
-      } else {
-        setViewingFile(true); 
-      }
+      setViewingFile(true); 
     }
   };
 
@@ -841,19 +839,14 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => { 
               e.stopPropagation(); 
-              const isEmbed = searchParams.get('embed') === 'true';
-              if (isEmbed) {
-                window.open(`https://drive.google.com/file/d/${item.id}/preview`, '_blank');
-              } else {
-                setViewingFile(true); 
-              }
+              setViewingFile(true); 
             }}><Maximize2 className="h-3.5 w-3.5" /></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" asChild onClick={(e) => e.stopPropagation()}><a href={`https://drive.google.com/file/d/${item.id}/preview`} target="_blank" rel="noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" asChild onClick={(e) => e.stopPropagation()}><a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer"><Download className="h-3.5 w-3.5" /></a></Button>
           </div>
         )}
       </div>
-      {!isFolder && !searchParams.get('embed') && <FileViewerDialog item={item} isOpen={viewingFile} onClose={() => setViewingFile(false)} />}
+      {!isFolder && <FileViewerDialog item={item} isOpen={viewingFile} onClose={() => setViewingFile(false)} />}
       {isOpen && <div className="flex flex-col">{loading ? <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Carregando...</div> : children.map(child => <DriveItemComponent key={child.id} item={child} depth={depth + 1} />)}</div>}
     </div>
   );
