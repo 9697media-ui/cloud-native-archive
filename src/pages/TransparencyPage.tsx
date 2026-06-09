@@ -212,29 +212,7 @@ const TransparencyPage = () => {
       return;
     }
 
-    // Extract ID if a full URL was pasted
-    let folderId = newFolderId.trim();
-    
-    // Regular expressions for different Google Drive URL formats
-    const patterns = [
-      /\/folders\/([a-zA-Z0-9_-]{25,})/,       // drive.google.com/drive/folders/ID
-      /[?&]id=([a-zA-Z0-9_-]{25,})/,           // drive.google.com/open?id=ID
-      /\/file\/d\/([a-zA-Z0-9_-]{25,})/,       // drive.google.com/file/d/ID/view
-      /\/d\/([a-zA-Z0-9_-]{25,})/              // drive.google.com/d/ID
-    ];
-
-    for (const pattern of patterns) {
-      const match = folderId.match(pattern);
-      if (match && match[1]) {
-        folderId = match[1];
-        break;
-      }
-    }
-
-    // Clean up any remaining query parameters if it's still looking like a partial URL/ID
-    if (folderId.includes('?')) {
-      folderId = folderId.split('?')[0];
-    }
+    const folderId = extractFolderId(newFolderId);
 
     try {
       const { error } = await supabase
@@ -251,6 +229,50 @@ const TransparencyPage = () => {
     } catch (error: any) {
       console.error('Error adding config:', error);
       toast.error('Erro ao salvar configuração: ' + (error.message || 'Erro desconhecido'));
+    }
+  };
+
+  const extractFolderId = (input: string) => {
+    let id = input.trim();
+    const patterns = [
+      /\/folders\/([a-zA-Z0-9_-]{25,})/,
+      /[?&]id=([a-zA-Z0-9_-]{25,})/,
+      /\/file\/d\/([a-zA-Z0-9_-]{25,})/,
+      /\/d\/([a-zA-Z0-9_-]{25,})/
+    ];
+
+    for (const pattern of patterns) {
+      const match = id.match(pattern);
+      if (match && match[1]) {
+        id = match[1];
+        break;
+      }
+    }
+
+    return id.includes('?') ? id.split('?')[0] : id;
+  };
+
+  const [isFetchingName, setIsFetchingName] = useState(false);
+
+  const fetchFolderName = async (input: string) => {
+    const id = extractFolderId(input);
+    if (id.length < 25) return;
+
+    setIsFetchingName(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+        body: { action: 'get_folder_name', folderId: id }
+      });
+
+      if (error) throw error;
+      if (data?.name && !newLabel) {
+        setNewLabel(data.name);
+        toast.info(`Título preenchido automaticamente: ${data.name}`);
+      }
+    } catch (err) {
+      console.error('Error fetching folder name:', err);
+    } finally {
+      setIsFetchingName(false);
     }
   };
 
