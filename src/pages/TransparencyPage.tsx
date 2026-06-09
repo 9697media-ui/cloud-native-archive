@@ -302,13 +302,17 @@ const TransparencyPage = () => {
           <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
         ) : (
           <div className="flex flex-col gap-0 w-full m-0 p-0">
-             {filteredConfigs.map((config) => (
-               <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
-                 <div className="p-0 flex flex-col gap-0 w-full overflow-visible">
-                   <DriveExplorer folderId={config.folder_id} folderName={config.label} />
-                 </div>
-               </div>
-             ))}
+            {filteredConfigs.map((config) => (
+              <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
+                <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2">
+                  <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
+                  <span className="text-sm font-medium">{config.label}</span>
+                </div>
+                <div className="p-4 flex flex-col gap-1 w-full overflow-visible">
+                  <DriveExplorer folderId={config.folder_id} folderName={config.label} />
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -482,58 +486,39 @@ const TransparencyPage = () => {
   );
 };
 
-const FileViewerDialog = ({ item, isOpen, onClose, isEmbed }: { item: DriveItem, isOpen: boolean, onClose: () => void, isEmbed: boolean }) => {
+const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
-
-  if (isEmbed && isOpen) {
-    // If we are in an iframe (embed mode), redirect the entire window to Google Drive
-    // This makes it open in the same tab but taking over the full page, not just the container
-    try {
-      window.top!.location.replace(driveUrl);
-    } catch (e) {
-      window.parent.location.replace(driveUrl);
-    }
-    onClose();
-    return null;
-  }
-
   
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      {/* Target the overlay to make it invisible/removed as requested */}
-      <DialogContent className="max-w-none w-screen h-screen p-0 m-0 overflow-hidden flex flex-col rounded-none border-none shadow-none z-[9999] top-0 left-0 translate-x-0 translate-y-0 sm:rounded-none">
-        <style dangerouslySetInnerHTML={{ __html: `
-          [data-radix-portal] > [data-state=open].fixed.inset-0.z-50.bg-black\\/80 { 
-            background-color: transparent !important;
-            backdrop-filter: none !important;
-          }
-        ` }} />
-        <DialogHeader className="p-2 border-b flex flex-row items-center justify-between space-y-0 bg-background h-10">
-          <div className="flex items-center gap-1.5 overflow-hidden">
-            <FileIcon mimeType={item.mimeType} className="h-4 w-4 shrink-0" />
-            <DialogTitle className="text-sm font-medium truncate max-w-[70vw] leading-tight">{item.name}</DialogTitle>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="h-7 px-2 text-xs" asChild>
-              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
-                <Download className="h-3.5 w-3.5 mr-1" /> Download
-              </a>
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogHeader>
-        <div className="flex-1 bg-white relative">
-          <iframe 
-            src={driveUrl} 
-            className="w-full h-full border-none" 
-            title={item.name}
-            allow="autoplay"
-          />
+    <div className="fixed inset-0 z-[99999] flex flex-col bg-background overflow-hidden w-full h-full">
+      <div className="p-2 border-b flex flex-row items-center justify-between bg-background h-10 shrink-0 w-full">
+        <div className="flex items-center gap-1.5 overflow-hidden">
+          <FileIcon mimeType={item.mimeType} className="h-4 w-4 shrink-0" />
+          <span className="text-sm font-medium truncate max-w-[70vw] leading-tight">{item.name}</span>
         </div>
-      </DialogContent>
-    </Dialog>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="h-7 px-2 text-xs" asChild>
+            <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
+              <Download className="h-3.5 w-3.5 mr-1" /> Download
+            </a>
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      <div className="flex-1 bg-white relative w-full h-full">
+        <iframe 
+          src={driveUrl} 
+          className="w-full h-full border-none absolute inset-0" 
+          title={item.name}
+          allow="autoplay; fullscreen"
+          allowFullScreen
+        />
+      </div>
+    </div>
   );
 };
 
@@ -578,8 +563,6 @@ const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName:
   const [items, setItems] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const fetchFiles = useCallback(async () => {
     setLoading(true);
@@ -627,50 +610,15 @@ const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName:
     );
   }
 
-  const filteredAndSortedItems = items
-    .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
-      } else {
-        return b.name.localeCompare(a.name, undefined, { numeric: true, sensitivity: 'base' });
-      }
-    });
+  if (items.length === 0) {
+    return <div className="p-8 text-center text-muted-foreground text-sm">Nenhum arquivo encontrado nesta pasta.</div>;
+  }
 
   return (
-    <div className="space-y-0">
-      <div className="bg-muted/50 p-1.5 border-b flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 flex-1">
-          <Search className="h-3.5 w-3.5 text-muted-foreground" />
-          <input 
-            type="text"
-            placeholder="Buscar arquivos..."
-            className="bg-transparent border-none text-xs focus:ring-0 w-full p-0 h-6 outline-none"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="flex items-center gap-1">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-6 w-6" 
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            title={sortOrder === 'asc' ? "Ordenar Z-A" : "Ordenar A-Z"}
-          >
-            {sortOrder === 'asc' ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 -rotate-90" />}
-          </Button>
-        </div>
-      </div>
-      <div className="p-4 space-y-1">
-        {filteredAndSortedItems.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Nenhum resultado encontrado.</div>
-        ) : (
-          filteredAndSortedItems.map(item => (
-            <DriveItemComponent key={item.id} item={item} depth={0} />
-          ))
-        )}
-      </div>
+    <div className="space-y-1">
+      {items.map(item => (
+        <DriveItemComponent key={item.id} item={item} depth={0} />
+      ))}
     </div>
   );
 };
@@ -680,7 +628,6 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewingFile, setViewingFile] = useState(false);
-  const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'true';
   const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
 
   const handleClick = async () => {
@@ -733,12 +680,12 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
               <Maximize2 className="h-3.5 w-3.5" />
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" title="Janela Tela Cheia" asChild onClick={(e) => e.stopPropagation()}>
-              <a href={`https://drive.google.com/file/d/${item.id}/preview`} target="_top" rel="noreferrer">
+              <a href={`https://drive.google.com/file/d/${item.id}/preview`} target="_blank" rel="noreferrer">
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" title="Download" asChild onClick={(e) => e.stopPropagation()}>
-              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_top" rel="noreferrer">
+              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
                 <Download className="h-3.5 w-3.5" />
               </a>
             </Button>
@@ -751,7 +698,6 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
           item={item} 
           isOpen={viewingFile} 
           onClose={() => setViewingFile(false)} 
-          isEmbed={isEmbed}
         />
       )}
       
