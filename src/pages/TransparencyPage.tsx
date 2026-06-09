@@ -127,15 +127,26 @@ const TransparencyPage = () => {
   // Handle iframe height communication
   useEffect(() => {
     if (searchParams.get('embed') === 'true') {
-      const resizeObserver = new ResizeObserver((entries) => {
-        for (let entry of entries) {
-          const height = entry.target.scrollHeight;
+      const calculateHeight = () => {
+        const root = document.getElementById('root');
+        if (root) {
+          // Get the actual height of the content-carrying div
+          const contentElement = root.querySelector('.bg-transparent.w-full.overflow-hidden.m-0');
+          const height = contentElement ? contentElement.scrollHeight : root.scrollHeight;
           window.parent.postMessage({ type: 'resize-iframe', height }, '*');
         }
+      };
+
+      const resizeObserver = new ResizeObserver(() => {
+        calculateHeight();
       });
 
       const root = document.getElementById('root');
-      if (root) resizeObserver.observe(root);
+      if (root) {
+        resizeObserver.observe(root);
+        // Initial calculation
+        setTimeout(calculateHeight, 300);
+      }
       
       return () => resizeObserver.disconnect();
     }
