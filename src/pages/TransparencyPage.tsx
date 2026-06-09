@@ -419,9 +419,6 @@ const TransparencyPage = () => {
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-amber-100 rounded-lg">
-                        <Folder className="h-6 w-6 text-amber-500 fill-amber-500" />
-                      </div>
                       <div>
                         <CardTitle className="text-xl flex items-center gap-2">
                           {config.label}
