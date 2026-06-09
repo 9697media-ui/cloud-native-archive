@@ -74,17 +74,28 @@ const TransparencyPage = () => {
     if (hash && (hash.includes('access_token=') || hash.includes('type=recovery'))) {
       const handleOAuthResponse = async () => {
         const { data: { session }, error } = await supabase.auth.getSession();
+        
         if (session?.provider_token || session?.provider_refresh_token) {
-          // Save the refresh token to the profile
+          // If the Google account is different from the logged-in account,
+          // we need to handle the session carefully.
+          // For now, we assume the user wants to link this Google account to their current profile.
+          
           if (session.provider_refresh_token) {
-            await supabase
+            // Save the refresh token to the profile
+            const { error: updateError } = await supabase
               .from('profiles')
               .update({ google_refresh_token: session.provider_refresh_token })
               .eq('user_id', user?.id);
             
-            toast.success('Conectado ao Google Drive com sucesso!');
-            setHasGoogleAuth(true);
-            // Clean up the URL
+            if (updateError) {
+              console.error('Error updating profile with Google token:', updateError);
+              toast.error('Erro ao vincular conta Google');
+            } else {
+              toast.success('Google Drive conectado com sucesso!');
+              setHasGoogleAuth(true);
+            }
+            
+            // Clean up the URL hash
             window.history.replaceState(null, '', window.location.pathname);
           }
         }
