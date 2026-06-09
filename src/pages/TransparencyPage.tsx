@@ -64,7 +64,8 @@ const TransparencyPage = () => {
       .select('value')
       .eq('key', 'google_drive_refresh_token')
       .maybeSingle();
-    setHasGoogleAuth(!!data?.value?.refresh_token);
+    const value = data?.value as any;
+    setHasGoogleAuth(!!value?.refresh_token);
   }, []);
 
   useEffect(() => {
@@ -215,10 +216,12 @@ const TransparencyPage = () => {
         <Card className="mb-8 border-amber-200 bg-amber-50">
           <CardHeader>
             <CardTitle className="text-amber-800 flex items-center gap-2">
-              <LogIn className="h-5 w-5" /> Autenticação Necessária
+              <LogIn className="h-5 w-5" /> Conexão com Google Drive
             </CardTitle>
             <CardDescription className="text-amber-700">
-              Para visualizar os arquivos do Google Drive em tempo real, você precisa autorizar o acesso à sua conta.
+              {hasGoogleAuth 
+                ? "A integração global está ativa. Você pode atualizar a conta conectada se necessário."
+                : "Para visualizar os arquivos do Google Drive em tempo real, um administrador precisa autorizar o acesso uma única vez para todo o sistema."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -228,7 +231,7 @@ const TransparencyPage = () => {
               className="bg-[#4285F4] hover:bg-[#357abd]"
             >
               {isAuthenticating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-              Conectar com Google Drive
+              {hasGoogleAuth ? "Atualizar Conta Google (Global)" : "Conectar Google Drive (Global)"}
             </Button>
           </CardContent>
         </Card>
