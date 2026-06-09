@@ -330,12 +330,13 @@ window.addEventListener('message', function(e) {
   if (e.data.type === 'resize-iframe' && e.data.height) {
     var iframe = document.getElementById('iframe-${id}');
     if (e.data.isFullscreen) {
-      iframe.style.position = 'fixed';
-      iframe.style.top = '0';
-      iframe.style.left = '0';
-      iframe.style.width = '100vw';
-      iframe.style.height = '100vh';
-      iframe.style.zIndex = '2147483647';
+      // Apply fullscreen styles immediately to avoid flickering
+      iframe.style.setProperty('position', 'fixed', 'important');
+      iframe.style.setProperty('top', '0', 'important');
+      iframe.style.setProperty('left', '0', 'important');
+      iframe.style.setProperty('width', '100vw', 'important');
+      iframe.style.setProperty('height', '100vh', 'important');
+      iframe.style.setProperty('z-index', '2147483647', 'important');
       document.body.style.overflow = 'hidden';
     } else {
       iframe.style.position = 'relative';
