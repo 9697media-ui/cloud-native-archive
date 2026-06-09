@@ -988,7 +988,7 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
       <div 
         className={cn(
           "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
-          isOpen ? "grid-template-rows-[1fr] opacity-100" : "grid-template-rows-[0fr] opacity-0"
+          isOpen ? "grid-template-rows-[1fr] opacity-100 mt-1" : "grid-template-rows-[0fr] opacity-0 mt-0"
         )}
       >
         <div className="overflow-hidden">
