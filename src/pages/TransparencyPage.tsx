@@ -304,6 +304,26 @@ const TransparencyPage = () => {
     }
   };
 
+  const handleUpdateLabel = async () => {
+    if (!editingConfig) return;
+
+    try {
+      const { error } = await supabase
+        .from('transparency_configs')
+        .update({ label: editingConfig.label })
+        .eq('id', editingConfig.id);
+      
+      if (error) throw error;
+      
+      toast.success('Nome atualizado');
+      setEditingConfig(null);
+      fetchConfigs();
+    } catch (error) {
+      console.error('Error updating config:', error);
+      toast.error('Erro ao atualizar nome');
+    }
+  };
+
   const copyEmbedCode = (id: string) => {
     const embedUrl = `${window.location.origin}/portal-transparencia?id=${id}&embed=true`;
     const embedCode = `
