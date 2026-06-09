@@ -200,7 +200,15 @@ const TransparencyPage = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      setConfigs(data || []);
+      const fetchedConfigs = data || [];
+      setConfigs(fetchedConfigs);
+      
+      // Auto-sync missing original names
+      fetchedConfigs.forEach(config => {
+        if (!config.original_folder_name) {
+          syncOriginalName(config);
+        }
+      });
     } catch (error) {
       console.error('Error fetching configs:', error);
       toast.error('Erro ao carregar configurações');
@@ -321,6 +329,26 @@ const TransparencyPage = () => {
     } catch (error) {
       console.error('Error updating config:', error);
       toast.error('Erro ao atualizar nome');
+    }
+  };
+
+  const syncOriginalName = async (config: any) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+        body: { action: 'get_folder_name', folderId: config.folder_id }
+      });
+      
+      if (!error && data?.name) {
+        await supabase
+          .from('transparency_configs')
+          .update({ original_folder_name: data.name })
+          .eq('id', config.id);
+        
+        // Refresh local state without full reload
+        setConfigs(prev => prev.map(c => c.id === config.id ? { ...c, original_folder_name: data.name } : c));
+      }
+    } catch (err) {
+      console.error('Error syncing name:', err);
     }
   };
 
