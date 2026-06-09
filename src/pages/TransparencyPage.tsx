@@ -413,14 +413,14 @@ const TransparencyPage = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Google Drive Folder ID</label>
+                <label className="text-sm font-medium">Link ou ID da Pasta</label>
                 <Input 
-                  placeholder="ID da pasta (encontrado na URL do Drive)" 
+                  placeholder="Cole o link completo ou o ID aqui" 
                   value={newFolderId}
                   onChange={(e) => setNewFolderId(e.target.value)}
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  Dica: O ID é a parte final da URL: drive.google.com/drive/folders/<strong>ID_AQUI</strong>
+                  Dica: Você pode colar o link direto do seu navegador ou apenas o ID.
                 </p>
               </div>
             </div>
