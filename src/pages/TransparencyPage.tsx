@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -488,17 +488,36 @@ const TransparencyPage = () => {
 
 const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
-  
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  const toggleFullScreen = () => {
+    if (!containerRef.current) return;
+    
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999] flex flex-col bg-background overflow-hidden w-full h-full">
+    <div 
+      ref={containerRef}
+      className="fixed inset-0 z-[99999] flex flex-col bg-background overflow-hidden w-full h-full"
+    >
       <div className="p-2 border-b flex flex-row items-center justify-between bg-background h-10 shrink-0 w-full">
         <div className="flex items-center gap-1.5 overflow-hidden">
           <FileIcon mimeType={item.mimeType} className="h-4 w-4 shrink-0" />
-          <span className="text-sm font-medium truncate max-w-[70vw] leading-tight">{item.name}</span>
+          <span className="text-sm font-medium truncate max-w-[50vw] leading-tight">{item.name}</span>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={toggleFullScreen}>
+            <Maximize2 className="h-3.5 w-3.5 mr-1" /> Tela Cheia
+          </Button>
           <Button variant="outline" size="sm" className="h-7 px-2 text-xs" asChild>
             <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
               <Download className="h-3.5 w-3.5 mr-1" /> Download
