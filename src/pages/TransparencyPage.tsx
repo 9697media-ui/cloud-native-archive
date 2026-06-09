@@ -140,6 +140,8 @@ const TransparencyPage = () => {
           if (isViewingFile) {
             // When viewing a file, we want the iframe to take over the viewport
             height = window.innerHeight;
+            // Also notify parent to maybe scroll to top
+            window.parent.postMessage({ type: 'file-opened' }, '*');
           } else {
             height = contentElement ? (contentElement as HTMLElement).offsetHeight : root.offsetHeight;
           }
@@ -159,18 +161,9 @@ const TransparencyPage = () => {
         calculateHeight();
       }
       
-      const handleMessage = (e: MessageEvent) => {
-        if (e.data === 'request-resize') {
-          calculateHeight();
-        }
-      };
-
-      window.addEventListener('message', handleMessage);
-      
       return () => {
         resizeObserver.disconnect();
         clearInterval(interval);
-        window.removeEventListener('message', handleMessage);
       };
     }
   }, [searchParams, loading, configs]);
@@ -313,8 +306,6 @@ const TransparencyPage = () => {
       container.classList.add('file-open');
       iframe.style.height = '100vh';
       document.body.style.overflow = 'hidden';
-      // Force scroll to top of parent when file opens
-      window.scrollTo(0, 0);
     }
     if (e.data.type === 'file-closed') {
       container.classList.remove('file-open');
@@ -544,68 +535,35 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'true';
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
   
-  useEffect(() => {
-    if (isEmbed && isOpen) {
-      // Send message immediately when file opens
-      window.parent.postMessage({ type: 'file-opened' }, '*');
-      
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          onClose();
-        }
-      };
-      
-      window.addEventListener('keydown', handleKeyDown);
-      
-      return () => {
-        // Send message when component unmounts (file closed)
-        window.parent.postMessage({ type: 'file-closed' }, '*');
-        window.removeEventListener('keydown', handleKeyDown);
-      };
-    }
-  }, [isEmbed, isOpen, onClose]);
-
   if (isEmbed && isOpen) {
     return (
-      <div 
-        className="fixed inset-0 z-[9999] bg-black/90 flex flex-col w-screen h-screen backdrop-blur-md cursor-pointer items-center justify-center p-0 md:p-4" 
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            onClose();
-          }
-        }}
-      >
-        <div 
-          className="flex flex-col w-full h-full md:h-[95vh] md:w-[95vw] bg-background md:rounded-lg overflow-hidden shadow-2xl cursor-default"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex items-center justify-between p-4 bg-background border-b z-50">
-            <div className="flex items-center gap-3">
-              <FileIcon mimeType={item.mimeType} className="h-5 w-5" />
-              <span className="text-lg font-medium truncate max-w-[50vw]">{item.name}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
-                  <Download className="h-4 w-4 mr-2" /> Download
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => {
-                onClose();
-              }}>
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
+      <div className="fixed inset-0 z-[9999] bg-black flex flex-col w-screen h-screen" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+        <div className="flex items-center justify-between p-4 bg-background border-b z-50">
+          <div className="flex items-center gap-3">
+            <FileIcon mimeType={item.mimeType} className="h-5 w-5" />
+            <span className="text-lg font-medium truncate max-w-[60vw]">{item.name}</span>
           </div>
-          <div className="flex-1 w-full h-full bg-muted/20 relative">
-            <iframe 
-              src={driveUrl} 
-              className="w-full h-full border-none" 
-              title={item.name}
-              allow="autoplay"
-            />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
+                <Download className="h-4 w-4 mr-2" /> Download
+              </a>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => {
+              onClose();
+              window.parent.postMessage({ type: 'file-closed' }, '*');
+            }}>
+              <X className="h-5 w-5" />
+            </Button>
           </div>
+        </div>
+        <div className="flex-1 w-full h-full bg-muted/20 relative">
+          <iframe 
+            src={driveUrl} 
+            className="w-full h-full border-none" 
+            title={item.name}
+            allow="autoplay"
+          />
         </div>
       </div>
     );
