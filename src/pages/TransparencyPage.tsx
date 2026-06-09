@@ -252,22 +252,22 @@ const TransparencyPage = () => {
 
   if (isEmbed) {
     return (
-      <div className="p-0 bg-transparent">
+      <div className="p-0 bg-transparent w-full">
         {loading ? (
-          <div className="flex justify-center py-12">
+          <div className="flex justify-center py-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : filteredConfigs.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
+          <div className="p-4 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
         ) : (
-          <div className="grid gap-6">
+          <div className="flex flex-col gap-4 w-full">
             {filteredConfigs.map((config) => (
-              <div key={config.id} className="bg-card border rounded-lg overflow-hidden">
+              <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full">
                 <div className="bg-muted/50 p-3 border-b flex items-center gap-2">
                   <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
                   <span className="text-sm font-medium">{config.label}</span>
                 </div>
-                <div className="p-4 min-h-[200px] flex flex-col gap-1">
+                <div className="p-4 flex flex-col gap-1 w-full overflow-visible">
                   <DriveExplorer folderId={config.folder_id} folderName={config.label} />
                 </div>
               </div>

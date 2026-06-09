@@ -109,7 +109,7 @@ export default function AppLayout() {
 
 
   return (
-    <div className={cn("flex min-h-screen flex-col bg-background", isCleanView && "h-full")}>
+    <div className={cn("flex min-h-screen flex-col bg-background", isCleanView && "min-h-0 h-auto bg-transparent")}>
       {!hideHeaderParam && !isEmbedParam && <ImpersonationBanner />}
       {!hideHeaderParam && !isEmbedParam && (
         <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
@@ -191,8 +191,8 @@ export default function AppLayout() {
       )}
 
       <main className={cn(
-        "flex-1 overflow-auto",
-        !isCleanView && "mx-auto w-full"
+        "flex-1",
+        !isCleanView ? "overflow-auto mx-auto w-full" : "overflow-visible"
       )}>
         <Outlet />
       </main>
