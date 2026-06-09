@@ -461,13 +461,6 @@ const TransparencyPage = () => {
                   <CardContent className="p-0 border-t">
                     <div className="p-6">
                       <div className="bg-card border rounded-lg overflow-hidden">
-                        <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2">
-                          <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
-                          <span className="text-sm font-medium">
-                            {config.label}
-                            {config.original_folder_name && config.original_folder_name !== config.label && <span className="text-xs font-normal text-muted-foreground ml-2">({config.original_folder_name})</span>}
-                          </span>
-                        </div>
                         <div className="p-4 min-h-[200px] flex flex-col gap-1">
                           <DriveExplorer folderId={config.folder_id} folderName={config.label} />
                         </div>
