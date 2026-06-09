@@ -436,13 +436,26 @@ const TransparencyPage = () => {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Link ou ID da Pasta</label>
-                <Input 
-                  placeholder="Cole o link completo ou o ID aqui" 
-                  value={newFolderId}
-                  onChange={(e) => setNewFolderId(e.target.value)}
-                />
+                <div className="relative">
+                  <Input 
+                    placeholder="Cole o link completo ou o ID aqui" 
+                    value={newFolderId}
+                    onChange={(e) => {
+                      setNewFolderId(e.target.value);
+                      if (e.target.value.length > 20) {
+                        fetchFolderName(e.target.value);
+                      }
+                    }}
+                    className={isFetchingName ? "pr-10" : ""}
+                  />
+                  {isFetchingName && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
                 <p className="text-[10px] text-muted-foreground">
-                  Dica: Você pode colar o link direto do seu navegador ou apenas o ID.
+                  Dica: O sistema tentará identificar o nome da pasta automaticamente ao colar o link.
                 </p>
               </div>
             </div>
