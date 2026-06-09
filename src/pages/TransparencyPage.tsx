@@ -78,7 +78,20 @@ const TransparencyPage = () => {
   const [isBatchAdding, setIsBatchAdding] = useState(false);
   const [batchStep, setBatchAddingStep] = useState<'select' | 'rename'>('select');
   const [selectedItems, setSelectedItems] = useState<DriveItem[]>([]);
+  const [expandedConfigs, setExpandedConfigs] = useState<Set<string>>(new Set());
   const rootBatchFolderId = "14JkYMo16TCP1YT2ZO-EH1g2OJ-rdB0Mg";
+
+  const toggleConfig = (id: string) => {
+    setExpandedConfigs(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   const checkGoogleAuth = useCallback(async () => {
     const { data } = await supabase
@@ -332,12 +345,33 @@ const TransparencyPage = () => {
         {loading ? <div className="flex justify-center py-2"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> : 
          sortedConfigs.length === 0 ? <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada.</div> : (
           <div className="flex flex-col gap-0 w-full m-0 p-0">
-            {sortedConfigs.map((config) => (
-              <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
-                <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2"><Folder className="h-4 w-4 text-amber-500 fill-amber-500" /><span className="text-sm font-medium">{config.label}</span></div>
-                <div className="p-4 flex flex-col gap-1 w-full overflow-visible"><DriveExplorer folderId={config.folder_id} folderName={config.label} /></div>
-              </div>
-            ))}
+            {sortedConfigs.map((config) => {
+              const isExpanded = expandedConfigs.has(config.id);
+              return (
+                <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0 mb-4 last:mb-0">
+                  <div 
+                    className="bg-muted/50 p-3 border-b flex items-center justify-between cursor-pointer hover:bg-muted/80 transition-colors"
+                    onClick={() => toggleConfig(config.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 bg-amber-100 rounded-md">
+                        <Folder className="h-5 w-5 text-amber-500 fill-amber-500" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">{config.label}</span>
+                        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">ID: {config.folder_id}</span>
+                      </div>
+                    </div>
+                    {isExpanded ? <ChevronDown className="h-5 w-5 text-muted-foreground" /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+                  </div>
+                  {isExpanded && (
+                    <div className="p-4 flex flex-col gap-1 w-full overflow-visible">
+                      <DriveExplorer folderId={config.folder_id} folderName={config.label} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -392,42 +426,58 @@ const TransparencyPage = () => {
 
       {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : (
         <div className="grid gap-6">
-          {sortedConfigs.map((config) => (
-            <Card key={config.id} className="overflow-hidden">
-              <CardHeader className="bg-muted/30 pb-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">
-                      {config.label}
-                      {config.original_folder_name && config.original_folder_name !== config.label && (
-                        <span className="text-sm font-normal text-muted-foreground ml-2">({config.original_folder_name})</span>
-                      )}
-                    </CardTitle>
-                    <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => setEditingConfig({ id: config.id, label: config.label })}><Edit2 className="h-4 w-4" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => copyEmbedCode(config.id)}>{copiedId === config.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Embed</Button>
-                    <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(config.id)}><Trash2 className="h-4 w-4" /></Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0 border-t">
-                <div className="p-6">
-                  <div className="bg-card border rounded-lg overflow-hidden">
-                    <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2">
-                      <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
-                      <span className="text-sm font-medium">
-                        {config.label}
-                        {config.original_folder_name && config.original_folder_name !== config.label && <span className="text-xs font-normal text-muted-foreground ml-2">({config.original_folder_name})</span>}
-                      </span>
+          {sortedConfigs.map((config) => {
+            const isExpanded = expandedConfigs.has(config.id);
+            return (
+              <Card key={config.id} className="overflow-hidden">
+                <CardHeader 
+                  className="bg-muted/30 pb-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => toggleConfig(config.id)}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-amber-100 rounded-lg">
+                        <Folder className="h-6 w-6 text-amber-500 fill-amber-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl flex items-center gap-2">
+                          {config.label}
+                          {config.original_folder_name && config.original_folder_name !== config.label && (
+                            <span className="text-sm font-normal text-muted-foreground">({config.original_folder_name})</span>
+                          )}
+                          {isExpanded ? <ChevronDown className="h-5 w-5 text-muted-foreground ml-2" /> : <ChevronRight className="h-5 w-5 text-muted-foreground ml-2" />}
+                        </CardTitle>
+                        <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
+                      </div>
                     </div>
-                    <div className="p-4 min-h-[200px] flex flex-col gap-1"><DriveExplorer folderId={config.folder_id} folderName={config.label} /></div>
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm" onClick={() => setEditingConfig({ id: config.id, label: config.label })}><Edit2 className="h-4 w-4" /></Button>
+                      <Button variant="outline" size="sm" onClick={() => copyEmbedCode(config.id)}>{copiedId === config.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Embed</Button>
+                      <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(config.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                {isExpanded && (
+                  <CardContent className="p-0 border-t">
+                    <div className="p-6">
+                      <div className="bg-card border rounded-lg overflow-hidden">
+                        <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2">
+                          <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
+                          <span className="text-sm font-medium">
+                            {config.label}
+                            {config.original_folder_name && config.original_folder_name !== config.label && <span className="text-xs font-normal text-muted-foreground ml-2">({config.original_folder_name})</span>}
+                          </span>
+                        </div>
+                        <div className="p-4 min-h-[200px] flex flex-col gap-1">
+                          <DriveExplorer folderId={config.folder_id} folderName={config.label} />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
         </div>
       )}
       <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
