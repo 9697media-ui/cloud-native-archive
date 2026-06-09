@@ -124,9 +124,10 @@ export function useUserRole() {
     fetchRole();
   }, [user, isAuthenticated, activePersona]);
 
-  const isAdmin = role === 'admin' || permissionLevel === 'admin_geral';
+  const isAdminEmail = user?.email === 'mkt@anabrasil.org' || user?.email === 'alyson-viana@hotmail.com' || user?.email === 'contato@anabrasil.org';
+  const isAdmin = role === 'admin' || permissionLevel === 'admin_geral' || isAdminEmail;
   const isCreator = role === 'criador' || isAdmin;
-  const isManager = role === 'editor' || isCreator || permissionLevel === 'gestor_unidade' || permissionLevel === 'eventos_parceiros' || permissionLevel === 'admin_geral';
+  const isManager = role === 'editor' || isCreator || permissionLevel === 'gestor_unidade' || permissionLevel === 'eventos_parceiros' || permissionLevel === 'admin_geral' || isAdminEmail;
   const hasDelegatedAccess = delegatedUnits && delegatedUnits.length > 0;
   const canEdit = isAdmin || isCreator || role === 'editor';
   const canCreate = isAdmin || isCreator;
