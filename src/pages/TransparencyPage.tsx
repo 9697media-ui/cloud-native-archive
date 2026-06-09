@@ -78,6 +78,8 @@ const TransparencyPage = () => {
       if (isGoogleAuth) {
         setLoading(true);
         try {
+          // Pequeno delay para garantir que o Supabase processou o retorno
+          await new Promise(resolve => setTimeout(resolve, 800));
           const { data: { session } } = await supabase.auth.getSession();
           
           if (session?.provider_refresh_token) {
@@ -90,13 +92,18 @@ const TransparencyPage = () => {
             
             if (!updateError) {
               toast.success('Google Drive conectado globalmente!');
-              await checkGoogleAuth();
+              setHasGoogleAuth(true);
+            } else {
+              console.error("Error saving global setting:", updateError);
             }
+          } else {
+            // Se cair aqui, o Google não enviou o refresh_token (provavelmente já autorizado antes)
+            // Vamos apenas checar se já temos um token salvo
+            await checkGoogleAuth();
           }
         } catch (err) {
           console.error('Error handling OAuth:', err);
         } finally {
-          // Limpa a URL e atualiza o estado
           searchParams.delete('type');
           setSearchParams(searchParams, { replace: true });
           window.location.hash = '';
