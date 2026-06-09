@@ -488,6 +488,7 @@ const TransparencyPage = () => {
 
 const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: boolean, onClose: () => void }) => {
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
+  const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'true';
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -502,6 +503,14 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
 
   if (!isOpen) return null;
 
+  // If we are in embed mode, the only way to occupy the "full window" of the device 
+  // is to open in a new tab, as iframes are trapped by browser security.
+  if (isEmbed) {
+    window.open(driveUrl, '_blank');
+    onClose();
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent 
@@ -509,7 +518,6 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <style dangerouslySetInnerHTML={{ __html: `
-          /* Remove o fundo escuro (overlay) e o botão de fechar padrão do Radix UI */
           [data-radix-portal] > [data-state=open].fixed.inset-0.z-50.bg-black\\/80 { 
             display: none !important;
           }
