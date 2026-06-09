@@ -735,7 +735,10 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
 };
 
 const FileIcon = ({ mimeType, className }: { mimeType: string, className?: string }) => {
-  if (mimeType === 'application/vnd.google-apps.folder') return <Folder className={cn("text-amber-500 fill-amber-500", className)} />;
+  const isShortcut = mimeType === 'application/vnd.google-apps.shortcut';
+  const folderMimeType = 'application/vnd.google-apps.folder';
+
+  if (mimeType === folderMimeType) return <Folder className={cn("text-amber-500 fill-amber-500", className)} />;
   if (mimeType === 'application/pdf') return <FileText className={cn("text-red-500", className)} />;
   if (mimeType.includes('word') || mimeType.includes('officedocument.wordprocessingml')) return <FileCode className={cn("text-blue-600", className)} />;
   if (mimeType.includes('excel') || mimeType.includes('spreadsheet') || mimeType.includes('officedocument.spreadsheetml')) return <FileSpreadsheet className={cn("text-emerald-600", className)} />;
