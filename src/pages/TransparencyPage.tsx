@@ -568,10 +568,9 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   if (isEmbed && isOpen) {
     return (
       <div 
-        className="fixed inset-0 z-[9999] bg-black/80 flex flex-col w-screen h-screen backdrop-blur-sm cursor-pointer" 
+        className="fixed inset-0 z-[9999] bg-black/90 flex flex-col w-screen h-screen backdrop-blur-md cursor-pointer items-center justify-center p-0 md:p-4" 
         style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
         onClick={(e) => {
-          // If clicking the container (backdrop), close it
           if (e.target === e.currentTarget) {
             onClose();
           }
