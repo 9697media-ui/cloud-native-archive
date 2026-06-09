@@ -302,17 +302,13 @@ const TransparencyPage = () => {
           <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada ou não configurada.</div>
         ) : (
           <div className="flex flex-col gap-0 w-full m-0 p-0">
-            {filteredConfigs.map((config) => (
-              <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
-                <div className="bg-muted/50 p-1.5 border-b flex items-center gap-2">
-                  <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
-                  <span className="text-sm font-medium">{config.label}</span>
-                </div>
-                <div className="p-4 flex flex-col gap-1 w-full overflow-visible">
-                  <DriveExplorer folderId={config.folder_id} folderName={config.label} />
-                </div>
-              </div>
-            ))}
+             {filteredConfigs.map((config) => (
+               <div key={config.id} className="bg-card border rounded-lg overflow-hidden w-full m-0">
+                 <div className="p-0 flex flex-col gap-0 w-full overflow-visible">
+                   <DriveExplorer folderId={config.folder_id} folderName={config.label} />
+                 </div>
+               </div>
+             ))}
           </div>
         )}
       </div>
@@ -582,6 +578,8 @@ const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName:
   const [items, setItems] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const fetchFiles = useCallback(async () => {
     setLoading(true);
