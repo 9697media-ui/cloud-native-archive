@@ -59,14 +59,14 @@ const TransparencyPage = () => {
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
 
   const checkGoogleAuth = useCallback(async () => {
-    if (!user) return;
     const { data } = await supabase
-      .from('profiles')
-      .select('google_refresh_token')
-      .eq('user_id', user.id)
-      .single();
-    setHasGoogleAuth(!!data?.google_refresh_token);
-  }, [user]);
+      .from('global_settings')
+      .select('value')
+      .eq('key', 'google_drive_refresh_token')
+      .maybeSingle();
+    const value = data?.value as any;
+    setHasGoogleAuth(!!value?.refresh_token);
+  }, []);
 
   useEffect(() => {
     // Check if we just returned from a successful Google OAuth flow
@@ -76,23 +76,26 @@ const TransparencyPage = () => {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (session?.provider_token || session?.provider_refresh_token) {
-          // If the Google account is different from the logged-in account,
-          // we need to handle the session carefully.
-          // For now, we assume the user wants to link this Google account to their current profile.
-          
           if (session.provider_refresh_token) {
-            // Save the refresh token to the profile
+            // Save the refresh token to GLOBAL settings instead of a user profile
             const { error: updateError } = await supabase
-              .from('profiles')
-              .update({ google_refresh_token: session.provider_refresh_token })
-              .eq('user_id', user?.id);
+              .from('global_settings')
+              .upsert({ 
+                key: 'google_drive_refresh_token', 
+                value: { refresh_token: session.provider_refresh_token } 
+              });
             
             if (updateError) {
-              console.error('Error updating profile with Google token:', updateError);
-              toast.error('Erro ao vincular conta Google');
+              console.error('Error updating global settings with Google token:', updateError);
+              toast.error('Erro ao salvar conexão global');
             } else {
-              toast.success('Google Drive conectado com sucesso!');
+              toast.success('Google Drive conectado globalmente com sucesso!');
               setHasGoogleAuth(true);
+              
+              // Opcional: Deslogar do Google para não interferir na conta admin do portal
+              // mas o Supabase já terá trocado a sessão. 
+              // O usuário pode precisar logar novamente com sua conta Admin do portal.
+              toast.info('Você pode precisar entrar novamente com sua conta Admin do Portal.');
             }
             
             // Clean up the URL hash
@@ -213,10 +216,12 @@ const TransparencyPage = () => {
         <Card className="mb-8 border-amber-200 bg-amber-50">
           <CardHeader>
             <CardTitle className="text-amber-800 flex items-center gap-2">
-              <LogIn className="h-5 w-5" /> Autenticação Necessária
+              <LogIn className="h-5 w-5" /> Conexão com Google Drive
             </CardTitle>
             <CardDescription className="text-amber-700">
-              Para visualizar os arquivos do Google Drive em tempo real, você precisa autorizar o acesso à sua conta.
+              {hasGoogleAuth 
+                ? "A integração global está ativa. Você pode atualizar a conta conectada se necessário."
+                : "Para visualizar os arquivos do Google Drive em tempo real, um administrador precisa autorizar o acesso uma única vez para todo o sistema."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -226,7 +231,7 @@ const TransparencyPage = () => {
               className="bg-[#4285F4] hover:bg-[#357abd]"
             >
               {isAuthenticating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-              Conectar com Google Drive
+              {hasGoogleAuth ? "Atualizar Conta Google (Global)" : "Conectar Google Drive (Global)"}
             </Button>
           </CardContent>
         </Card>
