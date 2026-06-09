@@ -200,7 +200,15 @@ const TransparencyPage = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      setConfigs(data || []);
+      const fetchedConfigs = data || [];
+      setConfigs(fetchedConfigs);
+      
+      // Auto-sync missing original names
+      fetchedConfigs.forEach(config => {
+        if (!config.original_folder_name) {
+          syncOriginalName(config);
+        }
+      });
     } catch (error) {
       console.error('Error fetching configs:', error);
       toast.error('Erro ao carregar configurações');
