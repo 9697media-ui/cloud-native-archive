@@ -159,9 +159,18 @@ const TransparencyPage = () => {
         calculateHeight();
       }
       
+      const handleMessage = (e: MessageEvent) => {
+        if (e.data === 'request-resize') {
+          calculateHeight();
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
+      
       return () => {
         resizeObserver.disconnect();
         clearInterval(interval);
+        window.removeEventListener('message', handleMessage);
       };
     }
   }, [searchParams, loading, configs]);
