@@ -58,6 +58,20 @@ serve(async (req) => {
         });
     }
 
+    if (action === "get_folder_name") {
+      const url = new URL(`https://www.googleapis.com/drive/v3/files/${folderId}`);
+      url.searchParams.set("fields", "name, mimeType");
+      
+      const driveResponse = await fetch(url.toString(), {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      const data = await driveResponse.json();
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "list_files") {
       const q = `'${folderId}' in parents and trashed = false`;
       const url = new URL("https://www.googleapis.com/drive/v3/files");
