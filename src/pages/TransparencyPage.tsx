@@ -648,6 +648,7 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewingFile, setViewingFile] = useState(false);
+  const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'true';
   const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
 
   const handleClick = async () => {
