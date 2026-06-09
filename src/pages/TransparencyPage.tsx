@@ -715,10 +715,15 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
     <div 
       id={`viewer-${item.id}`}
       className={cn(
-        "fixed inset-0 z-[2147483647] flex flex-col bg-background overflow-hidden",
-        isFullscreen ? "w-[100vw] h-[100vh]" : "w-full h-full"
+        "fixed left-0 top-0 right-0 bottom-0 z-[2147483647] flex flex-col bg-background overflow-hidden w-full h-full"
       )}
-      style={{ left: 0, top: 0, right: 0, bottom: 0, position: 'fixed', width: '100%', height: '100%' }}
+      style={{ 
+        position: 'fixed', 
+        width: '100%', 
+        height: '100%',
+        margin: 0,
+        padding: 0
+      }}
     >
       <div className="p-2 border-b flex flex-row items-center justify-between bg-background h-10 shrink-0 w-full">
         <div className="flex items-center gap-1.5 overflow-hidden">
@@ -742,10 +747,11 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
           </Button>
         </div>
       </div>
-      <div className="flex-1 bg-white relative w-full h-full">
+      <div className="flex-1 bg-white relative w-full h-full overflow-hidden">
         <iframe 
           src={`https://drive.google.com/file/d/${item.id}/preview`} 
-          className="w-full h-full border-none absolute inset-0" 
+          className="w-full h-full border-none" 
+          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
           title={item.name} 
           allow="autoplay; fullscreen" 
           allowFullScreen 
