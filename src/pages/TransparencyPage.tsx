@@ -313,6 +313,8 @@ const TransparencyPage = () => {
       container.classList.add('file-open');
       iframe.style.height = '100vh';
       document.body.style.overflow = 'hidden';
+      // Force scroll to top of parent when file opens
+      window.scrollTo(0, 0);
     }
     if (e.data.type === 'file-closed') {
       container.classList.remove('file-open');
