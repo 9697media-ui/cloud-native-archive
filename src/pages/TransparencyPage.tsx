@@ -533,35 +533,60 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   const isEmbed = new URLSearchParams(window.location.search).get('embed') === 'true';
   const driveUrl = `https://drive.google.com/file/d/${item.id}/preview`;
   
+  useEffect(() => {
+    if (isEmbed && isOpen) {
+      // Send message immediately when file opens
+      window.parent.postMessage({ type: 'file-opened' }, '*');
+      
+      return () => {
+        // Send message when component unmounts (file closed)
+        window.parent.postMessage({ type: 'file-closed' }, '*');
+      };
+    }
+  }, [isEmbed, isOpen]);
+
   if (isEmbed && isOpen) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-black flex flex-col w-screen h-screen" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-        <div className="flex items-center justify-between p-4 bg-background border-b z-50">
-          <div className="flex items-center gap-3">
-            <FileIcon mimeType={item.mimeType} className="h-5 w-5" />
-            <span className="text-lg font-medium truncate max-w-[60vw]">{item.name}</span>
+      <div 
+        className="fixed inset-0 z-[9999] bg-black/80 flex flex-col w-screen h-screen backdrop-blur-sm cursor-pointer" 
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+        onClick={(e) => {
+          // If clicking the container (backdrop), close it
+          if (e.target === e.currentTarget) {
+            onClose();
+          }
+        }}
+      >
+        <div 
+          className="flex flex-col w-full h-full max-w-5xl mx-auto my-auto md:h-[90vh] md:w-[90vw] bg-background md:rounded-lg overflow-hidden shadow-2xl cursor-default"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between p-4 bg-background border-b z-50">
+            <div className="flex items-center gap-3">
+              <FileIcon mimeType={item.mimeType} className="h-5 w-5" />
+              <span className="text-lg font-medium truncate max-w-[50vw]">{item.name}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
+                  <Download className="h-4 w-4 mr-2" /> Download
+                </a>
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => {
+                onClose();
+              }}>
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <a href={`https://drive.google.com/uc?export=download&id=${item.id}`} target="_blank" rel="noreferrer">
-                <Download className="h-4 w-4 mr-2" /> Download
-              </a>
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => {
-              onClose();
-              window.parent.postMessage({ type: 'file-closed' }, '*');
-            }}>
-              <X className="h-5 w-5" />
-            </Button>
+          <div className="flex-1 w-full h-full bg-muted/20 relative">
+            <iframe 
+              src={driveUrl} 
+              className="w-full h-full border-none" 
+              title={item.name}
+              allow="autoplay"
+            />
           </div>
-        </div>
-        <div className="flex-1 w-full h-full bg-muted/20 relative">
-          <iframe 
-            src={driveUrl} 
-            className="w-full h-full border-none" 
-            title={item.name}
-            allow="autoplay"
-          />
         </div>
       </div>
     );
