@@ -344,6 +344,30 @@ export type Database = {
         }
         Relationships: []
       }
+      transparency_configs: {
+        Row: {
+          created_at: string | null
+          folder_id: string
+          id: string
+          label: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          folder_id: string
+          id?: string
+          label: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          folder_id?: string
+          id?: string
+          label?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ui_versions: {
         Row: {
           commit_sha: string | null

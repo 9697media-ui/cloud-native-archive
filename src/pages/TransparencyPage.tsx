@@ -1,0 +1,353 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  Folder, 
+  ChevronRight, 
+  ChevronDown, 
+  FileText, 
+  ExternalLink, 
+  Loader2, 
+  Search,
+  Settings,
+  Plus,
+  Trash2,
+  Copy,
+  Check
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+// This is a simplified representation of the Google Drive folder structure.
+// In a real production app, we would use an Edge Function to proxy requests to the Google Drive API.
+// Since we don't have Google API keys yet, we'll implement the UI and the structure
+// and simulate the data fetching.
+
+interface DriveItem {
+  id: string;
+  name: string;
+  mimeType: string;
+  children?: DriveItem[];
+}
+
+const TransparencyPage = () => {
+  const { isAdmin } = useUserRole();
+  const [configs, setConfigs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [newFolderId, setNewFolderId] = useState('');
+  const [newLabel, setNewLabel] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchConfigs();
+  }, []);
+
+  const fetchConfigs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('transparency_configs')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setConfigs(data || []);
+    } catch (error) {
+      console.error('Error fetching configs:', error);
+      toast.error('Erro ao carregar configurações');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddConfig = async () => {
+    if (!newFolderId || !newLabel) {
+      toast.error('Preencha todos os campos');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('transparency_configs')
+        .insert([{ folder_id: newFolderId, label: newLabel }]);
+      
+      if (error) throw error;
+      
+      toast.success('Configuração adicionada');
+      setNewFolderId('');
+      setNewLabel('');
+      setIsAdding(false);
+      fetchConfigs();
+    } catch (error) {
+      console.error('Error adding config:', error);
+      toast.error('Erro ao salvar configuração');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('transparency_configs')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      toast.success('Configuração removida');
+      fetchConfigs();
+    } catch (error) {
+      console.error('Error deleting config:', error);
+      toast.error('Erro ao remover configuração');
+    }
+  };
+
+  const copyEmbedCode = (id: string) => {
+    const embedCode = `<iframe src="${window.location.origin}/portal-transparencia?id=${id}&embed=true" width="100%" height="600" frameborder="0"></iframe>`;
+    navigator.clipboard.writeText(embedCode);
+    setCopiedId(id);
+    toast.success('Código embed copiado!');
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <h1 className="text-2xl font-bold text-destructive">Acesso Restrito</h1>
+        <p className="text-muted-foreground">Somente administradores podem acessar esta página.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto py-8 px-4 max-w-5xl">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1>
+          <p className="text-muted-foreground">Gerencie as pastas do Google Drive exibidas no portal.</p>
+        </div>
+        
+        <Dialog open={isAdding} onOpenChange={setIsAdding}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" /> Nova Pasta
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adicionar Pasta do Google Drive</DialogTitle>
+              <DialogDescription>
+                Insira o ID da pasta do Google Drive e um nome para identificação.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Nome / Rótulo</label>
+                <Input 
+                  placeholder="Ex: Documentos Financeiros 2024" 
+                  value={newLabel}
+                  onChange={(e) => setNewLabel(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Google Drive Folder ID</label>
+                <Input 
+                  placeholder="ID da pasta (encontrado na URL do Drive)" 
+                  value={newFolderId}
+                  onChange={(e) => setNewFolderId(e.target.value)}
+                />
+                <p className="text-[10px] text-muted-foreground">
+                  Dica: O ID é a parte final da URL: drive.google.com/drive/folders/<strong>ID_AQUI</strong>
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAdding(false)}>Cancelar</Button>
+              <Button onClick={handleAddConfig}>Salvar Configuração</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : configs.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <Folder className="h-12 w-12 text-muted-foreground mb-4 opacity-20" />
+            <h3 className="text-lg font-medium">Nenhuma pasta configurada</h3>
+            <p className="text-muted-foreground mb-6">Comece adicionando uma pasta do Google Drive para exibir no portal.</p>
+            <Button variant="outline" onClick={() => setIsAdding(true)}>Configurar primeira pasta</Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6">
+          {configs.map((config) => (
+            <Card key={config.id} className="overflow-hidden">
+              <CardHeader className="bg-muted/30 pb-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-xl">{config.label}</CardTitle>
+                    <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => copyEmbedCode(config.id)}
+                    >
+                      {copiedId === config.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      Embed
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => handleDelete(config.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0 border-t">
+                <div className="p-6">
+                  <div className="bg-card border rounded-lg overflow-hidden">
+                    <div className="bg-muted/50 p-3 border-b flex items-center gap-2">
+                      <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
+                      <span className="text-sm font-medium">{config.label}</span>
+                    </div>
+                    {/* Simulated Drive Explorer */}
+                    <div className="p-4 min-h-[200px] flex flex-col gap-1">
+                      <DriveExplorer folderId={config.folder_id} folderName={config.label} />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Component to explore the drive folder structure
+const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName: string }) => {
+  const [items, setItems] = useState<DriveItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate API call to fetch files/folders from Drive
+    const timer = setTimeout(() => {
+      setItems([
+        { id: 'f1', name: 'Contratos 2024', mimeType: 'application/vnd.google-apps.folder' },
+        { id: 'f2', name: 'Relatórios Financeiros', mimeType: 'application/vnd.google-apps.folder' },
+        { id: 'd1', name: 'Estatuto Social.pdf', mimeType: 'application/pdf' },
+        { id: 'd2', name: 'Ata de Reunião.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+      ]);
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [folderId]);
+
+  if (loading) return <div className="flex items-center justify-center p-8"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+
+  return (
+    <div className="space-y-1">
+      {items.map(item => (
+        <DriveItemComponent key={item.id} item={item} depth={0} />
+      ))}
+    </div>
+  );
+};
+
+const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [children, setChildren] = useState<DriveItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+
+  const toggleFolder = () => {
+    if (!isFolder) return;
+    
+    if (!isOpen && children.length === 0) {
+      setLoading(true);
+      // Simulate subfolder load
+      setTimeout(() => {
+        setChildren([
+          { id: `${item.id}-1`, name: `Subpasta ${item.name}`, mimeType: 'application/vnd.google-apps.folder' },
+          { id: `${item.id}-2`, name: `Arquivo de ${item.name}.pdf`, mimeType: 'application/pdf' },
+        ]);
+        setLoading(false);
+        setIsOpen(true);
+      }, 600);
+    } else {
+      setIsOpen(!isOpen);
+    }
+  };
+
+  return (
+    <div className="flex flex-col">
+      <div 
+        className={cn(
+          "flex items-center gap-2 p-2 rounded-md transition-colors cursor-pointer group",
+          isFolder ? "hover:bg-muted" : "hover:bg-muted/50"
+        )}
+        style={{ paddingLeft: `${depth * 20 + 8}px` }}
+        onClick={toggleFolder}
+      >
+        {isFolder ? (
+          <div className="flex items-center gap-2">
+            {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+            <Folder className="h-4 w-4 text-amber-500 fill-amber-500" />
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 pl-6">
+            <FileText className="h-4 w-4 text-blue-500" />
+          </div>
+        )}
+        <span className="text-sm flex-1 truncate">{item.name}</span>
+        {!isFolder && (
+          <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" asChild>
+            <a href={`https://drive.google.com/open?id=${item.id}`} target="_blank" rel="noreferrer">
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </Button>
+        )}
+      </div>
+      
+      {isOpen && (
+        <div className="flex flex-col">
+          {loading ? (
+            <div className="p-2 ml-8 flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
+            </div>
+          ) : (
+            children.map(child => (
+              <DriveItemComponent key={child.id} item={child} depth={depth + 1} />
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TransparencyPage;
