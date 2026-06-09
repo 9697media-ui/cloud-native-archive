@@ -77,11 +77,10 @@ const TransparencyPage = () => {
     
     if (isGoogleAuth) {
       const handleOAuthResponse = async () => {
-        // We get the session that just was created by OAuth
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.provider_refresh_token) {
-          // 1. Save the token to global settings
+          // Save the token to global settings
           const { error: updateError } = await supabase
             .from('global_settings')
             .upsert({ 
@@ -92,24 +91,15 @@ const TransparencyPage = () => {
           if (!updateError) {
             toast.success('Google Drive conectado globalmente!');
             setHasGoogleAuth(true);
-          } else {
-            console.error('Error saving token:', updateError);
           }
 
-          // 2. IMPORTANT: We do NOT want to keep this Google-based session.
-          await supabase.auth.signOut();
-          
-          const previousAdminEmail = localStorage.getItem('pre_oauth_admin_email');
-          if (previousAdminEmail) {
-            toast.info(`Integração concluída. Por favor, entre novamente como ${previousAdminEmail}.`);
-            localStorage.removeItem('pre_oauth_admin_email');
-          }
-          
-          // Clean up the URL and redirect to login
-          window.location.hash = '';
+          // In standard OAuth, Supabase logs in the user. 
+          // Since this is a global integration, we stay logged in but 
+          // the admin profile will be loaded based on this email.
+          // We remove the query param to clean the URL.
           searchParams.delete('type');
           setSearchParams(searchParams);
-          setTimeout(() => window.location.href = '/login', 2000);
+          window.location.hash = '';
         }
       };
       handleOAuthResponse();
@@ -119,12 +109,9 @@ const TransparencyPage = () => {
   }, [checkGoogleAuth, searchParams, setSearchParams]);
 
   const handleGoogleLogin = async () => {
-    // Save current user email to localStorage before redirecting
-    if (user?.email) {
-      localStorage.setItem('pre_oauth_admin_email', user.email);
-    }
     setIsAuthenticating(true);
     try {
+      // Use the standard redirect flow but the token will be saved globally
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -214,7 +201,7 @@ const TransparencyPage = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (!isAdmin && user?.email !== 'mkt@anabrasil.org' && user?.email !== 'transparencia@anabrasil.org') {
+  if (!isAdmin && user?.email !== 'mkt@anabrasil.org' && user?.email !== 'transparencia@anabrasil.org' && user?.email !== 'contato@anabrasil.org') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <h1 className="text-2xl font-bold text-destructive">Acesso Restrito</h1>
