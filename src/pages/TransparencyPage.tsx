@@ -30,7 +30,8 @@ import {
   Edit2,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Layers
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,6 +71,10 @@ const TransparencyPage = () => {
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
   const [editingConfig, setEditingConfig] = useState<{ id: string, label: string } | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'none'>('none');
+  const [isBatchAdding, setIsBatchAdding] = useState(false);
+  const [batchStep, setBatchAddingStep] = useState<'select' | 'rename'>('select');
+  const [selectedItems, setSelectedItems] = useState<DriveItem[]>([]);
+  const rootBatchFolderId = "14JkYMo16TCP1YT2ZO-EH1g2OJ-rdB0Mg";
 
   const checkGoogleAuth = useCallback(async () => {
     const { data } = await supabase
@@ -243,6 +248,31 @@ const TransparencyPage = () => {
     }
   };
 
+  const handleBatchSave = async (itemsWithNames: { id: string, name: string, originalName: string }[]) => {
+    try {
+      const inserts = itemsWithNames.map(item => ({
+        folder_id: item.id,
+        label: item.name,
+        original_folder_name: item.originalName
+      }));
+
+      const { error } = await supabase
+        .from('transparency_configs')
+        .insert(inserts);
+      
+      if (error) throw error;
+      
+      toast.success(`${inserts.length} pastas adicionadas com sucesso!`);
+      setIsBatchAdding(false);
+      setSelectedItems([]);
+      setBatchAddingStep('select');
+      fetchConfigs();
+    } catch (error: any) {
+      console.error('Error batch adding:', error);
+      toast.error('Erro ao salvar em lote');
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase.from('transparency_configs').delete().eq('id', id);
@@ -328,6 +358,20 @@ const TransparencyPage = () => {
             {sortOrder === 'desc' && <ArrowDown className="h-4 w-4" />}
             Ordenar {sortOrder !== 'none' && (sortOrder === 'asc' ? '(A-Z)' : '(Z-A)')}
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setIsBatchAdding(true);
+              setBatchAddingStep('select');
+              setSelectedItems([]);
+            }}
+            className="gap-2 h-10"
+          >
+            <Layers className="h-4 w-4" />
+            Adicionar em Lote
+          </Button>
+
           <Dialog open={isAdding} onOpenChange={setIsAdding}>
             <DialogTrigger asChild><Button className="gap-2 h-10"><Plus className="h-4 w-4" /> Nova Pasta</Button></DialogTrigger>
             <DialogContent>
@@ -389,6 +433,227 @@ const TransparencyPage = () => {
           <DialogFooter><Button onClick={handleUpdateLabel}>Salvar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+      <BatchAddDialog 
+        isOpen={isBatchAdding} 
+        onClose={() => setIsBatchAdding(false)} 
+        rootFolderId={rootBatchFolderId}
+        onSave={handleBatchSave}
+      />
+    </div>
+  );
+};
+
+const BatchAddDialog = ({ isOpen, onClose, rootFolderId, onSave }: { 
+  isOpen: boolean, 
+  onClose: () => void, 
+  rootFolderId: string,
+  onSave: (items: { id: string, name: string, originalName: string }[]) => void
+}) => {
+  const [step, setStep] = useState<'select' | 'rename'>('select');
+  const [selectedItems, setSelectedItems] = useState<DriveItem[]>([]);
+  const [renameList, setRenameList] = useState<{ id: string, name: string, originalName: string }[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setStep('select');
+      setSelectedItems([]);
+      setRenameList([]);
+    }
+  }, [isOpen]);
+
+  const toggleItemSelection = (item: DriveItem) => {
+    setSelectedItems(prev => {
+      const exists = prev.find(i => i.id === item.id);
+      if (exists) return prev.filter(i => i.id !== item.id);
+      return [...prev, item];
+    });
+  };
+
+  const handleNextStep = () => {
+    setRenameList(selectedItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      originalName: item.name
+    })));
+    setStep('rename');
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>{step === 'select' ? 'Selecionar Pastas em Lote' : 'Renomear Unidades'}</DialogTitle>
+          <DialogDescription>
+            {step === 'select' ? 'Navegue e selecione as pastas que deseja adicionar.' : 'Ajuste os nomes das unidades antes de salvar.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto min-h-[400px] py-4">
+          {step === 'select' ? (
+            <BatchDriveExplorer 
+              folderId={rootFolderId} 
+              selectedIds={selectedItems.map(i => i.id)}
+              onToggleSelection={toggleItemSelection}
+            />
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 font-medium border-b pb-2 text-sm text-muted-foreground">
+                <div>Nome Original</div>
+                <div>Nome Personalizado</div>
+              </div>
+              {renameList.map((item, index) => (
+                <div key={item.id} className="grid grid-cols-2 gap-4 items-center">
+                  <div className="text-sm truncate">{item.originalName}</div>
+                  <Input 
+                    value={item.name}
+                    onChange={(e) => {
+                      const newList = [...renameList];
+                      newList[index].name = e.target.value;
+                      setRenameList(newList);
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="border-t pt-4">
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          {step === 'select' ? (
+            <Button 
+              disabled={selectedItems.length === 0}
+              onClick={handleNextStep}
+            >
+              Prosseguir ({selectedItems.length})
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button variant="ghost" onClick={() => setStep('select')}>Voltar</Button>
+              <Button onClick={() => onSave(renameList)}>Salvar em Lote</Button>
+            </div>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const BatchDriveExplorer = ({ folderId, selectedIds, onToggleSelection }: { 
+  folderId: string, 
+  selectedIds: string[],
+  onToggleSelection: (item: DriveItem) => void 
+}) => {
+  const [items, setItems] = useState<DriveItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      setLoading(true);
+      try {
+        const { data } = await supabase.functions.invoke('google-drive-proxy', {
+          body: { action: 'list_files', folderId }
+        });
+        setItems(data.files || []);
+      } catch (err) {
+        console.error('Error batch exploring:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFiles();
+  }, [folderId]);
+
+  if (loading) return <div className="flex items-center justify-center p-8"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+
+  return (
+    <div className="space-y-1">
+      {items.map(item => (
+        <BatchDriveItem 
+          key={item.id} 
+          item={item} 
+          depth={0} 
+          selectedIds={selectedIds}
+          onToggleSelection={onToggleSelection}
+        />
+      ))}
+    </div>
+  );
+};
+
+const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: { 
+  item: DriveItem, 
+  depth: number,
+  selectedIds: string[],
+  onToggleSelection: (item: DriveItem) => void
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [children, setChildren] = useState<DriveItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+  const isSelected = selectedIds.includes(item.id);
+
+  const toggleFolder = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isOpen && children.length === 0) {
+      setLoading(true);
+      try {
+        const { data } = await supabase.functions.invoke('google-drive-proxy', {
+          body: { action: 'list_files', folderId: item.id }
+        });
+        setChildren(data.files || []);
+        setIsOpen(true);
+      } catch (err) {
+        toast.error('Erro ao abrir pasta');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setIsOpen(!isOpen);
+    }
+  };
+
+  return (
+    <div className="flex flex-col">
+      <div 
+        className={cn(
+          "flex items-center gap-2 p-2 rounded-md transition-colors cursor-pointer",
+          isSelected ? "bg-primary/10 hover:bg-primary/20" : "hover:bg-muted/50"
+        )}
+        style={{ paddingLeft: `${depth * 20 + 8}px` }}
+        onClick={() => onToggleSelection(item)}
+      >
+        <div className="flex items-center gap-2">
+          {isFolder ? (
+            <div onClick={toggleFolder} className="p-1 hover:bg-muted rounded">
+              {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </div>
+          ) : <div className="w-6" />}
+          <Check className={cn("h-4 w-4 transition-opacity", isSelected ? "opacity-100 text-primary" : "opacity-0")} />
+          <FileIcon mimeType={item.mimeType} className="h-4 w-4" />
+        </div>
+        <span className={cn("text-sm flex-1 truncate", isSelected && "font-medium")}>{item.name}</span>
+      </div>
+      
+      {isOpen && (
+        <div className="flex flex-col">
+          {loading ? (
+            <div className="p-2 ml-12 text-xs text-muted-foreground flex items-center gap-2">
+              <Loader2 className="h-3 w-3 animate-spin" /> Carregando...
+            </div>
+          ) : (
+            children.map(child => (
+              <BatchDriveItem 
+                key={child.id} 
+                item={child} 
+                depth={depth + 1} 
+                selectedIds={selectedIds}
+                onToggleSelection={onToggleSelection}
+              />
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -545,3 +810,4 @@ const DriveItemComponent = ({ item, depth }: { item: DriveItem, depth: number })
 };
 
 export default TransparencyPage;
+
