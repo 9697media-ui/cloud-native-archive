@@ -551,7 +551,6 @@ const TransparencyPage = () => {
               <Button onClick={handleAddConfig}>Salvar Configuração</Button>
             </DialogFooter>
           </DialogContent>
-          </DialogContent>
         </Dialog>
       </div>
 
