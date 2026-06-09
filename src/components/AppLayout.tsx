@@ -110,8 +110,8 @@ export default function AppLayout() {
 
   return (
     <div className={cn("flex min-h-screen flex-col bg-background", isCleanView && "h-full")}>
-      {!hideHeaderParam && <ImpersonationBanner />}
-      {!hideHeaderParam && (
+      {!hideHeaderParam && !isEmbedParam && <ImpersonationBanner />}
+      {!hideHeaderParam && !isEmbedParam && (
         <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
           <div className="flex h-16 w-full items-center gap-4 px-4 lg:px-8">
             {isMobile && (
