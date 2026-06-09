@@ -491,12 +491,16 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      {/* Target the overlay to make it invisible/removed as requested */}
-      <DialogContent className="max-w-none w-screen h-screen p-0 m-0 overflow-hidden flex flex-col rounded-none border-none shadow-none z-[9999] top-0 left-0 translate-x-0 translate-y-0 sm:rounded-none">
+      <DialogContent 
+        className="max-w-none w-screen h-screen p-0 m-0 overflow-hidden flex flex-col rounded-none border-none shadow-none z-[9999] top-0 left-0 translate-x-0 translate-y-0 sm:rounded-none"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <style dangerouslySetInnerHTML={{ __html: `
           [data-radix-portal] > [data-state=open].fixed.inset-0.z-50.bg-black\\/80 { 
-            background-color: transparent !important;
-            backdrop-filter: none !important;
+            display: none !important;
+          }
+          [data-radix-portal] button[class*="absolute right-4 top-4"] {
+            display: none !important;
           }
         ` }} />
         <DialogHeader className="p-2 border-b flex flex-row items-center justify-between space-y-0 bg-background h-10">
@@ -520,7 +524,8 @@ const FileViewerDialog = ({ item, isOpen, onClose }: { item: DriveItem, isOpen: 
             src={driveUrl} 
             className="w-full h-full border-none" 
             title={item.name}
-            allow="autoplay"
+            allow="autoplay; fullscreen"
+            allowFullScreen
           />
         </div>
       </DialogContent>
