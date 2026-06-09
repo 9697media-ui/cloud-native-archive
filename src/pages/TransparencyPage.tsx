@@ -530,6 +530,14 @@ const TransparencyPage = () => {
                   </div>
                   <div className="flex gap-2">
                     <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-muted-foreground hover:text-primary"
+                      onClick={() => setEditingConfig({ id: config.id, label: config.label })}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button 
                       variant="outline" 
                       size="sm" 
                       className="gap-2"
