@@ -505,6 +505,9 @@ const TransparencyPage = () => {
                 <Plus className="h-4 w-4" /> Nova Pasta
               </Button>
             </DialogTrigger>
+          </Dialog>
+        </div>
+      </div>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Adicionar Pasta do Google Drive</DialogTitle>
