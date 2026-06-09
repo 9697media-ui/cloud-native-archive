@@ -669,6 +669,7 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showEmpty, setShowEmpty] = useState(false);
   const isFolder = item.mimeType === 'application/vnd.google-apps.folder' || 
                  (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetMimeType === 'application/vnd.google-apps.folder');
   const actualId = (item.mimeType === 'application/vnd.google-apps.shortcut' && item.shortcutDetails?.targetId) || item.id;
@@ -676,21 +677,29 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
 
   const toggleFolder = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isOpen && children.length === 0) {
-      setLoading(true);
-      try {
-        const { data } = await supabase.functions.invoke('google-drive-proxy', {
-          body: { action: 'list_files', folderId: actualId }
-        });
-        setChildren(data.files || []);
-        setIsOpen(true);
-      } catch (err) {
-        toast.error('Erro ao abrir pasta');
-      } finally {
-        setLoading(false);
+    if (isFolder) {
+      if (!isOpen && children.length === 0) {
+        setLoading(true);
+        try {
+          const { data } = await supabase.functions.invoke('google-drive-proxy', {
+            body: { action: 'list_files', folderId: actualId }
+          });
+          const files = data.files || [];
+          if (files.length === 0) {
+            setShowEmpty(true);
+            setTimeout(() => setShowEmpty(false), 2000);
+            return;
+          }
+          setChildren(files);
+          setIsOpen(true);
+        } catch (err) {
+          toast.error('Erro ao abrir pasta');
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setIsOpen(!isOpen);
       }
-    } else {
-      setIsOpen(!isOpen);
     }
   };
 
@@ -707,13 +716,15 @@ const BatchDriveItem = ({ item, depth, selectedIds, onToggleSelection }: {
         <div className="flex items-center gap-2">
           {isFolder ? (
             <div onClick={toggleFolder} className="p-1 hover:bg-muted rounded">
-              {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              <ChevronRight className={cn("h-4 w-4 transition-transform duration-200", isOpen ? "rotate-90" : "rotate-0")} />
             </div>
           ) : <div className="w-6" />}
           <Check className={cn("h-4 w-4 transition-opacity", isSelected ? "opacity-100 text-primary" : "opacity-0")} />
           <FileIcon mimeType={item.mimeType} className="h-4 w-4" />
         </div>
-        <span className={cn("text-sm flex-1 truncate", isSelected && "font-medium")}>{item.name}</span>
+        <span className={cn("text-sm flex-1 truncate transition-all duration-300", showEmpty && "text-muted-foreground italic")}>
+          {showEmpty ? "Pasta vazia" : item.name}
+        </span>
       </div>
       
       {isOpen && (
