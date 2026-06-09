@@ -64,6 +64,7 @@ const TransparencyPage = () => {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [newFolderId, setNewFolderId] = useState('');
   const [newLabel, setNewLabel] = useState('');
+  const [originalFolderName, setOriginalFolderName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -217,13 +218,18 @@ const TransparencyPage = () => {
     try {
       const { error } = await supabase
         .from('transparency_configs')
-        .insert([{ folder_id: folderId, label: newLabel }]);
+        .insert([{ 
+          folder_id: folderId, 
+          label: newLabel,
+          original_folder_name: originalFolderName 
+        }]);
       
       if (error) throw error;
       
       toast.success('Configuração adicionada');
       setNewFolderId('');
       setNewLabel('');
+      setOriginalFolderName('');
       setIsAdding(false);
       fetchConfigs();
     } catch (error: any) {
@@ -265,9 +271,12 @@ const TransparencyPage = () => {
       });
 
       if (error) throw error;
-      if (data?.name && !newLabel) {
-        setNewLabel(data.name);
-        toast.info(`Título preenchido automaticamente: ${data.name}`);
+      if (data?.name) {
+        setOriginalFolderName(data.name);
+        if (!newLabel) {
+          setNewLabel(data.name);
+          toast.info(`Título preenchido automaticamente: ${data.name}`);
+        }
       }
     } catch (err) {
       console.error('Error fetching folder name:', err);
@@ -487,7 +496,14 @@ const TransparencyPage = () => {
               <CardHeader className="bg-muted/30 pb-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-xl">{config.label}</CardTitle>
+                    <CardTitle className="text-xl">
+                      {config.label}
+                      {config.original_folder_name && config.original_folder_name !== config.label && (
+                        <span className="text-sm font-normal text-muted-foreground ml-2">
+                          ({config.original_folder_name})
+                        </span>
+                      )}
+                    </CardTitle>
                     <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
                   </div>
                   <div className="flex gap-2">
