@@ -400,7 +400,7 @@ const TransparencyPage = () => {
             <DialogHeader>
               <DialogTitle>Adicionar Pasta do Google Drive</DialogTitle>
               <DialogDescription>
-                Insira o ID da pasta do Google Drive e um nome para identificação.
+                Insira o link completo ou o ID da pasta do Google Drive.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
