@@ -394,7 +394,7 @@ const TransparencyPage = () => {
         </Card>
       ) : (
         <div className="grid gap-6">
-          {configs.map((config) => (
+          {filteredConfigs.map((config) => (
             <Card key={config.id} className="overflow-hidden">
               <CardHeader className="bg-muted/30 pb-4">
                 <div className="flex justify-between items-start">
