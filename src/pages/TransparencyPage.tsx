@@ -496,7 +496,14 @@ const TransparencyPage = () => {
               <CardHeader className="bg-muted/30 pb-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-xl">{config.label}</CardTitle>
+                    <CardTitle className="text-xl">
+                      {config.label}
+                      {config.original_folder_name && config.original_folder_name !== config.label && (
+                        <span className="text-sm font-normal text-muted-foreground ml-2">
+                          ({config.original_folder_name})
+                        </span>
+                      )}
+                    </CardTitle>
                     <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
                   </div>
                   <div className="flex gap-2">
