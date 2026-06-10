@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, ShieldAlert, Lock, Terminal } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, ShieldAlert, Lock, Terminal, Menu as MenuIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
@@ -318,7 +318,7 @@ export default function AdminToolboxPage() {
                   className="w-full justify-start gap-3 h-12"
                   onClick={() => setActiveWidgetType('menu')}
                 >
-                  <Menu className="h-5 w-5" />
+                  <MenuIcon className="h-5 w-5" />
                   <span>Menu Responsivo</span>
                 </Button>
               </CardContent>
@@ -441,6 +441,93 @@ export default function AdminToolboxPage() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between space-x-2 pt-2">
+                      <Label htmlFor="dismissible" className="cursor-pointer">Permitir fechar (X)</Label>
+                      <Switch 
+                        id="dismissible" 
+                        checked={bannerConfig.isDismissible}
+                        onCheckedChange={(val) => setBannerConfig({...bannerConfig, isDismissible: val})}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* CONFIG: MENU */}
+                {activeWidgetType === 'menu' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>URL do Logo</Label>
+                      <Input 
+                        value={menuConfig.logoUrl}
+                        onChange={(e) => setMenuConfig({...menuConfig, logoUrl: e.target.value})}
+                        placeholder="https://sua-logo.png"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Cor de Fundo</Label>
+                        <Input 
+                          type="color" 
+                          className="w-full h-10 p-1 cursor-pointer"
+                          value={menuConfig.bgColor}
+                          onChange={(e) => setMenuConfig({...menuConfig, bgColor: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Cor do Texto</Label>
+                        <Input 
+                          type="color" 
+                          className="w-full h-10 p-1 cursor-pointer"
+                          value={menuConfig.textColor}
+                          onChange={(e) => setMenuConfig({...menuConfig, textColor: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between space-x-2 pt-2">
+                      <Label htmlFor="sticky-menu" className="cursor-pointer">Menu Fixo (Sticky)</Label>
+                      <Switch 
+                        id="sticky-menu" 
+                        checked={menuConfig.sticky}
+                        onCheckedChange={(val) => setMenuConfig({...menuConfig, sticky: val})}
+                      />
+                    </div>
+                    <div className="space-y-2 pt-2">
+                      <Label>Itens do Menu</Label>
+                      {menuConfig.items.map((item, idx) => (
+                        <div key={idx} className="flex gap-2 mb-2">
+                          <Input 
+                            placeholder="Label" 
+                            value={item.label} 
+                            onChange={(e) => {
+                              const newItems = [...menuConfig.items];
+                              newItems[idx].label = e.target.value;
+                              setMenuConfig({...menuConfig, items: newItems});
+                            }}
+                          />
+                          <Input 
+                            placeholder="Link" 
+                            value={item.link}
+                            onChange={(e) => {
+                              const newItems = [...menuConfig.items];
+                              newItems[idx].link = e.target.value;
+                              setMenuConfig({...menuConfig, items: newItems});
+                            }}
+                          />
+                        </div>
+                      ))}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => setMenuConfig({
+                          ...menuConfig, 
+                          items: [...menuConfig.items, { label: 'Novo Item', link: '#' }]
+                        })}
+                      >
+                        + Adicionar Item
+                      </Button>
+                    </div>
+                  </div>
+                )}
                       <Label htmlFor="dismissible" className="cursor-pointer">Permitir fechar (X)</Label>
                       <Switch 
                         id="dismissible" 
