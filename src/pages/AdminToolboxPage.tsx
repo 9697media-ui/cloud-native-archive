@@ -50,8 +50,21 @@ export default function AdminToolboxPage() {
       { label: 'Serviços', link: '#' },
       { label: 'Contato', link: '#' }
     ],
-    sticky: true
+    sticky: true,
+    autoDetect: false,
+    wpApiUrl: ''
   });
+
+  const syncWithSystemMenu = () => {
+    setMenuConfig({
+      ...menuConfig,
+      items: navItems.map(item => ({ label: item.label, link: item.to }))
+    });
+    toast({
+      title: "Menu Sincronizado",
+      description: "Os itens do menu foram carregados a partir do sistema original.",
+    });
+  };
 
   // Função para copiar o código
   const handleCopyCode = (codeText: string) => {
