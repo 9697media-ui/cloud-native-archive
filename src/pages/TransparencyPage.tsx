@@ -63,6 +63,7 @@ const TransparencyPage = () => {
   const { isAdmin } = useUserRole();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showOriginalGlobal, setShowOriginalGlobal] = useState(false);
   const [configs, setConfigs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
@@ -402,15 +403,27 @@ const TransparencyPage = () => {
 
   if (isEmbed) {
     return (
-      <div className="p-0 bg-transparent w-full overflow-hidden m-0">
+      <div className="p-0 bg-transparent w-full overflow-hidden m-0 relative group/embed">
         {loading ? <div className="flex justify-center py-2"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> : 
          sortedConfigs.length === 0 ? <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada.</div> : (
           <div className="flex flex-col gap-0 w-full m-0 p-0">
+            {/* Liga/Desliga discreto no canto para consulta do administrador no site final */}
+            <div className="absolute top-1 right-1 z-[60] opacity-0 group-hover/embed:opacity-100 transition-opacity">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="h-6 px-2 text-[10px] bg-black/50 hover:bg-black/70 text-white border-none"
+                onClick={() => setShowOriginalGlobal(!showOriginalGlobal)}
+              >
+                {showOriginalGlobal ? 'Ocultar Identificação' : 'Consultar Identificação'}
+              </Button>
+            </div>
+
             {sortedConfigs.map((config) => (
               <div key={config.id} className="w-full m-0">
                 <div className="p-0 flex flex-col gap-1 w-full overflow-visible relative">
-                  {config.show_original_name && (
-                    <div className="absolute top-0 right-0 z-50 bg-black/80 text-white text-[10px] px-2 py-1 rounded-bl-md font-mono pointer-events-none select-none">
+                  {(config.show_original_name || showOriginalGlobal) && (
+                    <div className="absolute top-0 left-0 z-50 bg-black/80 text-white text-[10px] px-2 py-1 rounded-br-md font-mono pointer-events-none select-none">
                       ORIGINAL: {config.original_folder_name} | ID: {config.folder_id}
                     </div>
                   )}
