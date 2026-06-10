@@ -447,7 +447,27 @@ const TransparencyPage = () => {
       )}
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div><h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1></div>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className={cn(
+                "h-7 px-2 text-[10px] font-mono transition-colors",
+                showOriginalGlobal ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+              onClick={() => setShowOriginalGlobal(!showOriginalGlobal)}
+            >
+              {showOriginalGlobal ? 'OCULTAR IDS' : 'CONSULTAR IDS'}
+            </Button>
+            {showOriginalGlobal && (
+              <span className="text-[10px] text-muted-foreground animate-pulse font-mono">
+                Exibindo informações originais do Drive
+              </span>
+            )}
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => { const next: Record<string, any> = { none: 'asc', asc: 'desc', desc: 'none' }; setSortOrder(next[sortOrder]); }} className="gap-2 h-10">
             {sortOrder === 'none' && <ArrowUpDown className="h-4 w-4" />}
@@ -498,6 +518,11 @@ const TransparencyPage = () => {
                       <div>
                         <CardTitle className="text-xl flex items-center gap-2">
                           {config.label}
+                          {showOriginalGlobal && config.original_folder_name && (
+                            <span className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                              {config.original_folder_name}
+                            </span>
+                          )}
                           <ChevronRight className={cn("h-5 w-5 text-muted-foreground ml-2 transition-transform duration-200", isExpanded ? "rotate-90" : "rotate-0")} />
                         </CardTitle>
                         <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
