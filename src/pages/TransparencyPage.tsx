@@ -408,7 +408,12 @@ const TransparencyPage = () => {
           <div className="flex flex-col gap-0 w-full m-0 p-0">
             {sortedConfigs.map((config) => (
               <div key={config.id} className="w-full m-0">
-                <div className="p-0 flex flex-col gap-1 w-full overflow-visible">
+                <div className="p-0 flex flex-col gap-1 w-full overflow-visible relative">
+                  {config.show_original_name && (
+                    <div className="absolute top-0 right-0 z-50 bg-black/80 text-white text-[10px] px-2 py-1 rounded-bl-md font-mono pointer-events-none select-none">
+                      ORIGINAL: {config.original_folder_name} | ID: {config.folder_id}
+                    </div>
+                  )}
                   <DriveExplorer folderId={config.folder_id} folderName={config.label} />
                 </div>
               </div>
@@ -480,9 +485,6 @@ const TransparencyPage = () => {
                       <div>
                         <CardTitle className="text-xl flex items-center gap-2">
                           {config.label}
-                          {config.show_original_name && config.original_folder_name && (
-                            <span className="text-sm font-normal text-muted-foreground ml-2 italic">({config.original_folder_name} - {config.folder_id})</span>
-                          )}
                           <ChevronRight className={cn("h-5 w-5 text-muted-foreground ml-2 transition-transform duration-200", isExpanded ? "rotate-90" : "rotate-0")} />
                         </CardTitle>
                         <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
