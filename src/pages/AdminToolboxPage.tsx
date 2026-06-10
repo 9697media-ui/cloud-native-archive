@@ -299,10 +299,16 @@ export default function AdminToolboxPage() {
     });
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function initMenu() {
     highlightActiveLink();
     ${fetchScript}
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMenu);
+  } else {
+    initMenu();
+  }
   window.addEventListener('popstate', highlightActiveLink);
 </script>`;
 
