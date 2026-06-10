@@ -528,15 +528,10 @@ export default function AdminToolboxPage() {
                     </div>
                   </div>
                 )}
-                      <Label htmlFor="dismissible" className="cursor-pointer">Permitir fechar (X)</Label>
-                      <Switch 
-                        id="dismissible" 
-                        checked={bannerConfig.isDismissible}
-                        onCheckedChange={(val) => setBannerConfig({...bannerConfig, isDismissible: val})}
-                      />
-                    </div>
-                  </>
                 )}
+              </CardContent>
+            </Card>
+          </div>
               </CardContent>
             </Card>
           </div>
