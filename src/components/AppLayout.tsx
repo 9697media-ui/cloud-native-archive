@@ -10,41 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import ImpersonationBanner from '@/components/ImpersonationBanner';
-import TestModeBanner, { TestModeTrigger } from '@/components/TestModeBanner';
-import logoImg from '@/assets/logo.png';
-import { ThemeToggle } from './ThemeToggle';
-
-
-interface NavItem {
-  to: string;
-  label: string;
-  icon: any;
-  adminOnly?: boolean;
-  managerOnly?: boolean;
-  auditoriaOnly?: boolean;
-  requireAuth?: boolean;
-  mktOrAdminOnly?: boolean;
-}
-
-const navItems: NavItem[] = [
-  { to: '/', label: 'Eventos', icon: Globe },
-  { to: '/visao-geral', label: 'Visão Geral', icon: LayoutDashboard, requireAuth: true },
-  { to: '/calendario', label: 'Calendário', icon: Calendar, requireAuth: true },
-  { to: '/noticias', label: 'Notícias (Informativo)', icon: Newspaper, requireAuth: true },
-  { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
-  { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, adminOnly: true },
-  { to: '/design-manual', label: 'Manual Design', icon: BookOpen, requireAuth: true, mktOrAdminOnly: true },
-  { to: '/portal-transparencia', label: 'Portal Transparência', icon: FileSearch, requireAuth: true, adminOnly: true },
-];
+import { navItems } from '@/config/navigation';
 
 export default function AppLayout() {
   const [isFirstRender, setIsFirstRender] = useState(true);
