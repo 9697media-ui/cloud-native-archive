@@ -200,8 +200,14 @@ export default function AdminToolboxPage() {
     font-size: 15px;
     font-weight: 500;
     transition: opacity 0.2s;
+    opacity: 0.8;
   }
-  .custom-nav-992 .menu-items a:hover { opacity: 0.7; }
+  .custom-nav-992 .menu-items a:hover { opacity: 1; }
+  .custom-nav-992 .menu-items a.active { 
+    opacity: 1;
+    font-weight: 700;
+    border-bottom: 2px solid currentColor;
+  }
   .custom-nav-992 .mobile-toggle {
     display: none;
     background: transparent;
@@ -234,6 +240,21 @@ export default function AdminToolboxPage() {
     const items = document.querySelector('.custom-nav-992 .menu-items');
     items.classList.toggle('active');
   }
+
+  function highlightActiveLink() {
+    const currentPath = window.location.pathname;
+    const links = document.querySelectorAll('.custom-nav-992 .menu-items a');
+    
+    links.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href !== '#' && (currentPath === href || (href !== '/' && currentPath.startsWith(href)))) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', highlightActiveLink);
+  window.addEventListener('popstate', highlightActiveLink);
 </script>`;
 
     const html = `
