@@ -22,6 +22,8 @@ import NewsGeneratorPage from "./pages/NewsGeneratorPage";
 import TransparencyPage from "./pages/TransparencyPage";
 import NotFound from "./pages/NotFound";
 import EmailPreview from "./pages/EmailPreview";
+import AdminToolboxPage from "./pages/AdminToolboxPage";
+
 
 
 const queryClient = new QueryClient();
@@ -88,7 +90,11 @@ const App = () => (
                   <Route path="/portal-transparencia" element={
                     <ProtectedRoute><TransparencyPage /></ProtectedRoute>
                   } />
+                  <Route path="/admin-toolbox" element={
+                    <ProtectedRoute><AdminToolboxPage /></ProtectedRoute>
+                  } />
                   <Route path="*" element={<NotFound />} />
+
                 </Route>
               </Routes>
             </BrowserRouter>
