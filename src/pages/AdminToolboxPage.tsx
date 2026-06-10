@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, ShieldAlert, Lock, Terminal } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, ShieldAlert, Lock, Terminal, Menu as MenuIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,19 @@ export default function AdminToolboxPage() {
     textColor: '#ffffff',
     link: 'https://seusite.com/promo',
     isDismissible: true
+  });
+
+  const [menuConfig, setMenuConfig] = useState({
+    logoUrl: 'https://anabrasil.org/logo.png',
+    bgColor: '#ffffff',
+    textColor: '#1f2937',
+    items: [
+      { label: 'Início', link: '#' },
+      { label: 'Sobre', link: '#' },
+      { label: 'Serviços', link: '#' },
+      { label: 'Contato', link: '#' }
+    ],
+    sticky: true
   });
 
   // Função para copiar o código
@@ -154,8 +167,95 @@ export default function AdminToolboxPage() {
     return css + "\n" + html + "\n" + script;
   };
 
+  const generateMenuCode = () => {
+    const css = `<style>
+  .custom-nav-992 {
+    width: 100%;
+    background-color: ${menuConfig.bgColor};
+    color: ${menuConfig.textColor};
+    padding: 0 20px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: system-ui, -apple-system, sans-serif;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: ${menuConfig.sticky ? 'sticky' : 'relative'};
+    top: 0;
+    z-index: 999997;
+    box-sizing: border-box;
+  }
+  .custom-nav-992 .logo img {
+    height: 40px;
+    width: auto;
+    display: block;
+  }
+  .custom-nav-992 .menu-items {
+    display: flex;
+    gap: 25px;
+  }
+  .custom-nav-992 .menu-items a {
+    color: inherit;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+  .custom-nav-992 .menu-items a:hover { opacity: 0.7; }
+  .custom-nav-992 .mobile-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  @media (max-width: 768px) {
+    .custom-nav-992 .menu-items {
+      display: none;
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: 100%;
+      background-color: ${menuConfig.bgColor};
+      flex-direction: column;
+      padding: 20px;
+      gap: 15px;
+      box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+    }
+    .custom-nav-992 .menu-items.active { display: flex; }
+    .custom-nav-992 .mobile-toggle { display: block; }
+  }
+</style>`;
+
+    const script = `
+<script>
+  function toggleCustomMenu() {
+    const items = document.querySelector('.custom-nav-992 .menu-items');
+    items.classList.toggle('active');
+  }
+</script>`;
+
+    const html = `
+<!-- Início: Menu Responsivo Nativo -->
+<nav class="custom-nav-992">
+  <div class="logo">
+    <img src="${menuConfig.logoUrl}" alt="Logo">
+  </div>
+  <button class="mobile-toggle" onclick="toggleCustomMenu()">☰</button>
+  <div class="menu-items">
+    ${menuConfig.items.map(item => `<a href="${item.link}">${item.label}</a>`).join('\n    ')}
+  </div>
+</nav>
+<!-- Fim: Menu Responsivo Nativo -->`;
+
+    return css + "\n" + html + "\n" + script;
+  };
+
   const getGeneratedCode = () => {
-    return activeWidgetType === 'whatsapp' ? generateWhatsappCode() : generateBannerCode();
+    if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
+    if (activeWidgetType === 'banner') return generateBannerCode();
+    return generateMenuCode();
   };
 
   return (
@@ -212,6 +312,14 @@ export default function AdminToolboxPage() {
                 >
                   <AlertTriangle className="h-5 w-5" />
                   <span>Banner de Aviso</span>
+                </Button>
+                <Button 
+                  variant={activeWidgetType === 'menu' ? 'default' : 'outline'} 
+                  className="w-full justify-start gap-3 h-12"
+                  onClick={() => setActiveWidgetType('menu')}
+                >
+                  <MenuIcon className="h-5 w-5" />
+                  <span>Menu Responsivo</span>
                 </Button>
               </CardContent>
             </Card>
@@ -341,6 +449,84 @@ export default function AdminToolboxPage() {
                       />
                     </div>
                   </>
+                )}
+
+                {/* CONFIG: MENU */}
+                {activeWidgetType === 'menu' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>URL do Logo</Label>
+                      <Input 
+                        value={menuConfig.logoUrl}
+                        onChange={(e) => setMenuConfig({...menuConfig, logoUrl: e.target.value})}
+                        placeholder="https://sua-logo.png"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Cor de Fundo</Label>
+                        <Input 
+                          type="color" 
+                          className="w-full h-10 p-1 cursor-pointer"
+                          value={menuConfig.bgColor}
+                          onChange={(e) => setMenuConfig({...menuConfig, bgColor: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Cor do Texto</Label>
+                        <Input 
+                          type="color" 
+                          className="w-full h-10 p-1 cursor-pointer"
+                          value={menuConfig.textColor}
+                          onChange={(e) => setMenuConfig({...menuConfig, textColor: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between space-x-2 pt-2">
+                      <Label htmlFor="sticky-menu" className="cursor-pointer">Menu Fixo (Sticky)</Label>
+                      <Switch 
+                        id="sticky-menu" 
+                        checked={menuConfig.sticky}
+                        onCheckedChange={(val) => setMenuConfig({...menuConfig, sticky: val})}
+                      />
+                    </div>
+                    <div className="space-y-2 pt-2">
+                      <Label>Itens do Menu</Label>
+                      {menuConfig.items.map((item, idx) => (
+                        <div key={idx} className="flex gap-2 mb-2">
+                          <Input 
+                            placeholder="Label" 
+                            value={item.label} 
+                            onChange={(e) => {
+                              const newItems = [...menuConfig.items];
+                              newItems[idx].label = e.target.value;
+                              setMenuConfig({...menuConfig, items: newItems});
+                            }}
+                          />
+                          <Input 
+                            placeholder="Link" 
+                            value={item.link}
+                            onChange={(e) => {
+                              const newItems = [...menuConfig.items];
+                              newItems[idx].link = e.target.value;
+                              setMenuConfig({...menuConfig, items: newItems});
+                            }}
+                          />
+                        </div>
+                      ))}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => setMenuConfig({
+                          ...menuConfig, 
+                          items: [...menuConfig.items, { label: 'Novo Item', link: '#' }]
+                        })}
+                      >
+                        + Adicionar Item
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>
