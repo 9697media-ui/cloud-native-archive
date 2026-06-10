@@ -375,7 +375,6 @@ export type Database = {
           id: string
           label: string
           original_folder_name: string | null
-          show_original_name: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -384,7 +383,6 @@ export type Database = {
           id?: string
           label: string
           original_folder_name?: string | null
-          show_original_name?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -393,7 +391,6 @@ export type Database = {
           id?: string
           label?: string
           original_folder_name?: string | null
-          show_original_name?: boolean | null
           updated_at?: string | null
         }
         Relationships: []

@@ -63,7 +63,6 @@ const TransparencyPage = () => {
   const { isAdmin } = useUserRole();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [showOriginalGlobal, setShowOriginalGlobal] = useState(false);
   const [configs, setConfigs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
@@ -74,7 +73,7 @@ const TransparencyPage = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
-  const [editingConfig, setEditingConfig] = useState<{ id: string, label: string, show_original_name: boolean } | null>(null);
+  const [editingConfig, setEditingConfig] = useState<{ id: string, label: string } | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'none'>('asc');
   const [isBatchAdding, setIsBatchAdding] = useState(false);
   const [batchStep, setBatchAddingStep] = useState<'select' | 'rename'>('select');
@@ -325,19 +324,13 @@ const TransparencyPage = () => {
   const handleUpdateLabel = async () => {
     if (!editingConfig) return;
     try {
-      const { error } = await supabase
-        .from('transparency_configs')
-        .update({ 
-          label: editingConfig.label,
-          show_original_name: editingConfig.show_original_name
-        })
-        .eq('id', editingConfig.id);
+      const { error } = await supabase.from('transparency_configs').update({ label: editingConfig.label }).eq('id', editingConfig.id);
       if (error) throw error;
-      toast.success('Configuração atualizada');
+      toast.success('Nome atualizado');
       setEditingConfig(null);
       fetchConfigs();
     } catch (error) {
-      toast.error('Erro ao atualizar configuração');
+      toast.error('Erro ao atualizar nome');
     }
   };
 
@@ -403,30 +396,13 @@ const TransparencyPage = () => {
 
   if (isEmbed) {
     return (
-      <div className="p-0 bg-transparent w-full overflow-hidden m-0 relative group/embed">
+      <div className="p-0 bg-transparent w-full overflow-hidden m-0">
         {loading ? <div className="flex justify-center py-2"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> : 
          sortedConfigs.length === 0 ? <div className="p-2 text-center text-muted-foreground text-sm">Pasta não encontrada.</div> : (
           <div className="flex flex-col gap-0 w-full m-0 p-0">
-            {/* Liga/Desliga discreto no canto para consulta do administrador no site final */}
-            <div className="absolute top-1 right-1 z-[60] opacity-0 group-hover/embed:opacity-100 transition-opacity">
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                className="h-6 px-2 text-[10px] bg-black/50 hover:bg-black/70 text-white border-none"
-                onClick={() => setShowOriginalGlobal(!showOriginalGlobal)}
-              >
-                {showOriginalGlobal ? 'Ocultar Identificação' : 'Consultar Identificação'}
-              </Button>
-            </div>
-
             {sortedConfigs.map((config) => (
               <div key={config.id} className="w-full m-0">
-                <div className="p-0 flex flex-col gap-1 w-full overflow-visible relative">
-                  {(config.show_original_name || showOriginalGlobal) && (
-                    <div className="absolute top-0 left-0 z-50 bg-black/80 text-white text-[10px] px-2 py-1 rounded-br-md font-mono pointer-events-none select-none">
-                      ORIGINAL: {config.original_folder_name} | ID: {config.folder_id}
-                    </div>
-                  )}
+                <div className="p-0 flex flex-col gap-1 w-full overflow-visible">
                   <DriveExplorer folderId={config.folder_id} folderName={config.label} />
                 </div>
               </div>
@@ -447,27 +423,7 @@ const TransparencyPage = () => {
       )}
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className={cn(
-                "h-7 px-2 text-[10px] font-mono transition-colors",
-                showOriginalGlobal ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
-              )}
-              onClick={() => setShowOriginalGlobal(!showOriginalGlobal)}
-            >
-              {showOriginalGlobal ? 'OCULTAR IDS' : 'CONSULTAR IDS'}
-            </Button>
-            {showOriginalGlobal && (
-              <span className="text-[10px] text-muted-foreground animate-pulse font-mono">
-                Exibindo informações originais do Drive
-              </span>
-            )}
-          </div>
-        </div>
+        <div><h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1></div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => { const next: Record<string, any> = { none: 'asc', asc: 'desc', desc: 'none' }; setSortOrder(next[sortOrder]); }} className="gap-2 h-10">
             {sortOrder === 'none' && <ArrowUpDown className="h-4 w-4" />}
@@ -518,10 +474,8 @@ const TransparencyPage = () => {
                       <div>
                         <CardTitle className="text-xl flex items-center gap-2">
                           {config.label}
-                          {showOriginalGlobal && config.original_folder_name && (
-                            <span className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
-                              {config.original_folder_name}
-                            </span>
+                          {config.original_folder_name && config.original_folder_name !== config.label && (
+                            <span className="text-sm font-normal text-muted-foreground">({config.original_folder_name})</span>
                           )}
                           <ChevronRight className={cn("h-5 w-5 text-muted-foreground ml-2 transition-transform duration-200", isExpanded ? "rotate-90" : "rotate-0")} />
                         </CardTitle>
@@ -529,7 +483,7 @@ const TransparencyPage = () => {
                       </div>
                     </div>
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" onClick={() => setEditingConfig({ id: config.id, label: config.label, show_original_name: !!config.show_original_name })}><Edit2 className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => setEditingConfig({ id: config.id, label: config.label })}><Edit2 className="h-4 w-4" /></Button>
                       <Button variant="outline" size="sm" onClick={() => copyEmbedCode(config.id)}>{copiedId === config.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Embed</Button>
                       <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(config.id)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
@@ -553,38 +507,9 @@ const TransparencyPage = () => {
       )}
       <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Configurações da Pasta</DialogTitle></DialogHeader>
-          <div className="py-4 space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Nome / Rótulo</label>
-              <Input 
-                value={editingConfig?.label || ''} 
-                onChange={(e) => setEditingConfig(prev => prev ? { ...prev, label: e.target.value } : null)} 
-              />
-            </div>
-            
-            <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/20">
-              <div className="space-y-0.5">
-                <label className="text-sm font-medium">Exibir Identificação Original</label>
-                <p className="text-xs text-muted-foreground italic">Mostra o nome original do Drive e o ID da pasta ao lado do rótulo.</p>
-              </div>
-              <Button
-                variant={editingConfig?.show_original_name ? "default" : "outline"}
-                size="sm"
-                className={cn(
-                  "w-12 h-6 p-0 rounded-full transition-colors",
-                  editingConfig?.show_original_name ? "bg-primary" : "bg-muted"
-                )}
-                onClick={() => setEditingConfig(prev => prev ? { ...prev, show_original_name: !prev.show_original_name } : null)}
-              >
-                <div className={cn(
-                  "w-4 h-4 bg-white rounded-full transition-transform duration-200",
-                  editingConfig?.show_original_name ? "translate-x-3" : "-translate-x-3"
-                )} />
-              </Button>
-            </div>
-          </div>
-          <DialogFooter><Button onClick={handleUpdateLabel}>Salvar Alterações</Button></DialogFooter>
+          <DialogHeader><DialogTitle>Editar Nome</DialogTitle></DialogHeader>
+          <div className="py-4"><Input value={editingConfig?.label || ''} onChange={(e) => setEditingConfig(prev => prev ? { ...prev, label: e.target.value } : null)} /></div>
+          <DialogFooter><Button onClick={handleUpdateLabel}>Salvar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
       <BatchAddDialog 
