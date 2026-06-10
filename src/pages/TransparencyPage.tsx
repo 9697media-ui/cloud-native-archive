@@ -447,7 +447,27 @@ const TransparencyPage = () => {
       )}
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div><h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1></div>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className={cn(
+                "h-7 px-2 text-[10px] font-mono transition-colors",
+                showOriginalGlobal ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+              onClick={() => setShowOriginalGlobal(!showOriginalGlobal)}
+            >
+              {showOriginalGlobal ? 'OCULTAR IDS' : 'CONSULTAR IDS'}
+            </Button>
+            {showOriginalGlobal && (
+              <span className="text-[10px] text-muted-foreground animate-pulse font-mono">
+                Exibindo informações originais do Drive
+              </span>
+            )}
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => { const next: Record<string, any> = { none: 'asc', asc: 'desc', desc: 'none' }; setSortOrder(next[sortOrder]); }} className="gap-2 h-10">
             {sortOrder === 'none' && <ArrowUpDown className="h-4 w-4" />}
