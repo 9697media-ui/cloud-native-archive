@@ -10,6 +10,18 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import ImpersonationBanner from '@/components/ImpersonationBanner';
+import TestModeBanner, { TestModeTrigger } from '@/components/TestModeBanner';
+import logoImg from '@/assets/logo.png';
+import { ThemeToggle } from './ThemeToggle';
 import { navItems } from '@/config/navigation';
 
 export default function AppLayout() {
