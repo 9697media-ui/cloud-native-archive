@@ -248,6 +248,38 @@ export default function AdminToolboxPage() {
   }
 </style>`;
 
+    let fetchScript = '';
+    if (menuConfig.wpApiUrl) {
+      fetchScript = `
+    async function fetchWordPressMenu() {
+      try {
+        const response = await fetch('${menuConfig.wpApiUrl}');
+        const data = await response.json();
+        const items = data.items || data;
+        const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
+        if (menuContainer && Array.isArray(items)) {
+          menuContainer.innerHTML = items.map(item => \`<a href="\${item.url || item.link}">\${item.title || item.label || item.title.rendered}</a>\`).join('');
+          highlightActiveLink();
+        }
+      } catch (e) { console.error('Erro ao carregar menu WP:', e); }
+    }
+    fetchWordPressMenu();`;
+    } else if (menuConfig.autoDetect) {
+      fetchScript = `
+    function autoDetectMenu() {
+      const existingNav = document.querySelector('nav, .main-navigation, .elementor-nav-menu, #main-menu');
+      if (existingNav) {
+        const links = Array.from(existingNav.querySelectorAll('a')).filter(a => a.textContent.trim().length > 0).slice(0, 8);
+        const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
+        if (menuContainer && links.length > 0) {
+          menuContainer.innerHTML = links.map(l => \`<a href="\${l.href}">\${l.textContent.trim()}</a>\`).join('');
+          highlightActiveLink();
+        }
+      }
+    }
+    autoDetectMenu();`;
+    }
+
     const script = `
 <script>
   function toggleCustomMenu() {
@@ -267,7 +299,10 @@ export default function AdminToolboxPage() {
     });
   }
 
-  document.addEventListener('DOMContentLoaded', highlightActiveLink);
+  document.addEventListener('DOMContentLoaded', () => {
+    highlightActiveLink();
+    ${fetchScript}
+  });
   window.addEventListener('popstate', highlightActiveLink);
 </script>`;
 
