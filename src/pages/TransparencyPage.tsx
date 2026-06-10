@@ -518,6 +518,11 @@ const TransparencyPage = () => {
                       <div>
                         <CardTitle className="text-xl flex items-center gap-2">
                           {config.label}
+                          {showOriginalGlobal && config.original_folder_name && (
+                            <span className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                              {config.original_folder_name}
+                            </span>
+                          )}
                           <ChevronRight className={cn("h-5 w-5 text-muted-foreground ml-2 transition-transform duration-200", isExpanded ? "rotate-90" : "rotate-0")} />
                         </CardTitle>
                         <CardDescription className="font-mono text-xs mt-1">ID: {config.folder_id}</CardDescription>
