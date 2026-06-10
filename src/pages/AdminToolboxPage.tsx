@@ -560,8 +560,48 @@ export default function AdminToolboxPage() {
                         onCheckedChange={(val) => setMenuConfig({...menuConfig, sticky: val})}
                       />
                     </div>
-                    <div className="space-y-2 pt-2">
-                      <Label>Itens do Menu</Label>
+                    <div className="space-y-4 pt-2 border-t mt-4">
+                      <Label className="text-xs uppercase font-bold text-muted-foreground flex items-center gap-2">
+                        <RefreshCw className="h-3 w-3" /> Automação de Itens
+                      </Label>
+                      
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="w-full gap-2"
+                        onClick={syncWithSystemMenu}
+                      >
+                        <RefreshCw className="h-4 w-4" /> Importar do Sistema Atual
+                      </Button>
+
+                      <div className="flex items-center justify-between space-x-2">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="auto-detect" className="cursor-pointer">Auto-detectar Menu</Label>
+                          <p className="text-[10px] text-muted-foreground">Tenta ler links do site onde for inserido.</p>
+                        </div>
+                        <Switch 
+                          id="auto-detect" 
+                          checked={menuConfig.autoDetect}
+                          onCheckedChange={(val) => setMenuConfig({...menuConfig, autoDetect: val, wpApiUrl: val ? '' : menuConfig.wpApiUrl})}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs">Endpoint WordPress (JSON)</Label>
+                        <Input 
+                          placeholder="Ex: https://site.com/wp-json/wp/v2/menu-items"
+                          value={menuConfig.wpApiUrl}
+                          onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value, autoDetect: e.target.value ? false : menuConfig.autoDetect})}
+                        />
+                        <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress para sincronização em tempo real.</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t mt-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <Label>Itens Manuais</Label>
+                        <span className="text-[10px] text-muted-foreground italic">(Usados se automação falhar)</span>
+                      </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
                           <Input 
@@ -593,7 +633,7 @@ export default function AdminToolboxPage() {
                           items: [...menuConfig.items, { label: 'Novo Item', link: '#' }]
                         })}
                       >
-                        + Adicionar Item
+                        + Adicionar Item Manual
                       </Button>
                     </div>
                   </div>
