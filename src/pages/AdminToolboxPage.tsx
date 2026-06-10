@@ -528,10 +528,6 @@ export default function AdminToolboxPage() {
                     </div>
                   </div>
                 )}
-                )}
-              </CardContent>
-            </Card>
-          </div>
               </CardContent>
             </Card>
           </div>
