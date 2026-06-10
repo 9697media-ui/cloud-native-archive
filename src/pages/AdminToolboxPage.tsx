@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, ShieldAlert, Lock, Terminal, Menu as MenuIcon } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { navItems } from '@/config/navigation';
 
 export default function AdminToolboxPage() {
   const { toast } = useToast();
@@ -49,8 +50,21 @@ export default function AdminToolboxPage() {
       { label: 'Serviços', link: '#' },
       { label: 'Contato', link: '#' }
     ],
-    sticky: true
+    sticky: true,
+    autoDetect: false,
+    wpApiUrl: ''
   });
+
+  const syncWithSystemMenu = () => {
+    setMenuConfig({
+      ...menuConfig,
+      items: navItems.map(item => ({ label: item.label, link: item.to }))
+    });
+    toast({
+      title: "Menu Sincronizado",
+      description: "Os itens do menu foram carregados a partir do sistema original.",
+    });
+  };
 
   // Função para copiar o código
   const handleCopyCode = (codeText: string) => {
@@ -234,6 +248,38 @@ export default function AdminToolboxPage() {
   }
 </style>`;
 
+    let fetchScript = '';
+    if (menuConfig.wpApiUrl) {
+      fetchScript = `
+    async function fetchWordPressMenu() {
+      try {
+        const response = await fetch('${menuConfig.wpApiUrl}');
+        const data = await response.json();
+        const items = data.items || data;
+        const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
+        if (menuContainer && Array.isArray(items)) {
+          menuContainer.innerHTML = items.map(item => \`<a href="\${item.url || item.link}">\${item.title || item.label || item.title.rendered}</a>\`).join('');
+          highlightActiveLink();
+        }
+      } catch (e) { console.error('Erro ao carregar menu WP:', e); }
+    }
+    fetchWordPressMenu();`;
+    } else if (menuConfig.autoDetect) {
+      fetchScript = `
+    function autoDetectMenu() {
+      const existingNav = document.querySelector('nav, .main-navigation, .elementor-nav-menu, #main-menu');
+      if (existingNav) {
+        const links = Array.from(existingNav.querySelectorAll('a')).filter(a => a.textContent.trim().length > 0).slice(0, 8);
+        const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
+        if (menuContainer && links.length > 0) {
+          menuContainer.innerHTML = links.map(l => \`<a href="\${l.href}">\${l.textContent.trim()}</a>\`).join('');
+          highlightActiveLink();
+        }
+      }
+    }
+    autoDetectMenu();`;
+    }
+
     const script = `
 <script>
   function toggleCustomMenu() {
@@ -253,7 +299,16 @@ export default function AdminToolboxPage() {
     });
   }
 
-  document.addEventListener('DOMContentLoaded', highlightActiveLink);
+  function initMenu() {
+    highlightActiveLink();
+    ${fetchScript}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMenu);
+  } else {
+    initMenu();
+  }
   window.addEventListener('popstate', highlightActiveLink);
 </script>`;
 
@@ -511,8 +566,48 @@ export default function AdminToolboxPage() {
                         onCheckedChange={(val) => setMenuConfig({...menuConfig, sticky: val})}
                       />
                     </div>
-                    <div className="space-y-2 pt-2">
-                      <Label>Itens do Menu</Label>
+                    <div className="space-y-4 pt-2 border-t mt-4">
+                      <Label className="text-xs uppercase font-bold text-muted-foreground flex items-center gap-2">
+                        <RefreshCw className="h-3 w-3" /> Automação de Itens
+                      </Label>
+                      
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="w-full gap-2"
+                        onClick={syncWithSystemMenu}
+                      >
+                        <RefreshCw className="h-4 w-4" /> Importar do Sistema Atual
+                      </Button>
+
+                      <div className="flex items-center justify-between space-x-2">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="auto-detect" className="cursor-pointer">Auto-detectar Menu</Label>
+                          <p className="text-[10px] text-muted-foreground">Tenta ler links do site onde for inserido.</p>
+                        </div>
+                        <Switch 
+                          id="auto-detect" 
+                          checked={menuConfig.autoDetect}
+                          onCheckedChange={(val) => setMenuConfig({...menuConfig, autoDetect: val, wpApiUrl: val ? '' : menuConfig.wpApiUrl})}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs">Endpoint WordPress (JSON)</Label>
+                        <Input 
+                          placeholder="Ex: https://site.com/wp-json/wp/v2/menu-items"
+                          value={menuConfig.wpApiUrl}
+                          onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value, autoDetect: e.target.value ? false : menuConfig.autoDetect})}
+                        />
+                        <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress para sincronização em tempo real.</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t mt-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <Label>Itens Manuais</Label>
+                        <span className="text-[10px] text-muted-foreground italic">(Usados se automação falhar)</span>
+                      </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
                           <Input 
@@ -544,7 +639,7 @@ export default function AdminToolboxPage() {
                           items: [...menuConfig.items, { label: 'Novo Item', link: '#' }]
                         })}
                       >
-                        + Adicionar Item
+                        + Adicionar Item Manual
                       </Button>
                     </div>
                   </div>
