@@ -492,8 +492,11 @@ export default function AdminToolboxPage() {
                            lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu");
           
           if (isGeneric && children.length > 0) {
-            html += renderItems(children);
-            return;
+            const childrenHtml = renderItems(children);
+            if (childrenHtml) {
+              html += childrenHtml;
+              return;
+            }
           }
 
           if (children.length > 0) {
@@ -517,8 +520,14 @@ export default function AdminToolboxPage() {
             const data = await response.json();
             let items = Array.isArray(data) ? data : (data.items || data.data || data.menu_items || []);
             
-            if (items.length === 1 && (items[0].items || items[0].children)) {
+            if (items.length <= 1 && items[0] && (items[0].items || items[0].children)) {
               items = items[0].items || items[0].children;
+            } else if (items.length === 1 && items[0]) {
+               const firstItemTitle = items[0].title?.rendered || items[0].title || items[0].label || items[0].name || "";
+               const lowerFirst = firstItemTitle.toString().toLowerCase();
+               if ((lowerFirst.includes("menu") || lowerFirst.includes("principal")) && (items[0].children || items[0].items)) {
+                 items = items[0].children || items[0].items;
+               }
             }
 
             const htmlContent = renderItems(items);
