@@ -491,11 +491,12 @@ export default function AdminToolboxPage() {
           const link = item.url || item.link || item.guid || item.href || '#';
 
           const isGeneric = (lowerTitle === "menu principal" || lowerTitle === "main menu" || 
-                           lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu");
+                           lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu" ||
+                           lowerTitle.includes("principal") || lowerTitle.includes("menu"));
           
-          if (isGeneric && children.length > 0) {
+          if (isGeneric && children && children.length > 0) {
             const childrenHtml = renderItems(children);
-            if (childrenHtml) {
+            if (childrenHtml && childrenHtml.trim().length > 0) {
               html += childrenHtml;
               return;
             }
