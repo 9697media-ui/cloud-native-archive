@@ -526,30 +526,28 @@ export default function AdminToolboxPage() {
             }
 
             
-            // Recursivamente busca por itens se o objeto for um wrapper (como em alguns plugins de menu do WP)
-            function findMenuItems(obj) {
-              if (Array.isArray(obj) && obj.length > 0) {
-                // Se for um array com apenas 1 item que parece ser um wrapper genérico
-                if (obj.length === 1) {
-                  const first = obj[0];
-                  const title = (first.title?.rendered || first.title || first.label || first.name || "").toString().toLowerCase();
-                  const isWrapper = title.includes("menu") || title.includes("principal") || title.includes("main") || title.includes("navigation");
-                  const potentialChildren = first.items || first.children || first.sub_items;
-                  
-                  if (isWrapper && potentialChildren && Array.isArray(potentialChildren) && potentialChildren.length > 0) {
-                    return findMenuItems(potentialChildren);
-                  }
+            // Função para extrair itens de estruturas aninhadas do WordPress
+            function extractItems(source) {
+              if (!source) return [];
+              
+              // Se for um objeto com propriedade de itens, mergulha nela
+              if (source.items && Array.isArray(source.items)) return source.items;
+              if (source.children && Array.isArray(source.children)) return source.children;
+              if (source.menu_items && Array.isArray(source.menu_items)) return source.menu_items;
+              
+              // Se for um array, verifica se o primeiro item é um "wrapper"
+              if (Array.isArray(source)) {
+                if (source.length === 1 && (source[0].items || source[0].children)) {
+                  return extractItems(source[0]);
                 }
-                return obj;
+                return source;
               }
-              if (obj && typeof obj === 'object') {
-                const items = obj.items || obj.children || obj.menu_items || obj.data;
-                if (items) return findMenuItems(items);
-              }
+              
               return [];
             }
 
-            let items = findMenuItems(data);
+            items = extractItems(data);
+
 
             const htmlContent = renderItems(items);
             if (htmlContent && htmlContent.trim().length > 5) {
