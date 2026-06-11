@@ -56,17 +56,22 @@ export default function AppLayout() {
     <>
       {navItems.filter(item => {
         const allowedEmails = ['alyson-viana@hotmail.com', 'mkt@anabrasil.org'];
-        const isSpecialAdmin = user?.email && allowedEmails.includes(user.email);
-        const isAdminEmail = isSpecialAdmin || user?.email === 'contato@anabrasil.org';
+        const userEmail = user?.email?.toLowerCase();
+        const isSpecialAdmin = userEmail && allowedEmails.includes(userEmail);
+        const isAdminEmail = isSpecialAdmin || userEmail === 'contato@anabrasil.org';
         
-        // Regra para páginas escondidas (apenas alyson-viana e mkt)
-        if (item.hidden) return isSpecialAdmin;
+        // Se a página é marcada como 'hidden', só mostra para os e-mails específicos
+        if (item.hidden) {
+          return isSpecialAdmin;
+        }
         
+        // Regras normais para as outras páginas
+        if (item.requireAuth && !isAuthenticated) return false;
         if (item.adminOnly) return isAdmin || isAdminEmail;
         if (item.managerOnly) return isAdmin || isManager || isAdminEmail;
         if (item.mktOrAdminOnly) return isAdmin || isAdminEmail;
         if (item.auditoriaOnly) return canViewAuditoria;
-        if (item.requireAuth) return isAuthenticated;
+        
         return true;
       }).map(item => {
         const active = location.pathname === item.to;
