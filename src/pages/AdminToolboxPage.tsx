@@ -535,7 +535,7 @@ export default function AdminToolboxPage() {
     } else if (menuConfig.autoDetect) {
       fetchScript = `
     function autoDetectMenu() {
-      const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]'];
+      const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '[class*="nav-menu"]'];
       let foundItems = [];
       
       for (const selector of selectors) {
@@ -545,41 +545,32 @@ export default function AdminToolboxPage() {
              return Array.from(ul.children)
                .filter(li => li.tagName === 'LI')
                .map(li => {
-                 const link = li.querySelector(':scope > a, :scope > div > a'); 
+                 const link = li.querySelector('a'); 
                  if (!link) return null;
-                 const subUl = li.querySelector(':scope > ul, :scope > div > ul, :scope > .sub-menu, :scope > .dropdown-menu');
+                 const subUl = li.querySelector('ul, .sub-menu, .dropdown-menu');
                  return {
                    title: link.textContent.trim(),
                    link: link.href,
                    children: subUl ? getItemsFromList(subUl) : []
                  };
-               }).filter(Boolean);
+               }).filter(item => item && item.title.length > 0);
           }
           
-          const potentialUls = Array.from(container.querySelectorAll('ul')).filter(ul => {
-            return !ul.parentElement.closest('li');
-          });
+          const allUls = Array.from(container.querySelectorAll('ul'));
+          const mainUl = allUls.find(ul => !ul.parentElement.closest('li')) || container.querySelector('ul');
 
-          for (const ul of potentialUls) {
-            if (ul.children.length >= 2) {
-              const items = getItemsFromList(ul);
-              if (items.length >= 2) {
-                // Tenta filtrar se o primeiro item for "Menu Principal"
-                const first = items[0];
-                if (first && (first.title.toLowerCase().includes("menu principal") || first.title.toLowerCase().includes("main menu"))) {
-                   if (first.children && first.children.length > 0) {
-                     foundItems = first.children;
-                   } else {
-                     foundItems = items.slice(1);
-                   }
-                } else {
-                  foundItems = items;
-                }
-                break;
+          if (mainUl && mainUl.children.length >= 2) {
+            const items = getItemsFromList(mainUl);
+            if (items.length >= 2) {
+              const first = items[0];
+              if (first.title.toLowerCase().includes("menu principal") || first.title.toLowerCase().includes("main menu")) {
+                foundItems = first.children.length > 0 ? first.children : items.slice(1);
+              } else {
+                foundItems = items;
               }
+              break;
             }
           }
-          if (foundItems.length > 0) break;
         }
         if (foundItems.length > 0) break;
       }
@@ -597,11 +588,11 @@ export default function AdminToolboxPage() {
             return \`<a href="\${item.link}">\${item.title}</a>\`;
           }).join('');
         }
-        menuContainer.innerHTML = renderItems(foundItems.slice(0, 10));
+        menuContainer.innerHTML = renderItems(foundItems);
         highlightActiveLink();
       }
     }
-    setTimeout(autoDetectMenu, 1000);`;
+    setTimeout(autoDetectMenu, 1500);`;
     }
 
     const script = `
