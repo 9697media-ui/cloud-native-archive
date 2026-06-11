@@ -489,7 +489,7 @@ export default function AdminToolboxPage() {
                 if (children && children.length > 0) {
                   return \`<div class="has-submenu">
                     <a href="\${link}">\${title}</a>
-                    <div class="submenu">\${renderMenuItems(children)}</div>
+                    <ul class="submenu">\${renderMenuItems(children)}</ul>
                   </div>\`;
                 }
                 return \`<a href="\${link}">\${title}</a>\`;
@@ -498,8 +498,11 @@ export default function AdminToolboxPage() {
           }
 
           let targetList = items;
-          if (items.length === 1 && (items[0].title === "Menu Principal" || items[0].name === "Menu Principal")) {
+          // Ignora título genérico se for o único item ou o primeiro
+          if (items.length === 1 && (items[0].title === "Menu Principal" || items[0].name === "Menu Principal" || items[0].title?.rendered === "Menu Principal")) {
              targetList = items[0].children || items[0].items || [];
+          } else if (items.length > 1 && (items[0].title === "Menu Principal" || items[0].name === "Menu Principal")) {
+             targetList = items.slice(1);
           }
 
           menuContainer.innerHTML = renderMenuItems(targetList);
