@@ -518,7 +518,13 @@ export default function AdminToolboxPage() {
           const response = await fetch(wpApiUrl);
           if (response.ok) {
             const data = await response.json();
-            let items = Array.isArray(data) ? data : (data.items || data.data || data.menu_items || []);
+            let items = [];
+            if (Array.isArray(data)) {
+              items = data;
+            } else if (data.items || data.children || data.menu_items || data.data) {
+              items = data.items || data.children || data.menu_items || data.data;
+            }
+
             
             // Recursivamente busca por itens se o objeto for um wrapper (como em alguns plugins de menu do WP)
             function findMenuItems(obj) {
