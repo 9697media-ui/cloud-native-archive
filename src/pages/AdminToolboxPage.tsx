@@ -168,6 +168,36 @@ export default function AdminToolboxPage() {
     testUrl: ''
   });
 
+  const extractWPItems = (data: any): { label: string, link: string }[] => {
+    if (!data) return [];
+    
+    let rawItems = [];
+    if (Array.isArray(data)) {
+      rawItems = data;
+    } else if (data.items || data.children || data.menu_items || data.data) {
+      rawItems = data.items || data.children || data.menu_items || data.data;
+    } else if (typeof data === 'object') {
+      // Tentar encontrar qualquer array no objeto
+      const possibleArray = Object.values(data).find(val => Array.isArray(val));
+      if (possibleArray) rawItems = possibleArray as any[];
+      else rawItems = [data];
+    }
+
+    return rawItems.map((item: any) => {
+      let label = '';
+      if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
+      else if (item.title && typeof item.title === 'string') label = item.title;
+      else if (item.label) label = item.label;
+      else if (item.name) label = item.name;
+      else if (item.post_title) label = item.post_title;
+      else if (item.text) label = item.text;
+
+      const link = item.url || item.link || item.guid || item.href || '#';
+      
+      return { label, link };
+    }).filter(i => i.label);
+  };
+
   const syncWithSystemMenu = () => {
     setMenuConfig({
       ...menuConfig,
@@ -1096,10 +1126,18 @@ export default function AdminToolboxPage() {
                                         if (testRes.ok) {
                                           const data = await testRes.json();
                                           if (data && (Array.isArray(data) || typeof data === 'object')) {
-                                            setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
+                                            const wpItems = extractWPItems(data);
+                                            setMenuConfig(prev => ({
+                                              ...prev, 
+                                              wpApiUrl: `${origin}${endpoint}`,
+                                              items: wpItems.length > 0 ? wpItems : prev.items
+                                            }));
+                                            
                                             toast({
                                               title: "API Detectada!",
-                                              description: `Encontramos um endpoint válido em ${endpoint}`,
+                                              description: wpItems.length > 0 
+                                                ? `Importamos ${wpItems.length} itens do endpoint ${endpoint}`
+                                                : `Conectado ao endpoint ${endpoint}`,
                                             });
                                             break;
                                           }
