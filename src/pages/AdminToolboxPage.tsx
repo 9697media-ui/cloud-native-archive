@@ -464,143 +464,114 @@ export default function AdminToolboxPage() {
 </style>`;
 
     let fetchScript = '';
-    if (menuConfig.wpApiUrl) {
-      fetchScript = `
-    async function fetchWordPressMenu() {
-      try {
-        console.log('Buscando menu em:', '${menuConfig.wpApiUrl}');
-        const response = await fetch('${menuConfig.wpApiUrl}');
-        const data = await response.json();
-        
-        let items = [];
-        if (Array.isArray(data)) {
-          items = data;
-        } else if (data.data && Array.isArray(data.data)) {
-          items = data.data;
-        } else if (data.items && Array.isArray(data.items)) {
-          items = data.items;
-        } else if (typeof data === 'object') {
-          // Se for o formato de Navigation do WP, os itens podem estar em diversas chaves
-          items = data.items || data.data || data.menu_items || Object.values(data).find(v => Array.isArray(v)) || [data];
-        }
+    let fetchScript = '';
+    
+    // Script unificado para lidar com WP API e Auto-detecção de forma mais robusta
+    fetchScript = `
+    async function initializeMenuDetection() {
+      const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
+      if (!menuContainer) return;
 
-        const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
-        if (menuContainer) {
-          function renderMenuItems(list) {
-            if (!Array.isArray(list)) return '';
-            let html = '';
-            list.forEach(item => {
-              const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
-              if (!title) return;
+      function renderItems(list) {
+        if (!Array.isArray(list)) return '';
+        return list.map(item => {
+          const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title || item.text;
+          if (!title) return '';
+          
+          const lowerTitle = title.toLowerCase();
+          const children = item.children || item.items || item.sub_items || [];
+          const link = item.url || item.link || item.guid || item.href || '#';
+
+          // Se for um container de menu, renderiza apenas os filhos
+          if (lowerTitle.includes("menu principal") || lowerTitle.includes("main menu") || lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu") {
+            if (children.length > 0) return renderItems(children);
+            return '';
+          }
+
+          if (children.length > 0) {
+            return \`<div class="has-submenu">
+              <a href="\${link}">\${title}</a>
+              <ul class="submenu">\${renderItems(children)}</ul>
+            </div>\`;
+          }
+          return \`<a href="\${link}">\${title}</a>\`;
+        }).join('');
+      }
+
+      // 1. Tentar WordPress API se configurado
+      if ('${menuConfig.wpApiUrl}' && '${menuConfig.wpApiUrl}' !== 'undefined') {
+        try {
+          console.log('Tentando WP API:', '${menuConfig.wpApiUrl}');
+          const response = await fetch('${menuConfig.wpApiUrl}');
+          const data = await response.json();
+          let items = Array.isArray(data) ? data : (data.items || data.data || data.menu_items || Object.values(data).find(v => Array.isArray(v)) || [data]);
+          
+          // Se for apenas um objeto de menu, pega os itens dele
+          if (items.length === 1 && (items[0].items || items[0].children)) {
+            items = items[0].items || items[0].children;
+          }
+
+          const html = renderItems(items);
+          if (html && html.trim().length > 0) {
+            menuContainer.innerHTML = html;
+            highlightActiveLink();
+            console.log('Menu carregado via WP API');
+            return;
+          }
+        } catch (e) { console.error('WP API falhou:', e); }
+      }
+
+      // 2. Tentar Auto-detecção se habilitado
+      if (${menuConfig.autoDetect}) {
+        console.log('Iniciando auto-detecção...');
+        const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '[class*="nav-menu"]', '.wp-block-navigation'];
+        
+        const previewFrame = document.querySelector('iframe[title="Site Preview"]');
+        let targetDoc = document;
+        try {
+          if (previewFrame && previewFrame.contentDocument) {
+            targetDoc = previewFrame.contentDocument;
+          }
+        } catch (e) {}
+
+        for (const selector of selectors) {
+          const containers = targetDoc.querySelectorAll(selector);
+          for (const container of containers) {
+            function getItemsFromDOM(el) {
+              const uls = el.querySelectorAll('ul');
+              const mainUl = Array.from(uls).find(ul => !ul.parentElement.closest('li')) || el.querySelector('ul') || (el.tagName === 'UL' ? el : null);
               
-              const lowerTitle = title.toLowerCase();
-              const children = item.children || item.items || item.sub_items || [];
-              
-              // SE o item for um container genérico (como "Menu Principal"), renderizamos os filhos diretamente
-              if (lowerTitle.includes("menu principal") || lowerTitle.includes("main menu") || lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu") {
-                if (children.length > 0) {
-                  html += renderMenuItems(children);
-                }
+              if (!mainUl) return [];
+
+              return Array.from(mainUl.children)
+                .filter(li => li.tagName === 'LI')
+                .map(li => {
+                  const link = li.querySelector('a');
+                  if (!link) return null;
+                  const subUl = li.querySelector('ul, .sub-menu, .dropdown-menu');
+                  return {
+                    title: link.innerText.trim(),
+                    link: link.href,
+                    children: subUl ? getItemsFromDOM(li) : []
+                  };
+                }).filter(i => i && i.title);
+            }
+
+            const items = getItemsFromDOM(container);
+            if (items.length >= 2) {
+              const html = renderItems(items);
+              if (html) {
+                menuContainer.innerHTML = html;
+                highlightActiveLink();
+                console.log('Menu detectado via DOM:', selector);
                 return;
               }
-
-              const link = item.url || item.link || item.guid || '#';
-              if (children.length > 0) {
-                html += \`<div class="has-submenu">
-                  <a href="\${link}">\${title}</a>
-                  <ul class="submenu">\${renderMenuItems(children)}</ul>
-                </div>\`;
-              } else {
-                html += \`<a href="\${link}">\${title}</a>\`;
-              }
-            });
-            return html;
-          }
-
-          // Descasca containers de nível superior
-          let finalItems = items;
-          if (items.length > 0) {
-            // Se tiver apenas 1 item e for um menu de navegação, entra nele
-            if (items.length === 1 && (items[0].children || items[0].items || items[0].sub_items)) {
-              finalItems = items[0].children || items[0].items || items[0].sub_items;
-            }
-          }
-
-          const htmlOutput = renderMenuItems(finalItems);
-          if (htmlOutput) {
-            menuContainer.innerHTML = htmlOutput;
-            highlightActiveLink();
-          }
-        }
-      } catch (e) { console.error('Erro WP API:', e); }
-    }
-    fetchWordPressMenu();`;
-    } else if (menuConfig.autoDetect) {
-      fetchScript = `
-    function autoDetectMenu() {
-      // Tenta detectar o menu no site carregado
-      const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '[class*="nav-menu"]'];
-      let foundItems = [];
-      
-      // Procura primeiro no frame do ambiente de teste se existir
-      const previewFrame = document.querySelector('iframe[title="Site Preview"]');
-      let targetDoc = document;
-      try {
-        if (previewFrame && previewFrame.contentDocument) {
-          targetDoc = previewFrame.contentDocument;
-        }
-      } catch (e) {
-        console.warn('Não foi possível acessar o conteúdo do iframe devido a restrições de CORS.');
-      }
-
-      for (const selector of selectors) {
-        const containers = targetDoc.querySelectorAll(selector);
-        for (const container of containers) {
-          function getItemsFromList(ul) {
-             return Array.from(ul.children)
-               .filter(li => li.tagName === 'LI')
-               .map(li => {
-                 const link = li.querySelector('a'); 
-                 if (!link) return null;
-                 const subUl = li.querySelector('ul, .sub-menu, .dropdown-menu');
-                 return {
-                   title: link.textContent.trim(),
-                   link: link.href,
-                   children: subUl ? getItemsFromList(subUl) : []
-                 };
-               }).filter(item => item && item.title.length > 0);
-          }
-          
-          const mainUl = container.querySelector('ul');
-          if (mainUl && mainUl.children.length >= 2) {
-            const items = getItemsFromList(mainUl);
-            if (items.length >= 2) {
-              foundItems = items;
-              break;
             }
           }
         }
-        if (foundItems.length > 0) break;
-      }
-
-      const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
-      if (menuContainer && foundItems.length > 0) {
-        function renderItems(list) {
-          return list.map(item => {
-            if (item.children && item.children.length > 0) {
-              return \`<div class="has-submenu">
-                <a href="\${item.link}">\${item.title}</a>
-                <ul class="submenu">\${renderItems(item.children)}</ul>
-              </div>\`;
-            }
-            return \`<a href="\${item.link}">\${item.title}</a>\`;
-          }).join('');
-        }
-        menuContainer.innerHTML = renderItems(foundItems);
-        highlightActiveLink();
       }
     }
-    setTimeout(autoDetectMenu, 2000);`;
+    setTimeout(initializeMenuDetection, 2000);`;
     }
 
     const script = `
