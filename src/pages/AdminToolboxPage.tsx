@@ -417,33 +417,72 @@ export default function AdminToolboxPage() {
       fetchScript = `
     async function fetchWordPressMenu() {
       try {
+        console.log('Iniciando busca de menu em:', '${menuConfig.wpApiUrl}');
         const response = await fetch('${menuConfig.wpApiUrl}');
         const data = await response.json();
+        console.log('Dados recebidos da API WP:', data);
+        
         let items = [];
-        if (data.items) items = data.items;
-        else if (Array.isArray(data)) items = data;
-        else if (data.menus && Array.isArray(data.menus)) items = data.menus;
-        else if (data.data && Array.isArray(data.data)) items = data.data;
+        // Tenta encontrar a lista de itens em diferentes formatos comuns
+        if (Array.isArray(data)) {
+          items = data;
+        } else if (data.items && Array.isArray(data.items)) {
+          items = data.items;
+        } else if (data.menus && Array.isArray(data.menus)) {
+          items = data.menus;
+        } else if (data.data && Array.isArray(data.data)) {
+          items = data.data;
+        } else if (typeof data === 'object') {
+          // Se for um objeto com chaves numéricas ou uma única chave de menu
+          const keys = Object.keys(data);
+          if (keys.length === 1 && Array.isArray(data[keys[0]])) {
+            items = data[keys[0]];
+          } else {
+            // Tenta converter objeto em array se parecer com uma lista
+            items = Object.values(data).filter(v => typeof v === 'object');
+          }
+        }
 
         const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
-        if (menuContainer && Array.isArray(items)) {
-          // Se o array tiver apenas um item e ele for o "pai" (ex: Menu Principal), 
-          // e esse item tiver sub-itens (comum em algumas APIs de menu), vamos usá-los.
-          let finalItems = items;
-          if (items.length === 1 && (items[0].items || items[0].children)) {
-            finalItems = items[0].items || items[0].children;
+        if (menuContainer) {
+          // Recursão simples para extrair todos os links se estiverem aninhados
+          function extractLinks(list) {
+            let found = [];
+            list.forEach(item => {
+              // Se tiver título e link, é um candidato
+              const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
+              const link = item.url || item.link || item.guid;
+              
+              if (title && title !== "Menu Principal" && link) {
+                found.push({ title, link });
+              }
+              
+              // Se tiver filhos, vasculha eles também (mas apenas se não achamos nada útil ainda ou se queremos tudo)
+              if (item.children && Array.isArray(item.children)) {
+                found = found.concat(extractLinks(item.children));
+              }
+              if (item.items && Array.isArray(item.items)) {
+                found = found.concat(extractLinks(item.items));
+              }
+            });
+            return found;
           }
 
-          menuContainer.innerHTML = finalItems
-            .filter(item => {
-              // Mantém itens de primeiro nível ou se for a lista já expandida
-              return !item.menu_item_parent || item.menu_item_parent === "0" || finalItems !== items;
-            })
-            .map(item => \`<a href="\${item.url || item.link || '#'}">\${(item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || 'Item'}</a>\`)
-            .join('');
-          highlightActiveLink();
+          const allLinks = extractLinks(items);
+          console.log('Links extraídos:', allLinks);
+
+          if (allLinks.length > 0) {
+            menuContainer.innerHTML = allLinks
+              .map(l => \`<a href="\${l.link}">\${l.title}</a>\`)
+              .join('');
+            highlightActiveLink();
+          } else {
+            console.warn('Nenhum link válido encontrado na resposta da API');
+          }
         }
-      } catch (e) { console.error('Erro ao carregar menu WP:', e); }
+      } catch (e) { 
+        console.error('Erro detalhado ao carregar menu WP:', e);
+      }
     }
     fetchWordPressMenu();`;
     } else if (menuConfig.autoDetect) {
