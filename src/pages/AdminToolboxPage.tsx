@@ -463,11 +463,7 @@ export default function AdminToolboxPage() {
   }
 </style>`;
 
-    let fetchScript = '';
-    let fetchScript = '';
-    
-    // Script unificado para lidar com WP API e Auto-detecção de forma mais robusta
-    fetchScript = `
+    let fetchScript = `
     async function initializeMenuDetection() {
       const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
       if (!menuContainer) return;
