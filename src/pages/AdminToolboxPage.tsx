@@ -1102,29 +1102,42 @@ export default function AdminToolboxPage() {
                     "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out flex flex-col",
                     deviceView === 'mobile' ? "w-[375px] h-[667px] rounded-[3rem] border-[8px] border-slate-900" : "w-full max-w-4xl h-[550px] rounded-lg"
                   )}>
-                    {/* Mock Site Header */}
-                    <div className="bg-muted/50 p-4 border-b flex items-center justify-between shrink-0">
-                      <div className="w-24 h-6 bg-muted rounded"></div>
-                      <div className="flex gap-3">
-                        <div className="w-10 h-3 bg-muted rounded"></div>
-                        <div className="w-10 h-3 bg-muted rounded"></div>
+                    {menuConfig.testUrl ? (
+                      <div className="flex-1 w-full h-full relative">
+                        <iframe 
+                          src={menuConfig.testUrl} 
+                          className="w-full h-full border-none"
+                          title="Site Preview"
+                        />
+                        <div className="absolute inset-0 bg-transparent pointer-events-none" />
                       </div>
-                    </div>
+                    ) : (
+                      <>
+                        {/* Mock Site Header */}
+                        <div className="bg-muted/50 p-4 border-b flex items-center justify-between shrink-0">
+                          <div className="w-24 h-6 bg-muted rounded"></div>
+                          <div className="flex gap-3">
+                            <div className="w-10 h-3 bg-muted rounded"></div>
+                            <div className="w-10 h-3 bg-muted rounded"></div>
+                          </div>
+                        </div>
 
-                    {/* Mock Site Content */}
-                    <div className="p-8 flex-1 space-y-6 overflow-hidden">
-                      <div className="w-3/4 h-8 bg-muted/40 rounded"></div>
-                      <div className="space-y-2">
-                        <div className="w-full h-3 bg-muted/30 rounded"></div>
-                        <div className="w-full h-3 bg-muted/30 rounded"></div>
-                        <div className="w-2/3 h-3 bg-muted/30 rounded"></div>
-                      </div>
-                      <div className="w-full h-40 bg-muted/20 rounded-xl"></div>
-                      <div className="space-y-2">
-                        <div className="w-full h-3 bg-muted/30 rounded"></div>
-                        <div className="w-full h-3 bg-muted/30 rounded"></div>
-                      </div>
-                    </div>
+                        {/* Mock Site Content */}
+                        <div className="p-8 flex-1 space-y-6 overflow-hidden">
+                          <div className="w-3/4 h-8 bg-muted/40 rounded"></div>
+                          <div className="space-y-2">
+                            <div className="w-full h-3 bg-muted/30 rounded"></div>
+                            <div className="w-full h-3 bg-muted/30 rounded"></div>
+                            <div className="w-2/3 h-3 bg-muted/30 rounded"></div>
+                          </div>
+                          <div className="w-full h-40 bg-muted/20 rounded-xl"></div>
+                          <div className="space-y-2">
+                            <div className="w-full h-3 bg-muted/30 rounded"></div>
+                            <div className="w-full h-3 bg-muted/30 rounded"></div>
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     {/* Widget Injection */}
                     <div className="absolute inset-0 pointer-events-none">
