@@ -480,19 +480,23 @@ export default function AdminToolboxPage() {
         const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
         if (menuContainer) {
           function renderMenuItems(list) {
+            if (!Array.isArray(list)) return '';
             return list
-              .filter(item => {
-                const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
-                if (!title) return false;
-                const lowerTitle = title.toLowerCase();
-                return !lowerTitle.includes("menu principal") && !lowerTitle.includes("main menu") && !lowerTitle.includes("menu de navegação");
-              })
               .map(item => {
                 const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
-                const link = item.url || item.link || item.guid || '#';
-                const children = item.children || item.items || [];
+                if (!title) return null;
                 
-                if (children && children.length > 0) {
+                const lowerTitle = title.toLowerCase();
+                const children = item.children || item.items || item.sub_items || [];
+                
+                // SE o item for "Menu Principal" (container genérico), renderizamos diretamente seus filhos em vez dele
+                if (lowerTitle === "menu principal" || lowerTitle === "main menu" || lowerTitle === "navegação") {
+                  return children.length > 0 ? renderMenuItems(children) : null;
+                }
+
+                const link = item.url || item.link || item.guid || '#';
+                
+                if (children.length > 0) {
                   return \`<div class="has-submenu">
                     <a href="\${link}">\${title}</a>
                     <ul class="submenu">\${renderMenuItems(children)}</ul>
@@ -500,29 +504,15 @@ export default function AdminToolboxPage() {
                 }
                 return \`<a href="\${link}">\${title}</a>\`;
               })
+              .filter(Boolean)
               .join('');
           }
 
-          let targetList = Array.isArray(items) ? items : [];
-          // Tenta "descascar" o Menu Principal se ele for o container raiz
-          if (targetList.length === 1) {
-            const first = targetList[0];
-            const title = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
-            if (title && (title.toLowerCase().includes("menu principal") || title.toLowerCase().includes("main menu"))) {
-              targetList = first.children || first.items || targetList;
-            }
+          const renderedHtml = renderMenuItems(items);
+          if (renderedHtml) {
+            menuContainer.innerHTML = renderedHtml;
+            highlightActiveLink();
           }
-          // Remove o primeiro item se ele for apenas o título do menu e houver outros itens
-          if (targetList.length > 1) {
-            const first = targetList[0];
-            const title = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
-            if (title && (title.toLowerCase().includes("menu principal") || title.toLowerCase().includes("main menu"))) {
-              targetList = targetList.slice(1);
-            }
-          }
-
-          menuContainer.innerHTML = renderMenuItems(targetList);
-          highlightActiveLink();
         }
       } catch (e) { console.error('Erro WP API:', e); }
     }
