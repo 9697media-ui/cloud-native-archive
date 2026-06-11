@@ -427,7 +427,7 @@ export default function AdminToolboxPage() {
               // Filtrar submenus se necessário ou tratar estrutura aninhada
               return !item.menu_item_parent || item.menu_item_parent === "0";
             })
-            .map(item => `\u003ca href="\${item.url || item.link || '#'}"\u003e\${(item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || 'Item'}\u003c/a\u003e`)
+            .map(item => \`<a href="\${item.url || item.link || '#'}">\${(item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || 'Item'}</a>\`)
             .join('');
           highlightActiveLink();
         }
