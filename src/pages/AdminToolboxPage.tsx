@@ -490,12 +490,12 @@ export default function AdminToolboxPage() {
           }
 
           if (children.length > 0) {
-            html += `<div class="has-submenu">
-              <a href="${link}">${title}</a>
-              <ul class="submenu">${renderItems(children)}</ul>
-            </div>`;
+            html += \`<div class="has-submenu">
+              <a href="\${link}">\${title}</a>
+              <ul class="submenu">\${renderItems(children)}</ul>
+            </div>\`;
           } else {
-            html += `<a href="${link}">${title}</a>`;
+            html += \`<a href="\${link}">\${title}</a>\`;
           }
         });
         return html;
