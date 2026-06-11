@@ -321,10 +321,13 @@ export default function AdminToolboxPage() {
     display: flex;
     gap: 10px;
     align-items: center;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   .custom-nav-992 .menu-items a {
     color: inherit;
-    text-decoration: none;
+    text-decoration: none !important;
     font-size: 15px;
     font-weight: 500;
     padding: 8px 12px;
@@ -336,6 +339,7 @@ export default function AdminToolboxPage() {
     display: flex;
     align-items: center;
     gap: 4px;
+    box-sizing: border-box;
   }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative;
@@ -355,7 +359,7 @@ export default function AdminToolboxPage() {
     position: absolute;
     top: 100%;
     left: 0;
-    background-color: ${menuConfig.bgColor};
+    background-color: ${menuConfig.bgColor} !important;
     box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     border-radius: 8px;
     padding: 10px 0;
@@ -363,41 +367,22 @@ export default function AdminToolboxPage() {
     flex-direction: column;
     min-width: 200px;
     z-index: 1000000;
+    list-style: none !important;
+    margin: 0 !important;
   }
   .custom-nav-992 .menu-items .has-submenu:hover > .submenu {
-    display: flex;
+    display: flex !important;
   }
   .custom-nav-992 .submenu a {
-    padding: 10px 20px;
+    padding: 10px 20px !important;
     opacity: 0.9;
     width: 100%;
     border-radius: 0;
+    display: block !important;
   }
   .custom-nav-992 .menu-items a:hover { 
     opacity: 1;
     background-color: rgba(0,0,0,0.05);
-  }
-  .custom-nav-992 .submenu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: ${menuConfig.bgColor};
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    padding: 10px 0;
-    display: none;
-    flex-direction: column;
-    min-width: 200px;
-    z-index: 1000000;
-  }
-  .custom-nav-992 .menu-items .has-submenu:hover > .submenu {
-    display: flex;
-  }
-  .custom-nav-992 .submenu a {
-    padding: 10px 20px;
-    opacity: 0.9;
-    width: 100%;
-    border-radius: 0;
   }
   .custom-nav-992 .menu-items a.active { 
     opacity: 1;
