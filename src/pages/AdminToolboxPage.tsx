@@ -172,12 +172,43 @@ export default function AdminToolboxPage() {
     if (!data) return [];
     
     let rawItems = [];
+    
+    // WordPress modern Navigation block (FSE)
+    // If it's an array and the first item has content.rendered, it's a Navigation Block
+    if (Array.isArray(data) && data[0]?.content?.rendered) {
+      const htmlContent = data[0].content.rendered;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+      
+      // Look for navigation link items specifically
+      const links = doc.querySelectorAll('.wp-block-navigation-item__content');
+      
+      if (links.length > 0) {
+        return Array.from(links).map((a: any) => {
+          // Try to get the label from the specific span if it exists, otherwise use textContent
+          const labelSpan = a.querySelector('.wp-block-navigation-item__label');
+          return {
+            label: (labelSpan?.textContent || a.textContent || '').trim(),
+            link: a.getAttribute('href') || '#'
+          };
+        }).filter(i => i.label);
+      }
+      
+      // Fallback: any link in the content
+      const allLinks = doc.querySelectorAll('a');
+      if (allLinks.length > 0) {
+        return Array.from(allLinks).map((a: any) => ({
+          label: (a.textContent || '').trim(),
+          link: a.getAttribute('href') || '#'
+        })).filter(i => i.label);
+      }
+    }
+
     if (Array.isArray(data)) {
       rawItems = data;
     } else if (data.items || data.children || data.menu_items || data.data) {
       rawItems = data.items || data.children || data.menu_items || data.data;
     } else if (typeof data === 'object') {
-      // Tentar encontrar qualquer array no objeto
       const possibleArray = Object.values(data).find(val => Array.isArray(val));
       if (possibleArray) rawItems = possibleArray as any[];
       else rawItems = [data];
