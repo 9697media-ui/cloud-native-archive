@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,9 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { navItems } from '@/config/navigation';
+import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
 
 export default function AdminToolboxPage() {
   const { toast } = useToast();
@@ -21,6 +24,112 @@ export default function AdminToolboxPage() {
   const [viewMode, setViewMode] = useState('preview'); // 'preview' ou 'code'
   const [deviceView, setDeviceView] = useState('desktop'); // 'desktop' ou 'mobile'
   const [copied, setCopied] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [savedTemplates, setSavedTemplates] = useState<any[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const fetchTemplates = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('widget_templates')
+        .select('*')
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      setSavedTemplates(data || []);
+    } catch (error: any) {
+      console.error('Erro ao buscar modelos:', error.message);
+    }
+  };
+
+  const saveTemplate = async () => {
+    if (!templateName.trim()) {
+      toast({ title: "Erro", description: "Dê um nome ao seu modelo.", variant: "destructive" });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Erro", description: "Você precisa estar logado.", variant: "destructive" });
+        return;
+      }
+
+      const config = activeWidgetType === 'whatsapp' ? whatsappConfig : 
+                     activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+
+      const templateData = {
+        name: templateName,
+        type: activeWidgetType,
+        config,
+        user_id: user.id
+      };
+
+      let error;
+      if (currentTemplateId) {
+        const { error: updateError } = await supabase
+          .from('widget_templates')
+          .update(templateData)
+          .eq('id', currentTemplateId);
+        error = updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('widget_templates')
+          .insert(templateData);
+        error = insertError;
+      }
+
+      if (error) throw error;
+
+      toast({ title: "Sucesso", description: `Modelo "${templateName}" salvo!` });
+      setTemplateName('');
+      setCurrentTemplateId(null);
+      setIsDialogOpen(false);
+      fetchTemplates();
+    } catch (error: any) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const loadTemplate = (template: any) => {
+    setActiveWidgetType(template.type);
+    setCurrentTemplateId(template.id);
+    setTemplateName(template.name);
+    
+    if (template.type === 'whatsapp') setWhatsappConfig(template.config);
+    else if (template.type === 'banner') setBannerConfig(template.config);
+    else if (template.type === 'menu') setMenuConfig(template.config);
+
+    toast({ title: "Modelo carregado", description: `Editando: ${template.name}` });
+  };
+
+  const deleteTemplate = async (id: string) => {
+    try {
+      const { error } = await supabase.from('widget_templates').delete().eq('id', id);
+      if (error) throw error;
+      setSavedTemplates(savedTemplates.filter(t => t.id !== id));
+      if (currentTemplateId === id) {
+        setCurrentTemplateId(null);
+        setTemplateName('');
+      }
+      toast({ title: "Excluído", description: "Modelo removido com sucesso." });
+    } catch (error: any) {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    }
+  };
+
 
   // Estados de configuração dos widgets
   const [whatsappConfig, setWhatsappConfig] = useState({
@@ -450,10 +559,44 @@ export default function AdminToolboxPage() {
               <p className="text-muted-foreground">Área restrita para criação e implementação de ferramentas nativas.</p>
             </div>
           </div>
-          <Button className="md:w-auto w-full">
-            Salvar no Sistema
-          </Button>
+          <div className="flex gap-2">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Save className="h-4 w-4" />
+                  {currentTemplateId ? 'Atualizar Modelo' : 'Salvar Novo Modelo'}
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Salvar Configuração do Widget</DialogTitle>
+                  <DialogDescription>
+                    Salve este modelo para usá-lo ou editá-lo novamente depois.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <Label htmlFor="name">Nome do Modelo</Label>
+                  <Input 
+                    id="name" 
+                    placeholder="Ex: Menu Principal Elementor" 
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
+                  <Button onClick={saveTemplate} disabled={isSaving}>
+                    {isSaving ? "Salvando..." : "Confirmar Salvar"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Button className="md:w-auto w-full">
+              Gerar Script Global
+            </Button>
+          </div>
         </div>
+
 
         <Alert className="bg-primary/5 border-primary/20">
           <ShieldAlert className="h-4 w-4 text-primary" />
@@ -502,6 +645,40 @@ export default function AdminToolboxPage() {
             </Card>
 
             <Card>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <FolderOpen className="h-4 w-4" /> Modelos Salvos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                {savedTemplates.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-4 italic">Nenhum modelo salvo ainda.</p>
+                ) : (
+                  savedTemplates.map((template) => (
+                    <div key={template.id} className={cn(
+                      "flex items-center justify-between p-2 rounded-lg border text-sm transition-colors",
+                      currentTemplateId === template.id ? "bg-primary/10 border-primary" : "hover:bg-muted"
+                    )}>
+                      <div className="flex flex-col truncate pr-2 cursor-pointer flex-1" onClick={() => loadTemplate(template)}>
+                        <span className="font-medium truncate">{template.name}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase">{template.type}</span>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => loadTemplate(template)}>
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTemplate(template.id)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+
               <CardHeader className="pb-4">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                   Configurações
