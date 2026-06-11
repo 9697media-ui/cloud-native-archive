@@ -539,9 +539,9 @@ export default function AdminToolboxPage() {
              return Array.from(ul.children)
                .filter(li => li.tagName === 'LI')
                .map(li => {
-                 const link = li.querySelector('a');
+                 const link = li.querySelector(':scope > a'); // Pega apenas o link direto do LI
                  if (!link) return null;
-                 const subUl = li.querySelector('ul');
+                 const subUl = li.querySelector(':scope > ul, :scope > div > ul');
                  return {
                    title: link.textContent.trim(),
                    link: link.href,
@@ -550,10 +550,14 @@ export default function AdminToolboxPage() {
                }).filter(Boolean);
           }
           
-          const mainUl = container.querySelector('ul');
-          if (mainUl) {
-            foundItems = getItemsFromList(mainUl);
-            if (foundItems.length > 2) break;
+          // Busca especificamente pela estrutura de menu do Elementor ou WordPress
+          const potentialUls = container.querySelectorAll('.elementor-nav-menu, .menu, ul');
+          for (const ul of potentialUls) {
+            // Verifica se é uma lista com itens e se não é uma lista pequena demais
+            if (ul.children.length > 2) {
+              foundItems = getItemsFromList(ul);
+              if (foundItems.length > 0) break;
+            }
           }
         }
         if (foundItems.length > 0) break;
