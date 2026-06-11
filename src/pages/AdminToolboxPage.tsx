@@ -337,6 +337,11 @@ export default function AdminToolboxPage() {
     align-items: center;
     gap: 4px;
   }
+  .custom-nav-992 .menu-items .has-submenu {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
   .custom-nav-992 .menu-items .has-submenu > a::after {
     content: "";
     width: 0;
@@ -345,6 +350,28 @@ export default function AdminToolboxPage() {
     border-right: 4px solid transparent;
     border-top: 4px solid currentColor;
     opacity: 0.5;
+  }
+  .custom-nav-992 .submenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: ${menuConfig.bgColor};
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 10px 0;
+    display: none;
+    flex-direction: column;
+    min-width: 200px;
+    z-index: 1000000;
+  }
+  .custom-nav-992 .menu-items .has-submenu:hover > .submenu {
+    display: flex;
+  }
+  .custom-nav-992 .submenu a {
+    padding: 10px 20px;
+    opacity: 0.9;
+    width: 100%;
+    border-radius: 0;
   }
   .custom-nav-992 .menu-items a:hover { 
     opacity: 1;
