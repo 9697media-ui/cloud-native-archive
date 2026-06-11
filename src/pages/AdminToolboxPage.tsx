@@ -1021,10 +1021,22 @@ export default function AdminToolboxPage() {
                           <Input 
                             placeholder="https://seusite.com"
                             value={menuConfig.testUrl}
-                            onChange={(e) => setMenuConfig({...menuConfig, testUrl: e.target.value})}
+                            onChange={(e) => {
+                              const url = e.target.value;
+                              setMenuConfig({...menuConfig, testUrl: url});
+                              
+                              // Tenta inferir o endpoint do WordPress se não houver um definido
+                              if (url && !menuConfig.wpApiUrl) {
+                                try {
+                                  const domain = new URL(url).origin;
+                                  const inferredEndpoint = `${domain}/wp-json/wp/v2/navigation`;
+                                  setMenuConfig(prev => ({...prev, testUrl: url, wpApiUrl: inferredEndpoint}));
+                                } catch (e) {}
+                              }
+                            }}
                           />
                         </div>
-                        <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo para simular a aplicação do menu.</p>
+                        <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo e tentaremos identificar o endpoint automaticamente.</p>
                       </div>
                     </div>
                       {menuConfig.items.map((item, idx) => (
