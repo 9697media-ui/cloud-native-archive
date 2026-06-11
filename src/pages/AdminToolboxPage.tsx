@@ -472,10 +472,16 @@ export default function AdminToolboxPage() {
         const data = await response.json();
         
         let items = [];
-        if (Array.isArray(data)) items = data;
-        else if (data.items) items = data.items;
-        else if (data.menus) items = data.menus;
-        else if (data.data) items = data.data;
+        if (Array.isArray(data)) {
+          items = data;
+        } else if (data.data && Array.isArray(data.data)) {
+          items = data.data;
+        } else if (data.items && Array.isArray(data.items)) {
+          items = data.items;
+        } else if (typeof data === 'object') {
+          // Se for o formato de Navigation do WP, os itens podem estar em diversas chaves
+          items = data.items || data.data || data.menu_items || Object.values(data).find(v => Array.isArray(v)) || [data];
+        }
 
         const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
         if (menuContainer) {
@@ -489,7 +495,7 @@ export default function AdminToolboxPage() {
                 const lowerTitle = title.toLowerCase();
                 const children = item.children || item.items || item.sub_items || [];
                 
-                // SE o item for "Menu Principal" (container genérico), renderizamos diretamente seus filhos em vez dele
+                // Pula containers genéricos e renderiza os filhos
                 if (lowerTitle === "menu principal" || lowerTitle === "main menu" || lowerTitle === "navegação") {
                   return children.length > 0 ? renderMenuItems(children) : null;
                 }
@@ -508,9 +514,18 @@ export default function AdminToolboxPage() {
               .join('');
           }
 
-          const renderedHtml = renderMenuItems(items);
-          if (renderedHtml) {
-            menuContainer.innerHTML = renderedHtml;
+          let finalItems = items;
+          if (items.length === 1) {
+            const first = items[0];
+            const firstTitle = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
+            if (firstTitle && (firstTitle.toLowerCase().includes("menu principal") || firstTitle.toLowerCase().includes("main menu"))) {
+              finalItems = first.children || first.items || first.sub_items || items;
+            }
+          }
+
+          const htmlContent = renderMenuItems(finalItems);
+          if (htmlContent) {
+            menuContainer.innerHTML = htmlContent;
             highlightActiveLink();
           }
         }
