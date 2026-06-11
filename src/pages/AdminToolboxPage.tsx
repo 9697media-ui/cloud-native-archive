@@ -541,9 +541,7 @@ export default function AdminToolboxPage() {
                }).filter(Boolean);
           }
           
-          // Procura pela lista principal (UL) que contém os itens
           const potentialUls = Array.from(container.querySelectorAll('ul')).filter(ul => {
-            // Garante que é uma lista de nível superior (não está dentro de outra LI do mesmo container)
             return !ul.parentElement.closest('li');
           });
 
@@ -551,7 +549,17 @@ export default function AdminToolboxPage() {
             if (ul.children.length >= 2) {
               const items = getItemsFromList(ul);
               if (items.length >= 2) {
-                foundItems = items;
+                // Tenta filtrar se o primeiro item for "Menu Principal"
+                const first = items[0];
+                if (first && (first.title.toLowerCase().includes("menu principal") || first.title.toLowerCase().includes("main menu"))) {
+                   if (first.children && first.children.length > 0) {
+                     foundItems = first.children;
+                   } else {
+                     foundItems = items.slice(1);
+                   }
+                } else {
+                  foundItems = items;
+                }
                 break;
               }
             }
