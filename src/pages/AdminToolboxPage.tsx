@@ -1020,12 +1020,14 @@ export default function AdminToolboxPage() {
                               const url = e.target.value;
                               setMenuConfig({...menuConfig, testUrl: url});
                               
-                              if (url && !menuConfig.wpApiUrl) {
+                              if (url) {
                                 try {
                                   const domain = new URL(url).origin;
                                   const inferredEndpoint = `${domain}/wp-json/wp/v2/navigation`;
                                   setMenuConfig(prev => ({...prev, testUrl: url, wpApiUrl: inferredEndpoint}));
-                                } catch (e) {}
+                                } catch (e) {
+                                  setMenuConfig(prev => ({...prev, testUrl: url}));
+                                }
                               }
                             }}
                           />
