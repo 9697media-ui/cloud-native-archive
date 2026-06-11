@@ -468,59 +468,70 @@ export default function AdminToolboxPage() {
       const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
       if (!menuContainer) return;
 
+      console.log('Iniciando detecção de menu...');
+
       function renderItems(list) {
         if (!Array.isArray(list)) return '';
-        return list.map(item => {
-          const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title || item.text;
-          if (!title) return '';
+        let html = '';
+        list.forEach(item => {
+          const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title || item.text || (item.title && typeof item.title === 'string' ? item.title : '');
+          if (!title) return;
           
           const lowerTitle = title.toLowerCase();
           const children = item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
 
-          // Se for um container de menu, renderiza apenas os filhos
+          // Se for um container genérico de menu, tenta renderizar os filhos diretamente
           if (lowerTitle.includes("menu principal") || lowerTitle.includes("main menu") || lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu") {
-            if (children.length > 0) return renderItems(children);
-            return '';
+            if (children.length > 0) {
+              html += renderItems(children);
+            }
+            return;
           }
 
           if (children.length > 0) {
-            return \`<div class="has-submenu">
-              <a href="\${link}">\${title}</a>
-              <ul class="submenu">\${renderItems(children)}</ul>
-            </div>\`;
+            html += `<div class="has-submenu">
+              <a href="${link}">${title}</a>
+              <ul class="submenu">${renderItems(children)}</ul>
+            </div>`;
+          } else {
+            html += `<a href="${link}">${title}</a>`;
           }
-          return \`<a href="\${link}">\${title}</a>\`;
-        }).join('');
+        });
+        return html;
       }
 
-      // 1. Tentar WordPress API se configurado
-      if ('${menuConfig.wpApiUrl}' && '${menuConfig.wpApiUrl}' !== 'undefined') {
+      // 1. Prioridade: WordPress API se configurado
+      if ('${menuConfig.wpApiUrl}' && '${menuConfig.wpApiUrl}' !== 'undefined' && '${menuConfig.wpApiUrl}'.length > 5) {
         try {
-          console.log('Tentando WP API:', '${menuConfig.wpApiUrl}');
+          console.log('Tentando carregar via WordPress API:', '${menuConfig.wpApiUrl}');
           const response = await fetch('${menuConfig.wpApiUrl}');
-          const data = await response.json();
-          let items = Array.isArray(data) ? data : (data.items || data.data || data.menu_items || Object.values(data).find(v => Array.isArray(v)) || [data]);
-          
-          // Se for apenas um objeto de menu, pega os itens dele
-          if (items.length === 1 && (items[0].items || items[0].children)) {
-            items = items[0].items || items[0].children;
-          }
+          if (response.ok) {
+            const data = await response.json();
+            let items = Array.isArray(data) ? data : (data.items || data.data || data.menu_items || Object.values(data).find(v => Array.isArray(v)) || [data]);
+            
+            // Se for um objeto de Navigation do WP, os itens podem estar em itens[0].items
+            if (items.length === 1 && (items[0].items || items[0].children)) {
+              items = items[0].items || items[0].children;
+            }
 
-          const html = renderItems(items);
-          if (html && html.trim().length > 0) {
-            menuContainer.innerHTML = html;
-            highlightActiveLink();
-            console.log('Menu carregado via WP API');
-            return;
+            const htmlContent = renderItems(items);
+            if (htmlContent && htmlContent.trim().length > 10) {
+              menuContainer.innerHTML = htmlContent;
+              if (typeof highlightActiveLink === 'function') highlightActiveLink();
+              console.log('Sucesso: Menu carregado via WP API');
+              return; // Para aqui se deu certo
+            }
           }
-        } catch (e) { console.error('WP API falhou:', e); }
+        } catch (e) { 
+          console.warn('Erro ao acessar WordPress API:', e.message); 
+        }
       }
 
-      // 2. Tentar Auto-detecção se habilitado
+      // 2. Fallback: Auto-detecção no DOM (usado se WP API falhar ou não existir)
       if (${menuConfig.autoDetect}) {
-        console.log('Iniciando auto-detecção...');
-        const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '[class*="nav-menu"]', '.wp-block-navigation'];
+        console.log('WP API falhou ou não configurada. Tentando auto-detecção no site...');
+        const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '[class*="nav-menu"]', '.wp-block-navigation', '.navigation'];
         
         const previewFrame = document.querySelector('iframe[title="Site Preview"]');
         let targetDoc = document;
@@ -528,7 +539,9 @@ export default function AdminToolboxPage() {
           if (previewFrame && previewFrame.contentDocument) {
             targetDoc = previewFrame.contentDocument;
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn('CORS impediu acesso direto ao iframe para auto-detecção.');
+        }
 
         for (const selector of selectors) {
           const containers = targetDoc.querySelectorAll(selector);
@@ -544,7 +557,7 @@ export default function AdminToolboxPage() {
                 .map(li => {
                   const link = li.querySelector('a');
                   if (!link) return null;
-                  const subUl = li.querySelector('ul, .sub-menu, .dropdown-menu');
+                  const subUl = li.querySelector('ul, .sub-menu, .dropdown-menu, .sub-menu-container');
                   return {
                     title: link.innerText.trim(),
                     link: link.href,
@@ -555,19 +568,27 @@ export default function AdminToolboxPage() {
 
             const items = getItemsFromDOM(container);
             if (items.length >= 2) {
-              const html = renderItems(items);
-              if (html) {
-                menuContainer.innerHTML = html;
-                highlightActiveLink();
-                console.log('Menu detectado via DOM:', selector);
+              const htmlContent = renderItems(items);
+              if (htmlContent && htmlContent.trim().length > 10) {
+                menuContainer.innerHTML = htmlContent;
+                if (typeof highlightActiveLink === 'function') highlightActiveLink();
+                console.log('Sucesso: Menu detectado via seletor:', selector);
                 return;
               }
             }
           }
         }
       }
+      
+      // 3. Última tentativa: Se nada funcionou, usa itens manuais (se houver)
+      const manualItems = ${JSON.stringify(menuConfig.items)};
+      if (manualItems && manualItems.length > 0 && manualItems[0].label !== 'Novo Item') {
+         console.log('Usando itens manuais como fallback.');
+         menuContainer.innerHTML = renderItems(manualItems);
+      }
     }
-    setTimeout(initializeMenuDetection, 2000);`;
+    // Executa a detecção após um delay para garantir que o frame carregou
+    setTimeout(initializeMenuDetection, 3000);`;
 
     const script = `
 <script>
