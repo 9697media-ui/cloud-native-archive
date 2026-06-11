@@ -980,7 +980,7 @@ export default function AdminToolboxPage() {
                         <Switch 
                           id="auto-detect" 
                           checked={menuConfig.autoDetect}
-                          onCheckedChange={(val) => setMenuConfig({...menuConfig, autoDetect: val, wpApiUrl: val ? '' : menuConfig.wpApiUrl})}
+                          onCheckedChange={(val) => setMenuConfig({...menuConfig, autoDetect: val})}
                         />
                       </div>
 
@@ -989,7 +989,7 @@ export default function AdminToolboxPage() {
                         <Input 
                           placeholder="Ex: https://site.com/wp-json/wp/v2/menu-items"
                           value={menuConfig.wpApiUrl}
-                          onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value, autoDetect: e.target.value ? false : menuConfig.autoDetect})}
+                          onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value})}
                         />
                         <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress para sincronização em tempo real.</p>
                       </div>
