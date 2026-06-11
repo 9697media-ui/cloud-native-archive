@@ -492,8 +492,11 @@ export default function AdminToolboxPage() {
                            lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu");
           
           if (isGeneric && children.length > 0) {
-            html += renderItems(children);
-            return;
+            const childrenHtml = renderItems(children);
+            if (childrenHtml) {
+              html += childrenHtml;
+              return;
+            }
           }
 
           if (children.length > 0) {
