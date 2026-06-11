@@ -1243,8 +1243,8 @@ export default function AdminToolboxPage() {
                                       
                                       if (detectedItems.length > 0) {
                                         // Substituir apenas se os itens atuais forem os padrão ou estiverem vazios
-                                        const isDefault = prev.items.length === 4 && prev.items[0].label === 'Início';
-                                        if (isDefault || prev.items.length === 0) {
+                                        const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
+                                        if (isDefault || menuConfig.items.length === 0) {
                                           setMenuConfig(prev => ({...prev, items: detectedItems}));
                                           toast({ title: "Itens Detectados", description: `${detectedItems.length} links importados do preview.` });
                                         } else {
