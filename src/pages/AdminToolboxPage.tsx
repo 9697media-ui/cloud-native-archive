@@ -1071,26 +1071,47 @@ export default function AdminToolboxPage() {
                               const url = e.target.value;
                               setMenuConfig({...menuConfig, testUrl: url});
                               
-                              if (url) {
-                                try {
-                                  const domain = new URL(url).origin;
-                                  const inferredEndpoint = `${domain}/wp-json/wp/v2/navigation`;
-                                  setMenuConfig(prev => ({...prev, testUrl: url, wpApiUrl: inferredEndpoint}));
-                                } catch (e) {
-                                  setMenuConfig(prev => ({...prev, testUrl: url}));
-                                }
+                              if (url && url.startsWith('http')) {
+                                // Debounce manual simplificado para detecção de endpoint
+                                const timeoutId = setTimeout(async () => {
+                                  try {
+                                    const origin = new URL(url).origin;
+                                    const endpoints = [
+                                      '/wp-json/wp/v2/navigation',
+                                      '/wp-json/wp/v2/menu-items',
+                                      '/wp-json/menus/v1/menus',
+                                      '/wp-json/menus/v1/locations/primary',
+                                      '/wp-json/wp/v2/pages'
+                                    ];
+
+                                    for (const endpoint of endpoints) {
+                                      try {
+                                        const testRes = await fetch(`${origin}${endpoint}`, { method: 'HEAD' });
+                                        if (testRes.ok) {
+                                          setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
+                                          toast({
+                                            title: "Endpoint Detectado!",
+                                            description: `Encontramos uma API de menu em ${endpoint}`,
+                                          });
+                                          break;
+                                        }
+                                      } catch (e) { /* ignore individual fail */ }
+                                    }
+                                  } catch (e) { /* invalid url */ }
+                                }, 1500);
+                                return () => clearTimeout(timeoutId);
                               }
                             }}
                           />
                         </div>
-                        <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo e tentaremos identificar o endpoint automaticamente.</p>
+                        <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo e tentaremos identificar o endpoint e os itens automaticamente.</p>
                       </div>
                     </div>
 
                     <div className="space-y-2 pt-2 border-t mt-4">
                       <div className="flex items-center justify-between mb-2">
-                        <Label>Itens Manuais</Label>
-                        <span className="text-[10px] text-muted-foreground italic">(Usados se automação falhar)</span>
+                        <Label>Itens do Menu</Label>
+                        <span className="text-[10px] text-muted-foreground italic">(Sincronizados via API ou Manual)</span>
                       </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
@@ -1181,6 +1202,36 @@ export default function AdminToolboxPage() {
                           src={menuConfig.testUrl} 
                           className="w-full h-full border-none"
                           title="Site Preview"
+                          onLoad={(e) => {
+                            // Tentar ler itens do DOM via injeção se possível (domínios amigáveis)
+                            try {
+                              const frame = e.currentTarget;
+                              const doc = frame.contentDocument || frame.contentWindow?.document;
+                              if (doc) {
+                                const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', 'ul[class*="menu"]'];
+                                for (const sel of selectors) {
+                                  const nav = doc.querySelector(sel);
+                                  if (nav) {
+                                    const links = Array.from(nav.querySelectorAll('a')).slice(0, 10);
+                                    if (links.length > 0) {
+                                      const detectedItems = links.map(a => ({
+                                        label: (a as HTMLElement).innerText.trim(),
+                                        link: (a as HTMLAnchorElement).href
+                                      })).filter(i => i.label);
+                                      
+                                      if (detectedItems.length > 0) {
+                                        setMenuConfig(prev => ({...prev, items: detectedItems}));
+                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} links importados do preview.` });
+                                        break;
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            } catch (err) {
+                              console.warn("Não foi possível ler o DOM do iframe devido a restrições de CORS.");
+                            }
+                          }}
                           sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
                         />
                         <div className="absolute inset-0 bg-transparent pointer-events-none" />
