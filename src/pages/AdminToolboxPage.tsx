@@ -1140,8 +1140,12 @@ export default function AdminToolboxPage() {
                     )}
 
                     {/* Widget Injection */}
-                    <div className="absolute inset-0 pointer-events-none">
-                       <div className="relative w-full h-full pointer-events-auto" dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} />
+                    <div className="absolute inset-0 pointer-events-none z-[1000000]">
+                       <div 
+                         className="relative w-full h-full pointer-events-auto" 
+                         key={getGeneratedCode().length} // Force re-render when code changes
+                         dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
+                       />
                     </div>
                   </div>
                 ) : (
