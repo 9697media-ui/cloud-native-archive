@@ -171,9 +171,10 @@ export default function AdminToolboxPage() {
     });
     toast({
       title: "Menu Sincronizado",
-      description: "Os itens do menu foram carregados a partir do sistema original.",
+      description: "Os itens foram carregados apenas para referência no construtor.",
     });
   };
+
 
   // Função para copiar o código
   const handleCopyCode = (codeText: string) => {
@@ -555,8 +556,9 @@ export default function AdminToolboxPage() {
               <Lock className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Construtor de Widgets</h1>
-              <p className="text-muted-foreground">Área restrita para criação e implementação de ferramentas nativas.</p>
+              <h1 className="text-3xl font-bold tracking-tight">Construtor de Widgets Externos</h1>
+              <p className="text-muted-foreground">Crie ferramentas para usar em sites de terceiros (WordPress, Elementor, etc).</p>
+
             </div>
           </div>
           <div className="flex gap-2">
@@ -591,19 +593,21 @@ export default function AdminToolboxPage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <Button className="md:w-auto w-full">
-              Gerar Script Global
+            <Button className="md:w-auto w-full" variant="secondary" onClick={() => setViewMode('code')}>
+              Gerar Código para Copiar
             </Button>
+
           </div>
         </div>
 
 
         <Alert className="bg-primary/5 border-primary/20">
           <ShieldAlert className="h-4 w-4 text-primary" />
-          <AlertTitle>Ambiente de Desenvolvimento</AlertTitle>
+          <AlertTitle>Foco em Implementação Externa</AlertTitle>
           <AlertDescription>
-            Crie widgets nativos que não são detectados por adblockers para uso em sites externos.
+            Tudo o que você configurar aqui gera um código independente para ser colado em outros sites. Nenhuma alteração afetará este sistema atual.
           </AlertDescription>
+
         </Alert>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
