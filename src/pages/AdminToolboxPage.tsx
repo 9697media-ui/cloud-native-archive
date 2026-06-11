@@ -161,7 +161,8 @@ export default function AdminToolboxPage() {
     ],
     sticky: true,
     autoDetect: false,
-    wpApiUrl: ''
+    wpApiUrl: '',
+    testUrl: ''
   });
 
   const syncWithSystemMenu = () => {
@@ -479,19 +480,23 @@ export default function AdminToolboxPage() {
         const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
         if (menuContainer) {
           function renderMenuItems(list) {
+            if (!Array.isArray(list)) return '';
             return list
-              .filter(item => {
-                const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
-                if (!title) return false;
-                const lowerTitle = title.toLowerCase();
-                return !lowerTitle.includes("menu principal") && !lowerTitle.includes("main menu") && !lowerTitle.includes("menu de navegação");
-              })
               .map(item => {
                 const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
-                const link = item.url || item.link || item.guid || '#';
-                const children = item.children || item.items || [];
+                if (!title) return null;
                 
-                if (children && children.length > 0) {
+                const lowerTitle = title.toLowerCase();
+                const children = item.children || item.items || item.sub_items || [];
+                
+                // SE o item for "Menu Principal" (container genérico), renderizamos diretamente seus filhos em vez dele
+                if (lowerTitle === "menu principal" || lowerTitle === "main menu" || lowerTitle === "navegação") {
+                  return children.length > 0 ? renderMenuItems(children) : null;
+                }
+
+                const link = item.url || item.link || item.guid || '#';
+                
+                if (children.length > 0) {
                   return \`<div class="has-submenu">
                     <a href="\${link}">\${title}</a>
                     <ul class="submenu">\${renderMenuItems(children)}</ul>
@@ -499,29 +504,15 @@ export default function AdminToolboxPage() {
                 }
                 return \`<a href="\${link}">\${title}</a>\`;
               })
+              .filter(Boolean)
               .join('');
           }
 
-          let targetList = Array.isArray(items) ? items : [];
-          // Tenta "descascar" o Menu Principal se ele for o container raiz
-          if (targetList.length === 1) {
-            const first = targetList[0];
-            const title = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
-            if (title && (title.toLowerCase().includes("menu principal") || title.toLowerCase().includes("main menu"))) {
-              targetList = first.children || first.items || targetList;
-            }
+          const renderedHtml = renderMenuItems(items);
+          if (renderedHtml) {
+            menuContainer.innerHTML = renderedHtml;
+            highlightActiveLink();
           }
-          // Remove o primeiro item se ele for apenas o título do menu e houver outros itens
-          if (targetList.length > 1) {
-            const first = targetList[0];
-            const title = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
-            if (title && (title.toLowerCase().includes("menu principal") || title.toLowerCase().includes("main menu"))) {
-              targetList = targetList.slice(1);
-            }
-          }
-
-          menuContainer.innerHTML = renderMenuItems(targetList);
-          highlightActiveLink();
         }
       } catch (e) { console.error('Erro WP API:', e); }
     }
@@ -550,9 +541,7 @@ export default function AdminToolboxPage() {
                }).filter(Boolean);
           }
           
-          // Procura pela lista principal (UL) que contém os itens
           const potentialUls = Array.from(container.querySelectorAll('ul')).filter(ul => {
-            // Garante que é uma lista de nível superior (não está dentro de outra LI do mesmo container)
             return !ul.parentElement.closest('li');
           });
 
@@ -560,7 +549,17 @@ export default function AdminToolboxPage() {
             if (ul.children.length >= 2) {
               const items = getItemsFromList(ul);
               if (items.length >= 2) {
-                foundItems = items;
+                // Tenta filtrar se o primeiro item for "Menu Principal"
+                const first = items[0];
+                if (first && (first.title.toLowerCase().includes("menu principal") || first.title.toLowerCase().includes("main menu"))) {
+                   if (first.children && first.children.length > 0) {
+                     foundItems = first.children;
+                   } else {
+                     foundItems = items.slice(1);
+                   }
+                } else {
+                  foundItems = items;
+                }
                 break;
               }
             }
@@ -1010,7 +1009,24 @@ export default function AdminToolboxPage() {
                       <div className="flex items-center justify-between mb-2">
                         <Label>Itens Manuais</Label>
                         <span className="text-[10px] text-muted-foreground italic">(Usados se automação falhar)</span>
+                    </div>
+
+                    <div className="space-y-4 pt-2 border-t mt-4">
+                      <Label className="text-xs uppercase font-bold text-muted-foreground flex items-center gap-2">
+                        <Globe className="h-3 w-3" /> Ambiente de Teste
+                      </Label>
+                      <div className="space-y-2">
+                        <Label className="text-xs">URL do Site para Preview</Label>
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="https://seusite.com"
+                            value={menuConfig.testUrl}
+                            onChange={(e) => setMenuConfig({...menuConfig, testUrl: e.target.value})}
+                          />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo para simular a aplicação do menu.</p>
                       </div>
+                    </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
                           <Input 
@@ -1094,33 +1110,46 @@ export default function AdminToolboxPage() {
                     "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out flex flex-col",
                     deviceView === 'mobile' ? "w-[375px] h-[667px] rounded-[3rem] border-[8px] border-slate-900" : "w-full max-w-4xl h-[550px] rounded-lg"
                   )}>
-                    {/* Mock Site Header */}
-                    <div className="bg-muted/50 p-4 border-b flex items-center justify-between shrink-0">
-                      <div className="w-24 h-6 bg-muted rounded"></div>
-                      <div className="flex gap-3">
-                        <div className="w-10 h-3 bg-muted rounded"></div>
-                        <div className="w-10 h-3 bg-muted rounded"></div>
+                    {menuConfig.testUrl ? (
+                      <div className="flex-1 w-full h-full relative">
+                        <iframe 
+                          src={menuConfig.testUrl} 
+                          className="w-full h-full border-none"
+                          title="Site Preview"
+                        />
+                        <div className="absolute inset-0 bg-transparent pointer-events-none" />
                       </div>
-                    </div>
+                    ) : (
+                      <>
+                        {/* Mock Site Header */}
+                        <div className="bg-muted/50 p-4 border-b flex items-center justify-between shrink-0">
+                          <div className="w-24 h-6 bg-muted rounded"></div>
+                          <div className="flex gap-3">
+                            <div className="w-10 h-3 bg-muted rounded"></div>
+                            <div className="w-10 h-3 bg-muted rounded"></div>
+                          </div>
+                        </div>
 
-                    {/* Mock Site Content */}
-                    <div className="p-8 flex-1 space-y-6 overflow-hidden">
-                      <div className="w-3/4 h-8 bg-muted/40 rounded"></div>
-                      <div className="space-y-2">
-                        <div className="w-full h-3 bg-muted/30 rounded"></div>
-                        <div className="w-full h-3 bg-muted/30 rounded"></div>
-                        <div className="w-2/3 h-3 bg-muted/30 rounded"></div>
-                      </div>
-                      <div className="w-full h-40 bg-muted/20 rounded-xl"></div>
-                      <div className="space-y-2">
-                        <div className="w-full h-3 bg-muted/30 rounded"></div>
-                        <div className="w-full h-3 bg-muted/30 rounded"></div>
-                      </div>
-                    </div>
+                        {/* Mock Site Content */}
+                        <div className="p-8 flex-1 space-y-6 overflow-hidden">
+                          <div className="w-3/4 h-8 bg-muted/40 rounded"></div>
+                          <div className="space-y-2">
+                            <div className="w-full h-3 bg-muted/30 rounded"></div>
+                            <div className="w-full h-3 bg-muted/30 rounded"></div>
+                            <div className="w-2/3 h-3 bg-muted/30 rounded"></div>
+                          </div>
+                          <div className="w-full h-40 bg-muted/20 rounded-xl"></div>
+                          <div className="space-y-2">
+                            <div className="w-full h-3 bg-muted/30 rounded"></div>
+                            <div className="w-full h-3 bg-muted/30 rounded"></div>
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     {/* Widget Injection */}
                     <div className="absolute inset-0 pointer-events-none">
-                       <div className="relative w-full h-full overflow-hidden pointer-events-auto" dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} />
+                       <div className="relative w-full h-full pointer-events-auto" dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} />
                     </div>
                   </div>
                 ) : (
