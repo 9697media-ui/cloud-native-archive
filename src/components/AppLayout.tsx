@@ -55,7 +55,13 @@ export default function AppLayout() {
   const NavContent = ({ onClick }: { onClick?: () => void }) => (
     <>
       {navItems.filter(item => {
-        const isAdminEmail = user?.email === 'mkt@anabrasil.org' || user?.email === 'alyson-viana@hotmail.com' || user?.email === 'contato@anabrasil.org';
+        const allowedEmails = ['alyson-viana@hotmail.com', 'mkt@anabrasil.org'];
+        const isSpecialAdmin = user?.email && allowedEmails.includes(user.email);
+        const isAdminEmail = isSpecialAdmin || user?.email === 'contato@anabrasil.org';
+        
+        // Regra para páginas escondidas (apenas alyson-viana e mkt)
+        if (item.hidden) return isSpecialAdmin;
+        
         if (item.adminOnly) return isAdmin || isAdminEmail;
         if (item.managerOnly) return isAdmin || isManager || isAdminEmail;
         if (item.mktOrAdminOnly) return isAdmin || isAdminEmail;

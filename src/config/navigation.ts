@@ -9,6 +9,7 @@ export interface NavItem {
   auditoriaOnly?: boolean;
   requireAuth?: boolean;
   mktOrAdminOnly?: boolean;
+  hidden?: boolean;
 }
 
 export const navItems: NavItem[] = [
@@ -20,4 +21,5 @@ export const navItems: NavItem[] = [
   { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, adminOnly: true },
   { to: '/design-manual', label: 'Manual Design', icon: BookOpen, requireAuth: true, mktOrAdminOnly: true },
   { to: '/portal-transparencia', label: 'Portal Transparência', icon: FileSearch, requireAuth: true, adminOnly: true },
+  { to: '/admin-toolbox', label: 'Widgets', icon: LayoutDashboard, requireAuth: true, hidden: true },
 ];
