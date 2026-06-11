@@ -1001,7 +1001,24 @@ export default function AdminToolboxPage() {
                       <div className="flex items-center justify-between mb-2">
                         <Label>Itens Manuais</Label>
                         <span className="text-[10px] text-muted-foreground italic">(Usados se automação falhar)</span>
+                    </div>
+
+                    <div className="space-y-4 pt-2 border-t mt-4">
+                      <Label className="text-xs uppercase font-bold text-muted-foreground flex items-center gap-2">
+                        <Globe className="h-3 w-3" /> Ambiente de Teste
+                      </Label>
+                      <div className="space-y-2">
+                        <Label className="text-xs">URL do Site para Preview</Label>
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="https://seusite.com"
+                            value={menuConfig.testUrl}
+                            onChange={(e) => setMenuConfig({...menuConfig, testUrl: e.target.value})}
+                          />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo para simular a aplicação do menu.</p>
                       </div>
+                    </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
                           <Input 
