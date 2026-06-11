@@ -598,6 +598,7 @@ export default function AdminToolboxPage() {
       
       const manualItems = ${JSON.stringify(menuConfig.items)};
       if (manualItems && manualItems.length > 0) {
+         console.log('Usando itens manuais:', manualItems);
          menuContainer.innerHTML = renderItems(manualItems);
       }
     }
