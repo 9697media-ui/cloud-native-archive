@@ -675,9 +675,10 @@ export default function AdminToolboxPage() {
                   ))
                 )}
               </CardContent>
-
+            </Card>
 
             <Card>
+
               <CardHeader className="pb-4">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                   Configurações
