@@ -161,7 +161,8 @@ export default function AdminToolboxPage() {
     ],
     sticky: true,
     autoDetect: false,
-    wpApiUrl: ''
+    wpApiUrl: '',
+    testUrl: ''
   });
 
   const syncWithSystemMenu = () => {
