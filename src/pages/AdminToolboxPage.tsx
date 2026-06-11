@@ -1135,6 +1135,7 @@ export default function AdminToolboxPage() {
                           src={menuConfig.testUrl} 
                           className="w-full h-full border-none"
                           title="Site Preview"
+                          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
                         />
                         <div className="absolute inset-0 bg-transparent pointer-events-none" />
                       </div>
