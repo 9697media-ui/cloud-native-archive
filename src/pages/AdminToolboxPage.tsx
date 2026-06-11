@@ -568,7 +568,6 @@ export default function AdminToolboxPage() {
       }
     }
     setTimeout(initializeMenuDetection, 2000);`;
-    }
 
     const script = `
 <script>
