@@ -468,6 +468,7 @@ export default function AdminToolboxPage() {
       fetchScript = `
     async function fetchWordPressMenu() {
       try {
+        console.log('Buscando menu em:', '${menuConfig.wpApiUrl}');
         const response = await fetch('${menuConfig.wpApiUrl}');
         const data = await response.json();
         
@@ -495,7 +496,8 @@ export default function AdminToolboxPage() {
               const lowerTitle = title.toLowerCase();
               const children = item.children || item.items || item.sub_items || [];
               
-              if (lowerTitle === "menu principal" || lowerTitle === "main menu" || lowerTitle === "navegação" || lowerTitle === "principal") {
+              // SE o item for um container genérico (como "Menu Principal"), renderizamos os filhos diretamente
+              if (lowerTitle.includes("menu principal") || lowerTitle.includes("main menu") || lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu") {
                 if (children.length > 0) {
                   html += renderMenuItems(children);
                 }
@@ -515,18 +517,18 @@ export default function AdminToolboxPage() {
             return html;
           }
 
+          // Descasca containers de nível superior
           let finalItems = items;
-          if (items.length === 1) {
-            const first = items[0];
-            const firstTitle = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
-            if (firstTitle && (firstTitle.toLowerCase().includes("menu principal") || firstTitle.toLowerCase().includes("main menu"))) {
-              finalItems = first.children || first.items || first.sub_items || items;
+          if (items.length > 0) {
+            // Se tiver apenas 1 item e for um menu de navegação, entra nele
+            if (items.length === 1 && (items[0].children || items[0].items || items[0].sub_items)) {
+              finalItems = items[0].children || items[0].items || items[0].sub_items;
             }
           }
 
-          const htmlContent = renderMenuItems(finalItems);
-          if (htmlContent) {
-            menuContainer.innerHTML = htmlContent;
+          const htmlOutput = renderMenuItems(finalItems);
+          if (htmlOutput) {
+            menuContainer.innerHTML = htmlOutput;
             highlightActiveLink();
           }
         }
@@ -536,11 +538,23 @@ export default function AdminToolboxPage() {
     } else if (menuConfig.autoDetect) {
       fetchScript = `
     function autoDetectMenu() {
+      // Tenta detectar o menu no site carregado
       const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '[class*="nav-menu"]'];
       let foundItems = [];
       
+      // Procura primeiro no frame do ambiente de teste se existir
+      const previewFrame = document.querySelector('iframe[title="Site Preview"]');
+      let targetDoc = document;
+      try {
+        if (previewFrame && previewFrame.contentDocument) {
+          targetDoc = previewFrame.contentDocument;
+        }
+      } catch (e) {
+        console.warn('Não foi possível acessar o conteúdo do iframe devido a restrições de CORS.');
+      }
+
       for (const selector of selectors) {
-        const containers = document.querySelectorAll(selector);
+        const containers = targetDoc.querySelectorAll(selector);
         for (const container of containers) {
           function getItemsFromList(ul) {
              return Array.from(ul.children)
@@ -557,19 +571,11 @@ export default function AdminToolboxPage() {
                }).filter(item => item && item.title.length > 0);
           }
           
-          const allUls = Array.from(container.querySelectorAll('ul'));
-          const mainUl = allUls.find(ul => !ul.parentElement.closest('li')) || container.querySelector('ul');
-
+          const mainUl = container.querySelector('ul');
           if (mainUl && mainUl.children.length >= 2) {
             const items = getItemsFromList(mainUl);
             if (items.length >= 2) {
-              const first = items[0];
-              const firstTitle = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
-              if (firstTitle && (firstTitle.toLowerCase().includes("menu principal") || firstTitle.toLowerCase().includes("main menu"))) {
-                foundItems = first.children.length > 0 ? first.children : items.slice(1);
-              } else {
-                foundItems = items;
-              }
+              foundItems = items;
               break;
             }
           }
@@ -594,7 +600,7 @@ export default function AdminToolboxPage() {
         highlightActiveLink();
       }
     }
-    setTimeout(autoDetectMenu, 1500);`;
+    setTimeout(autoDetectMenu, 2000);`;
     }
 
     const script = `
@@ -1135,6 +1141,7 @@ export default function AdminToolboxPage() {
                           src={menuConfig.testUrl} 
                           className="w-full h-full border-none"
                           title="Site Preview"
+                          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
                         />
                         <div className="absolute inset-0 bg-transparent pointer-events-none" />
                       </div>
