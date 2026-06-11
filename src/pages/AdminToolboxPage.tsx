@@ -1066,9 +1066,9 @@ export default function AdminToolboxPage() {
             </Card>
           </div>
 
-          {/* Área Principal Preview/Código */}
-          <div className="lg:col-span-8 flex flex-col gap-6">
-            <Card className="flex-1 overflow-hidden flex flex-col min-h-[600px] sticky top-24">
+          <div className="lg:col-span-8 flex flex-col gap-6 relative">
+            <div className="sticky top-24 space-y-6">
+              <Card className="overflow-hidden flex flex-col min-h-[600px]">
               <div className="border-b bg-muted/30 px-6 py-3 flex items-center justify-between shrink-0">
                 <Tabs value={viewMode} onValueChange={setViewMode} className="w-auto">
                   <TabsList>
