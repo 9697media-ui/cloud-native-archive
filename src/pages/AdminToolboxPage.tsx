@@ -564,7 +564,8 @@ export default function AdminToolboxPage() {
             const items = getItemsFromList(mainUl);
             if (items.length >= 2) {
               const first = items[0];
-              if (first.title.toLowerCase().includes("menu principal") || first.title.toLowerCase().includes("main menu")) {
+              const firstTitle = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
+              if (firstTitle && (firstTitle.toLowerCase().includes("menu principal") || firstTitle.toLowerCase().includes("main menu"))) {
                 foundItems = first.children.length > 0 ? first.children : items.slice(1);
               } else {
                 foundItems = items;
