@@ -980,7 +980,7 @@ export default function AdminToolboxPage() {
                         <Switch 
                           id="auto-detect" 
                           checked={menuConfig.autoDetect}
-                          onCheckedChange={(val) => setMenuConfig({...menuConfig, autoDetect: val, wpApiUrl: val ? '' : menuConfig.wpApiUrl})}
+                          onCheckedChange={(val) => setMenuConfig({...menuConfig, autoDetect: val})}
                         />
                       </div>
 
