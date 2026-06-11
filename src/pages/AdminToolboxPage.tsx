@@ -474,6 +474,8 @@ export default function AdminToolboxPage() {
         if (!Array.isArray(list)) return '';
         let html = '';
         list.forEach(item => {
+          if (!item) return;
+
           let title = '';
           if (item.title && typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
           else if (item.title && typeof item.title === 'string') title = item.title;
@@ -518,32 +520,36 @@ export default function AdminToolboxPage() {
           const response = await fetch(wpApiUrl);
           if (response.ok) {
             const data = await response.json();
-            let items = Array.isArray(data) ? data : (data.items || data.data || data.menu_items || []);
+            let items = [];
+            if (Array.isArray(data)) {
+              items = data;
+            } else if (data.items || data.children || data.menu_items || data.data) {
+              items = data.items || data.children || data.menu_items || data.data;
+            }
+
             
-            // Recursivamente busca por itens se o objeto for um wrapper (como em alguns plugins de menu do WP)
-            function findMenuItems(obj) {
-              if (Array.isArray(obj) && obj.length > 0) {
-                // Se for um array com apenas 1 item que parece ser um wrapper genérico
-                if (obj.length === 1) {
-                  const first = obj[0];
-                  const title = (first.title?.rendered || first.title || first.label || first.name || "").toString().toLowerCase();
-                  const isWrapper = title.includes("menu") || title.includes("principal") || title.includes("main") || title.includes("navigation");
-                  const potentialChildren = first.items || first.children || first.sub_items;
-                  
-                  if (isWrapper && potentialChildren && Array.isArray(potentialChildren) && potentialChildren.length > 0) {
-                    return findMenuItems(potentialChildren);
-                  }
+            // Função para extrair itens de estruturas aninhadas do WordPress
+            function extractItems(source) {
+              if (!source) return [];
+              
+              // Se for um objeto com propriedade de itens, mergulha nela
+              if (source.items && Array.isArray(source.items)) return source.items;
+              if (source.children && Array.isArray(source.children)) return source.children;
+              if (source.menu_items && Array.isArray(source.menu_items)) return source.menu_items;
+              
+              // Se for um array, verifica se o primeiro item é um "wrapper"
+              if (Array.isArray(source)) {
+                if (source.length === 1 && (source[0].items || source[0].children)) {
+                  return extractItems(source[0]);
                 }
-                return obj;
+                return source;
               }
-              if (obj && typeof obj === 'object') {
-                const items = obj.items || obj.children || obj.menu_items || obj.data;
-                if (items) return findMenuItems(items);
-              }
+              
               return [];
             }
 
-            let items = findMenuItems(data);
+            items = extractItems(data);
+
 
             const htmlContent = renderItems(items);
             if (htmlContent && htmlContent.trim().length > 5) {
@@ -594,6 +600,7 @@ export default function AdminToolboxPage() {
       
       const manualItems = ${JSON.stringify(menuConfig.items)};
       if (manualItems && manualItems.length > 0) {
+         console.log('Usando itens manuais:', manualItems);
          menuContainer.innerHTML = renderItems(manualItems);
       }
     }
@@ -660,7 +667,10 @@ export default function AdminToolboxPage() {
     <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
   </button>
   <div class="menu-items">
-    ${menuConfig.items.map(item => `<a href="${item.link}">${item.label}</a>`).join('\n    ')}
+    ${menuConfig.items.length > 0 
+      ? menuConfig.items.map(item => `<a href="${item.link}">${item.label}</a>`).join('\n    ')
+      : '<!-- Aguardando carregamento... -->'
+    }
   </div>
 </nav>
 <!-- Fim: Menu Responsivo Nativo -->`;
