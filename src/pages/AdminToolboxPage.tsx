@@ -1013,12 +1013,6 @@ export default function AdminToolboxPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2 pt-2 border-t mt-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <Label>Itens Manuais</Label>
-                        <span className="text-[10px] text-muted-foreground italic">(Usados se automação falhar)</span>
-                    </div>
-
                     <div className="space-y-4 pt-2 border-t mt-4">
                       <Label className="text-xs uppercase font-bold text-muted-foreground flex items-center gap-2">
                         <Globe className="h-3 w-3" /> Ambiente de Teste
@@ -1033,7 +1027,6 @@ export default function AdminToolboxPage() {
                               const url = e.target.value;
                               setMenuConfig({...menuConfig, testUrl: url});
                               
-                              // Tenta inferir o endpoint do WordPress se não houver um definido
                               if (url && !menuConfig.wpApiUrl) {
                                 try {
                                   const domain = new URL(url).origin;
@@ -1047,6 +1040,12 @@ export default function AdminToolboxPage() {
                         <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo e tentaremos identificar o endpoint automaticamente.</p>
                       </div>
                     </div>
+
+                    <div className="space-y-2 pt-2 border-t mt-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <Label>Itens Manuais</Label>
+                        <span className="text-[10px] text-muted-foreground italic">(Usados se automação falhar)</span>
+                      </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
                           <Input 
