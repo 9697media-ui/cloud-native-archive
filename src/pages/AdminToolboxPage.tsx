@@ -484,15 +484,15 @@ export default function AdminToolboxPage() {
           
           if (!title || title.trim() === '') return;
           
-          const lowerTitle = title.toLowerCase();
+          const lowerTitle = title.trim().toLowerCase();
           const children = item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
 
-          const isGeneric = lowerTitle.includes("menu principal") || lowerTitle.includes("main menu") || 
-                           lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu";
+          const isGeneric = (lowerTitle === "menu principal" || lowerTitle === "main menu" || 
+                           lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu");
           
-          if (isGeneric) {
-            if (children.length > 0) html += renderItems(children);
+          if (isGeneric && children.length > 0) {
+            html += renderItems(children);
             return;
           }
 
