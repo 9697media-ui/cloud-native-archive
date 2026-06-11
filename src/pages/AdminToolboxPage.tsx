@@ -484,7 +484,7 @@ export default function AdminToolboxPage() {
           
           if (!title || title.trim() === '') return;
           
-          const lowerTitle = title.toLowerCase();
+          const lowerTitle = title.trim().toLowerCase();
           const children = item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
 
