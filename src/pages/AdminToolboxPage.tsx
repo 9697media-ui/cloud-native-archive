@@ -188,7 +188,7 @@ export default function AdminToolboxPage() {
     background-color: ${menuConfig.bgColor};
     color: ${menuConfig.textColor};
     padding: 0 20px;
-    height: 70px;
+    min-height: 70px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -196,55 +196,109 @@ export default function AdminToolboxPage() {
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: ${menuConfig.sticky ? 'sticky' : 'relative'};
     top: 0;
-    z-index: 999997;
+    z-index: 999999;
     box-sizing: border-box;
+    transition: all 0.3s ease;
   }
   .custom-nav-992 .logo img {
     height: 40px;
+    max-width: 180px;
     width: auto;
+    object-fit: contain;
     display: block;
   }
   .custom-nav-992 .menu-items {
     display: flex;
-    gap: 25px;
+    gap: 20px;
+    align-items: center;
   }
   .custom-nav-992 .menu-items a {
     color: inherit;
     text-decoration: none;
     font-size: 15px;
     font-weight: 500;
-    transition: opacity 0.2s;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
     opacity: 0.8;
+    white-space: nowrap;
   }
-  .custom-nav-992 .menu-items a:hover { opacity: 1; }
+  .custom-nav-992 .menu-items a:hover { 
+    opacity: 1;
+    background-color: rgba(0,0,0,0.05);
+  }
   .custom-nav-992 .menu-items a.active { 
     opacity: 1;
     font-weight: 700;
-    border-bottom: 2px solid currentColor;
+    background-color: rgba(0,0,0,0.08);
   }
   .custom-nav-992 .mobile-toggle {
     display: none;
     background: transparent;
     border: none;
     color: inherit;
-    font-size: 24px;
+    padding: 10px;
     cursor: pointer;
+    border-radius: 8px;
   }
-  @media (max-width: 768px) {
+  .custom-nav-992 .mobile-toggle:hover {
+    background-color: rgba(0,0,0,0.05);
+  }
+  .custom-nav-992 .mobile-toggle svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+    fill: currentColor;
+  }
+  
+  @media (max-width: 1024px) {
+    .custom-nav-992 {
+      padding: 0 15px;
+    }
+    .custom-nav-992 .menu-items {
+      gap: 10px;
+    }
+    .custom-nav-992 .menu-items a {
+      font-size: 14px;
+      padding: 6px 10px;
+    }
+  }
+
+  @media (max-width: 850px) {
+    .custom-nav-992 .mobile-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .custom-nav-992 .menu-items {
       display: none;
       position: absolute;
-      top: 70px;
+      top: 100%;
       left: 0;
       width: 100%;
       background-color: ${menuConfig.bgColor};
       flex-direction: column;
-      padding: 20px;
-      gap: 15px;
-      box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+      padding: 15px 0;
+      gap: 5px;
+      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 999998;
     }
-    .custom-nav-992 .menu-items.active { display: flex; }
-    .custom-nav-992 .mobile-toggle { display: block; }
+    .custom-nav-992 .menu-items.active {
+      display: flex;
+    }
+    .custom-nav-992 .menu-items a {
+      width: 100%;
+      padding: 12px 25px;
+      border-radius: 0;
+      font-size: 16px;
+      border-left: 4px solid transparent;
+    }
+    .custom-nav-992 .menu-items a.active {
+      border-left-color: currentColor;
+      background-color: rgba(0,0,0,0.05);
+    }
   }
 </style>`;
 
@@ -258,7 +312,13 @@ export default function AdminToolboxPage() {
         const items = data.items || data;
         const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
         if (menuContainer && Array.isArray(items)) {
-          menuContainer.innerHTML = items.map(item => \`<a href="\${item.url || item.link}">\${item.title || item.label || item.title.rendered}</a>\`).join('');
+          menuContainer.innerHTML = items
+            .filter(item => {
+              // Filtrar submenus se necessário ou tratar estrutura aninhada
+              return !item.menu_item_parent || item.menu_item_parent === "0";
+            })
+            .map(item => \`<a href="\${item.url || item.link}">\${item.title || item.label || (item.title && item.title.rendered)}</a>\`)
+            .join('');
           highlightActiveLink();
         }
       } catch (e) { console.error('Erro ao carregar menu WP:', e); }
@@ -267,12 +327,31 @@ export default function AdminToolboxPage() {
     } else if (menuConfig.autoDetect) {
       fetchScript = `
     function autoDetectMenu() {
-      const existingNav = document.querySelector('nav, .main-navigation, .elementor-nav-menu, #main-menu');
+      // Tenta encontrar o menu principal excluindo submenus comuns
+      const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '#main-menu', '.menu-primary-container'];
+      let existingNav = null;
+      
+      for (const selector of selectors) {
+        const found = document.querySelector(selector);
+        if (found) {
+          existingNav = found;
+          break;
+        }
+      }
+
       if (existingNav) {
-        const links = Array.from(existingNav.querySelectorAll('a')).filter(a => a.textContent.trim().length > 0).slice(0, 8);
+        // Pega apenas links de primeiro nível para evitar submenus repetidos
+        // Busca links que não estão dentro de submenus conhecidos (ul ul, .sub-menu, .dropdown-menu)
+        const allLinks = Array.from(existingNav.querySelectorAll('a'));
+        const topLevelLinks = allLinks.filter(a => {
+           // Verifica se o link está dentro de um elemento que sugere ser submenu
+           const isSubLink = a.closest('ul ul, .sub-menu, .dropdown-menu, .elementor-nav-menu--dropdown');
+           return !isSubLink && a.textContent.trim().length > 0;
+        }).slice(0, 10);
+
         const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
-        if (menuContainer && links.length > 0) {
-          menuContainer.innerHTML = links.map(l => \`<a href="\${l.href}">\${l.textContent.trim()}</a>\`).join('');
+        if (menuContainer && topLevelLinks.length > 0) {
+          menuContainer.innerHTML = topLevelLinks.map(l => \`<a href="\${l.href}">\${l.textContent.trim()}</a>\`).join('');
           highlightActiveLink();
         }
       }
@@ -284,17 +363,27 @@ export default function AdminToolboxPage() {
 <script>
   function toggleCustomMenu() {
     const items = document.querySelector('.custom-nav-992 .menu-items');
+    const toggle = document.querySelector('.custom-nav-992 .mobile-toggle');
     items.classList.toggle('active');
   }
 
   function highlightActiveLink() {
     const currentPath = window.location.pathname;
+    const currentUrl = window.location.href;
     const links = document.querySelectorAll('.custom-nav-992 .menu-items a');
     
     links.forEach(link => {
       const href = link.getAttribute('href');
-      if (href !== '#' && (currentPath === href || (href !== '/' && currentPath.startsWith(href)))) {
+      if (!href || href === '#') return;
+      
+      // Checagem exata ou base
+      const isExact = currentPath === href || currentUrl === href;
+      const isBase = href !== '/' && (currentPath.startsWith(href) || currentUrl.startsWith(href));
+      
+      if (isExact || isBase) {
         link.classList.add('active');
+      } else {
+        link.classList.remove('active');
       }
     });
   }
@@ -302,6 +391,15 @@ export default function AdminToolboxPage() {
   function initMenu() {
     highlightActiveLink();
     ${fetchScript}
+    
+    // Fechar menu mobile ao clicar fora
+    document.addEventListener('click', (e) => {
+      const nav = document.querySelector('.custom-nav-992');
+      const items = document.querySelector('.custom-nav-992 .menu-items');
+      if (nav && !nav.contains(e.target) && items.classList.contains('active')) {
+        items.classList.remove('active');
+      }
+    });
   }
 
   if (document.readyState === 'loading') {
@@ -316,9 +414,11 @@ export default function AdminToolboxPage() {
 <!-- Início: Menu Responsivo Nativo -->
 <nav class="custom-nav-992">
   <div class="logo">
-    <img src="${menuConfig.logoUrl}" alt="Logo">
+    <a href="/"><img src="${menuConfig.logoUrl}" alt="Logo"></a>
   </div>
-  <button class="mobile-toggle" onclick="toggleCustomMenu()">☰</button>
+  <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
+    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+  </button>
   <div class="menu-items">
     ${menuConfig.items.map(item => `<a href="${item.link}">${item.label}</a>`).join('\n    ')}
   </div>
@@ -327,6 +427,7 @@ export default function AdminToolboxPage() {
 
     return css + "\n" + html + "\n" + script;
   };
+
 
   const getGeneratedCode = () => {
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
