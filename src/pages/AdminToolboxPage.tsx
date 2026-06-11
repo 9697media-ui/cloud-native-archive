@@ -419,15 +419,27 @@ export default function AdminToolboxPage() {
       try {
         const response = await fetch('${menuConfig.wpApiUrl}');
         const data = await response.json();
-        const items = data.items || data;
+        let items = [];
+        if (data.items) items = data.items;
+        else if (Array.isArray(data)) items = data;
+        else if (data.menus && Array.isArray(data.menus)) items = data.menus;
+        else if (data.data && Array.isArray(data.data)) items = data.data;
+
         const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
         if (menuContainer && Array.isArray(items)) {
-          menuContainer.innerHTML = items
+          // Se o array tiver apenas um item e ele for o "pai" (ex: Menu Principal), 
+          // e esse item tiver sub-itens (comum em algumas APIs de menu), vamos usá-los.
+          let finalItems = items;
+          if (items.length === 1 && (items[0].items || items[0].children)) {
+            finalItems = items[0].items || items[0].children;
+          }
+
+          menuContainer.innerHTML = finalItems
             .filter(item => {
-              // Filtrar submenus se necessário ou tratar estrutura aninhada
-              return !item.menu_item_parent || item.menu_item_parent === "0";
+              // Mantém itens de primeiro nível ou se for a lista já expandida
+              return !item.menu_item_parent || item.menu_item_parent === "0" || finalItems !== items;
             })
-            .map(item => \`<a href="\${item.url || item.link || '#'}">\${(item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || 'Item'}</a>\`)
+            .map(item => \`<a href="\${item.url || item.link || '#'}">\${(item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || 'Item'}</a>\`)
             .join('');
           highlightActiveLink();
         }
