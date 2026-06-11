@@ -487,31 +487,32 @@ export default function AdminToolboxPage() {
         if (menuContainer) {
           function renderMenuItems(list) {
             if (!Array.isArray(list)) return '';
-            return list
-              .map(item => {
-                const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
-                if (!title) return null;
-                
-                const lowerTitle = title.toLowerCase();
-                const children = item.children || item.items || item.sub_items || [];
-                
-                // Pula containers genéricos e renderiza os filhos
-                if (lowerTitle === "menu principal" || lowerTitle === "main menu" || lowerTitle === "navegação") {
-                  return children.length > 0 ? renderMenuItems(children) : null;
-                }
-
-                const link = item.url || item.link || item.guid || '#';
-                
+            let html = '';
+            list.forEach(item => {
+              const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
+              if (!title) return;
+              
+              const lowerTitle = title.toLowerCase();
+              const children = item.children || item.items || item.sub_items || [];
+              
+              if (lowerTitle === "menu principal" || lowerTitle === "main menu" || lowerTitle === "navegação" || lowerTitle === "principal") {
                 if (children.length > 0) {
-                  return \`<div class="has-submenu">
-                    <a href="\${link}">\${title}</a>
-                    <ul class="submenu">\${renderMenuItems(children)}</ul>
-                  </div>\`;
+                  html += renderMenuItems(children);
                 }
-                return \`<a href="\${link}">\${title}</a>\`;
-              })
-              .filter(Boolean)
-              .join('');
+                return;
+              }
+
+              const link = item.url || item.link || item.guid || '#';
+              if (children.length > 0) {
+                html += \`<div class="has-submenu">
+                  <a href="\${link}">\${title}</a>
+                  <ul class="submenu">\${renderMenuItems(children)}</ul>
+                </div>\`;
+              } else {
+                html += \`<a href="\${link}">\${title}</a>\`;
+              }
+            });
+            return html;
           }
 
           let finalItems = items;
