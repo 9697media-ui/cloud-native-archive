@@ -29,6 +29,9 @@ export default function AdminToolboxPage() {
   const [savedTemplates, setSavedTemplates] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
+  
+  // Ref para controle de debounce na detecção de URL
+  const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchTemplates();
@@ -1072,8 +1075,10 @@ export default function AdminToolboxPage() {
                               setMenuConfig({...menuConfig, testUrl: url});
                               
                               if (url && url.startsWith('http')) {
-                                // Debounce manual simplificado para detecção de endpoint
-                                const timeoutId = setTimeout(async () => {
+                                // Limpa timer anterior se existir
+                                if (debounceRef.current) clearTimeout(debounceRef.current);
+                                
+                                debounceRef.current = setTimeout(async () => {
                                   try {
                                     const origin = new URL(url).origin;
                                     const endpoints = [
@@ -1086,20 +1091,37 @@ export default function AdminToolboxPage() {
 
                                     for (const endpoint of endpoints) {
                                       try {
-                                        const testRes = await fetch(`${origin}${endpoint}`, { method: 'HEAD' });
+                                        // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
+                                        const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
                                         if (testRes.ok) {
-                                          setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
-                                          toast({
-                                            title: "Endpoint Detectado!",
-                                            description: `Encontramos uma API de menu em ${endpoint}`,
-                                          });
-                                          break;
+                                          const data = await testRes.json();
+                                          if (data && (Array.isArray(data) || typeof data === 'object')) {
+                                            setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
+                                            toast({
+                                              title: "API Detectada!",
+                                              description: `Encontramos um endpoint válido em ${endpoint}`,
+                                            });
+                                            break;
+                                          }
                                         }
-                                      } catch (e) { /* ignore individual fail */ }
+                                      } catch (e) {
+                                        // Se falhar por CORS, tentamos HEAD no-cors apenas para ver se o recurso existe
+                                        try {
+                                          const headRes = await fetch(`${origin}${endpoint}`, { method: 'HEAD', mode: 'no-cors' });
+                                          // No modo no-cors o status é sempre 0, mas se não deu erro de rede é um sinal positivo
+                                          if (headRes.type === 'opaque') {
+                                             setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
+                                             toast({
+                                              title: "API Possível!",
+                                              description: `Detectamos atividade em ${endpoint} (CORS restrito).`,
+                                            });
+                                            break;
+                                          }
+                                        } catch (innerE) {}
+                                      }
                                     }
                                   } catch (e) { /* invalid url */ }
-                                }, 1500);
-                                return () => clearTimeout(timeoutId);
+                                }, 1000);
                               }
                             }}
                           />
@@ -1220,8 +1242,22 @@ export default function AdminToolboxPage() {
                                       })).filter(i => i.label);
                                       
                                       if (detectedItems.length > 0) {
-                                        setMenuConfig(prev => ({...prev, items: detectedItems}));
-                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} links importados do preview.` });
+                                        // Substituir apenas se os itens atuais forem os padrão ou estiverem vazios
+                                        const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
+                                        if (isDefault || menuConfig.items.length === 0) {
+                                          setMenuConfig(prev => ({...prev, items: detectedItems}));
+                                          toast({ title: "Itens Detectados", description: `${detectedItems.length} links importados do preview.` });
+                                        } else {
+                                          toast({ 
+                                            title: "Preview Carregado", 
+                                            description: "Links detectados no site. Deseja substituir os atuais?",
+                                            action: (
+                                              <Button size="sm" onClick={() => setMenuConfig(prev => ({...prev, items: detectedItems}))}>
+                                                Substituir
+                                              </Button>
+                                            )
+                                          });
+                                        }
                                         break;
                                       }
                                     }
