@@ -490,13 +490,12 @@ export default function AdminToolboxPage() {
           const children = item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
 
-          const isGeneric = (lowerTitle.includes("menu") || lowerTitle.includes("principal") || 
-                           lowerTitle.includes("main") || lowerTitle.includes("navegação") || 
-                           lowerTitle.includes("navigation"));
+          const isGeneric = (lowerTitle === "menu principal" || lowerTitle === "main menu" || 
+                           lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu");
           
           if (isGeneric && children.length > 0) {
             const childrenHtml = renderItems(children);
-            if (childrenHtml && childrenHtml.trim().length > 0) {
+            if (childrenHtml) {
               html += childrenHtml;
               return;
             }
