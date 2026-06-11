@@ -490,10 +490,21 @@ export default function AdminToolboxPage() {
           const children = item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
 
+          // Se tiver apenas UM item na lista e ele tiver filhos, mergulha direto
+          if (list.length === 1 && children.length > 0) {
+            const childrenHtml = renderItems(children);
+            if (childrenHtml && childrenHtml.trim().length > 0) {
+              html += childrenHtml;
+              return;
+            }
+          }
+
           // Se tiver filhos e o link for apenas '#' ou o título for um "wrapper" conhecido, mergulha nos filhos
           const isWrapper = (link === '#' || link === '' || link.endsWith('/') || 
                             lowerTitle.includes("principal") || lowerTitle.includes("menu") || 
-                            lowerTitle === "navegação" || lowerTitle === "main menu");
+                            lowerTitle.includes("navegação") || lowerTitle.includes("main") ||
+                            lowerTitle.includes("topo") || lowerTitle.includes("header") ||
+                            lowerTitle.includes("footer") || lowerTitle.includes("rodapé"));
           
           if (children && children.length > 0 && isWrapper) {
             const childrenHtml = renderItems(children);
@@ -542,15 +553,26 @@ export default function AdminToolboxPage() {
               if (source.menu_items && Array.isArray(source.menu_items)) return source.menu_items;
               if (source.navigation && source.navigation.items) return source.navigation.items;
               if (source.data && Array.isArray(source.data)) return source.data;
+              if (source.nodes && Array.isArray(source.nodes)) return source.nodes;
+              if (source.edges && Array.isArray(source.edges)) return source.edges;
               
-              // Se for um array, verifica se o primeiro item é um "wrapper" ou se é o array direto
+              // Se for um array
               if (Array.isArray(source)) {
+                // Se o array tem 1 item e esse item tem sub-itens, mergulha
                 if (source.length === 1 && (source[0].items || source[0].children || source[0].menu_items)) {
                   return extractItems(source[0]);
                 }
                 return source;
               }
               
+              // Se for um objeto com chaves numéricas (comum em APIs PHP/WP antigas)
+              if (typeof source === 'object') {
+                const keys = Object.keys(source);
+                if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
+                  return Object.values(source);
+                }
+              }
+
               // Caso o objeto em si tenha itens/children (segunda checagem)
               const possibleItems = source.items || source.children || source.menu_items;
               if (Array.isArray(possibleItems)) return possibleItems;
@@ -596,7 +618,7 @@ export default function AdminToolboxPage() {
               }).filter(i => i && i.title);
             }
             const items = getDOMItems(container);
-            if (items.length >= 2) {
+            if (items.length >= 1) {
               const html = renderItems(items);
               if (html && html.trim().length > 5) {
                 menuContainer.innerHTML = html;
