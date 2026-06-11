@@ -490,11 +490,12 @@ export default function AdminToolboxPage() {
           const children = item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
 
-          const isGeneric = (lowerTitle === "menu principal" || lowerTitle === "main menu" || 
-                           lowerTitle === "navegação" || lowerTitle === "principal" || lowerTitle === "menu" ||
-                           lowerTitle.includes("principal") || lowerTitle.includes("menu"));
+          // Se tiver filhos e o link for apenas '#' ou o título for um "wrapper" conhecido, mergulha nos filhos
+          const isWrapper = (link === '#' || link === '' || link.endsWith('/') || 
+                            lowerTitle.includes("principal") || lowerTitle.includes("menu") || 
+                            lowerTitle === "navegação" || lowerTitle === "main menu");
           
-          if (isGeneric && children && children.length > 0) {
+          if (children && children.length > 0 && isWrapper) {
             const childrenHtml = renderItems(children);
             if (childrenHtml && childrenHtml.trim().length > 0) {
               html += childrenHtml;
@@ -533,19 +534,27 @@ export default function AdminToolboxPage() {
             function extractItems(source) {
               if (!source) return [];
               
+              console.log('Analisando fonte de dados:', source);
+
               // Se for um objeto com propriedade de itens, mergulha nela
               if (source.items && Array.isArray(source.items)) return source.items;
               if (source.children && Array.isArray(source.children)) return source.children;
               if (source.menu_items && Array.isArray(source.menu_items)) return source.menu_items;
+              if (source.navigation && source.navigation.items) return source.navigation.items;
+              if (source.data && Array.isArray(source.data)) return source.data;
               
-              // Se for um array, verifica se o primeiro item é um "wrapper"
+              // Se for um array, verifica se o primeiro item é um "wrapper" ou se é o array direto
               if (Array.isArray(source)) {
-                if (source.length === 1 && (source[0].items || source[0].children)) {
+                if (source.length === 1 && (source[0].items || source[0].children || source[0].menu_items)) {
                   return extractItems(source[0]);
                 }
                 return source;
               }
               
+              // Caso o objeto em si tenha itens/children (segunda checagem)
+              const possibleItems = source.items || source.children || source.menu_items;
+              if (Array.isArray(possibleItems)) return possibleItems;
+
               return [];
             }
 
