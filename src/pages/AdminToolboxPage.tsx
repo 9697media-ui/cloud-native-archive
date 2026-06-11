@@ -506,12 +506,12 @@ export default function AdminToolboxPage() {
 
               const link = item.url || item.link || item.guid || '#';
               if (children.length > 0) {
-                html += `<div class="has-submenu">
-                  <a href="${link}">${title}</a>
-                  <ul class="submenu">${renderMenuItems(children)}</ul>
-                </div>`;
+                html += \`<div class="has-submenu">
+                  <a href="\${link}">\${title}</a>
+                  <ul class="submenu">\${renderMenuItems(children)}</ul>
+                </div>\`;
               } else {
-                html += `<a href="${link}">${title}</a>`;
+                html += \`<a href="\${link}">\${title}</a>\`;
               }
             });
             return html;
