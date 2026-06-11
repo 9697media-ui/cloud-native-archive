@@ -520,15 +520,30 @@ export default function AdminToolboxPage() {
             const data = await response.json();
             let items = Array.isArray(data) ? data : (data.items || data.data || data.menu_items || []);
             
-            if (items.length <= 1 && items[0] && (items[0].items || items[0].children)) {
-              items = items[0].items || items[0].children;
-            } else if (items.length === 1 && items[0]) {
-               const firstItemTitle = items[0].title?.rendered || items[0].title || items[0].label || items[0].name || "";
-               const lowerFirst = firstItemTitle.toString().toLowerCase();
-               if ((lowerFirst.includes("menu") || lowerFirst.includes("principal")) && (items[0].children || items[0].items)) {
-                 items = items[0].children || items[0].items;
-               }
+            // Recursivamente busca por itens se o objeto for um wrapper (como em alguns plugins de menu do WP)
+            function findMenuItems(obj) {
+              if (Array.isArray(obj) && obj.length > 0) {
+                // Se for um array com apenas 1 item que parece ser um wrapper genérico
+                if (obj.length === 1) {
+                  const first = obj[0];
+                  const title = (first.title?.rendered || first.title || first.label || first.name || "").toString().toLowerCase();
+                  const isWrapper = title.includes("menu") || title.includes("principal") || title.includes("main") || title.includes("navigation");
+                  const potentialChildren = first.items || first.children || first.sub_items;
+                  
+                  if (isWrapper && potentialChildren && Array.isArray(potentialChildren) && potentialChildren.length > 0) {
+                    return findMenuItems(potentialChildren);
+                  }
+                }
+                return obj;
+              }
+              if (obj && typeof obj === 'object') {
+                const items = obj.items || obj.children || obj.menu_items || obj.data;
+                if (items) return findMenuItems(items);
+              }
+              return [];
             }
+
+            let items = findMenuItems(data);
 
             const htmlContent = renderItems(items);
             if (htmlContent && htmlContent.trim().length > 5) {
