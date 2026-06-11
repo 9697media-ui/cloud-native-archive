@@ -539,9 +539,9 @@ export default function AdminToolboxPage() {
              return Array.from(ul.children)
                .filter(li => li.tagName === 'LI')
                .map(li => {
-                 const link = li.querySelector(':scope > a'); // Pega apenas o link direto do LI
+                 const link = li.querySelector(':scope > a, :scope > div > a'); 
                  if (!link) return null;
-                 const subUl = li.querySelector(':scope > ul, :scope > div > ul');
+                 const subUl = li.querySelector(':scope > ul, :scope > div > ul, :scope > .sub-menu, :scope > .dropdown-menu');
                  return {
                    title: link.textContent.trim(),
                    link: link.href,
@@ -550,15 +550,22 @@ export default function AdminToolboxPage() {
                }).filter(Boolean);
           }
           
-          // Busca especificamente pela estrutura de menu do Elementor ou WordPress
-          const potentialUls = container.querySelectorAll('.elementor-nav-menu, .menu, ul');
+          // Procura pela lista principal (UL) que contém os itens
+          const potentialUls = Array.from(container.querySelectorAll('ul')).filter(ul => {
+            // Garante que é uma lista de nível superior (não está dentro de outra LI do mesmo container)
+            return !ul.parentElement.closest('li');
+          });
+
           for (const ul of potentialUls) {
-            // Verifica se é uma lista com itens e se não é uma lista pequena demais
-            if (ul.children.length > 2) {
-              foundItems = getItemsFromList(ul);
-              if (foundItems.length > 0) break;
+            if (ul.children.length >= 2) {
+              const items = getItemsFromList(ul);
+              if (items.length >= 2) {
+                foundItems = items;
+                break;
+              }
             }
           }
+          if (foundItems.length > 0) break;
         }
         if (foundItems.length > 0) break;
       }
