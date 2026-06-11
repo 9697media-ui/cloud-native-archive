@@ -174,18 +174,14 @@ export default function AdminToolboxPage() {
     let rawItems = [];
     
     // WordPress modern Navigation block (FSE)
-    // If it's an array and the first item has content.rendered, it's a Navigation Block
     if (Array.isArray(data) && data[0]?.content?.rendered) {
       const htmlContent = data[0].content.rendered;
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlContent, 'text/html');
       
-      // Look for navigation link items specifically
       const links = doc.querySelectorAll('.wp-block-navigation-item__content');
-      
       if (links.length > 0) {
         return Array.from(links).map((a: any) => {
-          // Try to get the label from the specific span if it exists, otherwise use textContent
           const labelSpan = a.querySelector('.wp-block-navigation-item__label');
           return {
             label: (labelSpan?.textContent || a.textContent || '').trim(),
@@ -194,7 +190,6 @@ export default function AdminToolboxPage() {
         }).filter(i => i.label);
       }
       
-      // Fallback: any link in the content
       const allLinks = doc.querySelectorAll('a');
       if (allLinks.length > 0) {
         return Array.from(allLinks).map((a: any) => ({
@@ -227,6 +222,30 @@ export default function AdminToolboxPage() {
       
       return { label, link };
     }).filter(i => i.label);
+  };
+
+  const fetchAndProcessWPItems = async (url: string) => {
+    if (!url || url.length < 10) return;
+    
+    try {
+      const response = await fetch(url, { method: 'GET', mode: 'cors' });
+      if (response.ok) {
+        const data = await response.json();
+        const wpItems = extractWPItems(data);
+        if (wpItems.length > 0) {
+          setMenuConfig(prev => ({
+            ...prev,
+            items: wpItems
+          }));
+          toast({
+            title: "Itens Sincronizados",
+            description: `Importamos ${wpItems.length} itens do endpoint informado.`,
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Falha ao buscar endpoint diretamente:', e);
+    }
   };
 
   const syncWithSystemMenu = () => {
@@ -1115,7 +1134,18 @@ export default function AdminToolboxPage() {
                         <Input 
                           placeholder="Ex: https://site.com/wp-json/wp/v2/menu-items"
                           value={menuConfig.wpApiUrl}
-                          onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value})}
+                          onChange={(e) => {
+                            const newUrl = e.target.value;
+                            setMenuConfig({...menuConfig, wpApiUrl: newUrl});
+                            
+                            // Gatilho automático ao colar ou digitar uma URL completa
+                            if (newUrl.startsWith('http')) {
+                              if (debounceRef.current) clearTimeout(debounceRef.current);
+                              debounceRef.current = setTimeout(() => {
+                                fetchAndProcessWPItems(newUrl);
+                              }, 800);
+                            }
+                          }}
                         />
                         <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress para sincronização em tempo real.</p>
                       </div>
@@ -1152,11 +1182,10 @@ export default function AdminToolboxPage() {
 
                                     for (const endpoint of endpoints) {
                                       try {
-                                        // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
                                         const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
                                         if (testRes.ok) {
-                                          const data = await testRes.json();
-                                          if (data && (Array.isArray(data) || typeof data === 'object')) {
+                                          const data = await testRes.ok ? await testRes.json() : null;
+                                          if (data) {
                                             const wpItems = extractWPItems(data);
                                             setMenuConfig(prev => ({
                                               ...prev, 
