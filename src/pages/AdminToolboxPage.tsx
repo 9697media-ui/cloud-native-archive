@@ -474,6 +474,8 @@ export default function AdminToolboxPage() {
         if (!Array.isArray(list)) return '';
         let html = '';
         list.forEach(item => {
+          if (!item) return;
+
           let title = '';
           if (item.title && typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
           else if (item.title && typeof item.title === 'string') title = item.title;
