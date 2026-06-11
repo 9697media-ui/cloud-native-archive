@@ -482,7 +482,9 @@ export default function AdminToolboxPage() {
             return list
               .filter(item => {
                 const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
-                return title && title !== "Menu Principal" && title !== "Main Menu";
+                if (!title) return false;
+                const lowerTitle = title.toLowerCase();
+                return !lowerTitle.includes("menu principal") && !lowerTitle.includes("main menu") && !lowerTitle.includes("menu de navegação");
               })
               .map(item => {
                 const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
@@ -500,12 +502,22 @@ export default function AdminToolboxPage() {
               .join('');
           }
 
-          let targetList = items;
-          // Ignora título genérico se for o único item ou o primeiro
-          if (items.length === 1 && (items[0].title === "Menu Principal" || items[0].name === "Menu Principal" || items[0].title?.rendered === "Menu Principal")) {
-             targetList = items[0].children || items[0].items || [];
-          } else if (items.length > 1 && (items[0].title === "Menu Principal" || items[0].name === "Menu Principal")) {
-             targetList = items.slice(1);
+          let targetList = Array.isArray(items) ? items : [];
+          // Tenta "descascar" o Menu Principal se ele for o container raiz
+          if (targetList.length === 1) {
+            const first = targetList[0];
+            const title = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
+            if (title && (title.toLowerCase().includes("menu principal") || title.toLowerCase().includes("main menu"))) {
+              targetList = first.children || first.items || targetList;
+            }
+          }
+          // Remove o primeiro item se ele for apenas o título do menu e houver outros itens
+          if (targetList.length > 1) {
+            const first = targetList[0];
+            const title = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
+            if (title && (title.toLowerCase().includes("menu principal") || title.toLowerCase().includes("main menu"))) {
+              targetList = targetList.slice(1);
+            }
           }
 
           menuContainer.innerHTML = renderMenuItems(targetList);
