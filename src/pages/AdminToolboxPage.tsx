@@ -932,7 +932,7 @@ export default function AdminToolboxPage() {
                       />
                     </div>
                   </>
-                ) : (
+                ) : activeWidgetType === 'banner' ? (
                   <>
                     <div className="space-y-2">
                       <Label>Mensagem</Label>
@@ -979,7 +979,7 @@ export default function AdminToolboxPage() {
                       />
                     </div>
                   </>
-                )}
+                ) : null}
 
                 {/* CONFIG: MENU */}
                 {activeWidgetType === 'menu' && (
