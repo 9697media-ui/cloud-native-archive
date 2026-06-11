@@ -1187,7 +1187,8 @@ export default function AdminToolboxPage() {
                   </div>
                 )}
               </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
