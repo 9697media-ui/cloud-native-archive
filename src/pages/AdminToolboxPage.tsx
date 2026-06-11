@@ -488,36 +488,74 @@ export default function AdminToolboxPage() {
     } else if (menuConfig.autoDetect) {
       fetchScript = `
     function autoDetectMenu() {
-      // Tenta encontrar o menu principal excluindo submenus comuns
-      const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '#main-menu', '.menu-primary-container'];
-      let existingNav = null;
+      console.log('Iniciando auto-detecção de menu...');
+      
+      // Lista expandida de seletores comuns de menu
+      const selectors = [
+        'nav', 
+        '.main-navigation', 
+        '.elementor-nav-menu', 
+        '.header-menu',
+        '#site-navigation',
+        '.nav-menu',
+        '.menu-primary-container',
+        'ul[class*="menu"]',
+        'div[class*="menu"] > ul'
+      ];
+      
+      let foundLinks = [];
       
       for (const selector of selectors) {
-        const found = document.querySelector(selector);
-        if (found) {
-          existingNav = found;
-          break;
+        const containers = document.querySelectorAll(selector);
+        for (const container of containers) {
+          // Busca links que não sejam submenus (mais de 1 nível de profundidade no DOM dentro do container)
+          // e que tenham texto visível
+          const links = Array.from(container.querySelectorAll('a'))
+            .filter(a => {
+              const text = a.textContent.trim();
+              const isVisible = a.offsetWidth > 0 || a.offsetHeight > 0;
+              // Evita links vazios ou ícones sozinhos
+              return text.length > 1 && isVisible;
+            });
+            
+          if (links.length > 2) {
+            // Se achamos um container com mais de 2 links, provavelmente é o menu
+            foundLinks = links;
+            console.log('Menu detectado via seletor:', selector, 'Links:', links.length);
+            break;
+          }
+        }
+        if (foundLinks.length > 0) break;
+      }
+
+      // Se não achou por seletores, tenta por links repetidos em listas
+      if (foundLinks.length === 0) {
+        const allNavs = document.querySelectorAll('ul, ol');
+        for (const nav of allNavs) {
+          const links = nav.querySelectorAll('li > a');
+          if (links.length >= 3 && links.length <= 15) {
+            foundLinks = Array.from(links);
+            console.log('Menu detectado por estrutura de lista');
+            break;
+          }
         }
       }
 
-      if (existingNav) {
-        // Pega apenas links de primeiro nível para evitar submenus repetidos
-        // Busca links que não estão dentro de submenus conhecidos (ul ul, .sub-menu, .dropdown-menu)
-        const allLinks = Array.from(existingNav.querySelectorAll('a'));
-        const topLevelLinks = allLinks.filter(a => {
-           // Verifica se o link está dentro de um elemento que sugere ser submenu
-           const isSubLink = a.closest('ul ul, .sub-menu, .dropdown-menu, .elementor-nav-menu--dropdown');
-           return !isSubLink && a.textContent.trim().length > 0;
-        }).slice(0, 10);
-
-        const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
-        if (menuContainer && topLevelLinks.length > 0) {
-          menuContainer.innerHTML = topLevelLinks.map(l => \`<a href="\${l.href}">\${l.textContent.trim()}</a>\`).join('');
-          highlightActiveLink();
-        }
+      const menuContainer = document.querySelector('.custom-nav-992 .menu-items');
+      if (menuContainer && foundLinks.length > 0) {
+        // Limpa e adiciona os detectados (limitando a 10 itens para não quebrar o layout)
+        menuContainer.innerHTML = foundLinks
+          .slice(0, 10)
+          .map(l => \`<a href="\${l.href}">\${l.textContent.trim()}</a>\`)
+          .join('');
+        highlightActiveLink();
+      } else {
+        console.warn('Auto-detecção não encontrou nenhum menu claro.');
       }
     }
-    autoDetectMenu();`;
+    
+    // Tenta detectar após um pequeno delay para garantir que o DOM do site original carregou (se estiver injetado)
+    setTimeout(autoDetectMenu, 1000);`;
     }
 
     const script = `
