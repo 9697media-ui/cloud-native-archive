@@ -342,9 +342,10 @@ export default function AdminToolboxPage() {
     box-sizing: border-box;
   }
   .custom-nav-992 .menu-items .has-submenu {
-    position: relative;
-    display: flex;
-    align-items: center;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
   }
   .custom-nav-992 .menu-items .has-submenu > a::after {
     content: "";
@@ -354,40 +355,42 @@ export default function AdminToolboxPage() {
     border-right: 4px solid transparent;
     border-top: 4px solid currentColor;
     opacity: 0.5;
+    margin-left: 4px;
   }
   .custom-nav-992 .submenu {
-    position: absolute;
-    top: 100%;
-    left: 0;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    padding: 10px 0;
-    display: none;
-    flex-direction: column;
-    min-width: 200px;
-    z-index: 1000000;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+    border-radius: 8px !important;
+    padding: 10px 0 !important;
+    display: none !important;
+    flex-direction: column !important;
+    min-width: 220px !important;
+    z-index: 9999999 !important;
     list-style: none !important;
     margin: 0 !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
   }
+  /* Força a exibição no hover do PAI */
   .custom-nav-992 .menu-items .has-submenu:hover > .submenu {
     display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
   .custom-nav-992 .submenu a {
-    padding: 10px 20px !important;
-    opacity: 0.9;
-    width: 100%;
-    border-radius: 0;
+    padding: 12px 20px !important;
+    opacity: 0.9 !important;
+    width: 100% !important;
+    border-radius: 0 !important;
     display: block !important;
+    text-align: left !important;
+    white-space: normal !important;
   }
-  .custom-nav-992 .menu-items a:hover { 
-    opacity: 1;
-    background-color: rgba(0,0,0,0.05);
-  }
-  .custom-nav-992 .menu-items a.active { 
-    opacity: 1;
-    font-weight: 700;
-    background-color: rgba(0,0,0,0.08);
+  .custom-nav-992 .submenu a:hover {
+    background-color: rgba(0,0,0,0.05) !important;
+    opacity: 1 !important;
   }
   .custom-nav-992 .mobile-toggle {
     display: none;
@@ -479,7 +482,9 @@ export default function AdminToolboxPage() {
             return list
               .filter(item => {
                 const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
-                return title && title !== "Menu Principal" && title !== "Main Menu";
+                if (!title) return false;
+                const lowerTitle = title.toLowerCase();
+                return !lowerTitle.includes("menu principal") && !lowerTitle.includes("main menu") && !lowerTitle.includes("menu de navegação");
               })
               .map(item => {
                 const title = (item.title && (typeof item.title === 'object' ? item.title.rendered : item.title)) || item.label || item.name || item.post_title;
@@ -497,12 +502,22 @@ export default function AdminToolboxPage() {
               .join('');
           }
 
-          let targetList = items;
-          // Ignora título genérico se for o único item ou o primeiro
-          if (items.length === 1 && (items[0].title === "Menu Principal" || items[0].name === "Menu Principal" || items[0].title?.rendered === "Menu Principal")) {
-             targetList = items[0].children || items[0].items || [];
-          } else if (items.length > 1 && (items[0].title === "Menu Principal" || items[0].name === "Menu Principal")) {
-             targetList = items.slice(1);
+          let targetList = Array.isArray(items) ? items : [];
+          // Tenta "descascar" o Menu Principal se ele for o container raiz
+          if (targetList.length === 1) {
+            const first = targetList[0];
+            const title = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
+            if (title && (title.toLowerCase().includes("menu principal") || title.toLowerCase().includes("main menu"))) {
+              targetList = first.children || first.items || targetList;
+            }
+          }
+          // Remove o primeiro item se ele for apenas o título do menu e houver outros itens
+          if (targetList.length > 1) {
+            const first = targetList[0];
+            const title = (first.title && (typeof first.title === 'object' ? first.title.rendered : first.title)) || first.label || first.name;
+            if (title && (title.toLowerCase().includes("menu principal") || title.toLowerCase().includes("main menu"))) {
+              targetList = targetList.slice(1);
+            }
           }
 
           menuContainer.innerHTML = renderMenuItems(targetList);
