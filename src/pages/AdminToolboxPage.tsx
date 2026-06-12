@@ -718,28 +718,34 @@ export default function AdminToolboxPage() {
           if (response.ok) {
             const data = await response.json();
             
-            function buildTree(items, parentId = 0) {
-              const childrenOf = {};
-              const pIdStr = parentId.toString();
-              items.forEach(item => {
-                const pId = (item.parent || item.menu_item_parent || 0).toString();
-                if (!childrenOf[pId]) childrenOf[pId] = [];
-                childrenOf[pId].push(item);
+            function buildTree(flatItems) {
+              const normalize = (items) => items.map(item => ({
+                id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
+                parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
+                title: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título').toString(),
+                link: item.url || item.link || item.guid || item.href || '#',
+                children: item.children || item.items || item.sub_items || []
+              }));
+
+              const normalized = normalize(flatItems);
+              const itemMap = new Map();
+              const tree = [];
+
+              normalized.forEach(item => {
+                itemMap.set(item.id, { ...item, children: [] });
               });
 
-              const processBranch = (currentPId) => {
-                if (!childrenOf[currentPId]) return [];
-                return childrenOf[currentPId].map(item => {
-                  let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
-                  const id = (item.id || item.ID || item.db_id || '').toString();
-                  return {
-                    title: title || 'Sem título',
-                    link: item.url || item.link || item.guid || item.href || '#',
-                    children: id ? processBranch(id) : []
-                  };
-                }).filter(i => i.title);
-              };
-              return processBranch(pIdStr);
+              normalized.forEach(item => {
+                const node = itemMap.get(item.id);
+                const parentNode = itemMap.get(item.parent);
+                if (item.parent !== "0" && parentNode) {
+                  parentNode.children.push(node);
+                } else {
+                  tree.push(node);
+                }
+              });
+
+              return tree.length > 0 ? tree : normalized;
             }
 
             function extractItems(source) {
@@ -767,23 +773,18 @@ export default function AdminToolboxPage() {
                   return itemsSource.flatMap(s => fromHTML(s.content.rendered));
                 }
                 
-                const isHierarchical = itemsSource.some(item => 
-                  (item.parent !== undefined && item.parent !== 0 && item.parent !== "0") || 
-                  (item.menu_item_parent !== undefined && item.menu_item_parent !== "0" && item.menu_item_parent !== 0)
+                const hasParentRefs = itemsSource.some(item => 
+                  (item.parent !== undefined && item.parent.toString() !== "0") || 
+                  (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0")
                 );
                 
-                console.log('Widget: É hierárquico?', isHierarchical);
-                if (isHierarchical) return buildTree(itemsSource);
+                if (hasParentRefs) return buildTree(itemsSource);
                 
-                return itemsSource.map(item => {
-                  let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
-                  let children = item.children || item.items || item.sub_items || [];
-                  return {
-                    title: title || 'Sem título',
-                    link: item.url || item.link || item.guid || item.href || '#',
-                    children: Array.isArray(children) && children.length > 0 ? extractItems(children) : []
-                  };
-                }).filter(i => i.title);
+                return itemsSource.map(item => ({
+                  title: item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título',
+                  link: item.url || item.link || item.guid || item.href || '#',
+                  children: Array.isArray(item.children || item.items || item.sub_items) ? extractItems(item.children || item.items || item.sub_items) : []
+                })).filter(i => i.title);
               }
               return [];
             }
