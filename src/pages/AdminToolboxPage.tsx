@@ -1579,6 +1579,7 @@ export default function AdminToolboxPage() {
                   >
                     <Terminal className="h-3 w-3 mr-1" /> Debug Dados
                   </Button>
+                </div>
 
                 {viewMode === 'preview' && (
                   <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
