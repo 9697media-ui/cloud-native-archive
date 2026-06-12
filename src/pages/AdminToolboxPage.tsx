@@ -644,13 +644,13 @@ export default function AdminToolboxPage() {
         list.forEach(item => {
           if (!item) return;
 
-          let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
+          let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || '';
           if (!title || title.trim() === '') return;
           
-          const children = item.children || item.items || item.sub_items || [];
-          const link = item.url || item.link || item.guid || item.href || '#';
+          const children = item.children || item.items || item.sub_items || item.nodes || item.edges || [];
+          const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
 
-          if (children && children.length > 0) {
+          if (Array.isArray(children) && children.length > 0) {
             html += \`<div class="has-submenu">
               <a href="\${link}">\${title}</a>
               <ul class="submenu">\${renderItems(children)}</ul>
