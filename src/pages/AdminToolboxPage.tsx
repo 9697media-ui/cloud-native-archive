@@ -945,6 +945,16 @@ export default function AdminToolboxPage() {
 </nav>
 <!-- Fim: Menu Responsivo Nativo -->`;
 
+    return css + "\n" + html + "\n" + script;
+  };
+
+  // Função utilitária para obter o código gerado
+  const getGeneratedCode = () => {
+    if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
+    if (activeWidgetType === 'banner') return generateBannerCode();
+    return generateMenuCode();
+  };
+
   return (
     <div className="container mx-auto py-10 px-4 animate-in fade-in duration-500">
       <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
