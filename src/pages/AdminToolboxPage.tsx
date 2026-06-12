@@ -644,21 +644,32 @@ export default function AdminToolboxPage() {
           const response = await fetch(wpApiUrl);
           if (response.ok) {
             const data = await response.json();
-            let items = [];
-            if (Array.isArray(data)) {
-              items = data;
-            } else if (data.items || data.children || data.menu_items || data.data) {
-              items = data.items || data.children || data.menu_items || data.data;
+            
+            function buildTree(items, parentId = 0) {
+              const tree = [];
+              const childrenOf = {};
+              items.forEach(item => {
+                const pId = item.parent || item.menu_item_parent || 0;
+                if (!childrenOf[pId]) childrenOf[pId] = [];
+                childrenOf[pId].push(item);
+              });
+              const processBranch = (pId) => {
+                if (!childrenOf[pId]) return [];
+                return childrenOf[pId].map(item => {
+                  let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
+                  return {
+                    title,
+                    link: item.url || item.link || item.guid || item.href || '#',
+                    children: processBranch(item.id || item.ID || item.db_id || '')
+                  };
+                }).filter(i => i.title);
+              };
+              return processBranch(parentId);
             }
 
-            
-            // Função para extrair itens de estruturas aninhadas do WordPress
             function extractItems(source) {
               if (!source) return [];
               
-              console.log('Analisando fonte de dados:', source);
-
-              // Helper para extrair de HTML renderizado (Gutenberg/FSE)
               function fromHTML(html) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
@@ -670,47 +681,26 @@ export default function AdminToolboxPage() {
                 })).filter(i => i.title && i.link !== '#');
               }
 
-              // Se for um array de blocos de navegação (Modern WP)
-              if (Array.isArray(source) && source[0]?.content?.rendered) {
-                const items = source.flatMap(s => fromHTML(s.content.rendered));
-                if (items.length > 0) return items;
-              }
-
-              // Se for um objeto com propriedade de itens, mergulha nela
-              if (source.items && Array.isArray(source.items)) return source.items;
-              if (source.children && Array.isArray(source.children)) return source.children;
-              if (source.menu_items && Array.isArray(source.menu_items)) return source.menu_items;
-              if (source.navigation && source.navigation.items) return source.navigation.items;
-              if (source.data && Array.isArray(source.data)) return source.data;
-              if (source.nodes && Array.isArray(source.nodes)) return source.nodes;
-              if (source.edges && Array.isArray(source.edges)) return source.edges;
-              
-              // Se for um array
-              let baseArray = [];
               if (Array.isArray(source)) {
-                // Se o array tem 1 item e esse item tem sub-itens, mergulha
-                if (source.length === 1 && (source[0].items || source[0].children || source[0].menu_items)) {
-                  return extractItems(source[0]);
+                if (source[0]?.content?.rendered) {
+                  return source.flatMap(s => fromHTML(s.content.rendered));
                 }
-                baseArray = source;
-              } else if (typeof source === 'object') {
-                // Se for um objeto com chaves numéricas
-                const keys = Object.keys(source);
-                if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
-                  baseArray = Object.values(source);
-                }
+                const isHierarchical = source.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+                if (isHierarchical) return buildTree(source);
+                return source;
               }
 
-              // Se o array resultante contém objetos com HTML renderizado (menus sem links diretos)
-              if (baseArray.length > 0 && !baseArray[0].url && !baseArray[0].link && baseArray[0].content?.rendered) {
-                 const dived = baseArray.flatMap(item => fromHTML(item.content.rendered));
-                 if (dived.length > 0) return dived;
+              const sub = source.items || source.children || source.menu_items || source.data || source.nodes;
+              if (Array.isArray(sub)) {
+                const isHierarchical = sub.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+                if (isHierarchical) return buildTree(sub);
+                return sub;
               }
 
-              return baseArray;
+              return Array.isArray(source) ? source : Object.values(source).filter(v => typeof v === 'object');
             }
 
-            items = extractItems(data);
+            const items = extractItems(data);
 
 
             const htmlContent = renderItems(items);
