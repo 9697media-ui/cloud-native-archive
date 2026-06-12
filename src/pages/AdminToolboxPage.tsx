@@ -1345,13 +1345,13 @@ export default function AdminToolboxPage() {
                                 
                                 debounceRef.current = setTimeout(async () => {
                                   try {
-                                    const origin = new URL(url).origin;
                                     const endpoints = [
                                       '/wp-json/wp/v2/navigation',
                                       '/wp-json/wp/v2/menu-items',
                                       '/wp-json/menus/v1/menus',
                                       '/wp-json/menus/v1/locations/primary',
-                                      '/wp-json/wp/v2/pages'
+                                      '/wp-json/wp/v2/pages',
+                                      '/wp-json/wp/v2/posts'
                                     ];
 
                                     for (const endpoint of endpoints) {
