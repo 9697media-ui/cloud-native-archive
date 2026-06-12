@@ -233,37 +233,41 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
-    const buildTree = (items: any[], parentId: number | string = 0) => {
-      const childrenOf: {[key: string]: any[]} = {};
-      const pIdStr = parentId.toString();
+    // Normalização resiliente de itens do WP
+    const normalizeItems = (items: any[]) => {
+      return items.map(item => ({
+        id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
+        parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
+        label: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título').toString(),
+        link: item.url || item.link || item.guid || item.href || '#',
+        children: item.children || item.items || item.sub_items || []
+      }));
+    };
 
-      items.forEach(item => {
-        const pId = (item.parent || item.menu_item_parent || 0).toString();
-        if (!childrenOf[pId]) childrenOf[pId] = [];
-        childrenOf[pId].push(item);
+    const buildTree = (flatItems: any[]) => {
+      const normalized = normalizeItems(flatItems);
+      const itemMap = new Map();
+      const tree: any[] = [];
+
+      // Primeiro pass: mapeia todos
+      normalized.forEach(item => {
+        itemMap.set(item.id, { ...item, children: [] });
       });
 
-      const processBranch = (currentPId: string) => {
-        if (!childrenOf[currentPId]) return [];
-        return childrenOf[currentPId].map(item => {
-          let label = '';
-          if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
-          else if (item.title && typeof item.title === 'string') label = item.title;
-          else if (item.label) label = item.label;
-          else if (item.name) label = item.name;
-          else if (item.post_title) label = item.post_title;
-          else if (item.text) label = item.text;
+      // Segundo pass: organiza hierarquia
+      normalized.forEach(item => {
+        const node = itemMap.get(item.id);
+        const parentNode = itemMap.get(item.parent);
+        
+        if (item.parent !== "0" && parentNode) {
+          parentNode.children.push(node);
+        } else {
+          tree.push(node);
+        }
+      });
 
-          const id = (item.id || item.ID || item.db_id || '').toString();
-          return {
-            label: label || 'Sem título',
-            link: item.url || item.link || item.guid || item.href || '#',
-            children: id ? processBranch(id) : []
-          };
-        }).filter(i => i.label);
-      };
-
-      return processBranch(pIdStr);
+      // Se a árvore ficou vazia mas temos itens, algo falhou na detecção de parentesco; retorna flat
+      return tree.length > 0 ? tree : normalized;
     };
 
     const fromHTML = (html: string) => {
@@ -288,22 +292,19 @@ export default function AdminToolboxPage() {
         return itemsSource.flatMap(item => fromHTML(item.content.rendered));
       }
       
-      const isHierarchical = itemsSource.some(item => {
-        const pId = item.parent || item.menu_item_parent;
-        return pId !== undefined && pId.toString() !== "0" && pId !== 0;
-      });
+      // Tenta reconstruir árvore se parecer flat
+      const hasParentRefs = itemsSource.some(item => 
+        (item.parent !== undefined && item.parent.toString() !== "0") || 
+        (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0")
+      );
+
+      if (hasParentRefs) return buildTree(itemsSource);
       
-      if (isHierarchical) return buildTree(itemsSource);
-      
-      return itemsSource.map((item: any) => {
-        let label = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
-        let children = item.children || item.items || item.sub_items || [];
-        return {
-          label: label || 'Sem título',
-          link: item.url || item.link || item.guid || item.href || '#',
-          children: Array.isArray(children) && children.length > 0 ? extractWPItems(children) : []
-        };
-      }).filter(i => i.label);
+      // Fallback: recursão simples para dados já aninhados
+      return normalizeItems(itemsSource).map(item => ({
+        ...item,
+        children: Array.isArray(item.children) && item.children.length > 0 ? extractWPItems(item.children) : []
+      })).filter(i => i.label);
     }
 
     return [];
@@ -717,28 +718,34 @@ export default function AdminToolboxPage() {
           if (response.ok) {
             const data = await response.json();
             
-            function buildTree(items, parentId = 0) {
-              const childrenOf = {};
-              const pIdStr = parentId.toString();
-              items.forEach(item => {
-                const pId = (item.parent || item.menu_item_parent || 0).toString();
-                if (!childrenOf[pId]) childrenOf[pId] = [];
-                childrenOf[pId].push(item);
+            function buildTree(flatItems) {
+              const normalize = (items) => items.map(item => ({
+                id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
+                parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
+                title: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título').toString(),
+                link: item.url || item.link || item.guid || item.href || '#',
+                children: item.children || item.items || item.sub_items || []
+              }));
+
+              const normalized = normalize(flatItems);
+              const itemMap = new Map();
+              const tree = [];
+
+              normalized.forEach(item => {
+                itemMap.set(item.id, { ...item, children: [] });
               });
 
-              const processBranch = (currentPId) => {
-                if (!childrenOf[currentPId]) return [];
-                return childrenOf[currentPId].map(item => {
-                  let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
-                  const id = (item.id || item.ID || item.db_id || '').toString();
-                  return {
-                    title: title || 'Sem título',
-                    link: item.url || item.link || item.guid || item.href || '#',
-                    children: id ? processBranch(id) : []
-                  };
-                }).filter(i => i.title);
-              };
-              return processBranch(pIdStr);
+              normalized.forEach(item => {
+                const node = itemMap.get(item.id);
+                const parentNode = itemMap.get(item.parent);
+                if (item.parent !== "0" && parentNode) {
+                  parentNode.children.push(node);
+                } else {
+                  tree.push(node);
+                }
+              });
+
+              return tree.length > 0 ? tree : normalized;
             }
 
             function extractItems(source) {
@@ -766,23 +773,18 @@ export default function AdminToolboxPage() {
                   return itemsSource.flatMap(s => fromHTML(s.content.rendered));
                 }
                 
-                const isHierarchical = itemsSource.some(item => 
-                  (item.parent !== undefined && item.parent !== 0 && item.parent !== "0") || 
-                  (item.menu_item_parent !== undefined && item.menu_item_parent !== "0" && item.menu_item_parent !== 0)
+                const hasParentRefs = itemsSource.some(item => 
+                  (item.parent !== undefined && item.parent.toString() !== "0") || 
+                  (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0")
                 );
                 
-                console.log('Widget: É hierárquico?', isHierarchical);
-                if (isHierarchical) return buildTree(itemsSource);
+                if (hasParentRefs) return buildTree(itemsSource);
                 
-                return itemsSource.map(item => {
-                  let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
-                  let children = item.children || item.items || item.sub_items || [];
-                  return {
-                    title: title || 'Sem título',
-                    link: item.url || item.link || item.guid || item.href || '#',
-                    children: Array.isArray(children) && children.length > 0 ? extractItems(children) : []
-                  };
-                }).filter(i => i.title);
+                return itemsSource.map(item => ({
+                  title: item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título',
+                  link: item.url || item.link || item.guid || item.href || '#',
+                  children: Array.isArray(item.children || item.items || item.sub_items) ? extractItems(item.children || item.items || item.sub_items) : []
+                })).filter(i => i.title);
               }
               return [];
             }
