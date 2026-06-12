@@ -940,15 +940,6 @@ export default function AdminToolboxPage() {
   window.addEventListener('popstate', highlightActiveLink);
 </script>`;
 
-    const html = `
-<!-- Início: Menu Responsivo Nativo -->
-<nav class="custom-nav-992">
-  <div class="logo">
-    <a href="/"><img src="${menuConfig.logoUrl}" alt="Logo"></a>
-  </div>
-  <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
-    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-  </button>
     const renderMenuLevel = (items: any[]) => {
       if (!items || items.length === 0) return '';
       return items.map((item: any) => {
