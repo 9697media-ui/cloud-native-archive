@@ -444,10 +444,16 @@ export default function AdminToolboxPage() {
     object-fit: contain;
     display: block;
   }
-  .custom-nav-992 .menu-items {
-    display: flex;
-    gap: 5px;
-    align-items: center;
+  .custom-nav-992 ul.menu-items {
+    display: flex !important;
+    gap: 5px !important;
+    align-items: center !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .custom-nav-992 li {
+    position: relative !important;
     list-style: none !important;
     margin: 0 !important;
     padding: 0 !important;
