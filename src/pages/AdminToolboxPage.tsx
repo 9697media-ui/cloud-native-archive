@@ -728,10 +728,11 @@ export default function AdminToolboxPage() {
                 if (!childrenOf[pId]) return [];
                 return childrenOf[pId].map(item => {
                   let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
+                  const id = item.id || item.ID || item.db_id || '';
                   return {
                     title: title || 'Sem título',
                     link: item.url || item.link || item.guid || item.href || '#',
-                    children: processBranch(item.id || item.ID || item.db_id || '')
+                    children: processBranch(id)
                   };
                 }).filter(i => i.title);
               };
@@ -761,7 +762,10 @@ export default function AdminToolboxPage() {
                 if (itemsSource[0]?.content?.rendered) {
                   return itemsSource.flatMap(s => fromHTML(s.content.rendered));
                 }
-                const isHierarchical = itemsSource.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+                const isHierarchical = itemsSource.some(item => 
+                  (item.parent !== undefined && item.parent !== 0) || 
+                  (item.menu_item_parent !== undefined && item.menu_item_parent !== "0" && item.menu_item_parent !== 0)
+                );
                 if (isHierarchical) return buildTree(itemsSource);
                 
                 return itemsSource.map(item => ({
