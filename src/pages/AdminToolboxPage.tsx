@@ -471,6 +471,8 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative !important;
+    display: flex !important;
+    align-items: center !important;
   }
   .custom-nav-992 .menu-items .has-submenu > a::after {
     content: "";
@@ -480,6 +482,7 @@ export default function AdminToolboxPage() {
     border-right: 4px solid transparent;
     border-top: 4px solid currentColor;
     opacity: 0.5;
+    margin-left: 6px;
     transition: transform 0.2s ease;
   }
   .custom-nav-992 .submenu {
@@ -491,7 +494,7 @@ export default function AdminToolboxPage() {
     border-radius: 10px !important;
     padding: 8px 0 !important;
     display: none !important;
-    flex-direction: column !important;
+    flex-direction: column !important; /* FORÇA EMPILHAMENTO VERTICAL */
     min-width: 220px !important;
     z-index: 9999999 !important;
     list-style: none !important;
@@ -504,9 +507,9 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .has-submenu:hover > .submenu {
     display: flex !important;
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
   }
   .custom-nav-992 .has-submenu:hover > a::after {
     transform: rotate(180deg);
@@ -516,13 +519,13 @@ export default function AdminToolboxPage() {
     opacity: 0.9 !important;
     width: 100% !important;
     border-radius: 0 !important;
-    display: flex !important;
+    display: block !important; /* GARANTE QUE CADA ITEM OCUPE UMA LINHA */
     text-align: left !important;
-    white-space: normal !important;
+    white-space: nowrap !important;
     font-size: 14px !important;
-    border-bottom: 1px solid rgba(0,0,0,0.03);
+    border-bottom: 1px solid rgba(0,0,0,0.03) !important;
   }
-  .custom-nav-992 .submenu a:last-child { border-bottom: none; }
+  .custom-nav-992 .submenu a:last-child { border-bottom: none !important; }
   .custom-nav-992 .submenu a:hover {
     background-color: rgba(0,0,0,0.04) !important;
     opacity: 1 !important;
@@ -641,13 +644,13 @@ export default function AdminToolboxPage() {
         list.forEach(item => {
           if (!item) return;
 
-          let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
+          let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || '';
           if (!title || title.trim() === '') return;
           
-          const children = item.children || item.items || item.sub_items || [];
-          const link = item.url || item.link || item.guid || item.href || '#';
+          const children = item.children || item.items || item.sub_items || item.nodes || item.edges || [];
+          const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
 
-          if (children && children.length > 0) {
+          if (Array.isArray(children) && children.length > 0) {
             html += \`<div class="has-submenu">
               <a href="\${link}">\${title}</a>
               <ul class="submenu">\${renderItems(children)}</ul>
@@ -904,6 +907,26 @@ export default function AdminToolboxPage() {
       }).join('\n');
     }
 
+    const renderUniversalMenu = (items: any[]) => {
+      if (!Array.isArray(items) || items.length === 0) return '';
+      return items.map((item: any) => {
+        const label = item.label || item.title || 'Sem título';
+        const link = item.link || item.url || '#';
+        const children = item.children || item.items || [];
+        const hasChildren = Array.isArray(children) && children.length > 0;
+
+        if (hasChildren) {
+          return `<div class="has-submenu">
+            <a href="${link}">${label}</a>
+            <ul class="submenu">
+              ${renderUniversalMenu(children)}
+            </ul>
+          </div>`;
+        }
+        return `<a href="${link}">${label}</a>`;
+      }).join('\n');
+    };
+
     const html = `
 <!-- Início: Menu Responsivo Nativo -->
 <nav class="custom-nav-992">
@@ -915,8 +938,8 @@ export default function AdminToolboxPage() {
   </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
-      ? renderHierarchicalItems(menuConfig.items) // Force correct function call
-      : '<!-- Aguardando carregamento... -->'
+      ? renderUniversalMenu(menuConfig.items)
+      : '<!-- Sem itens para exibir -->'
     }
   </div>
 </nav>
@@ -924,7 +947,6 @@ export default function AdminToolboxPage() {
 
     return css + "\n" + html + "\n" + script;
   };
-
 
   // Função utilitária para obter o código gerado
   const getGeneratedCode = () => {
