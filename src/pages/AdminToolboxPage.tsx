@@ -471,6 +471,8 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative !important;
+    display: flex !important;
+    align-items: center !important;
   }
   .custom-nav-992 .menu-items .has-submenu > a::after {
     content: "";
@@ -480,6 +482,7 @@ export default function AdminToolboxPage() {
     border-right: 4px solid transparent;
     border-top: 4px solid currentColor;
     opacity: 0.5;
+    margin-left: 6px;
     transition: transform 0.2s ease;
   }
   .custom-nav-992 .submenu {
@@ -491,7 +494,7 @@ export default function AdminToolboxPage() {
     border-radius: 10px !important;
     padding: 8px 0 !important;
     display: none !important;
-    flex-direction: column !important;
+    flex-direction: column !important; /* FORÇA EMPILHAMENTO VERTICAL */
     min-width: 220px !important;
     z-index: 9999999 !important;
     list-style: none !important;
@@ -504,9 +507,9 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .has-submenu:hover > .submenu {
     display: flex !important;
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
   }
   .custom-nav-992 .has-submenu:hover > a::after {
     transform: rotate(180deg);
@@ -516,13 +519,13 @@ export default function AdminToolboxPage() {
     opacity: 0.9 !important;
     width: 100% !important;
     border-radius: 0 !important;
-    display: flex !important;
+    display: block !important; /* GARANTE QUE CADA ITEM OCUPE UMA LINHA */
     text-align: left !important;
-    white-space: normal !important;
+    white-space: nowrap !important;
     font-size: 14px !important;
-    border-bottom: 1px solid rgba(0,0,0,0.03);
+    border-bottom: 1px solid rgba(0,0,0,0.03) !important;
   }
-  .custom-nav-992 .submenu a:last-child { border-bottom: none; }
+  .custom-nav-992 .submenu a:last-child { border-bottom: none !important; }
   .custom-nav-992 .submenu a:hover {
     background-color: rgba(0,0,0,0.04) !important;
     opacity: 1 !important;
