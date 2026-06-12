@@ -1254,38 +1254,22 @@ export default function AdminToolboxPage() {
                         />
                       </div>
                     </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1 gap-2"
-                          onClick={() => {
-                            const sysItems = navItems.filter(i => !i.hidden).map(item => ({
-                              label: item.label,
-                              link: item.to,
-                              children: []
-                            }));
-                            setMenuConfig({...menuConfig, items: sysItems});
-                            toast({ title: "Sincronizado", description: "Carregada estrutura de navegação do sistema administrativo." });
-                          }}
-                        >
-                          <LayoutDashboard className="h-3 w-3" /> Usar Navegação do Sistema
-                        </Button>
-                        <Button 
-                          variant="secondary" 
-                          size="sm" 
-                          className="flex-1 gap-2"
-                          onClick={() => {
-                            const frame = document.querySelector('iframe[title="Site Preview"]') as HTMLIFrameElement;
-                            if (frame) {
-                              frame.src = frame.src;
-                              toast({ title: "Sincronizando...", description: "Refazendo varredura visual do site." });
-                            }
-                          }}
-                        >
-                          <RefreshCw className="h-3 w-3" /> Forçar Varredura Visual
-                        </Button>
-                      </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="flex-1 gap-2"
+                        onClick={() => {
+                          const frame = document.querySelector('iframe[title="Site Preview"]') as HTMLIFrameElement;
+                          if (frame) {
+                            frame.src = frame.src; // Força recarregamento e nova detecção
+                            toast({ title: "Sincronizando...", description: "Refazendo varredura visual do site." });
+                          }
+                        }}
+                      >
+                        <RefreshCw className="h-3 w-3" /> Forçar Varredura Visual
+                      </Button>
+                    </div>
 
                     <div className="flex items-center justify-between border-t pt-4">
                       <Label htmlFor="sticky">Menu Fixo (Sticky)</Label>
@@ -1552,7 +1536,7 @@ export default function AdminToolboxPage() {
           <div className="lg:col-span-8 flex flex-col gap-6 relative">
             <div className="sticky top-24 space-y-6">
               <Card className="overflow-hidden flex flex-col min-h-[600px]">
-                <div className="border-b bg-muted/30 px-6 py-3 flex items-center justify-between shrink-0">
+              <div className="border-b bg-muted/30 px-6 py-3 flex items-center justify-between shrink-0">
                 <Tabs value={viewMode} onValueChange={setViewMode} className="w-auto">
                   <TabsList>
                     <TabsTrigger value="preview" className="gap-2">
@@ -1563,23 +1547,6 @@ export default function AdminToolboxPage() {
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 text-[10px] uppercase font-bold text-muted-foreground hover:text-primary"
-                    onClick={() => {
-                      console.log("DEBUG: Estrutura atual do menu:", JSON.stringify(menuConfig.items, null, 2));
-                      toast({ 
-                        title: "Debug Enviado ao Console", 
-                        description: "Abra o Inspecionar (F12) para ver a estrutura técnica do menu." 
-                      });
-                    }}
-                  >
-                    <Terminal className="h-3 w-3 mr-1" /> Debug Dados
-                  </Button>
-                </div>
 
                 {viewMode === 'preview' && (
                   <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
