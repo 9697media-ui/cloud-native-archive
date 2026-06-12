@@ -168,7 +168,7 @@ export default function AdminToolboxPage() {
     testUrl: ''
   });
 
-  const extractWPItems = (data: any): { label: string, link: string }[] = {
+  const extractWPItems = (data: any): { label: string, link: string }[] => {
     if (!data) return [];
     
     console.log('Extraindo itens do WordPress:', data);
