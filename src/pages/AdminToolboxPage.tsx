@@ -651,12 +651,12 @@ export default function AdminToolboxPage() {
           const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
 
           if (Array.isArray(children) && children.length > 0) {
-            html += \`<div class="has-submenu">
+            html += \`<li class="has-submenu">
               <a href="\${link}">\${title}</a>
               <ul class="submenu">\${renderItems(children)}</ul>
-            </div>\`;
+            </li>\`;
           } else {
-            html += \`<a href="\${link}">\${title}</a>\`;
+            html += \`<li><a href="\${link}">\${title}</a></li>\`;
           }
         });
         return html;
