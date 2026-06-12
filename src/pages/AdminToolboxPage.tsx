@@ -134,6 +134,67 @@ export default function AdminToolboxPage() {
   };
 
 
+  const WIDGET_DEMOS = {
+    whatsapp: {
+      phone: '5511999999999',
+      text: 'Fale com nosso suporte',
+      bgColor: '#25D366',
+      textColor: '#ffffff',
+      position: 'right',
+      borderRadius: '50'
+    },
+    banner: {
+      message: '🚀 Nova funcionalidade de submenus liberada! Confira agora.',
+      bgColor: '#4f46e5',
+      textColor: '#ffffff',
+      link: '#',
+      isDismissible: true
+    },
+    menu: {
+      logoUrl: 'https://anabrasil.org/logo.png',
+      bgColor: '#ffffff',
+      textColor: '#1f2937',
+      items: [
+        { label: 'Início', link: '#' },
+        { 
+          label: 'Serviços', 
+          link: '#', 
+          children: [
+            { label: 'Consultoria Especializada', link: '#' },
+            { label: 'Desenvolvimento Web', link: '#' },
+            { label: 'Marketing Digital', link: '#' }
+          ] 
+        },
+        { 
+          label: 'Soluções', 
+          link: '#', 
+          children: [
+            { label: 'Sistemas ERP', link: '#' },
+            { label: 'Aplicativos Mobile', link: '#' }
+          ] 
+        },
+        { label: 'Sobre Nós', link: '#' }
+      ],
+      sticky: true,
+      enableAutoDetect: false,
+      enableWpApi: false,
+      wpApiUrl: '',
+      testUrl: ''
+    }
+  };
+
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu') => {
+    setActiveWidgetType(type);
+    if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
+    else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
+    else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
+    
+    toast({
+      title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
+      description: "Você já pode ver o resultado no preview ao lado.",
+    });
+  };
+
   // Estados de configuração dos widgets
   const [whatsappConfig, setWhatsappConfig] = useState({
     phone: '5511999999999',
@@ -945,6 +1006,11 @@ export default function AdminToolboxPage() {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Construtor de Widgets Externos</h1>
               <p className="text-muted-foreground">Crie ferramentas para usar em sites de terceiros (WordPress, Elementor, etc).</p>
+              <div className="flex gap-2 mt-2">
+                <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold" onClick={() => loadDemo('whatsapp')}>Demo Whats</Button>
+                <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold" onClick={() => loadDemo('banner')}>Demo Banner</Button>
+                <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold border-primary/40 text-primary" onClick={() => loadDemo('menu')}>Demo Menu c/ Submenu</Button>
+              </div>
 
             </div>
           </div>
@@ -1633,7 +1699,7 @@ export default function AdminToolboxPage() {
                     <div className="absolute inset-0 pointer-events-none z-[1000000]">
                        <div 
                          className="relative w-full h-full pointer-events-auto" 
-                         key={getGeneratedCode().length} // Force re-render when code changes
+                         key={activeWidgetType + getGeneratedCode().length} // Force re-render when widget type or code changes
                          dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
                        />
                     </div>
