@@ -864,7 +864,17 @@ export default function AdminToolboxPage() {
   </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
-      ? menuConfig.items.map(item => `<a href="${item.link}">${item.label}</a>`).join('\n    ')
+      ? menuConfig.items.map((item: any) => {
+          if (item.children && item.children.length > 0) {
+            return `<div class="has-submenu">
+              <a href="${item.link}">${item.label}</a>
+              <ul class="submenu">
+                ${item.children.map((child: any) => `<a href="${child.link}">${child.label}</a>`).join('\n                ')}
+              </ul>
+            </div>`;
+          }
+          return `<a href="${item.link}">${item.label}</a>`;
+        }).join('\n    ')
       : '<!-- Aguardando carregamento... -->'
     }
   </div>
