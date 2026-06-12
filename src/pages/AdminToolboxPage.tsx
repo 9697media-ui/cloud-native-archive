@@ -1348,7 +1348,10 @@ export default function AdminToolboxPage() {
                                         if (testRes.ok) {
                                           const data = await testRes.json();
                                           if (data && (Array.isArray(data) || typeof data === 'object')) {
+                                            console.log('Dados detectados via API:', data);
                                             const wpItems = extractWPItems(data);
+                                            console.log('Itens extraídos (hierárquicos):', wpItems);
+                                            
                                             setMenuConfig(prev => ({
                                               ...prev, 
                                               wpApiUrl: `${origin}${endpoint}`,
