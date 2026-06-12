@@ -940,6 +940,21 @@ export default function AdminToolboxPage() {
   window.addEventListener('popstate', highlightActiveLink);
 </script>`;
 
+    const renderMenuLevel = (items: any[]) => {
+      if (!items || items.length === 0) return '';
+      return items.map((item: any) => {
+        if (item.children && item.children.length > 0) {
+          return `<div class="has-submenu">
+            <a href="${item.link}">${item.label}</a>
+            <ul class="submenu">
+              ${renderMenuLevel(item.children)}
+            </ul>
+          </div>`;
+        }
+        return `<a href="${item.link}">${item.label}</a>`;
+      }).join('\n    ');
+    };
+
     const html = `
 <!-- Início: Menu Responsivo Nativo -->
 <nav class="custom-nav-992">
@@ -951,17 +966,7 @@ export default function AdminToolboxPage() {
   </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
-      ? menuConfig.items.map((item: any) => {
-          if (item.children && item.children.length > 0) {
-            return `<div class="has-submenu">
-              <a href="${item.link}">${item.label}</a>
-              <ul class="submenu">
-                ${item.children.map((child: any) => `<a href="${child.link}">${child.label}</a>`).join('\n                ')}
-              </ul>
-            </div>`;
-          }
-          return `<a href="${item.link}">${item.label}</a>`;
-        }).join('\n    ')
+      ? renderMenuLevel(menuConfig.items)
       : '<!-- Aguardando carregamento... -->'
     }
   </div>
@@ -1529,7 +1534,7 @@ export default function AdminToolboxPage() {
                         className="w-full"
                         onClick={() => setMenuConfig({
                           ...menuConfig, 
-                          items: [...menuConfig.items, { label: 'Novo Item', link: '#', children: [] }]
+                          items: [...menuConfig.items, { label: 'Novo Item Manual', link: '#', children: [] }]
                         })}
                       >
                         + Adicionar Item Manual
@@ -1596,21 +1601,23 @@ export default function AdminToolboxPage() {
                               const frame = e.currentTarget;
                               const doc = frame.contentDocument || frame.contentWindow?.document;
                               if (doc) {
-                                const selectors = [
-                                  'nav', 
-                                  '.main-navigation', 
-                                  '.elementor-nav-menu', 
-                                  '.header-menu', 
-                                  '#site-navigation', 
-                                  'ul[class*="menu"]', 
-                                  '.wp-block-navigation',
-                                  '.navbar',
-                                  '.nav-menu',
-                                  '.navigation',
-                                  '[role="navigation"]',
-                                  'header .links',
-                                  '.header__nav'
-                                ];
+                                  const selectors = [
+                                    'nav', 
+                                    '.main-navigation', 
+                                    '.elementor-nav-menu', 
+                                    '.header-menu', 
+                                    '#site-navigation', 
+                                    'ul[class*="menu"]', 
+                                    '.wp-block-navigation',
+                                    '.navbar',
+                                    '.nav-menu',
+                                    '.navigation',
+                                    '[role="navigation"]',
+                                    'header .links',
+                                    '.header__nav',
+                                    '#header-menu',
+                                    '.menu-primary-container'
+                                  ];
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
@@ -1619,8 +1626,14 @@ export default function AdminToolboxPage() {
                                       // Buscar apenas os LIs diretos deste nível para evitar confusão hierárquica
                                       const listItems = Array.from(el.children).filter(child => child.tagName === 'LI');
                                       
+                                      if (listItems.length === 0 && (el.tagName === 'NAV' || el.tagName === 'DIV')) {
+                                        // Se for um container e não tem LIs imediatos, procura o UL dentro dele
+                                        const nestedUl = el.querySelector('ul');
+                                        if (nestedUl) return getDOMItems(nestedUl);
+                                      }
+
                                       if (listItems.length === 0) {
-                                        // Se não há LIs, tenta buscar links diretos (fallback para menus simples)
+                                        // Se ainda não há LIs, tenta buscar links diretos (fallback para menus simples)
                                         return Array.from(el.querySelectorAll('a'))
                                           .filter(a => (a as HTMLElement).innerText.trim().length > 0)
                                           .slice(0, 10)
@@ -1634,6 +1647,7 @@ export default function AdminToolboxPage() {
                                       listItems.forEach(li => {
                                         const link = li.querySelector('a');
                                         if (link && (link as HTMLElement).innerText.trim().length > 0) {
+                                          // Procurar submenus dentro deste LI
                                           const subMenu = li.querySelector('ul, [class*="sub-menu"], [class*="dropdown"]');
                                           items.push({
                                             label: (link as HTMLElement).innerText.trim(),
@@ -1647,15 +1661,15 @@ export default function AdminToolboxPage() {
 
                                     const detectedItems = getDOMItems(nav);
                                     
-                                    if (detectedItems.length > 2) {
+                                    if (detectedItems.length >= 2) {
                                       const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
                                       if (isDefault || menuConfig.items.length === 0) {
                                         setMenuConfig(prev => ({...prev, items: detectedItems}));
-                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} itens (com submenus) importados do preview.` });
+                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} itens (com submenus) importados.` });
                                       } else {
                                         toast({ 
-                                          title: "Preview Carregado", 
-                                          description: "Estrutura de menu detectada. Deseja substituir os atuais?",
+                                          title: "Menu Detectado", 
+                                          description: "Estrutura encontrada. Deseja substituir?",
                                           action: (
                                             <Button size="sm" onClick={() => setMenuConfig(prev => ({...prev, items: detectedItems}))}>
                                               Substituir
@@ -1708,7 +1722,7 @@ export default function AdminToolboxPage() {
                     <div className="absolute inset-0 pointer-events-none z-[1000000]">
                        <div 
                          className="relative w-full h-full pointer-events-auto" 
-                         key={activeWidgetType + getGeneratedCode().length} // Force re-render when widget type or code changes
+                         key={activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length} // Force re-render on structure changes
                          dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
                        />
                     </div>
