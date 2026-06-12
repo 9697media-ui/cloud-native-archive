@@ -907,6 +907,26 @@ export default function AdminToolboxPage() {
       }).join('\n');
     }
 
+    const renderUniversalMenu = (items: any[]) => {
+      if (!Array.isArray(items) || items.length === 0) return '';
+      return items.map((item: any) => {
+        const label = item.label || item.title || 'Sem título';
+        const link = item.link || item.url || '#';
+        const children = item.children || item.items || [];
+        const hasChildren = Array.isArray(children) && children.length > 0;
+
+        if (hasChildren) {
+          return `<div class="has-submenu">
+            <a href="${link}">${label}</a>
+            <ul class="submenu">
+              ${renderUniversalMenu(children)}
+            </ul>
+          </div>`;
+        }
+        return `<a href="${link}">${label}</a>`;
+      }).join('\n');
+    };
+
     const html = `
 <!-- Início: Menu Responsivo Nativo -->
 <nav class="custom-nav-992">
@@ -918,23 +938,12 @@ export default function AdminToolboxPage() {
   </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
-      ? renderHierarchicalItems(menuConfig.items) // Force correct function call
+      ? renderUniversalMenu(menuConfig.items)
       : '<!-- Aguardando carregamento... -->'
     }
   </div>
 </nav>
 <!-- Fim: Menu Responsivo Nativo -->`;
-
-    return css + "\n" + html + "\n" + script;
-  };
-
-
-  // Função utilitária para obter o código gerado
-  const getGeneratedCode = () => {
-    if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
-    if (activeWidgetType === 'banner') return generateBannerCode();
-    return generateMenuCode();
-  };
 
   return (
     <div className="container mx-auto py-10 px-4 animate-in fade-in duration-500">
