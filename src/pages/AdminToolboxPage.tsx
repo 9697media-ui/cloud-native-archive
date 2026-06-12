@@ -192,6 +192,7 @@ export default function AdminToolboxPage() {
     };
 
     if (Array.isArray(data) && data[0]?.content?.rendered) {
+      // Se for uma lista de posts/páginas mas tiver conteúdo gutenberg, tenta extrair
       const items = extractFromGutenberg(data[0].content.rendered);
       if (items.length > 0) return items;
     }
@@ -206,7 +207,6 @@ export default function AdminToolboxPage() {
         data.menu_items, 
         data.data, 
         data.navigation_items,
-        // WordPress menu API plugin (WP-REST-API V2 Menus)
         data.items && Array.isArray(data.items) ? data.items : null
       ].filter(Boolean);
       
@@ -221,6 +221,8 @@ export default function AdminToolboxPage() {
 
     return rawItems.map((item: any) => {
       let label = '';
+      
+      // Tenta extrair o label de várias formas comuns na API do WP
       if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
       else if (item.title && typeof item.title === 'string') label = item.title;
       else if (item.label) label = item.label;
@@ -232,7 +234,9 @@ export default function AdminToolboxPage() {
          if (extracted.length > 0) return extracted[0];
       }
 
+      // Se for um nav_menu_item, o link costuma estar em item.url ou item.link
       const link = item.url || item.link || item.guid || item.href || item.permalink || '#';
+      
       return { label, link };
     }).flat().filter((i: any) => i && i.label);
   };
@@ -1127,6 +1131,7 @@ export default function AdminToolboxPage() {
                                     const endpoints = [
                                       '/wp-json/wp/v2/navigation',
                                       '/wp-json/wp/v2/menu-items',
+                                      '/wp-json/wp/v2/posts?type=nav_menu_item',
                                       '/wp-json/menus/v1/menus',
                                       '/wp-json/menus/v1/locations/primary',
                                       '/wp-json/wp/v2/pages'
