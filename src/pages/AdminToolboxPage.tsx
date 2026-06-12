@@ -741,6 +741,7 @@ export default function AdminToolboxPage() {
 
             function extractItems(source) {
               if (!source) return [];
+              console.log('Widget: Analisando fonte de dados:', source);
               
               function fromHTML(html) {
                 const tempDiv = document.createElement('div');
@@ -762,17 +763,24 @@ export default function AdminToolboxPage() {
                 if (itemsSource[0]?.content?.rendered) {
                   return itemsSource.flatMap(s => fromHTML(s.content.rendered));
                 }
+                
                 const isHierarchical = itemsSource.some(item => 
-                  (item.parent !== undefined && item.parent !== 0) || 
+                  (item.parent !== undefined && item.parent !== 0 && item.parent !== "0") || 
                   (item.menu_item_parent !== undefined && item.menu_item_parent !== "0" && item.menu_item_parent !== 0)
                 );
+                
+                console.log('Widget: É hierárquico?', isHierarchical);
                 if (isHierarchical) return buildTree(itemsSource);
                 
-                return itemsSource.map(item => ({
-                  title: item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '',
-                  link: item.url || item.link || item.guid || item.href || '#',
-                  children: item.children || item.items || item.sub_items || []
-                })).filter(i => i.title);
+                return itemsSource.map(item => {
+                  let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
+                  let children = item.children || item.items || item.sub_items || [];
+                  return {
+                    title: title || 'Sem título',
+                    link: item.url || item.link || item.guid || item.href || '#',
+                    children: Array.isArray(children) && children.length > 0 ? extractItems(children) : []
+                  };
+                }).filter(i => i.title);
               }
               return [];
             }
@@ -1348,7 +1356,10 @@ export default function AdminToolboxPage() {
                                         if (testRes.ok) {
                                           const data = await testRes.json();
                                           if (data && (Array.isArray(data) || typeof data === 'object')) {
+                                            console.log('Dados detectados via API:', data);
                                             const wpItems = extractWPItems(data);
+                                            console.log('Itens extraídos (hierárquicos):', wpItems);
+                                            
                                             setMenuConfig(prev => ({
                                               ...prev, 
                                               wpApiUrl: `${origin}${endpoint}`,
