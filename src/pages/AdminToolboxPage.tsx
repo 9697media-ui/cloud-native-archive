@@ -644,8 +644,7 @@ export default function AdminToolboxPage() {
               return [];
             }
 
-            items = extractItems(data);
-
+            const items = extractItemsFromData(data);
 
             const htmlContent = renderItems(items);
             if (htmlContent && htmlContent.trim().length > 5) {
@@ -659,7 +658,16 @@ export default function AdminToolboxPage() {
 
       if (${menuConfig.autoDetect}) {
         console.log('Tentando auto-detecção...');
-        const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '.wp-block-navigation'];
+        const selectors = [
+          'nav', 
+          '.main-navigation', 
+          '.elementor-nav-menu', 
+          '.header-menu', 
+          '#site-navigation', 
+          'ul[class*="menu"]', 
+          '.wp-block-navigation',
+          '.navigation'
+        ];
         const previewFrame = document.querySelector('iframe[title="Site Preview"]');
         let targetDoc = document;
         try {
