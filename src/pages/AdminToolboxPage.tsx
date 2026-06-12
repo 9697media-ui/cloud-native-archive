@@ -1390,7 +1390,7 @@ export default function AdminToolboxPage() {
                         className="w-full"
                         onClick={() => setMenuConfig({
                           ...menuConfig, 
-                          items: [...menuConfig.items, { label: 'Novo Item', link: '#' }]
+                          items: [...menuConfig.items, { label: 'Novo Item', link: '#', children: [] }]
                         })}
                       >
                         + Adicionar Item Manual
