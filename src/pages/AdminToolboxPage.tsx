@@ -1287,6 +1287,22 @@ export default function AdminToolboxPage() {
                         />
                       </div>
                     </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="flex-1 gap-2"
+                        onClick={() => {
+                          const frame = document.querySelector('iframe[title="Site Preview"]') as HTMLIFrameElement;
+                          if (frame) {
+                            frame.src = frame.src; // Força recarregamento e nova detecção
+                            toast({ title: "Sincronizando...", description: "Refazendo varredura visual do site." });
+                          }
+                        }}
+                      >
+                        <RefreshCw className="h-3 w-3" /> Forçar Varredura Visual
+                      </Button>
+                    </div>
 
                     <div className="flex items-center justify-between border-t pt-4">
                       <Label htmlFor="sticky">Menu Fixo (Sticky)</Label>
