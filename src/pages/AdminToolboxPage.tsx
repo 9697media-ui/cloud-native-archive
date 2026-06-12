@@ -615,6 +615,13 @@ export default function AdminToolboxPage() {
       }
 
       const wpApiUrl = '${menuConfig.wpApiUrl}';
+      const fallbackItems = ${JSON.stringify(menuConfig.items)};
+
+      // Renderiza itens iniciais imediatamente (evita menu vazio se API falhar)
+      if (!menuContainer.innerHTML.trim() || menuContainer.innerHTML.includes('<!--')) {
+        menuContainer.innerHTML = renderItems(fallbackItems);
+      }
+
       if (wpApiUrl && wpApiUrl.length > 10) {
         try {
           console.log('Buscando via WP API:', wpApiUrl);
@@ -629,7 +636,10 @@ export default function AdminToolboxPage() {
               return;
             }
           }
-        } catch (e) { console.warn('WP API fail:', e.message); }
+        } catch (e) { 
+          console.warn('WP API fail (CORS?):', e.message);
+          // Mantém o que já está lá (itens embutidos)
+        }
       }
 
       if (${menuConfig.autoDetect}) {
@@ -742,9 +752,9 @@ export default function AdminToolboxPage() {
     <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
   </button>
   <div class="menu-items">
-    ${menuConfig.items.length > 0 
-      ? menuConfig.items.map(item => `<a href="${item.link}">${item.label}</a>`).join('\n    ')
-      : '<!-- Aguardando carregamento... -->'
+    \${menuConfig.items.length > 0 
+      ? menuConfig.items.map(item => \`<a href="\${item.link}">\${item.label}</a>\`).join('\\n    ')
+      : '<!-- Aguardando detecção ou adicione itens manualmente -->'
     }
   </div>
 </nav>
