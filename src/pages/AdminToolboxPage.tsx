@@ -557,49 +557,39 @@ export default function AdminToolboxPage() {
 
       console.log('Iniciando detecção de menu...');
 
+      function extractItemsFromData(data) {
+        if (!data) return [];
+        let rawItems = [];
+        if (Array.isArray(data)) {
+          rawItems = data;
+        } else {
+          const possible = [data.items, data.children, data.menu_items, data.data, data.navigation_items].filter(Boolean);
+          if (possible.length > 0) rawItems = possible[0];
+          else if (typeof data === 'object') {
+            const arr = Object.values(data).find(val => Array.isArray(val));
+            rawItems = arr || [data];
+          }
+        }
+        return rawItems.map(item => {
+          let title = '';
+          if (item.title && typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
+          else if (item.title && typeof item.title === 'string') title = item.title;
+          else if (item.label || item.name || item.post_title || item.text) title = item.label || item.name || item.post_title || item.text;
+          const link = item.url || item.link || item.guid || item.href || '#';
+          const children = item.children || item.items || item.sub_items || [];
+          return { title, link, children: Array.isArray(children) ? extractItemsFromData(children) : [] };
+        }).filter(i => i && i.title);
+      }
+
       function renderItems(list) {
         if (!Array.isArray(list)) return '';
         let html = '';
         list.forEach(item => {
           if (!item) return;
-
-          let title = '';
-          if (item.title && typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
-          else if (item.title && typeof item.title === 'string') title = item.title;
-          else if (item.label) title = item.label;
-          else if (item.name) title = item.name;
-          else if (item.post_title) title = item.post_title;
-          else if (item.text) title = item.text;
-          
-          if (!title || title.trim() === '') return;
-          
-          const lowerTitle = title.trim().toLowerCase();
-          const children = item.children || item.items || item.sub_items || [];
-          const link = item.url || item.link || item.guid || item.href || '#';
-
-          // Se tiver apenas UM item na lista e ele tiver filhos, mergulha direto
-          if (list.length === 1 && children.length > 0) {
-            const childrenHtml = renderItems(children);
-            if (childrenHtml && childrenHtml.trim().length > 0) {
-              html += childrenHtml;
-              return;
-            }
-          }
-
-          // Se tiver filhos e o link for apenas '#' ou o título for um "wrapper" conhecido, mergulha nos filhos
-          const isWrapper = (link === '#' || link === '' || link.endsWith('/') || 
-                            lowerTitle.includes("principal") || lowerTitle.includes("menu") || 
-                            lowerTitle.includes("navegação") || lowerTitle.includes("main") ||
-                            lowerTitle.includes("topo") || lowerTitle.includes("header") ||
-                            lowerTitle.includes("footer") || lowerTitle.includes("rodapé"));
-          
-          if (children && children.length > 0 && isWrapper) {
-            const childrenHtml = renderItems(children);
-            if (childrenHtml && childrenHtml.trim().length > 0) {
-              html += childrenHtml;
-              return;
-            }
-          }
+          const title = item.title || item.label;
+          const link = item.link || item.url || '#';
+          const children = item.children || item.items || [];
+          if (!title) return;
 
           if (children.length > 0) {
             html += \`<div class="has-submenu">
@@ -620,10 +610,7 @@ export default function AdminToolboxPage() {
           const response = await fetch(wpApiUrl);
           if (response.ok) {
             const data = await response.json();
-
-
             const items = extractItemsFromData(data);
-
             const htmlContent = renderItems(items);
             if (htmlContent && htmlContent.trim().length > 5) {
               menuContainer.innerHTML = htmlContent;
@@ -635,43 +622,16 @@ export default function AdminToolboxPage() {
       }
 
       if (${menuConfig.autoDetect}) {
-        console.log('Tentando auto-detecção...');
-        const selectors = [
-          'nav', 
-          '.main-navigation', 
-          '.elementor-nav-menu', 
-          '.header-menu', 
-          '#site-navigation', 
-          'ul[class*="menu"]', 
-          '.wp-block-navigation',
-          '.navigation'
-        ];
-        const previewFrame = document.querySelector('iframe[title="Site Preview"]');
-        let targetDoc = document;
-        try {
-          if (previewFrame && previewFrame.contentDocument) targetDoc = previewFrame.contentDocument;
-          else if (previewFrame && previewFrame.contentWindow) targetDoc = previewFrame.contentWindow.document;
-        } catch (e) { console.warn('CORS restrict'); }
-
+        console.log('Tentando auto-detecção local...');
+        const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', 'ul[class*="menu"]', '.wp-block-navigation'];
         for (const selector of selectors) {
-          const containers = targetDoc.querySelectorAll(selector);
-          for (const container of containers) {
-            function getDOMItems(el) {
-              const uls = el.querySelectorAll('ul');
-              const mainUl = Array.from(uls).find(ul => !ul.parentElement.closest('li')) || el.querySelector('ul') || (el.tagName === 'UL' ? el : null);
-              if (!mainUl) return [];
-              return Array.from(mainUl.children).filter(li => li.tagName === 'LI').map(li => {
-                const link = li.querySelector('a');
-                if (!link) return null;
-                const sub = li.querySelector('ul, .sub-menu, .dropdown-menu');
-                return { title: link.innerText.trim(), link: link.href, children: sub ? getDOMItems(li) : [] };
-              }).filter(i => i && i.title);
-            }
-            const items = getDOMItems(container);
-            if (items.length >= 1) {
-              const html = renderItems(items);
-              if (html && html.trim().length > 5) {
-                menuContainer.innerHTML = html;
+          const nav = document.querySelector(selector);
+          if (nav && !nav.classList.contains('custom-nav-992')) {
+            const links = Array.from(nav.querySelectorAll('a')).slice(0, 15);
+            if (links.length > 0) {
+              const detected = links.map(a => ({ title: a.innerText.trim(), link: a.href })).filter(i => i.title.length > 1);
+              if (detected.length > 0) {
+                menuContainer.innerHTML = renderItems(detected);
                 if (typeof highlightActiveLink === 'function') highlightActiveLink();
                 return;
               }
@@ -679,14 +639,14 @@ export default function AdminToolboxPage() {
           }
         }
       }
-      
+
       const manualItems = ${JSON.stringify(menuConfig.items)};
       if (manualItems && manualItems.length > 0) {
-         console.log('Usando itens manuais:', manualItems);
+         console.log('Usando itens manuais como base:', manualItems);
          menuContainer.innerHTML = renderItems(manualItems);
       }
     }
-    setTimeout(initializeMenuDetection, 2500);`;
+    setTimeout(initializeMenuDetection, 1500);`;
 
     const script = `
 <script>
@@ -1319,7 +1279,7 @@ export default function AdminToolboxPage() {
                                         // Substituir apenas se os itens atuais forem os padrão ou estiverem vazios
                                         const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
                                         if (isDefault || menuConfig.items.length === 0) {
-                                          setMenuConfig(prev => ({...prev, items: detectedItems}));
+                                          setMenuConfig(prev => ({...prev, items: detectedItems, autoDetect: true}));
                                           toast({ title: "Itens Detectados", description: `${detectedItems.length} links importados do preview.` });
                                         } else {
                                           toast({ 
