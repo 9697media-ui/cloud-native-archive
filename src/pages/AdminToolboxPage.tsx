@@ -171,25 +171,13 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): { label: string, link: string }[] => {
     if (!data) return [];
     
+    // Lista de palavras que indicam que o item é apenas um título de menu/wrapper
+    const wrapperKeywords = ['menu', 'navegação', 'navigation', 'principal', 'main', 'header', 'footer', 'topo', 'rodapé', 'sidebar'];
+
     // Função auxiliar recursiva para encontrar arrays de itens em qualquer profundidade
     const findItemsArray = (obj: any): any[] => {
       if (!obj) return [];
       
-      // Se já for um array, este é o candidato
-      if (Array.isArray(obj)) {
-        // Se o array tem itens que parecem ser do WP (com title/rendered ou post_title)
-        if (obj.length > 0 && (obj[0].title || obj[0].post_title || obj[0].label || obj[0].content?.rendered)) {
-          return obj;
-        }
-        
-        // Se o array tem 1 item e ele tem itens dentro, mergulha
-        if (obj.length === 1) {
-          const sub = obj[0].items || obj[0].children || obj[0].menu_items;
-          if (sub) return findItemsArray(sub);
-        }
-        return obj;
-      }
-
       // Se for o bloco moderno de navegação (FSE)
       if (obj.content?.rendered) {
         const parser = new DOMParser();
@@ -203,10 +191,29 @@ export default function AdminToolboxPage() {
         }
       }
 
+      if (Array.isArray(obj)) {
+        // Se o array tem apenas um item e ele tem filhos, o primeiro item pode ser o título do menu
+        if (obj.length === 1) {
+          const firstItem = obj[0];
+          const label = (firstItem.title?.rendered || firstItem.title || firstItem.label || firstItem.name || '').toString().toLowerCase();
+          const hasChildren = firstItem.items || firstItem.children || firstItem.menu_items;
+          
+          if (hasChildren && (wrapperKeywords.some(k => label.includes(k)) || !firstItem.url || firstItem.url === '#')) {
+            return findItemsArray(hasChildren);
+          }
+        }
+        return obj;
+      }
+
       // Procura em propriedades comuns
       const commonProps = ['items', 'children', 'menu_items', 'navigation', 'data'];
       for (const prop of commonProps) {
-        if (obj[prop] && (Array.isArray(obj[prop]) || typeof obj[prop] === 'object')) {
+        if (obj[prop]) {
+          const label = (obj.title?.rendered || obj.title || obj.label || obj.name || '').toString().toLowerCase();
+          // Se o objeto pai parece ser um wrapper de menu, mergulha direto nos itens
+          if (wrapperKeywords.some(k => label.includes(k)) || !obj.url || obj.url === '#') {
+             return findItemsArray(obj[prop]);
+          }
           return findItemsArray(obj[prop]);
         }
       }
@@ -224,7 +231,6 @@ export default function AdminToolboxPage() {
     if (!Array.isArray(rawItems)) return [];
 
     return rawItems.map((item: any) => {
-      // Se já foi processado pelo parser de HTML acima
       if (item.label && item.link) return item;
 
       let label = '';
@@ -238,7 +244,13 @@ export default function AdminToolboxPage() {
       const link = item.url || item.link || item.guid || item.href || '#';
       
       return { label, link };
-    }).filter(i => i.label);
+    }).filter(i => {
+      if (!i.label) return false;
+      const lowerLabel = i.label.toLowerCase();
+      // Filtra itens que são claramente apenas o nome do menu no nível de item
+      const isJustMenuName = wrapperKeywords.some(k => lowerLabel === k || lowerLabel === `menu ${k}` || lowerLabel === `${k} menu`);
+      return !isJustMenuName;
+    });
   };
 
   const fetchAndProcessWPItems = async (url: string) => {
@@ -1253,7 +1265,17 @@ export default function AdminToolboxPage() {
                     <div className="space-y-2 pt-2 border-t mt-4">
                       <div className="flex items-center justify-between mb-2">
                         <Label>Itens do Menu</Label>
-                        <span className="text-[10px] text-muted-foreground italic">(Sincronizados via API ou Manual)</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 text-[10px] text-destructive hover:text-destructive hover:bg-destructive/10 gap-1"
+                          onClick={() => {
+                            setMenuConfig({...menuConfig, items: []});
+                            toast({ title: "Menu Limpo", description: "Todos os itens foram removidos." });
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" /> Limpar Tudo
+                        </Button>
                       </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
