@@ -641,51 +641,19 @@ export default function AdminToolboxPage() {
         list.forEach(item => {
           if (!item) return;
 
-          let title = '';
-          if (item.title && typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
-          else if (item.title && typeof item.title === 'string') title = item.title;
-          else if (item.label) title = item.label;
-          else if (item.name) title = item.name;
-          else if (item.post_title) title = item.post_title;
-          else if (item.text) title = item.text;
-          
+          let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
           if (!title || title.trim() === '') return;
           
-          const lowerTitle = title.trim().toLowerCase();
           const children = item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
 
-          // Se tiver apenas UM item na lista e ele tiver filhos, mergulha direto
-          if (list.length === 1 && children.length > 0) {
-            const childrenHtml = renderItems(children);
-            if (childrenHtml && childrenHtml.trim().length > 0) {
-              html += childrenHtml;
-              return;
-            }
-          }
-
-          // Se tiver filhos e o link for apenas '#' ou o título for um "wrapper" conhecido, mergulha nos filhos
-          const isWrapper = (link === '#' || link === '' || link.endsWith('/') || 
-                            lowerTitle.includes("principal") || lowerTitle.includes("menu") || 
-                            lowerTitle.includes("navegação") || lowerTitle.includes("main") ||
-                            lowerTitle.includes("topo") || lowerTitle.includes("header") ||
-                            lowerTitle.includes("footer") || lowerTitle.includes("rodapé"));
-          
-          if (children && children.length > 0 && isWrapper) {
-            const childrenHtml = renderItems(children);
-            if (childrenHtml && childrenHtml.trim().length > 0) {
-              html += childrenHtml;
-              return;
-            }
-          }
-
-          if (children.length > 0) {
-            html += \`<div class="has-submenu">
-              <a href="\${link}">\${title}</a>
-              <ul class="submenu">\${renderItems(children)}</ul>
-            </div>\`;
+          if (children && children.length > 0) {
+            html += `<div class="has-submenu">
+              <a href="${link}">${title}</a>
+              <ul class="submenu">${renderItems(children)}</ul>
+            </div>`;
           } else {
-            html += \`<a href="\${link}">\${title}</a>\`;
+            html += `<a href="${link}">${title}</a>`;
           }
         });
         return html;
