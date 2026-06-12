@@ -608,6 +608,24 @@ export default function AdminToolboxPage() {
               
               console.log('Analisando fonte de dados:', source);
 
+              // Helper para extrair de HTML renderizado (Gutenberg/FSE)
+              function fromHTML(html) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const links = Array.from(tempDiv.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
+                return links.map(a => ({
+                  title: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+                  link: a.getAttribute('href') || '#',
+                  children: []
+                })).filter(i => i.title && i.link !== '#');
+              }
+
+              // Se for um array de blocos de navegação (Modern WP)
+              if (Array.isArray(source) && source[0]?.content?.rendered) {
+                const items = source.flatMap(s => fromHTML(s.content.rendered));
+                if (items.length > 0) return items;
+              }
+
               // Se for um objeto com propriedade de itens, mergulha nela
               if (source.items && Array.isArray(source.items)) return source.items;
               if (source.children && Array.isArray(source.children)) return source.children;
@@ -618,27 +636,28 @@ export default function AdminToolboxPage() {
               if (source.edges && Array.isArray(source.edges)) return source.edges;
               
               // Se for um array
+              let baseArray = [];
               if (Array.isArray(source)) {
                 // Se o array tem 1 item e esse item tem sub-itens, mergulha
                 if (source.length === 1 && (source[0].items || source[0].children || source[0].menu_items)) {
                   return extractItems(source[0]);
                 }
-                return source;
-              }
-              
-              // Se for um objeto com chaves numéricas (comum em APIs PHP/WP antigas)
-              if (typeof source === 'object') {
+                baseArray = source;
+              } else if (typeof source === 'object') {
+                // Se for um objeto com chaves numéricas
                 const keys = Object.keys(source);
                 if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
-                  return Object.values(source);
+                  baseArray = Object.values(source);
                 }
               }
 
-              // Caso o objeto em si tenha itens/children (segunda checagem)
-              const possibleItems = source.items || source.children || source.menu_items;
-              if (Array.isArray(possibleItems)) return possibleItems;
+              // Se o array resultante contém objetos com HTML renderizado (menus sem links diretos)
+              if (baseArray.length > 0 && !baseArray[0].url && !baseArray[0].link && baseArray[0].content?.rendered) {
+                 const dived = baseArray.flatMap(item => fromHTML(item.content.rendered));
+                 if (dived.length > 0) return dived;
+              }
 
-              return [];
+              return baseArray;
             }
 
             items = extractItems(data);
