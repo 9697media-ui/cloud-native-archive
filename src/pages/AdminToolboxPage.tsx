@@ -888,21 +888,21 @@ export default function AdminToolboxPage() {
   window.addEventListener('popstate', highlightActiveLink);
 </script>`;
 
-    const renderHierarchicalMenu = (items: any[]) => {
+    function renderHierarchicalItems(items) {
       if (!items || items.length === 0) return '';
-      return items.map((item: any) => {
+      return items.map(item => {
         const hasChildren = item.children && item.children.length > 0;
         if (hasChildren) {
           return `<div class="has-submenu">
             <a href="${item.link}">${item.label}</a>
             <ul class="submenu">
-              ${renderHierarchicalMenu(item.children)}
+              ${renderHierarchicalItems(item.children)}
             </ul>
           </div>`;
         }
         return `<a href="${item.link}">${item.label}</a>`;
       }).join('\n');
-    };
+    }
 
     const html = `
 <!-- Início: Menu Responsivo Nativo -->
