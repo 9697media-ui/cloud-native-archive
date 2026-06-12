@@ -1715,10 +1715,10 @@ export default function AdminToolboxPage() {
                     )}
 
                     {/* Widget Injection */}
-                    <div className="absolute inset-0 pointer-events-none z-[1000000]">
+                    <div className="absolute inset-0 pointer-events-none z-[1000000] all-initial">
                        <div 
                          className="relative w-full h-full pointer-events-auto" 
-                         key={activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length} // Force re-render on structure changes
+                         key={activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
                          dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
                        />
                     </div>
