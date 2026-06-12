@@ -956,6 +956,7 @@ export default function AdminToolboxPage() {
   };
 
 
+  // Função utilitária para obter o código gerado
   const getGeneratedCode = () => {
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
     if (activeWidgetType === 'banner') return generateBannerCode();
