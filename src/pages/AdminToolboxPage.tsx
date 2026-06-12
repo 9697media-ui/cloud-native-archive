@@ -1006,6 +1006,11 @@ export default function AdminToolboxPage() {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Construtor de Widgets Externos</h1>
               <p className="text-muted-foreground">Crie ferramentas para usar em sites de terceiros (WordPress, Elementor, etc).</p>
+              <div className="flex gap-2 mt-2">
+                <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold" onClick={() => loadDemo('whatsapp')}>Demo Whats</Button>
+                <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold" onClick={() => loadDemo('banner')}>Demo Banner</Button>
+                <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold border-primary/40 text-primary" onClick={() => loadDemo('menu')}>Demo Menu c/ Submenu</Button>
+              </div>
 
             </div>
           </div>
