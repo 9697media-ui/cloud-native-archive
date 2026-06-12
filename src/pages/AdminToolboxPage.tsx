@@ -157,11 +157,11 @@ export default function AdminToolboxPage() {
     bgColor: '#ffffff',
     textColor: '#1f2937',
     items: [
-      { label: 'Início', link: '#' },
-      { label: 'Sobre', link: '#' },
-      { label: 'Serviços', link: '#' },
-      { label: 'Contato', link: '#' }
-    ],
+      { label: 'Início', link: '#', children: [] as any[] },
+      { label: 'Sobre', link: '#', children: [] as any[] },
+      { label: 'Serviços', link: '#', children: [] as any[] },
+      { label: 'Contato', link: '#', children: [] as any[] }
+    ] as any[],
     sticky: true,
     enableAutoDetect: false,
     enableWpApi: true,
@@ -169,7 +169,7 @@ export default function AdminToolboxPage() {
     testUrl: ''
   });
 
-  const extractWPItems = (data: any): { label: string, link: string }[] => {
+  const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
     let rawItems = [];
@@ -184,8 +184,42 @@ export default function AdminToolboxPage() {
       
       return links.map((a: any) => ({
         label: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
-        link: a.getAttribute('href') || '#'
+        link: a.getAttribute('href') || '#',
+        children: []
       })).filter(i => i.label && i.link !== '#');
+    };
+
+    // Helper to build tree from flat list (common in WP REST API)
+    const buildTree = (items: any[], parentId: number | string = 0) => {
+      const tree: any[] = [];
+      const childrenOf: {[key: string]: any[]} = {};
+
+      items.forEach(item => {
+        const pId = item.parent || item.menu_item_parent || 0;
+        if (!childrenOf[pId]) childrenOf[pId] = [];
+        childrenOf[pId].push(item);
+      });
+
+      const processBranch = (pId: number | string) => {
+        if (!childrenOf[pId]) return [];
+        return childrenOf[pId].map(item => {
+          let label = '';
+          if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
+          else if (item.title && typeof item.title === 'string') label = item.title;
+          else if (item.label) label = item.label;
+          else if (item.name) label = item.name;
+          else if (item.post_title) label = item.post_title;
+          else if (item.text) label = item.text;
+
+          return {
+            label,
+            link: item.url || item.link || item.guid || item.href || '#',
+            children: processBranch(item.id || item.ID || item.db_id || '')
+          };
+        }).filter(i => i.label);
+      };
+
+      return processBranch(parentId);
     };
 
     // Case 1: Array of Navigation Blocks (Modern WP / FSE)
@@ -194,11 +228,19 @@ export default function AdminToolboxPage() {
       if (allItems.length > 0) return allItems;
     }
 
-    // Case 2: Direct Menu Item List
+    // Case 2: Array of items that might be hierarchical
     if (Array.isArray(data)) {
+      // Check if any item has a parent reference
+      const isHierarchical = data.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+      if (isHierarchical) return buildTree(data);
       rawItems = data;
     } else if (data.items || data.children || data.menu_items || data.data) {
-      rawItems = data.items || data.children || data.menu_items || data.data;
+      const subSource = data.items || data.children || data.menu_items || data.data;
+      if (Array.isArray(subSource)) {
+        const isHierarchical = subSource.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+        if (isHierarchical) return buildTree(subSource);
+      }
+      rawItems = subSource;
     } else if (typeof data === 'object') {
       const possibleArray = Object.values(data).find(val => Array.isArray(val));
       if (possibleArray) rawItems = possibleArray as any[];
@@ -207,10 +249,12 @@ export default function AdminToolboxPage() {
 
     // If we have items but they look like "Menus" (objects with titles but no links)
     // and they have their own content/rendered, try to dive deeper
-    if (rawItems.length > 0 && !rawItems[0].url && !rawItems[0].link && rawItems[0].content?.rendered) {
+    if (Array.isArray(rawItems) && rawItems.length > 0 && rawItems[0] && !rawItems[0].url && !rawItems[0].link && rawItems[0].content?.rendered) {
        const divedItems = rawItems.flatMap(item => fromHTML(item.content.rendered));
        if (divedItems.length > 0) return divedItems;
     }
+
+    if (!Array.isArray(rawItems)) return [];
 
     return rawItems.map((item: any) => {
       let label = '';
@@ -222,8 +266,17 @@ export default function AdminToolboxPage() {
       else if (item.text) label = item.text;
 
       const link = item.url || item.link || item.guid || item.href || '#';
+      const children = item.children || item.items || item.sub_items || [];
       
-      return { label, link };
+      return { 
+        label, 
+        link,
+        children: Array.isArray(children) ? children.map((c: any) => ({
+          label: c.title?.rendered || c.title || c.label || c.name || '',
+          link: c.url || c.link || c.href || '#',
+          children: []
+        })).filter(c => c.label) : []
+      };
     }).filter(i => i.label);
   };
 
@@ -408,7 +461,6 @@ export default function AdminToolboxPage() {
     position: relative !important;
     display: flex !important;
     align-items: center !important;
-    height: 100% !important;
   }
   .custom-nav-992 .menu-items .has-submenu > a::after {
     content: "";
@@ -418,7 +470,7 @@ export default function AdminToolboxPage() {
     border-right: 4px solid transparent;
     border-top: 4px solid currentColor;
     opacity: 0.5;
-    margin-left: 4px;
+    margin-left: 6px;
   }
   .custom-nav-992 .submenu {
     position: absolute !important;
@@ -430,17 +482,14 @@ export default function AdminToolboxPage() {
     padding: 10px 0 !important;
     display: none !important;
     flex-direction: column !important;
-    min-width: 220px !important;
+    min-width: 200px !important;
     z-index: 9999999 !important;
     list-style: none !important;
     margin: 0 !important;
     border: 1px solid rgba(0,0,0,0.05) !important;
   }
-  /* Força a exibição no hover do PAI */
-  .custom-nav-992 .menu-items .has-submenu:hover > .submenu {
+  .custom-nav-992 .has-submenu:hover > .submenu {
     display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
   }
   .custom-nav-992 .submenu a {
     padding: 12px 20px !important;
@@ -811,7 +860,17 @@ export default function AdminToolboxPage() {
   </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
-      ? menuConfig.items.map(item => `<a href="${item.link}">${item.label}</a>`).join('\n    ')
+      ? menuConfig.items.map((item: any) => {
+          if (item.children && item.children.length > 0) {
+            return `<div class="has-submenu">
+              <a href="${item.link}">${item.label}</a>
+              <ul class="submenu">
+                ${item.children.map((child: any) => `<a href="${child.link}">${child.label}</a>`).join('\n                ')}
+              </ul>
+            </div>`;
+          }
+          return `<a href="${item.link}">${item.label}</a>`;
+        }).join('\n    ')
       : '<!-- Aguardando carregamento... -->'
     }
   </div>
@@ -1262,26 +1321,73 @@ export default function AdminToolboxPage() {
                         </div>
                         <span className="text-[10px] text-muted-foreground italic">(Sincronizados via API ou Manual)</span>
                       </div>
-                      {menuConfig.items.map((item, idx) => (
-                        <div key={idx} className="flex gap-2 mb-2">
-                          <Input 
-                            placeholder="Label" 
-                            value={item.label} 
-                            onChange={(e) => {
-                              const newItems = [...menuConfig.items];
-                              newItems[idx].label = e.target.value;
-                              setMenuConfig({...menuConfig, items: newItems});
-                            }}
-                          />
-                          <Input 
-                            placeholder="Link" 
-                            value={item.link}
-                            onChange={(e) => {
-                              const newItems = [...menuConfig.items];
-                              newItems[idx].link = e.target.value;
-                              setMenuConfig({...menuConfig, items: newItems});
-                            }}
-                          />
+                      {menuConfig.items.map((item: any, idx) => (
+                        <div key={idx} className="space-y-2 mb-4 p-3 border rounded-lg bg-muted/30">
+                          <div className="flex gap-2">
+                            <Input 
+                              placeholder="Label" 
+                              value={item.label} 
+                              onChange={(e) => {
+                                const newItems = [...menuConfig.items];
+                                newItems[idx].label = e.target.value;
+                                setMenuConfig({...menuConfig, items: newItems});
+                              }}
+                            />
+                            <Input 
+                              placeholder="Link" 
+                              value={item.link}
+                              onChange={(e) => {
+                                const newItems = [...menuConfig.items];
+                                newItems[idx].link = e.target.value;
+                                setMenuConfig({...menuConfig, items: newItems});
+                              }}
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="shrink-0 text-destructive"
+                              onClick={() => {
+                                const newItems = [...menuConfig.items];
+                                newItems.splice(idx, 1);
+                                setMenuConfig({...menuConfig, items: newItems});
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          {/* Render Sub-items if exist */}
+                          {item.children && item.children.length > 0 && (
+                            <div className="ml-6 space-y-2 border-l-2 pl-3 mt-2">
+                              <p className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1">
+                                <MenuIcon className="h-3 w-3" /> Subitems ({item.children.length})
+                              </p>
+                              {item.children.map((child: any, cIdx: number) => (
+                                <div key={cIdx} className="flex gap-2">
+                                  <Input 
+                                    className="h-8 text-xs"
+                                    placeholder="Sub Label" 
+                                    value={child.label}
+                                    onChange={(e) => {
+                                      const newItems = [...menuConfig.items];
+                                      newItems[idx].children[cIdx].label = e.target.value;
+                                      setMenuConfig({...menuConfig, items: newItems});
+                                    }}
+                                  />
+                                  <Input 
+                                    className="h-8 text-xs"
+                                    placeholder="Sub Link" 
+                                    value={child.link}
+                                    onChange={(e) => {
+                                      const newItems = [...menuConfig.items];
+                                      newItems[idx].children[cIdx].link = e.target.value;
+                                      setMenuConfig({...menuConfig, items: newItems});
+                                    }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                       <Button 
@@ -1290,7 +1396,7 @@ export default function AdminToolboxPage() {
                         className="w-full"
                         onClick={() => setMenuConfig({
                           ...menuConfig, 
-                          items: [...menuConfig.items, { label: 'Novo Item', link: '#' }]
+                          items: [...menuConfig.items, { label: 'Novo Item', link: '#', children: [] }]
                         })}
                       >
                         + Adicionar Item Manual
