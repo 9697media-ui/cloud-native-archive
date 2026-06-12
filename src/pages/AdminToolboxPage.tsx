@@ -1624,8 +1624,14 @@ export default function AdminToolboxPage() {
                                       // Buscar apenas os LIs diretos deste nível para evitar confusão hierárquica
                                       const listItems = Array.from(el.children).filter(child => child.tagName === 'LI');
                                       
+                                      if (listItems.length === 0 && (el.tagName === 'NAV' || el.tagName === 'DIV')) {
+                                        // Se for um container e não tem LIs imediatos, procura o UL dentro dele
+                                        const nestedUl = el.querySelector('ul');
+                                        if (nestedUl) return getDOMItems(nestedUl);
+                                      }
+
                                       if (listItems.length === 0) {
-                                        // Se não há LIs, tenta buscar links diretos (fallback para menus simples)
+                                        // Se ainda não há LIs, tenta buscar links diretos (fallback para menus simples)
                                         return Array.from(el.querySelectorAll('a'))
                                           .filter(a => (a as HTMLElement).innerText.trim().length > 0)
                                           .slice(0, 10)
@@ -1639,6 +1645,7 @@ export default function AdminToolboxPage() {
                                       listItems.forEach(li => {
                                         const link = li.querySelector('a');
                                         if (link && (link as HTMLElement).innerText.trim().length > 0) {
+                                          // Procurar submenus dentro deste LI
                                           const subMenu = li.querySelector('ul, [class*="sub-menu"], [class*="dropdown"]');
                                           items.push({
                                             label: (link as HTMLElement).innerText.trim(),
@@ -1652,15 +1659,15 @@ export default function AdminToolboxPage() {
 
                                     const detectedItems = getDOMItems(nav);
                                     
-                                    if (detectedItems.length > 2) {
+                                    if (detectedItems.length >= 2) {
                                       const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
                                       if (isDefault || menuConfig.items.length === 0) {
                                         setMenuConfig(prev => ({...prev, items: detectedItems}));
-                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} itens (com submenus) importados do preview.` });
+                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} itens (com submenus) importados.` });
                                       } else {
                                         toast({ 
-                                          title: "Preview Carregado", 
-                                          description: "Estrutura de menu detectada. Deseja substituir os atuais?",
+                                          title: "Menu Detectado", 
+                                          description: "Estrutura encontrada. Deseja substituir?",
                                           action: (
                                             <Button size="sm" onClick={() => setMenuConfig(prev => ({...prev, items: detectedItems}))}>
                                               Substituir
