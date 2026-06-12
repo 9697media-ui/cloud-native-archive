@@ -1614,36 +1614,56 @@ export default function AdminToolboxPage() {
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
-                                    const links = Array.from(nav.querySelectorAll('a')).filter(a => {
-                                      const text = (a as HTMLElement).innerText || a.textContent || '';
-                                      return text.trim().length > 0;
-                                    }).slice(0, 15);
-                                    
-                                    if (links.length > 2) {
-                                      const detectedItems = links.map(a => ({
-                                        label: ((a as HTMLElement).innerText || a.textContent || '').trim(),
-                                        link: (a as HTMLAnchorElement).href
-                                      })).filter(i => i.label);
+                                    const getDOMItems = (el: Element): any[] => {
+                                      const items: any[] = [];
+                                      // Buscar apenas os LIs diretos deste nível para evitar confusão hierárquica
+                                      const listItems = Array.from(el.children).filter(child => child.tagName === 'LI');
                                       
-                                      if (detectedItems.length > 0) {
-                                        // Substituir apenas se os itens atuais forem os padrão ou estiverem vazios
-                                        const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
-                                        if (isDefault || menuConfig.items.length === 0) {
-                                          setMenuConfig(prev => ({...prev, items: detectedItems}));
-                                          toast({ title: "Itens Detectados", description: `${detectedItems.length} links importados do preview.` });
-                                        } else {
-                                          toast({ 
-                                            title: "Preview Carregado", 
-                                            description: "Links detectados no site. Deseja substituir os atuais?",
-                                            action: (
-                                              <Button size="sm" onClick={() => setMenuConfig(prev => ({...prev, items: detectedItems}))}>
-                                                Substituir
-                                              </Button>
-                                            )
+                                      if (listItems.length === 0) {
+                                        // Se não há LIs, tenta buscar links diretos (fallback para menus simples)
+                                        return Array.from(el.querySelectorAll('a'))
+                                          .filter(a => (a as HTMLElement).innerText.trim().length > 0)
+                                          .slice(0, 10)
+                                          .map(a => ({
+                                            label: (a as HTMLElement).innerText.trim(),
+                                            link: (a as HTMLAnchorElement).href,
+                                            children: []
+                                          }));
+                                      }
+
+                                      listItems.forEach(li => {
+                                        const link = li.querySelector('a');
+                                        if (link && (link as HTMLElement).innerText.trim().length > 0) {
+                                          const subMenu = li.querySelector('ul, [class*="sub-menu"], [class*="dropdown"]');
+                                          items.push({
+                                            label: (link as HTMLElement).innerText.trim(),
+                                            link: (link as HTMLAnchorElement).href,
+                                            children: subMenu ? getDOMItems(subMenu) : []
                                           });
                                         }
-                                        break;
+                                      });
+                                      return items;
+                                    };
+
+                                    const detectedItems = getDOMItems(nav);
+                                    
+                                    if (detectedItems.length > 2) {
+                                      const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
+                                      if (isDefault || menuConfig.items.length === 0) {
+                                        setMenuConfig(prev => ({...prev, items: detectedItems}));
+                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} itens (com submenus) importados do preview.` });
+                                      } else {
+                                        toast({ 
+                                          title: "Preview Carregado", 
+                                          description: "Estrutura de menu detectada. Deseja substituir os atuais?",
+                                          action: (
+                                            <Button size="sm" onClick={() => setMenuConfig(prev => ({...prev, items: detectedItems}))}>
+                                              Substituir
+                                            </Button>
+                                          )
+                                        });
                                       }
+                                      break;
                                     }
                                   }
                                 }
