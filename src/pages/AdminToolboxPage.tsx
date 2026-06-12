@@ -163,7 +163,8 @@ export default function AdminToolboxPage() {
       { label: 'Contato', link: '#' }
     ],
     sticky: true,
-    autoDetect: false,
+    enableAutoDetect: false,
+    enableWpApi: true,
     wpApiUrl: '',
     testUrl: ''
   });
@@ -673,7 +674,7 @@ export default function AdminToolboxPage() {
         } catch (e) { console.warn('WP API fail:', e.message); }
       }
 
-      if (${menuConfig.autoDetect}) {
+      if (enableAutoDetect) {
         console.log('Tentando auto-detecção...');
         const selectors = [
           'nav', 
@@ -1122,48 +1123,48 @@ export default function AdminToolboxPage() {
                         />
                       </div>
                     </div>
-                    <div className="flex items-center justify-between space-x-2 pt-2">
-                      <Label htmlFor="sticky-menu" className="cursor-pointer">Menu Fixo (Sticky)</Label>
+
+                    <div className="flex items-center justify-between border-t pt-4">
+                      <Label htmlFor="sticky">Menu Fixo (Sticky)</Label>
                       <Switch 
-                        id="sticky-menu" 
+                        id="sticky" 
                         checked={menuConfig.sticky}
                         onCheckedChange={(val) => setMenuConfig({...menuConfig, sticky: val})}
                       />
                     </div>
-                    <div className="space-y-4 pt-2 border-t mt-4">
-                      <Label className="text-xs uppercase font-bold text-muted-foreground flex items-center gap-2">
-                        <RefreshCw className="h-3 w-3" /> Automação de Itens
-                      </Label>
-                      
-                      <Button 
-                        variant="secondary" 
-                        size="sm" 
-                        className="w-full gap-2"
-                        onClick={syncWithSystemMenu}
-                      >
-                        <RefreshCw className="h-4 w-4" /> Importar do Sistema Atual
-                      </Button>
 
-                      <div className="flex items-center justify-between space-x-2">
+                    <div className="space-y-4 pt-2 border-t mt-4">
+                      <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
-                          <Label htmlFor="auto-detect" className="cursor-pointer">Auto-detectar Menu</Label>
-                          <p className="text-[10px] text-muted-foreground">Tenta ler links do site onde for inserido.</p>
+                          <Label className="text-sm">Sincronizar via API WP</Label>
+                          <p className="text-[10px] text-muted-foreground">Busca itens via JSON do WordPress.</p>
                         </div>
                         <Switch 
-                          id="auto-detect" 
-                          checked={menuConfig.autoDetect}
-                          onCheckedChange={(val) => setMenuConfig({...menuConfig, autoDetect: val})}
+                          checked={menuConfig.enableWpApi}
+                          onCheckedChange={(val) => setMenuConfig({...menuConfig, enableWpApi: val})}
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label className="text-xs">Endpoint WordPress (JSON)</Label>
-                        <Input 
-                          placeholder="Ex: https://site.com/wp-json/wp/v2/menu-items"
-                          value={menuConfig.wpApiUrl}
-                          onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value})}
+                      {menuConfig.enableWpApi && (
+                        <div className="space-y-2 animate-in slide-in-from-top-1 duration-200">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground">Endpoint WordPress (JSON)</Label>
+                          <Input 
+                            placeholder="Ex: https://site.com/wp-json/wp/v2/menu-items"
+                            value={menuConfig.wpApiUrl}
+                            onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value})}
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between border-t pt-4">
+                        <div className="space-y-0.5">
+                          <Label className="text-sm">Auto-detecção via URL</Label>
+                          <p className="text-[10px] text-muted-foreground">Varredura visual do site para achar menus.</p>
+                        </div>
+                        <Switch 
+                          checked={menuConfig.enableAutoDetect}
+                          onCheckedChange={(val) => setMenuConfig({...menuConfig, enableAutoDetect: val})}
                         />
-                        <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress para sincronização em tempo real.</p>
                       </div>
                     </div>
 
