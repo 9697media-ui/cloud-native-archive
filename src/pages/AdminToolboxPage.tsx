@@ -634,21 +634,43 @@ export default function AdminToolboxPage() {
 
       if (${menuConfig.autoDetect}) {
         console.log('Tentando auto-detecção local...');
-        const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', 'ul[class*="menu"]', '.wp-block-navigation'];
-        for (const selector of selectors) {
-          const nav = document.querySelector(selector);
-          if (nav && !nav.classList.contains('custom-nav-992')) {
-            const links = Array.from(nav.querySelectorAll('a')).slice(0, 15);
-            if (links.length > 0) {
-              const detected = links.map(a => ({ title: a.innerText.trim(), link: a.href })).filter(i => i.title.length > 1);
-              if (detected.length > 0) {
-                menuContainer.innerHTML = renderItems(detected);
-                if (typeof highlightActiveLink === 'function') highlightActiveLink();
-                return;
+        const selectors = [
+          '.elementor-nav-menu', 
+          'nav', 
+          '.main-navigation', 
+          'ul[class*="menu"]', 
+          '.wp-block-navigation',
+          '.nav-menu',
+          '.site-navigation',
+          '#main-nav',
+          '.header-nav'
+        ];
+        
+        // Tenta detectar o menu até 5 vezes se não encontrar de primeira
+        let attempts = 0;
+        const tryDetect = setInterval(() => {
+          attempts++;
+          for (const selector of selectors) {
+            const nav = document.querySelector(selector);
+            if (nav && !nav.classList.contains('custom-nav-992')) {
+              const links = Array.from(nav.querySelectorAll('a')).slice(0, 15);
+              if (links.length > 0) {
+                const detected = links.map(a => ({ title: a.innerText.trim() || a.textContent.trim(), link: a.href })).filter(i => i.title.length > 1);
+                if (detected.length > 0) {
+                  console.log('Menu detectado via:', selector);
+                  menuContainer.innerHTML = renderItems(detected);
+                  if (typeof highlightActiveLink === 'function') highlightActiveLink();
+                  clearInterval(tryDetect);
+                  return;
+                }
               }
             }
           }
-        }
+          if (attempts >= 5) {
+            clearInterval(tryDetect);
+            console.warn('Auto-detecção finalizada após 5 tentativas.');
+          }
+        }, 2000);
       }
 
       const manualItems = ${JSON.stringify(menuConfig.items)};
@@ -1240,6 +1262,15 @@ export default function AdminToolboxPage() {
                       >
                         + Adicionar Item Manual
                       </Button>
+                      
+                      {menuConfig.wpApiUrl && (
+                        <Alert className="mt-4 bg-orange-500/10 border-orange-500/20 py-2">
+                          <AlertTriangle className="h-3 w-3 text-orange-500" />
+                          <div className="text-[10px] leading-tight">
+                            <span className="font-bold">Aviso de CORS:</span> Se os itens não aparecerem no seu site, o WordPress pode estar bloqueando a requisição. Use "Auto-detectar" como alternativa.
+                          </div>
+                        </Alert>
+                      )}
                     </div>
                   </div>
                 )}
