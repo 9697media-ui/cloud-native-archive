@@ -191,17 +191,16 @@ export default function AdminToolboxPage() {
 
     // Helper to build tree from flat list (common in WP REST API)
     const buildTree = (items: any[], parentId: number | string = 0) => {
+      const tree: any[] = [];
       const childrenOf: {[key: string]: any[]} = {};
 
       items.forEach(item => {
-        // WordPress uses 'parent' or 'menu_item_parent'
-        // Normalize parentId to string for comparison, handling 0, "0", null
-        const pId = String(item.parent || item.menu_item_parent || 0);
+        const pId = item.parent || item.menu_item_parent || 0;
         if (!childrenOf[pId]) childrenOf[pId] = [];
         childrenOf[pId].push(item);
       });
 
-      const processBranch = (pId: string) => {
+      const processBranch = (pId: number | string) => {
         if (!childrenOf[pId]) return [];
         return childrenOf[pId].map(item => {
           let label = '';
@@ -212,16 +211,15 @@ export default function AdminToolboxPage() {
           else if (item.post_title) label = item.post_title;
           else if (item.text) label = item.text;
 
-          const currentId = String(item.id || item.ID || item.db_id || '');
           return {
             label,
             link: item.url || item.link || item.guid || item.href || '#',
-            children: currentId ? processBranch(currentId) : []
+            children: processBranch(item.id || item.ID || item.db_id || '')
           };
         }).filter(i => i.label);
       };
 
-      return processBranch(String(parentId));
+      return processBranch(parentId);
     };
 
     // Case 1: Array of Navigation Blocks (Modern WP / FSE)
@@ -646,63 +644,76 @@ export default function AdminToolboxPage() {
           const response = await fetch(wpApiUrl);
           if (response.ok) {
             const data = await response.json();
-            
-            // Função para transformar lista plana em árvore
-            function buildTree(items, parentId = 0) {
-              const childrenOf = {};
-              items.forEach(item => {
-                const pId = String(item.parent || item.menu_item_parent || 0);
-                if (!childrenOf[pId]) childrenOf[pId] = [];
-                childrenOf[pId].push(item);
-              });
-
-              function processBranch(pId) {
-                if (!childrenOf[pId]) return [];
-                return childrenOf[pId].map(item => {
-                  let title = '';
-                  if (item.title && typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
-                  else if (item.title && typeof item.title === 'string') title = item.title;
-                  else if (item.label) title = item.label;
-                  else if (item.name) title = item.name;
-                  else if (item.post_title) title = item.post_title;
-                  else if (item.text) title = item.text;
-
-                  const currentId = String(item.id || item.ID || item.db_id || '');
-                  return {
-                    title,
-                    link: item.url || item.link || item.guid || item.href || '#',
-                    children: currentId ? processBranch(currentId) : []
-                  };
-                }).filter(i => i.title);
-              }
-              return processBranch(String(parentId));
+            let items = [];
+            if (Array.isArray(data)) {
+              items = data;
+            } else if (data.items || data.children || data.menu_items || data.data) {
+              items = data.items || data.children || data.menu_items || data.data;
             }
 
-            // Função para extrair e organizar itens
-            function extractAndOrganize(source) {
+            
+            // Função para extrair itens de estruturas aninhadas do WordPress
+            function extractItems(source) {
               if (!source) return [];
               
-              let items = [];
+              console.log('Analisando fonte de dados:', source);
+
+              // Helper para extrair de HTML renderizado (Gutenberg/FSE)
+              function fromHTML(html) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const links = Array.from(tempDiv.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
+                return links.map(a => ({
+                  title: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+                  link: a.getAttribute('href') || '#',
+                  children: []
+                })).filter(i => i.title && i.link !== '#');
+              }
+
+              // Se for um array de blocos de navegação (Modern WP)
+              if (Array.isArray(source) && source[0]?.content?.rendered) {
+                const items = source.flatMap(s => fromHTML(s.content.rendered));
+                if (items.length > 0) return items;
+              }
+
+              // Se for um objeto com propriedade de itens, mergulha nela
+              if (source.items && Array.isArray(source.items)) return source.items;
+              if (source.children && Array.isArray(source.children)) return source.children;
+              if (source.menu_items && Array.isArray(source.menu_items)) return source.menu_items;
+              if (source.navigation && source.navigation.items) return source.navigation.items;
+              if (source.data && Array.isArray(source.data)) return source.data;
+              if (source.nodes && Array.isArray(source.nodes)) return source.nodes;
+              if (source.edges && Array.isArray(source.edges)) return source.edges;
+              
+              // Se for um array
+              let baseArray = [];
               if (Array.isArray(source)) {
-                items = source;
-              } else if (source.items || source.children || source.menu_items || source.data) {
-                items = source.items || source.children || source.menu_items || source.data;
+                // Se o array tem 1 item e esse item tem sub-itens, mergulha
+                if (source.length === 1 && (source[0].items || source[0].children || source[0].menu_items)) {
+                  return extractItems(source[0]);
+                }
+                baseArray = source;
+              } else if (typeof source === 'object') {
+                // Se for um objeto com chaves numéricas
+                const keys = Object.keys(source);
+                if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
+                  baseArray = Object.values(source);
+                }
               }
 
-              if (!Array.isArray(items)) return [];
-
-              // Verifica se é uma lista plana com hierarquia (tem parent)
-              const hasHierarchy = items.some(i => i.parent !== undefined || i.menu_item_parent !== undefined);
-              if (hasHierarchy) {
-                return buildTree(items);
+              // Se o array resultante contém objetos com HTML renderizado (menus sem links diretos)
+              if (baseArray.length > 0 && !baseArray[0].url && !baseArray[0].link && baseArray[0].content?.rendered) {
+                 const dived = baseArray.flatMap(item => fromHTML(item.content.rendered));
+                 if (dived.length > 0) return dived;
               }
 
-              return items;
+              return baseArray;
             }
 
-            const organizedItems = extractAndOrganize(data);
-            const htmlContent = renderItems(organizedItems);
-            
+            items = extractItems(data);
+
+
+            const htmlContent = renderItems(items);
             if (htmlContent && htmlContent.trim().length > 5) {
               menuContainer.innerHTML = htmlContent;
               if (typeof highlightActiveLink === 'function') highlightActiveLink();
@@ -850,9 +861,7 @@ export default function AdminToolboxPage() {
   <div class="menu-items">
     ${menuConfig.items.length > 0 
       ? menuConfig.items.map((item: any) => {
-          // Só renderiza aqui se não for um item que deveria ser filho (embora o items já deva vir filtrado para raízes)
-          const hasChildren = item.children && item.children.length > 0;
-          if (hasChildren) {
+          if (item.children && item.children.length > 0) {
             return `<div class="has-submenu">
               <a href="${item.link}">${item.label}</a>
               <ul class="submenu">
