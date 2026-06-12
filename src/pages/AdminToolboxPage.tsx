@@ -746,7 +746,7 @@ export default function AdminToolboxPage() {
 
               let itemsSource = source;
               if (!Array.isArray(source)) {
-                itemsSource = source.items || source.children || source.menu_items || source.data || source.nodes || [source];
+                itemsSource = source.items || source.children || source.menu_items || source.data || source.nodes || source.edges || [source];
               }
 
               if (Array.isArray(itemsSource)) {
@@ -756,22 +756,28 @@ export default function AdminToolboxPage() {
                 
                 const hasParentRefs = itemsSource.some(item => 
                   (item.parent !== undefined && item.parent.toString() !== "0") || 
-                  (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0")
+                  (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0") ||
+                  (item.parentId !== undefined && item.parentId.toString() !== "0")
                 );
                 
                 if (hasParentRefs) return buildTree(itemsSource);
                 
-                return itemsSource.map(item => ({
-                  title: item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título',
-                  link: item.url || item.link || item.guid || item.href || '#',
-                  children: Array.isArray(item.children || item.items || item.sub_items) ? extractItems(item.children || item.items || item.sub_items) : []
-                })).filter(i => i.title);
+                return itemsSource.map(item => {
+                  const title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título';
+                  const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
+                  const children = item.children || item.items || item.sub_items || item.nodes || item.edges || [];
+                  return {
+                    title,
+                    link: link,
+                    children: Array.isArray(children) && children.length > 0 ? extractItems(children) : []
+                  };
+                }).filter(i => i.title);
               }
               return [];
             }
 
             const items = extractItems(data);
-
+            console.log('Widget: Itens extraídos:', items);
 
             const htmlContent = renderItems(items);
             if (htmlContent && htmlContent.trim().length > 5) {
@@ -786,19 +792,9 @@ export default function AdminToolboxPage() {
       if (enableAutoDetect) {
         console.log('Tentando auto-detecção...');
         const selectors = [
-          'nav', 
-          '.main-navigation', 
-          '.elementor-nav-menu', 
-          '.header-menu', 
-          '#site-navigation', 
-          'ul[class*="menu"]', 
-          '.wp-block-navigation',
-          '.navbar',
-          '.nav-menu',
-          '.navigation',
-          '[role="navigation"]',
-          'header .links',
-          '.header__nav'
+          'nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 
+          'ul[class*="menu"]', '.wp-block-navigation', '.navbar', '.nav-menu', '.navigation',
+          '[role="navigation"]', 'header .links', '.header__nav', '#header-menu', '.menu-primary-container'
         ];
         const previewFrame = document.querySelector('iframe[title="Site Preview"]');
         let targetDoc = document;
@@ -810,32 +806,35 @@ export default function AdminToolboxPage() {
         for (const selector of selectors) {
           const containers = targetDoc.querySelectorAll(selector);
           for (const container of containers) {
-            function getDOMItems(el) {
-              // Tenta encontrar links diretos se não houver estrutura de lista clara
-              const directLinks = Array.from(el.querySelectorAll('a')).filter(a => {
-                const parentLi = a.closest('li');
-                // Se estiver dentro de um LI, queremos apenas o link principal dele (evitar duplicatas)
-                if (parentLi) return parentLi.parentElement.closest(selector) === el || parentLi.parentElement === el;
-                return a.parentElement === el || a.parentElement.parentElement === el;
-              });
-
-              if (directLinks.length > 2) {
-                return directLinks.map(link => ({
-                  title: link.innerText.trim() || link.textContent.trim(),
-                  link: link.href,
-                  children: []
-                })).filter(i => i.title);
+            function getDOMItems(el, depth = 0) {
+              if (depth > 4) return [];
+              const items = [];
+              const listItems = Array.from(el.children).filter(child => child.tagName === 'LI');
+              
+              if (listItems.length === 0 && depth === 0) {
+                const nestedUl = el.querySelector('ul');
+                if (nestedUl) return getDOMItems(nestedUl, depth + 1);
               }
 
-              const uls = el.querySelectorAll('ul');
-              const mainUl = Array.from(uls).find(ul => !ul.parentElement.closest('li')) || el.querySelector('ul') || (el.tagName === 'UL' ? el : null);
-              if (!mainUl) return [];
-              return Array.from(mainUl.children).filter(li => li.tagName === 'LI').map(li => {
+              if (listItems.length === 0 && depth === 0) {
+                return Array.from(el.querySelectorAll('a'))
+                  .filter(a => a.innerText.trim().length > 0)
+                  .slice(0, 15)
+                  .map(a => ({ title: a.innerText.trim(), link: a.href, children: [] }));
+              }
+
+              listItems.forEach(li => {
                 const link = li.querySelector('a');
-                if (!link) return null;
-                const sub = li.querySelector('ul, .sub-menu, .dropdown-menu');
-                return { title: (link.innerText || link.textContent).trim(), link: link.href, children: sub ? getDOMItems(sub) : [] };
-              }).filter(i => i && i.title);
+                if (link) {
+                  const sub = li.querySelector('ul, [class*="sub-menu"], [class*="dropdown"]');
+                  items.push({ 
+                    title: (link.innerText || link.textContent || '').trim(), 
+                    link: link.href, 
+                    children: sub ? getDOMItems(sub, depth + 1) : [] 
+                  });
+                }
+              });
+              return items;
             }
             const items = getDOMItems(container);
             if (items.length >= 1) {
