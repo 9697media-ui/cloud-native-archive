@@ -233,15 +233,22 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
-    // Normalização resiliente de itens do WP
+    const cleanLabel = (text: string) => {
+      if (!text) return '';
+      return text.replace(/[\u25BC\u25BE\u25B6\u25B8\u2304\u22EE]/g, '').trim(); // Remove setas comuns
+    };
+
     const normalizeItems = (items: any[]) => {
-      return items.map(item => ({
-        id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
-        parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
-        label: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título').toString(),
-        link: item.url || item.link || item.guid || item.href || '#',
-        children: item.children || item.items || item.sub_items || []
-      }));
+      return items.map(item => {
+        const rawLabel = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título';
+        return {
+          id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
+          parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
+          label: cleanLabel(rawLabel.toString()),
+          link: item.url || item.link || item.guid || item.href || '#',
+          children: item.children || item.items || item.sub_items || []
+        };
+      });
     };
 
     const buildTree = (flatItems: any[]) => {
@@ -249,24 +256,22 @@ export default function AdminToolboxPage() {
       const itemMap = new Map();
       const tree: any[] = [];
 
-      // Primeiro pass: mapeia todos
       normalized.forEach(item => {
         itemMap.set(item.id, { ...item, children: [] });
       });
 
-      // Segundo pass: organiza hierarquia
       normalized.forEach(item => {
         const node = itemMap.get(item.id);
-        const parentNode = itemMap.get(item.parent);
+        const parentId = item.parent;
+        const parentNode = itemMap.get(parentId);
         
-        if (item.parent !== "0" && parentNode) {
+        if (parentId !== "0" && parentId !== "" && parentNode && parentId !== item.id) {
           parentNode.children.push(node);
         } else {
           tree.push(node);
         }
       });
 
-      // Se a árvore ficou vazia mas temos itens, algo falhou na detecção de parentesco; retorna flat
       return tree.length > 0 ? tree : normalized;
     };
 
@@ -276,7 +281,7 @@ export default function AdminToolboxPage() {
       let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
       
       return links.map((a: any) => ({
-        label: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+        label: cleanLabel(a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || ''),
         link: a.getAttribute('href') || '#',
         children: []
       })).filter(i => i.label && i.link !== '#');
@@ -292,7 +297,6 @@ export default function AdminToolboxPage() {
         return itemsSource.flatMap(item => fromHTML(item.content.rendered));
       }
       
-      // Tenta reconstruir árvore se parecer flat
       const hasParentRefs = itemsSource.some(item => 
         (item.parent !== undefined && item.parent.toString() !== "0") || 
         (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0")
@@ -300,7 +304,6 @@ export default function AdminToolboxPage() {
 
       if (hasParentRefs) return buildTree(itemsSource);
       
-      // Fallback: recursão simples para dados já aninhados
       return normalizeItems(itemsSource).map(item => ({
         ...item,
         children: Array.isArray(item.children) && item.children.length > 0 ? extractWPItems(item.children) : []
@@ -1284,6 +1287,22 @@ export default function AdminToolboxPage() {
                         />
                       </div>
                     </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="flex-1 gap-2"
+                        onClick={() => {
+                          const frame = document.querySelector('iframe[title="Site Preview"]') as HTMLIFrameElement;
+                          if (frame) {
+                            frame.src = frame.src; // Força recarregamento e nova detecção
+                            toast({ title: "Sincronizando...", description: "Refazendo varredura visual do site." });
+                          }
+                        }}
+                      >
+                        <RefreshCw className="h-3 w-3" /> Forçar Varredura Visual
+                      </Button>
+                    </div>
 
                     <div className="flex items-center justify-between border-t pt-4">
                       <Label htmlFor="sticky">Menu Fixo (Sticky)</Label>
@@ -1621,24 +1640,30 @@ export default function AdminToolboxPage() {
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
-                                    const getDOMItems = (el: Element): any[] => {
+                                    const cleanLabel = (text: string) => {
+                                      return text.replace(/[\u25BC\u25BE\u25B6\u25B8\u2304\u22EE]/g, '').trim();
+                                    };
+
+                                    const getDOMItems = (el: Element, depth = 0): any[] => {
+                                      if (depth > 5) return []; // Proteção contra recursão infinita
+                                      
                                       const items: any[] = [];
-                                      // Buscar apenas os LIs diretos deste nível para evitar confusão hierárquica
+                                      // Buscar apenas os LIs diretos deste nível
                                       const listItems = Array.from(el.children).filter(child => child.tagName === 'LI');
                                       
-                                      if (listItems.length === 0 && (el.tagName === 'NAV' || el.tagName === 'DIV')) {
-                                        // Se for um container e não tem LIs imediatos, procura o UL dentro dele
-                                        const nestedUl = el.querySelector('ul');
-                                        if (nestedUl) return getDOMItems(nestedUl);
+                                      // Se não tem LIs, procura o primeiro UL filho
+                                      if (listItems.length === 0) {
+                                        const firstUl = el.querySelector('ul');
+                                        if (firstUl && firstUl !== el) return getDOMItems(firstUl, depth + 1);
                                       }
 
-                                      if (listItems.length === 0) {
-                                        // Se ainda não há LIs, tenta buscar links diretos (fallback para menus simples)
+                                      // Fallback se ainda não houver LIs (menus baseados em DIVs ou links diretos)
+                                      if (listItems.length === 0 && depth === 0) {
                                         return Array.from(el.querySelectorAll('a'))
                                           .filter(a => (a as HTMLElement).innerText.trim().length > 0)
-                                          .slice(0, 10)
+                                          .slice(0, 12)
                                           .map(a => ({
-                                            label: (a as HTMLElement).innerText.trim(),
+                                            label: cleanLabel((a as HTMLElement).innerText),
                                             link: (a as HTMLAnchorElement).href,
                                             children: []
                                           }));
@@ -1646,14 +1671,17 @@ export default function AdminToolboxPage() {
 
                                       listItems.forEach(li => {
                                         const link = li.querySelector('a');
-                                        if (link && (link as HTMLElement).innerText.trim().length > 0) {
-                                          // Procurar submenus dentro deste LI
-                                          const subMenu = li.querySelector('ul, [class*="sub-menu"], [class*="dropdown"]');
-                                          items.push({
-                                            label: (link as HTMLElement).innerText.trim(),
-                                            link: (link as HTMLAnchorElement).href,
-                                            children: subMenu ? getDOMItems(subMenu) : []
-                                          });
+                                        if (link) {
+                                          const label = cleanLabel((link as HTMLElement).innerText || link.textContent || '');
+                                          if (label) {
+                                            // Recursividade: busca submenus (qualquer UL, lista ou container de dropdown)
+                                            const subMenu = li.querySelector('ul, [class*="sub-menu"], [class*="dropdown"], [class*="children"]');
+                                            items.push({
+                                              label: label,
+                                              link: (link as HTMLAnchorElement).href,
+                                              children: subMenu ? getDOMItems(subMenu, depth + 1) : []
+                                            });
+                                          }
                                         }
                                       });
                                       return items;
@@ -1662,17 +1690,18 @@ export default function AdminToolboxPage() {
                                     const detectedItems = getDOMItems(nav);
                                     
                                     if (detectedItems.length >= 2) {
+                                      console.log('Itens detectados via DOM:', detectedItems);
                                       const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
                                       if (isDefault || menuConfig.items.length === 0) {
                                         setMenuConfig(prev => ({...prev, items: detectedItems}));
-                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} itens (com submenus) importados.` });
+                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} itens (incluindo submenus) importados.` });
                                       } else {
                                         toast({ 
-                                          title: "Menu Detectado", 
-                                          description: "Estrutura encontrada. Deseja substituir?",
+                                          title: "Menu Encontrado", 
+                                          description: "Deseja importar a estrutura detectada?",
                                           action: (
                                             <Button size="sm" onClick={() => setMenuConfig(prev => ({...prev, items: detectedItems}))}>
-                                              Substituir
+                                              Importar
                                             </Button>
                                           )
                                         });
