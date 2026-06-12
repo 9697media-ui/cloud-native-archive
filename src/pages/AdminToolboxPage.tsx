@@ -1279,7 +1279,7 @@ export default function AdminToolboxPage() {
                                         // Substituir apenas se os itens atuais forem os padrão ou estiverem vazios
                                         const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
                                         if (isDefault || menuConfig.items.length === 0) {
-                                          setMenuConfig(prev => ({...prev, items: detectedItems}));
+                                          setMenuConfig(prev => ({...prev, items: detectedItems, autoDetect: true}));
                                           toast({ title: "Itens Detectados", description: `${detectedItems.length} links importados do preview.` });
                                         } else {
                                           toast({ 
