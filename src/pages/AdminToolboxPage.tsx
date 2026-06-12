@@ -1564,6 +1564,22 @@ export default function AdminToolboxPage() {
                   </TabsList>
                 </Tabs>
 
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-[10px] uppercase font-bold text-muted-foreground hover:text-primary"
+                    onClick={() => {
+                      console.log("DEBUG: Estrutura atual do menu:", JSON.stringify(menuConfig.items, null, 2));
+                      toast({ 
+                        title: "Debug Enviado ao Console", 
+                        description: "Abra o Inspecionar (F12) para ver a estrutura técnica do menu." 
+                      });
+                    }}
+                  >
+                    <Terminal className="h-3 w-3 mr-1" /> Debug Dados
+                  </Button>
+
                 {viewMode === 'preview' && (
                   <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
                     <Button 
