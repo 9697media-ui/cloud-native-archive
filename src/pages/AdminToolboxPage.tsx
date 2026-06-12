@@ -1315,26 +1315,73 @@ export default function AdminToolboxPage() {
                         </div>
                         <span className="text-[10px] text-muted-foreground italic">(Sincronizados via API ou Manual)</span>
                       </div>
-                      {menuConfig.items.map((item, idx) => (
-                        <div key={idx} className="flex gap-2 mb-2">
-                          <Input 
-                            placeholder="Label" 
-                            value={item.label} 
-                            onChange={(e) => {
-                              const newItems = [...menuConfig.items];
-                              newItems[idx].label = e.target.value;
-                              setMenuConfig({...menuConfig, items: newItems});
-                            }}
-                          />
-                          <Input 
-                            placeholder="Link" 
-                            value={item.link}
-                            onChange={(e) => {
-                              const newItems = [...menuConfig.items];
-                              newItems[idx].link = e.target.value;
-                              setMenuConfig({...menuConfig, items: newItems});
-                            }}
-                          />
+                      {menuConfig.items.map((item: any, idx) => (
+                        <div key={idx} className="space-y-2 mb-4 p-3 border rounded-lg bg-muted/30">
+                          <div className="flex gap-2">
+                            <Input 
+                              placeholder="Label" 
+                              value={item.label} 
+                              onChange={(e) => {
+                                const newItems = [...menuConfig.items];
+                                newItems[idx].label = e.target.value;
+                                setMenuConfig({...menuConfig, items: newItems});
+                              }}
+                            />
+                            <Input 
+                              placeholder="Link" 
+                              value={item.link}
+                              onChange={(e) => {
+                                const newItems = [...menuConfig.items];
+                                newItems[idx].link = e.target.value;
+                                setMenuConfig({...menuConfig, items: newItems});
+                              }}
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="shrink-0 text-destructive"
+                              onClick={() => {
+                                const newItems = [...menuConfig.items];
+                                newItems.splice(idx, 1);
+                                setMenuConfig({...menuConfig, items: newItems});
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          {/* Render Sub-items if exist */}
+                          {item.children && item.children.length > 0 && (
+                            <div className="ml-6 space-y-2 border-l-2 pl-3 mt-2">
+                              <p className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1">
+                                <MenuIcon className="h-3 w-3" /> Subitems ({item.children.length})
+                              </p>
+                              {item.children.map((child: any, cIdx: number) => (
+                                <div key={cIdx} className="flex gap-2">
+                                  <Input 
+                                    className="h-8 text-xs"
+                                    placeholder="Sub Label" 
+                                    value={child.label}
+                                    onChange={(e) => {
+                                      const newItems = [...menuConfig.items];
+                                      newItems[idx].children[cIdx].label = e.target.value;
+                                      setMenuConfig({...menuConfig, items: newItems});
+                                    }}
+                                  />
+                                  <Input 
+                                    className="h-8 text-xs"
+                                    placeholder="Sub Link" 
+                                    value={child.link}
+                                    onChange={(e) => {
+                                      const newItems = [...menuConfig.items];
+                                      newItems[idx].children[cIdx].link = e.target.value;
+                                      setMenuConfig({...menuConfig, items: newItems});
+                                    }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                       <Button 
