@@ -173,37 +173,27 @@ export default function AdminToolboxPage() {
     
     let rawItems = [];
     
-    // WordPress modern Navigation block (FSE)
-    // If it's an array and the first item has content.rendered, it's a Navigation Block
-    if (Array.isArray(data) && data[0]?.content?.rendered) {
-      const htmlContent = data[0].content.rendered;
+    // Helper to extract from HTML string
+    const fromHTML = (html: string) => {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlContent, 'text/html');
+      const doc = parser.parseFromString(html, 'text/html');
       
-      // Look for navigation link items specifically
-      const links = doc.querySelectorAll('.wp-block-navigation-item__content');
+      // Look for specific WP navigation classes first
+      let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
       
-      if (links.length > 0) {
-        return Array.from(links).map((a: any) => {
-          // Try to get the label from the specific span if it exists, otherwise use textContent
-          const labelSpan = a.querySelector('.wp-block-navigation-item__label');
-          return {
-            label: (labelSpan?.textContent || a.textContent || '').trim(),
-            link: a.getAttribute('href') || '#'
-          };
-        }).filter(i => i.label);
-      }
-      
-      // Fallback: any link in the content
-      const allLinks = doc.querySelectorAll('a');
-      if (allLinks.length > 0) {
-        return Array.from(allLinks).map((a: any) => ({
-          label: (a.textContent || '').trim(),
-          link: a.getAttribute('href') || '#'
-        })).filter(i => i.label);
-      }
+      return links.map((a: any) => ({
+        label: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+        link: a.getAttribute('href') || '#'
+      })).filter(i => i.label && i.link !== '#');
+    };
+
+    // Case 1: Array of Navigation Blocks (Modern WP / FSE)
+    if (Array.isArray(data) && data[0]?.content?.rendered) {
+      const allItems = data.flatMap(item => fromHTML(item.content.rendered));
+      if (allItems.length > 0) return allItems;
     }
 
+    // Case 2: Direct Menu Item List
     if (Array.isArray(data)) {
       rawItems = data;
     } else if (data.items || data.children || data.menu_items || data.data) {
@@ -212,6 +202,13 @@ export default function AdminToolboxPage() {
       const possibleArray = Object.values(data).find(val => Array.isArray(val));
       if (possibleArray) rawItems = possibleArray as any[];
       else rawItems = [data];
+    }
+
+    // If we have items but they look like "Menus" (objects with titles but no links)
+    // and they have their own content/rendered, try to dive deeper
+    if (rawItems.length > 0 && !rawItems[0].url && !rawItems[0].link && rawItems[0].content?.rendered) {
+       const divedItems = rawItems.flatMap(item => fromHTML(item.content.rendered));
+       if (divedItems.length > 0) return divedItems;
     }
 
     return rawItems.map((item: any) => {
@@ -611,6 +608,24 @@ export default function AdminToolboxPage() {
               
               console.log('Analisando fonte de dados:', source);
 
+              // Helper para extrair de HTML renderizado (Gutenberg/FSE)
+              function fromHTML(html) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const links = Array.from(tempDiv.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
+                return links.map(a => ({
+                  title: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+                  link: a.getAttribute('href') || '#',
+                  children: []
+                })).filter(i => i.title && i.link !== '#');
+              }
+
+              // Se for um array de blocos de navegação (Modern WP)
+              if (Array.isArray(source) && source[0]?.content?.rendered) {
+                const items = source.flatMap(s => fromHTML(s.content.rendered));
+                if (items.length > 0) return items;
+              }
+
               // Se for um objeto com propriedade de itens, mergulha nela
               if (source.items && Array.isArray(source.items)) return source.items;
               if (source.children && Array.isArray(source.children)) return source.children;
@@ -621,27 +636,28 @@ export default function AdminToolboxPage() {
               if (source.edges && Array.isArray(source.edges)) return source.edges;
               
               // Se for um array
+              let baseArray = [];
               if (Array.isArray(source)) {
                 // Se o array tem 1 item e esse item tem sub-itens, mergulha
                 if (source.length === 1 && (source[0].items || source[0].children || source[0].menu_items)) {
                   return extractItems(source[0]);
                 }
-                return source;
-              }
-              
-              // Se for um objeto com chaves numéricas (comum em APIs PHP/WP antigas)
-              if (typeof source === 'object') {
+                baseArray = source;
+              } else if (typeof source === 'object') {
+                // Se for um objeto com chaves numéricas
                 const keys = Object.keys(source);
                 if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
-                  return Object.values(source);
+                  baseArray = Object.values(source);
                 }
               }
 
-              // Caso o objeto em si tenha itens/children (segunda checagem)
-              const possibleItems = source.items || source.children || source.menu_items;
-              if (Array.isArray(possibleItems)) return possibleItems;
+              // Se o array resultante contém objetos com HTML renderizado (menus sem links diretos)
+              if (baseArray.length > 0 && !baseArray[0].url && !baseArray[0].link && baseArray[0].content?.rendered) {
+                 const dived = baseArray.flatMap(item => fromHTML(item.content.rendered));
+                 if (dived.length > 0) return dived;
+              }
 
-              return [];
+              return baseArray;
             }
 
             items = extractItems(data);
