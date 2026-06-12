@@ -437,6 +437,7 @@ export default function AdminToolboxPage() {
     box-sizing: border-box;
     transition: all 0.3s ease;
   }
+  .all-initial * { all: initial; box-sizing: border-box; }
   .custom-nav-992 .logo img {
     height: 40px;
     max-width: 180px;
