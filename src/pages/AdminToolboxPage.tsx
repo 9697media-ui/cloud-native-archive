@@ -171,47 +171,52 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): { label: string, link: string }[] => {
     if (!data) return [];
     
-    let rawItems = [];
-    
+    console.log('Extraindo itens do WordPress:', data);
+
     // WordPress modern Navigation block (FSE)
-    // If it's an array and the first item has content.rendered, it's a Navigation Block
-    if (Array.isArray(data) && data[0]?.content?.rendered) {
-      const htmlContent = data[0].content.rendered;
+    const extractFromGutenberg = (content: string) => {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlContent, 'text/html');
-      
-      // Look for navigation link items specifically
-      const links = doc.querySelectorAll('.wp-block-navigation-item__content');
+      const doc = parser.parseFromString(content, 'text/html');
+      const links = doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link');
       
       if (links.length > 0) {
         return Array.from(links).map((a: any) => {
-          // Try to get the label from the specific span if it exists, otherwise use textContent
-          const labelSpan = a.querySelector('.wp-block-navigation-item__label');
+          const labelSpan = a.querySelector('.wp-block-navigation-item__label, .wp-block-navigation-link__label');
           return {
             label: (labelSpan?.textContent || a.textContent || '').trim(),
             link: a.getAttribute('href') || '#'
           };
         }).filter(i => i.label);
       }
-      
-      // Fallback: any link in the content
-      const allLinks = doc.querySelectorAll('a');
-      if (allLinks.length > 0) {
-        return Array.from(allLinks).map((a: any) => ({
-          label: (a.textContent || '').trim(),
-          link: a.getAttribute('href') || '#'
-        })).filter(i => i.label);
-      }
+      return [];
+    };
+
+    if (Array.isArray(data) && data[0]?.content?.rendered) {
+      const items = extractFromGutenberg(data[0].content.rendered);
+      if (items.length > 0) return items;
     }
 
+    let rawItems: any[] = [];
     if (Array.isArray(data)) {
       rawItems = data;
-    } else if (data.items || data.children || data.menu_items || data.data) {
-      rawItems = data.items || data.children || data.menu_items || data.data;
-    } else if (typeof data === 'object') {
-      const possibleArray = Object.values(data).find(val => Array.isArray(val));
-      if (possibleArray) rawItems = possibleArray as any[];
-      else rawItems = [data];
+    } else {
+      const possibleCollections = [
+        data.items, 
+        data.children, 
+        data.menu_items, 
+        data.data, 
+        data.navigation_items,
+        // WordPress menu API plugin (WP-REST-API V2 Menus)
+        data.items && Array.isArray(data.items) ? data.items : null
+      ].filter(Boolean);
+      
+      if (possibleCollections.length > 0) {
+        rawItems = possibleCollections[0];
+      } else if (typeof data === 'object') {
+        const arrayVal = Object.values(data).find(val => Array.isArray(val));
+        if (arrayVal) rawItems = arrayVal as any[];
+        else rawItems = [data];
+      }
     }
 
     return rawItems.map((item: any) => {
@@ -222,11 +227,14 @@ export default function AdminToolboxPage() {
       else if (item.name) label = item.name;
       else if (item.post_title) label = item.post_title;
       else if (item.text) label = item.text;
+      else if (item.content?.rendered) {
+         const extracted = extractFromGutenberg(item.content.rendered);
+         if (extracted.length > 0) return extracted[0];
+      }
 
-      const link = item.url || item.link || item.guid || item.href || '#';
-      
+      const link = item.url || item.link || item.guid || item.href || item.permalink || '#';
       return { label, link };
-    }).filter(i => i.label);
+    }).flat().filter((i: any) => i && i.label);
   };
 
   const syncWithSystemMenu = () => {
@@ -1283,16 +1291,24 @@ export default function AdminToolboxPage() {
                               const frame = e.currentTarget;
                               const doc = frame.contentDocument || frame.contentWindow?.document;
                               if (doc) {
-                                const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', 'ul[class*="menu"]'];
+                                const selectors = [
+                                  'nav', 
+                                  '.main-navigation', 
+                                  '.elementor-nav-menu', 
+                                  'ul[class*="menu"]', 
+                                  '.wp-block-navigation',
+                                  '.nav-menu',
+                                  '.site-navigation'
+                                ];
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
-                                    const links = Array.from(nav.querySelectorAll('a')).slice(0, 10);
+                                    const links = Array.from(nav.querySelectorAll('a')).slice(0, 15);
                                     if (links.length > 0) {
                                       const detectedItems = links.map(a => ({
-                                        label: (a as HTMLElement).innerText.trim(),
+                                        label: (a as HTMLElement).innerText.trim() || (a as HTMLElement).textContent?.trim() || '',
                                         link: (a as HTMLAnchorElement).href
-                                      })).filter(i => i.label);
+                                      })).filter(i => i.label && i.label.length > 1);
                                       
                                       if (detectedItems.length > 0) {
                                         // Substituir apenas se os itens atuais forem os padrão ou estiverem vazios
