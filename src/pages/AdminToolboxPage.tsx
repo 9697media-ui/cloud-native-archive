@@ -1369,36 +1369,55 @@ export default function AdminToolboxPage() {
                       {menuConfig.items.map((item: any, idx) => (
                         <div key={idx} className="space-y-2 mb-4 p-3 border rounded-lg bg-muted/30">
                           <div className="flex gap-2">
-                            <Input 
-                              placeholder="Label" 
-                              value={item.label} 
-                              onChange={(e) => {
-                                const newItems = [...menuConfig.items];
-                                newItems[idx].label = e.target.value;
-                                setMenuConfig({...menuConfig, items: newItems});
-                              }}
-                            />
-                            <Input 
-                              placeholder="Link" 
-                              value={item.link}
-                              onChange={(e) => {
-                                const newItems = [...menuConfig.items];
-                                newItems[idx].link = e.target.value;
-                                setMenuConfig({...menuConfig, items: newItems});
-                              }}
-                            />
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="shrink-0 text-destructive"
-                              onClick={() => {
-                                const newItems = [...menuConfig.items];
-                                newItems.splice(idx, 1);
-                                setMenuConfig({...menuConfig, items: newItems});
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <div className="flex-1 flex flex-col gap-2">
+                              <Input 
+                                placeholder="Label" 
+                                value={item.label} 
+                                onChange={(e) => {
+                                  const newItems = [...menuConfig.items];
+                                  newItems[idx].label = e.target.value;
+                                  setMenuConfig({...menuConfig, items: newItems});
+                                }}
+                              />
+                              <Input 
+                                placeholder="Link" 
+                                value={item.link}
+                                onChange={(e) => {
+                                  const newItems = [...menuConfig.items];
+                                  newItems[idx].link = e.target.value;
+                                  setMenuConfig({...menuConfig, items: newItems});
+                                }}
+                              />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="shrink-0 text-destructive"
+                                title="Remover item"
+                                onClick={() => {
+                                  const newItems = [...menuConfig.items];
+                                  newItems.splice(idx, 1);
+                                  setMenuConfig({...menuConfig, items: newItems});
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="icon" 
+                                className="shrink-0 text-primary"
+                                title="Adicionar subitem"
+                                onClick={() => {
+                                  const newItems = [...menuConfig.items];
+                                  if (!newItems[idx].children) newItems[idx].children = [];
+                                  newItems[idx].children.push({ label: 'Novo Subitem', link: '#' });
+                                  setMenuConfig({...menuConfig, items: newItems});
+                                }}
+                              >
+                                <MenuIcon className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                           
                           {/* Render Sub-items if exist */}
@@ -1409,26 +1428,40 @@ export default function AdminToolboxPage() {
                               </p>
                               {item.children.map((child: any, cIdx: number) => (
                                 <div key={cIdx} className="flex gap-2">
-                                  <Input 
-                                    className="h-8 text-xs"
-                                    placeholder="Sub Label" 
-                                    value={child.label}
-                                    onChange={(e) => {
+                                  <div className="flex-1 flex flex-col gap-1">
+                                    <Input 
+                                      className="h-8 text-xs"
+                                      placeholder="Sub Label" 
+                                      value={child.label}
+                                      onChange={(e) => {
+                                        const newItems = [...menuConfig.items];
+                                        newItems[idx].children[cIdx].label = e.target.value;
+                                        setMenuConfig({...menuConfig, items: newItems});
+                                      }}
+                                    />
+                                    <Input 
+                                      className="h-8 text-xs"
+                                      placeholder="Sub Link" 
+                                      value={child.link}
+                                      onChange={(e) => {
+                                        const newItems = [...menuConfig.items];
+                                        newItems[idx].children[cIdx].link = e.target.value;
+                                        setMenuConfig({...menuConfig, items: newItems});
+                                      }}
+                                    />
+                                  </div>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 text-destructive"
+                                    onClick={() => {
                                       const newItems = [...menuConfig.items];
-                                      newItems[idx].children[cIdx].label = e.target.value;
+                                      newItems[idx].children.splice(cIdx, 1);
                                       setMenuConfig({...menuConfig, items: newItems});
                                     }}
-                                  />
-                                  <Input 
-                                    className="h-8 text-xs"
-                                    placeholder="Sub Link" 
-                                    value={child.link}
-                                    onChange={(e) => {
-                                      const newItems = [...menuConfig.items];
-                                      newItems[idx].children[cIdx].link = e.target.value;
-                                      setMenuConfig({...menuConfig, items: newItems});
-                                    }}
-                                  />
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
                                 </div>
                               ))}
                             </div>
