@@ -915,7 +915,7 @@ export default function AdminToolboxPage() {
   </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
-      ? renderHierarchicalMenu(menuConfig.items)
+      ? renderHierarchicalItems(menuConfig.items)
       : '<!-- Aguardando carregamento... -->'
     }
   </div>
