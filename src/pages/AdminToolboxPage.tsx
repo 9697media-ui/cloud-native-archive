@@ -916,14 +916,14 @@ export default function AdminToolboxPage() {
         const hasChildren = Array.isArray(children) && children.length > 0;
 
         if (hasChildren) {
-          return `<div class="has-submenu">
+          return `<li class="has-submenu">
             <a href="${link}">${label}</a>
             <ul class="submenu">
               ${renderUniversalMenu(children)}
             </ul>
-          </div>`;
+          </li>`;
         }
-        return `<a href="${link}">${label}</a>`;
+        return `<li><a href="${link}">${label}</a></li>`;
       }).join('\n');
     };
 
@@ -936,12 +936,12 @@ export default function AdminToolboxPage() {
   <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
     <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
   </button>
-  <div class="menu-items">
+  <ul class="menu-items">
     ${menuConfig.items.length > 0 
       ? renderUniversalMenu(menuConfig.items)
       : '<!-- Sem itens para exibir -->'
     }
-  </div>
+  </ul>
 </nav>
 <!-- Fim: Menu Responsivo Nativo -->`;
 
