@@ -173,37 +173,27 @@ export default function AdminToolboxPage() {
     
     let rawItems = [];
     
-    // WordPress modern Navigation block (FSE)
-    // If it's an array and the first item has content.rendered, it's a Navigation Block
-    if (Array.isArray(data) && data[0]?.content?.rendered) {
-      const htmlContent = data[0].content.rendered;
+    // Helper to extract from HTML string
+    const fromHTML = (html: string) => {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlContent, 'text/html');
+      const doc = parser.parseFromString(html, 'text/html');
       
-      // Look for navigation link items specifically
-      const links = doc.querySelectorAll('.wp-block-navigation-item__content');
+      // Look for specific WP navigation classes first
+      let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
       
-      if (links.length > 0) {
-        return Array.from(links).map((a: any) => {
-          // Try to get the label from the specific span if it exists, otherwise use textContent
-          const labelSpan = a.querySelector('.wp-block-navigation-item__label');
-          return {
-            label: (labelSpan?.textContent || a.textContent || '').trim(),
-            link: a.getAttribute('href') || '#'
-          };
-        }).filter(i => i.label);
-      }
-      
-      // Fallback: any link in the content
-      const allLinks = doc.querySelectorAll('a');
-      if (allLinks.length > 0) {
-        return Array.from(allLinks).map((a: any) => ({
-          label: (a.textContent || '').trim(),
-          link: a.getAttribute('href') || '#'
-        })).filter(i => i.label);
-      }
+      return links.map((a: any) => ({
+        label: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+        link: a.getAttribute('href') || '#'
+      })).filter(i => i.label && i.link !== '#');
+    };
+
+    // Case 1: Array of Navigation Blocks (Modern WP / FSE)
+    if (Array.isArray(data) && data[0]?.content?.rendered) {
+      const allItems = data.flatMap(item => fromHTML(item.content.rendered));
+      if (allItems.length > 0) return allItems;
     }
 
+    // Case 2: Direct Menu Item List
     if (Array.isArray(data)) {
       rawItems = data;
     } else if (data.items || data.children || data.menu_items || data.data) {
@@ -212,6 +202,13 @@ export default function AdminToolboxPage() {
       const possibleArray = Object.values(data).find(val => Array.isArray(val));
       if (possibleArray) rawItems = possibleArray as any[];
       else rawItems = [data];
+    }
+
+    // If we have items but they look like "Menus" (objects with titles but no links)
+    // and they have their own content/rendered, try to dive deeper
+    if (rawItems.length > 0 && !rawItems[0].url && !rawItems[0].link && rawItems[0].content?.rendered) {
+       const divedItems = rawItems.flatMap(item => fromHTML(item.content.rendered));
+       if (divedItems.length > 0) return divedItems;
     }
 
     return rawItems.map((item: any) => {
