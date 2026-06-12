@@ -461,7 +461,6 @@ export default function AdminToolboxPage() {
     position: relative !important;
     display: flex !important;
     align-items: center !important;
-    height: 100% !important;
   }
   .custom-nav-992 .menu-items .has-submenu > a::after {
     content: "";
@@ -471,7 +470,7 @@ export default function AdminToolboxPage() {
     border-right: 4px solid transparent;
     border-top: 4px solid currentColor;
     opacity: 0.5;
-    margin-left: 4px;
+    margin-left: 6px;
   }
   .custom-nav-992 .submenu {
     position: absolute !important;
@@ -483,17 +482,14 @@ export default function AdminToolboxPage() {
     padding: 10px 0 !important;
     display: none !important;
     flex-direction: column !important;
-    min-width: 220px !important;
+    min-width: 200px !important;
     z-index: 9999999 !important;
     list-style: none !important;
     margin: 0 !important;
     border: 1px solid rgba(0,0,0,0.05) !important;
   }
-  /* Força a exibição no hover do PAI */
-  .custom-nav-992 .menu-items .has-submenu:hover > .submenu {
+  .custom-nav-992 .has-submenu:hover > .submenu {
     display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
   }
   .custom-nav-992 .submenu a {
     padding: 12px 20px !important;
