@@ -1552,7 +1552,7 @@ export default function AdminToolboxPage() {
           <div className="lg:col-span-8 flex flex-col gap-6 relative">
             <div className="sticky top-24 space-y-6">
               <Card className="overflow-hidden flex flex-col min-h-[600px]">
-              <div className="border-b bg-muted/30 px-6 py-3 flex items-center justify-between shrink-0">
+                <div className="border-b bg-muted/30 px-6 py-3 flex items-center justify-between shrink-0">
                 <Tabs value={viewMode} onValueChange={setViewMode} className="w-auto">
                   <TabsList>
                     <TabsTrigger value="preview" className="gap-2">
