@@ -1624,24 +1624,30 @@ export default function AdminToolboxPage() {
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
-                                    const getDOMItems = (el: Element): any[] => {
+                                    const cleanLabel = (text: string) => {
+                                      return text.replace(/[\u25BC\u25BE\u25B6\u25B8\u2304\u22EE]/g, '').trim();
+                                    };
+
+                                    const getDOMItems = (el: Element, depth = 0): any[] => {
+                                      if (depth > 5) return []; // Proteção contra recursão infinita
+                                      
                                       const items: any[] = [];
-                                      // Buscar apenas os LIs diretos deste nível para evitar confusão hierárquica
+                                      // Buscar apenas os LIs diretos deste nível
                                       const listItems = Array.from(el.children).filter(child => child.tagName === 'LI');
                                       
-                                      if (listItems.length === 0 && (el.tagName === 'NAV' || el.tagName === 'DIV')) {
-                                        // Se for um container e não tem LIs imediatos, procura o UL dentro dele
-                                        const nestedUl = el.querySelector('ul');
-                                        if (nestedUl) return getDOMItems(nestedUl);
+                                      // Se não tem LIs, procura o primeiro UL filho
+                                      if (listItems.length === 0) {
+                                        const firstUl = el.querySelector('ul');
+                                        if (firstUl && firstUl !== el) return getDOMItems(firstUl, depth + 1);
                                       }
 
-                                      if (listItems.length === 0) {
-                                        // Se ainda não há LIs, tenta buscar links diretos (fallback para menus simples)
+                                      // Fallback se ainda não houver LIs (menus baseados em DIVs ou links diretos)
+                                      if (listItems.length === 0 && depth === 0) {
                                         return Array.from(el.querySelectorAll('a'))
                                           .filter(a => (a as HTMLElement).innerText.trim().length > 0)
-                                          .slice(0, 10)
+                                          .slice(0, 12)
                                           .map(a => ({
-                                            label: (a as HTMLElement).innerText.trim(),
+                                            label: cleanLabel((a as HTMLElement).innerText),
                                             link: (a as HTMLAnchorElement).href,
                                             children: []
                                           }));
@@ -1649,14 +1655,17 @@ export default function AdminToolboxPage() {
 
                                       listItems.forEach(li => {
                                         const link = li.querySelector('a');
-                                        if (link && (link as HTMLElement).innerText.trim().length > 0) {
-                                          // Procurar submenus dentro deste LI
-                                          const subMenu = li.querySelector('ul, [class*="sub-menu"], [class*="dropdown"]');
-                                          items.push({
-                                            label: (link as HTMLElement).innerText.trim(),
-                                            link: (link as HTMLAnchorElement).href,
-                                            children: subMenu ? getDOMItems(subMenu) : []
-                                          });
+                                        if (link) {
+                                          const label = cleanLabel((link as HTMLElement).innerText || link.textContent || '');
+                                          if (label) {
+                                            // Recursividade: busca submenus (qualquer UL, lista ou container de dropdown)
+                                            const subMenu = li.querySelector('ul, [class*="sub-menu"], [class*="dropdown"], [class*="children"]');
+                                            items.push({
+                                              label: label,
+                                              link: (link as HTMLAnchorElement).href,
+                                              children: subMenu ? getDOMItems(subMenu, depth + 1) : []
+                                            });
+                                          }
                                         }
                                       });
                                       return items;
@@ -1665,17 +1674,18 @@ export default function AdminToolboxPage() {
                                     const detectedItems = getDOMItems(nav);
                                     
                                     if (detectedItems.length >= 2) {
+                                      console.log('Itens detectados via DOM:', detectedItems);
                                       const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
                                       if (isDefault || menuConfig.items.length === 0) {
                                         setMenuConfig(prev => ({...prev, items: detectedItems}));
-                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} itens (com submenus) importados.` });
+                                        toast({ title: "Itens Detectados", description: `${detectedItems.length} itens (incluindo submenus) importados.` });
                                       } else {
                                         toast({ 
-                                          title: "Menu Detectado", 
-                                          description: "Estrutura encontrada. Deseja substituir?",
+                                          title: "Menu Encontrado", 
+                                          description: "Deseja importar a estrutura detectada?",
                                           action: (
                                             <Button size="sm" onClick={() => setMenuConfig(prev => ({...prev, items: detectedItems}))}>
-                                              Substituir
+                                              Importar
                                             </Button>
                                           )
                                         });
