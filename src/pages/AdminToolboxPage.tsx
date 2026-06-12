@@ -944,17 +944,42 @@ export default function AdminToolboxPage() {
   <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
     <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
   </button>
+  const renderHierarchicalMenu = (items: any[]) => {
+    if (!items || items.length === 0) return '';
+    return items.map((item: any) => {
+      const hasChildren = item.children && item.children.length > 0;
+      if (hasChildren) {
+        return `<div class="has-submenu">
+          <a href="${item.link}">${item.label}</a>
+          <ul class="submenu">
+            ${renderHierarchicalMenu(item.children)}
+          </ul>
+        </div>`;
+      }
+      return `<a href="${item.link}">${item.label}</a>`;
+    }).join('\n');
+  };
+
+  const html = `
+<!-- Início: Menu Responsivo Nativo -->
+<nav class="custom-nav-992">
+  <div class="logo">
+    <a href="/"><img src="${menuConfig.logoUrl}" alt="Logo"></a>
+  </div>
+  <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
+    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+  </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
-      ? renderMenuLevel(menuConfig.items)
+      ? renderHierarchicalMenu(menuConfig.items)
       : '<!-- Aguardando carregamento... -->'
     }
   </div>
 </nav>
 <!-- Fim: Menu Responsivo Nativo -->`;
 
-    return css + "\n" + html + "\n" + script;
-  };
+  return css + "\n" + html + "\n" + script;
+};
 
 
   // Função utilitária para obter o código gerado
