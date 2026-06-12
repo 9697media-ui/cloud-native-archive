@@ -134,6 +134,67 @@ export default function AdminToolboxPage() {
   };
 
 
+  const WIDGET_DEMOS = {
+    whatsapp: {
+      phone: '5511999999999',
+      text: 'Fale com nosso suporte',
+      bgColor: '#25D366',
+      textColor: '#ffffff',
+      position: 'right',
+      borderRadius: '50'
+    },
+    banner: {
+      message: '🚀 Nova funcionalidade de submenus liberada! Confira agora.',
+      bgColor: '#4f46e5',
+      textColor: '#ffffff',
+      link: '#',
+      isDismissible: true
+    },
+    menu: {
+      logoUrl: 'https://anabrasil.org/logo.png',
+      bgColor: '#ffffff',
+      textColor: '#1f2937',
+      items: [
+        { label: 'Início', link: '#' },
+        { 
+          label: 'Serviços', 
+          link: '#', 
+          children: [
+            { label: 'Consultoria Especializada', link: '#' },
+            { label: 'Desenvolvimento Web', link: '#' },
+            { label: 'Marketing Digital', link: '#' }
+          ] 
+        },
+        { 
+          label: 'Soluções', 
+          link: '#', 
+          children: [
+            { label: 'Sistemas ERP', link: '#' },
+            { label: 'Aplicativos Mobile', link: '#' }
+          ] 
+        },
+        { label: 'Sobre Nós', link: '#' }
+      ],
+      sticky: true,
+      enableAutoDetect: false,
+      enableWpApi: false,
+      wpApiUrl: '',
+      testUrl: ''
+    }
+  };
+
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu') => {
+    setActiveWidgetType(type);
+    if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
+    else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
+    else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
+    
+    toast({
+      title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
+      description: "Você já pode ver o resultado no preview ao lado.",
+    });
+  };
+
   // Estados de configuração dos widgets
   const [whatsappConfig, setWhatsappConfig] = useState({
     phone: '5511999999999',
