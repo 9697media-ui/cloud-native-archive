@@ -446,7 +446,7 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .menu-items {
     display: flex;
-    gap: 10px;
+    gap: 5px;
     align-items: center;
     list-style: none !important;
     margin: 0 !important;
@@ -457,7 +457,7 @@ export default function AdminToolboxPage() {
     text-decoration: none !important;
     font-size: 15px;
     font-weight: 500;
-    padding: 8px 12px;
+    padding: 10px 15px;
     border-radius: 6px;
     transition: all 0.2s;
     opacity: 0.8;
@@ -465,13 +465,12 @@ export default function AdminToolboxPage() {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: space-between;
+    gap: 6px;
     box-sizing: border-box;
   }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative !important;
-    display: flex !important;
-    align-items: center !important;
   }
   .custom-nav-992 .menu-items .has-submenu > a::after {
     content: "";
@@ -481,7 +480,6 @@ export default function AdminToolboxPage() {
     border-right: 4px solid transparent;
     border-top: 4px solid currentColor;
     opacity: 0.5;
-    margin-left: 6px;
     transition: transform 0.2s ease;
   }
   .custom-nav-992 .submenu {
@@ -489,20 +487,20 @@ export default function AdminToolboxPage() {
     top: 100% !important;
     left: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
-    border-radius: 8px !important;
-    padding: 10px 0 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    border-radius: 10px !important;
+    padding: 8px 0 !important;
     display: none !important;
     flex-direction: column !important;
-    min-width: 200px !important;
+    min-width: 220px !important;
     z-index: 9999999 !important;
     list-style: none !important;
     margin: 0 !important;
-    border: 1px solid rgba(0,0,0,0.05) !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px);
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu {
     display: flex !important;
@@ -518,13 +516,15 @@ export default function AdminToolboxPage() {
     opacity: 0.9 !important;
     width: 100% !important;
     border-radius: 0 !important;
-    display: block !important;
+    display: flex !important;
     text-align: left !important;
     white-space: normal !important;
     font-size: 14px !important;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
   }
+  .custom-nav-992 .submenu a:last-child { border-bottom: none; }
   .custom-nav-992 .submenu a:hover {
-    background-color: rgba(0,0,0,0.05) !important;
+    background-color: rgba(0,0,0,0.04) !important;
     opacity: 1 !important;
     padding-left: 25px !important;
   }
