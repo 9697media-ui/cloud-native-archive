@@ -949,19 +949,33 @@ export default function AdminToolboxPage() {
   <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
     <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
   </button>
+    const renderMenuLevel = (items: any[]) => {
+      if (!items || items.length === 0) return '';
+      return items.map((item: any) => {
+        if (item.children && item.children.length > 0) {
+          return `<div class="has-submenu">
+            <a href="${item.link}">${item.label}</a>
+            <ul class="submenu">
+              ${renderMenuLevel(item.children)}
+            </ul>
+          </div>`;
+        }
+        return `<a href="${item.link}">${item.label}</a>`;
+      }).join('\n    ');
+    };
+
+    const html = `
+<!-- Início: Menu Responsivo Nativo -->
+<nav class="custom-nav-992">
+  <div class="logo">
+    <a href="/"><img src="${menuConfig.logoUrl}" alt="Logo"></a>
+  </div>
+  <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
+    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+  </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
-      ? menuConfig.items.map((item: any) => {
-          if (item.children && item.children.length > 0) {
-            return `<div class="has-submenu">
-              <a href="${item.link}">${item.label}</a>
-              <ul class="submenu">
-                ${item.children.map((child: any) => `<a href="${child.link}">${child.label}</a>`).join('\n                ')}
-              </ul>
-            </div>`;
-          }
-          return `<a href="${item.link}">${item.label}</a>`;
-        }).join('\n    ')
+      ? renderMenuLevel(menuConfig.items)
       : '<!-- Aguardando carregamento... -->'
     }
   </div>
