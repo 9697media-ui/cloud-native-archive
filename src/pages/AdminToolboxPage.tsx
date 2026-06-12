@@ -1340,14 +1340,32 @@ export default function AdminToolboxPage() {
                               const frame = e.currentTarget;
                               const doc = frame.contentDocument || frame.contentWindow?.document;
                               if (doc) {
-                                const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', 'ul[class*="menu"]'];
+                                const selectors = [
+                                  'nav', 
+                                  '.main-navigation', 
+                                  '.elementor-nav-menu', 
+                                  '.header-menu', 
+                                  '#site-navigation', 
+                                  'ul[class*="menu"]', 
+                                  '.wp-block-navigation',
+                                  '.navbar',
+                                  '.nav-menu',
+                                  '.navigation',
+                                  '[role="navigation"]',
+                                  'header .links',
+                                  '.header__nav'
+                                ];
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
-                                    const links = Array.from(nav.querySelectorAll('a')).slice(0, 10);
-                                    if (links.length > 0) {
+                                    const links = Array.from(nav.querySelectorAll('a')).filter(a => {
+                                      const text = (a as HTMLElement).innerText || a.textContent || '';
+                                      return text.trim().length > 0;
+                                    }).slice(0, 15);
+                                    
+                                    if (links.length > 2) {
                                       const detectedItems = links.map(a => ({
-                                        label: (a as HTMLElement).innerText.trim(),
+                                        label: ((a as HTMLElement).innerText || a.textContent || '').trim(),
                                         link: (a as HTMLAnchorElement).href
                                       })).filter(i => i.label);
                                       
