@@ -171,96 +171,50 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): { label: string, link: string }[] => {
     if (!data) return [];
     
-    console.log('--- Iniciando Extração Profunda WP ---');
-    console.log('Estrutura recebida:', data);
-
-    // Lista de palavras que indicam que o item é apenas um título de menu/wrapper
-    const wrapperKeywords = ['menu', 'navegação', 'navigation', 'principal', 'main', 'header', 'footer', 'topo', 'rodapé', 'sidebar'];
-
-    // Função auxiliar para verificar se um objeto se parece com um item de link real
-    const isRealLinkItem = (item: any): boolean => {
-      if (!item || typeof item !== 'object') return false;
-      const hasTitle = !!(item.title || item.label || item.name || item.post_title || item.text);
-      const hasLink = !!(item.url || item.link || item.guid || item.href);
-      // Se tiver link e título, é um candidato forte
-      if (hasTitle && hasLink && item.url !== '#' && item.url !== '') return true;
-      return false;
-    };
-
-    // Função auxiliar recursiva para encontrar arrays de itens em qualquer profundidade
-    const findItemsArray = (obj: any, depth = 0): any[] => {
-      if (!obj || depth > 10) return [];
+    let rawItems = [];
+    
+    // WordPress modern Navigation block (FSE)
+    // If it's an array and the first item has content.rendered, it's a Navigation Block
+    if (Array.isArray(data) && data[0]?.content?.rendered) {
+      const htmlContent = data[0].content.rendered;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
       
-      // Caso 1: Bloco moderno de navegação (FSE)
-      if (obj.content?.rendered) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(obj.content.rendered, 'text/html');
-        const links = doc.querySelectorAll('.wp-block-navigation-item__content, a');
-        if (links.length > 0) {
-          return Array.from(links).map((a: any) => ({
-            label: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+      // Look for navigation link items specifically
+      const links = doc.querySelectorAll('.wp-block-navigation-item__content');
+      
+      if (links.length > 0) {
+        return Array.from(links).map((a: any) => {
+          // Try to get the label from the specific span if it exists, otherwise use textContent
+          const labelSpan = a.querySelector('.wp-block-navigation-item__label');
+          return {
+            label: (labelSpan?.textContent || a.textContent || '').trim(),
             link: a.getAttribute('href') || '#'
-          })).filter(i => i.label);
-        }
+          };
+        }).filter(i => i.label);
       }
-
-      // Caso 2: Se for um array
-      if (Array.isArray(obj)) {
-        // Se o array tem itens, mas o primeiro item parece ser um wrapper de menu (ex: um objeto com 'items')
-        // ou se o array tem apenas 1 item que contém sub-itens
-        if (obj.length === 1 && (obj[0].items || obj[0].children || obj[0].menu_items)) {
-          console.log('Mergulhando em array de item único (wrapper detectado)');
-          return findItemsArray(obj[0].items || obj[0].children || obj[0].menu_items, depth + 1);
-        }
-
-        // Se pelo menos um item no array parece ser um link real, este é o nosso array
-        if (obj.some(item => isRealLinkItem(item))) {
-          return obj;
-        }
-
-        // Se não, tenta mergulhar em cada item do array (caso o array seja uma lista de menus e não de itens)
-        for (const item of obj) {
-          const sub = item.items || item.children || item.menu_items;
-          if (sub) {
-            const result = findItemsArray(sub, depth + 1);
-            if (result.length > 0) return result;
-          }
-        }
-        
-        return obj;
+      
+      // Fallback: any link in the content
+      const allLinks = doc.querySelectorAll('a');
+      if (allLinks.length > 0) {
+        return Array.from(allLinks).map((a: any) => ({
+          label: (a.textContent || '').trim(),
+          link: a.getAttribute('href') || '#'
+        })).filter(i => i.label);
       }
+    }
 
-      // Caso 3: Objeto com propriedades comuns de lista
-      const commonProps = ['items', 'children', 'menu_items', 'navigation', 'data'];
-      for (const prop of commonProps) {
-        if (obj[prop] && (Array.isArray(obj[prop]) || typeof obj[prop] === 'object')) {
-          console.log(`Encontrada propriedade de lista: ${prop}`);
-          return findItemsArray(obj[prop], depth + 1);
-        }
-      }
-
-      // Caso 4: Se o objeto em si tiver um título e um link real, mas não é um array
-      if (isRealLinkItem(obj)) {
-        return [obj];
-      }
-
-      // Caso 5: Objeto com chaves numéricas
-      const keys = Object.keys(obj);
-      if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
-        return findItemsArray(Object.values(obj), depth + 1);
-      }
-
-      return [];
-    };
-
-    const rawItems = findItemsArray(data);
-    console.log('Itens brutos extraídos:', rawItems);
-
-    if (!Array.isArray(rawItems)) return [];
+    if (Array.isArray(data)) {
+      rawItems = data;
+    } else if (data.items || data.children || data.menu_items || data.data) {
+      rawItems = data.items || data.children || data.menu_items || data.data;
+    } else if (typeof data === 'object') {
+      const possibleArray = Object.values(data).find(val => Array.isArray(val));
+      if (possibleArray) rawItems = possibleArray as any[];
+      else rawItems = [data];
+    }
 
     return rawItems.map((item: any) => {
-      if (item.label && item.link) return item;
-
       let label = '';
       if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
       else if (item.title && typeof item.title === 'string') label = item.title;
@@ -272,42 +226,7 @@ export default function AdminToolboxPage() {
       const link = item.url || item.link || item.guid || item.href || '#';
       
       return { label, link };
-    }).filter(i => {
-      if (!i.label) return false;
-      const lowerLabel = i.label.toLowerCase();
-      // Filtra itens que são claramente apenas o nome do menu no nível de item
-      const isJustMenuName = wrapperKeywords.some(k => lowerLabel === k || lowerLabel === `menu ${k}` || lowerLabel === `${k} menu`);
-      return !isJustMenuName;
-    });
-  };
-
-  const fetchAndProcessWPItems = async (url: string) => {
-    if (!url || url.length < 10) return;
-    
-    try {
-      console.log('Fetching WP items from:', url);
-      const response = await fetch(url, { method: 'GET', mode: 'cors' });
-      if (response.ok) {
-        const data = await response.json();
-        console.log('WP API Data received:', data);
-        const wpItems = extractWPItems(data);
-        if (wpItems.length > 0) {
-          setMenuConfig(prev => ({
-            ...prev,
-            items: wpItems,
-            wpApiUrl: url // Garante que a URL correta fique salva
-          }));
-          toast({
-            title: "Itens Sincronizados",
-            description: `Importamos ${wpItems.length} itens do endpoint informado.`,
-          });
-          return true;
-        }
-      }
-    } catch (e) {
-      console.warn('Falha ao buscar endpoint diretamente:', e);
-    }
-    return false;
+    }).filter(i => i.label);
   };
 
   const syncWithSystemMenu = () => {
@@ -1196,18 +1115,7 @@ export default function AdminToolboxPage() {
                         <Input 
                           placeholder="Ex: https://site.com/wp-json/wp/v2/menu-items"
                           value={menuConfig.wpApiUrl}
-                          onChange={(e) => {
-                            const newUrl = e.target.value;
-                            setMenuConfig({...menuConfig, wpApiUrl: newUrl});
-                            
-                            // Gatilho automático ao colar ou digitar uma URL completa
-                            if (newUrl.startsWith('http')) {
-                              if (debounceRef.current) clearTimeout(debounceRef.current);
-                              debounceRef.current = setTimeout(() => {
-                                fetchAndProcessWPItems(newUrl);
-                              }, 800);
-                            }
-                          }}
+                          onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value})}
                         />
                         <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress para sincronização em tempo real.</p>
                       </div>
@@ -1244,24 +1152,25 @@ export default function AdminToolboxPage() {
 
                                     for (const endpoint of endpoints) {
                                       try {
+                                        // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
                                         const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
                                         if (testRes.ok) {
                                           const data = await testRes.json();
-                                          if (data) {
+                                          if (data && (Array.isArray(data) || typeof data === 'object')) {
                                             const wpItems = extractWPItems(data);
-                                            if (wpItems.length > 0) {
-                                              setMenuConfig(prev => ({
-                                                ...prev, 
-                                                wpApiUrl: `${origin}${endpoint}`,
-                                                items: wpItems
-                                              }));
-                                              
-                                              toast({
-                                                title: "API Detectada e Sincronizada!",
-                                                description: `Importamos ${wpItems.length} itens do endpoint ${endpoint}`,
-                                              });
-                                              break;
-                                            }
+                                            setMenuConfig(prev => ({
+                                              ...prev, 
+                                              wpApiUrl: `${origin}${endpoint}`,
+                                              items: wpItems.length > 0 ? wpItems : prev.items
+                                            }));
+                                            
+                                            toast({
+                                              title: "API Detectada!",
+                                              description: wpItems.length > 0 
+                                                ? `Importamos ${wpItems.length} itens do endpoint ${endpoint}`
+                                                : `Conectado ao endpoint ${endpoint}`,
+                                            });
+                                            break;
                                           }
                                         }
                                       } catch (e) {
@@ -1293,17 +1202,7 @@ export default function AdminToolboxPage() {
                     <div className="space-y-2 pt-2 border-t mt-4">
                       <div className="flex items-center justify-between mb-2">
                         <Label>Itens do Menu</Label>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-7 text-[10px] text-destructive hover:text-destructive hover:bg-destructive/10 gap-1"
-                          onClick={() => {
-                            setMenuConfig({...menuConfig, items: []});
-                            toast({ title: "Menu Limpo", description: "Todos os itens foram removidos." });
-                          }}
-                        >
-                          <Trash2 className="h-3 w-3" /> Limpar Tudo
-                        </Button>
+                        <span className="text-[10px] text-muted-foreground italic">(Sincronizados via API ou Manual)</span>
                       </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
