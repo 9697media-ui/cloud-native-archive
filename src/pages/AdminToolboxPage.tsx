@@ -719,19 +719,19 @@ export default function AdminToolboxPage() {
             const data = await response.json();
             
             function buildTree(items, parentId = 0) {
-              const tree = [];
               const childrenOf = {};
               items.forEach(item => {
                 const pId = item.parent || item.menu_item_parent || 0;
                 if (!childrenOf[pId]) childrenOf[pId] = [];
                 childrenOf[pId].push(item);
               });
+
               const processBranch = (pId) => {
                 if (!childrenOf[pId]) return [];
                 return childrenOf[pId].map(item => {
                   let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
                   return {
-                    title,
+                    title: title || 'Sem título',
                     link: item.url || item.link || item.guid || item.href || '#',
                     children: processBranch(item.id || item.ID || item.db_id || '')
                   };
@@ -754,23 +754,25 @@ export default function AdminToolboxPage() {
                 })).filter(i => i.title && i.link !== '#');
               }
 
-              if (Array.isArray(source)) {
-                if (source[0]?.content?.rendered) {
-                  return source.flatMap(s => fromHTML(s.content.rendered));
+              let itemsSource = source;
+              if (!Array.isArray(source)) {
+                itemsSource = source.items || source.children || source.menu_items || source.data || source.nodes || [source];
+              }
+
+              if (Array.isArray(itemsSource)) {
+                if (itemsSource[0]?.content?.rendered) {
+                  return itemsSource.flatMap(s => fromHTML(s.content.rendered));
                 }
-                const isHierarchical = source.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
-                if (isHierarchical) return buildTree(source);
-                return source;
+                const isHierarchical = itemsSource.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+                if (isHierarchical) return buildTree(itemsSource);
+                
+                return itemsSource.map(item => ({
+                  title: item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '',
+                  link: item.url || item.link || item.guid || item.href || '#',
+                  children: item.children || item.items || item.sub_items || []
+                })).filter(i => i.title);
               }
-
-              const sub = source.items || source.children || source.menu_items || source.data || source.nodes;
-              if (Array.isArray(sub)) {
-                const isHierarchical = sub.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
-                if (isHierarchical) return buildTree(sub);
-                return sub;
-              }
-
-              return Array.isArray(source) ? source : Object.values(source).filter(v => typeof v === 'object');
+              return [];
             }
 
             const items = extractItems(data);
