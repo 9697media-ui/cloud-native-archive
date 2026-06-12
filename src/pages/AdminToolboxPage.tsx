@@ -163,7 +163,8 @@ export default function AdminToolboxPage() {
       { label: 'Contato', link: '#' }
     ],
     sticky: true,
-    autoDetect: false,
+    enableAutoDetect: false,
+    enableWpApi: true,
     wpApiUrl: '',
     testUrl: ''
   });
@@ -673,7 +674,7 @@ export default function AdminToolboxPage() {
         } catch (e) { console.warn('WP API fail:', e.message); }
       }
 
-      if (${menuConfig.autoDetect}) {
+      if (enableAutoDetect) {
         console.log('Tentando auto-detecção...');
         const selectors = [
           'nav', 
@@ -1121,6 +1122,15 @@ export default function AdminToolboxPage() {
                           onChange={(e) => setMenuConfig({...menuConfig, textColor: e.target.value})}
                         />
                       </div>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t pt-4">
+                      <Label htmlFor="sticky">Menu Fixo (Sticky)</Label>
+                      <Switch 
+                        id="sticky" 
+                        checked={menuConfig.sticky}
+                        onCheckedChange={(val) => setMenuConfig({...menuConfig, sticky: val})}
+                      />
                     </div>
                     <div className="flex items-center justify-between space-x-2 pt-2">
                       <Label htmlFor="sticky-menu" className="cursor-pointer">Menu Fixo (Sticky)</Label>
