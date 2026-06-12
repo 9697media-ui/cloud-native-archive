@@ -235,19 +235,17 @@ export default function AdminToolboxPage() {
     
     const cleanLabel = (text: string) => {
       if (!text) return '';
-      return text.replace(/[\u25BC\u25BE\u25B6\u25B8\u2304\u22EE]/g, '').trim(); // Remove setas comuns
+      return text.toString().replace(/[\u25BC\u25BE\u25B6\u25B8\u2304\u22EE\u00BB\u203A\u25B2\u25BC]/g, '').trim();
     };
 
-    const normalizeItems = (items: any[]) => {
-      return items.map(item => {
-        const rawLabel = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título';
-        return {
-          id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
-          parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
-          label: cleanLabel(rawLabel.toString()),
-          link: item.url || item.link || item.guid || item.href || '#',
-          children: item.children || item.items || item.sub_items || []
-        };
+    const normalizeItems = (rawList: any[]) => {
+      return rawList.map(item => {
+        const id = (item.id || item.ID || item.db_id || item.object_id || item.key || item.node?.id || Math.random().toString(36).substr(2, 9)).toString();
+        const parent = (item.parent || item.menu_item_parent || item.parentId || item.meta?.menu_item_parent || item.node?.parentId || 0).toString();
+        const label = cleanLabel(item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título');
+        const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
+        const children = item.children || item.items || item.sub_items || item.nodes || item.edges || [];
+        return { id, parent, label, link, children };
       });
     };
 
@@ -255,61 +253,41 @@ export default function AdminToolboxPage() {
       const normalized = normalizeItems(flatItems);
       const itemMap = new Map();
       const tree: any[] = [];
-
-      normalized.forEach(item => {
-        itemMap.set(item.id, { ...item, children: [] });
-      });
-
+      normalized.forEach(item => itemMap.set(item.id, { ...item, children: [] }));
       normalized.forEach(item => {
         const node = itemMap.get(item.id);
-        const parentId = item.parent;
-        const parentNode = itemMap.get(parentId);
-        
-        if (parentId !== "0" && parentId !== "" && parentNode && parentId !== item.id) {
+        const pId = item.parent;
+        const parentNode = itemMap.get(pId);
+        if (pId !== "0" && pId !== "" && parentNode && pId !== item.id) {
           parentNode.children.push(node);
         } else {
           tree.push(node);
         }
       });
-
       return tree.length > 0 ? tree : normalized;
-    };
-
-    const fromHTML = (html: string) => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
-      
-      return links.map((a: any) => ({
-        label: cleanLabel(a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || ''),
-        link: a.getAttribute('href') || '#',
-        children: []
-      })).filter(i => i.label && i.link !== '#');
     };
 
     let itemsSource = data;
     if (!Array.isArray(data)) {
-      itemsSource = data.items || data.children || data.menu_items || data.data || data.nodes || [data];
+      itemsSource = data.items || data.children || data.menu_items || data.data || data.nodes || data.edges || [data];
     }
 
     if (Array.isArray(itemsSource)) {
       if (itemsSource[0]?.content?.rendered) {
+        const fromHTML = (html: string) => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
+          return links.map((a: any) => ({
+            label: cleanLabel(a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || ''),
+            link: a.getAttribute('href') || '#',
+            children: []
+          })).filter(i => i.label && i.link !== '#');
+        };
         return itemsSource.flatMap(item => fromHTML(item.content.rendered));
       }
-      
-      const hasParentRefs = itemsSource.some(item => 
-        (item.parent !== undefined && item.parent.toString() !== "0") || 
-        (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0")
-      );
-
-      if (hasParentRefs) return buildTree(itemsSource);
-      
-      return normalizeItems(itemsSource).map(item => ({
-        ...item,
-        children: Array.isArray(item.children) && item.children.length > 0 ? extractWPItems(item.children) : []
-      })).filter(i => i.label);
+      return buildTree(itemsSource);
     }
-
     return [];
   };
 
