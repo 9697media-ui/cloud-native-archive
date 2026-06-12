@@ -474,23 +474,17 @@ export default function AdminToolboxPage() {
     gap: 6px !important;
     box-sizing: border-box !important;
   }
-  .custom-nav-992 .menu-items .has-submenu {
-    position: relative !important;
-    display: flex !important;
-    align-items: center !important;
+  .custom-nav-992 li.has-submenu > a::after {
+    content: "" !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-left: 4px solid transparent !important;
+    border-right: 4px solid transparent !important;
+    border-top: 4px solid currentColor !important;
+    opacity: 0.5 !important;
+    transition: transform 0.2s ease !important;
   }
-  .custom-nav-992 .menu-items .has-submenu > a::after {
-    content: "";
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 4px solid currentColor;
-    opacity: 0.5;
-    margin-left: 6px;
-    transition: transform 0.2s ease;
-  }
-  .custom-nav-992 .submenu {
+  .custom-nav-992 ul.submenu {
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
@@ -499,39 +493,38 @@ export default function AdminToolboxPage() {
     border-radius: 10px !important;
     padding: 8px 0 !important;
     display: none !important;
-    flex-direction: column !important; /* FORÇA EMPILHAMENTO VERTICAL */
+    flex-direction: column !important;
     min-width: 220px !important;
     z-index: 9999999 !important;
     list-style: none !important;
     margin: 0 !important;
     border: 1px solid rgba(0,0,0,0.08) !important;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.25s ease;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(10px) !important;
+    transition: all 0.25s ease !important;
   }
-  .custom-nav-992 .has-submenu:hover > .submenu {
+  .custom-nav-992 li.has-submenu:hover > ul.submenu {
     display: flex !important;
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
   }
-  .custom-nav-992 .has-submenu:hover > a::after {
-    transform: rotate(180deg);
+  .custom-nav-992 li.has-submenu:hover > a::after {
+    transform: rotate(180deg) !important;
   }
-  .custom-nav-992 .submenu a {
+  .custom-nav-992 ul.submenu li {
+    width: 100% !important;
+    display: block !important;
+  }
+  .custom-nav-992 ul.submenu a {
     padding: 12px 20px !important;
-    opacity: 0.9 !important;
     width: 100% !important;
     border-radius: 0 !important;
-    display: block !important; /* GARANTE QUE CADA ITEM OCUPE UMA LINHA */
-    text-align: left !important;
-    white-space: nowrap !important;
-    font-size: 14px !important;
     border-bottom: 1px solid rgba(0,0,0,0.03) !important;
+    justify-content: flex-start !important;
   }
-  .custom-nav-992 .submenu a:last-child { border-bottom: none !important; }
-  .custom-nav-992 .submenu a:hover {
+  .custom-nav-992 ul.submenu a:hover {
     background-color: rgba(0,0,0,0.04) !important;
     opacity: 1 !important;
     padding-left: 25px !important;
