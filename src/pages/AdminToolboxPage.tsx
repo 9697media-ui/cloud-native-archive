@@ -172,23 +172,14 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
-    // Helper para normalizar o rótulo de um item
-    const getLabel = (item: any) => {
-      if (!item) return '';
-      if (item.title && typeof item.title === 'object' && item.title.rendered) return item.title.rendered;
-      if (item.title && typeof item.title === 'string') return item.title;
-      return item.label || item.name || item.post_title || item.text || '';
-    };
-
-    // Helper para normalizar o link de um item
-    const getLink = (item: any) => {
-      return item.url || item.link || item.guid || item.href || '#';
-    };
-
-    // Helper para extrair de HTML renderizado
+    let rawItems = [];
+    
+    // Helper to extract from HTML string
     const fromHTML = (html: string) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
+      
+      // Look for specific WP navigation classes first
       let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
       
       return links.map((a: any) => ({
@@ -198,63 +189,95 @@ export default function AdminToolboxPage() {
       })).filter(i => i.label && i.link !== '#');
     };
 
-    // Helper para construir árvore hierárquica
-    const buildTree = (items: any[]) => {
-      const itemMap: { [key: string]: any } = {};
+    // Helper to build tree from flat list (common in WP REST API)
+    const buildTree = (items: any[], parentId: number | string = 0) => {
       const tree: any[] = [];
+      const childrenOf: {[key: string]: any[]} = {};
 
-      // Primeiro pass: criar mapa e normalizar
       items.forEach(item => {
-        const id = item.id || item.ID || item.db_id || Math.random().toString();
-        itemMap[id] = {
-          label: getLabel(item),
-          link: getLink(item),
-          children: []
-        };
+        const pId = item.parent || item.menu_item_parent || 0;
+        if (!childrenOf[pId]) childrenOf[pId] = [];
+        childrenOf[pId].push(item);
       });
 
-      // Segundo pass: organizar pais e filhos
-      items.forEach(item => {
-        const id = item.id || item.ID || item.db_id;
-        const parentId = item.parent || item.menu_item_parent;
-        
-        if (parentId && itemMap[parentId]) {
-          itemMap[parentId].children.push(itemMap[id]);
-        } else if (itemMap[id]?.label) {
-          tree.push(itemMap[id]);
-        }
-      });
+      const processBranch = (pId: number | string) => {
+        if (!childrenOf[pId]) return [];
+        return childrenOf[pId].map(item => {
+          let label = '';
+          if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
+          else if (item.title && typeof item.title === 'string') label = item.title;
+          else if (item.label) label = item.label;
+          else if (item.name) label = item.name;
+          else if (item.post_title) label = item.post_title;
+          else if (item.text) label = item.text;
 
-      return tree.length > 0 ? tree : items.map(i => ({ label: getLabel(i), link: getLink(i), children: [] }));
+          return {
+            label,
+            link: item.url || item.link || item.guid || item.href || '#',
+            children: processBranch(item.id || item.ID || item.db_id || '')
+          };
+        }).filter(i => i.label);
+      };
+
+      return processBranch(parentId);
     };
 
-    // Processamento principal
-    let source = data;
-    if (data.items || data.children || data.menu_items || data.data) {
-      source = data.items || data.children || data.menu_items || data.data;
+    // Case 1: Array of Navigation Blocks (Modern WP / FSE)
+    if (Array.isArray(data) && data[0]?.content?.rendered) {
+      const allItems = data.flatMap(item => fromHTML(item.content.rendered));
+      if (allItems.length > 0) return allItems;
     }
 
-    if (Array.isArray(source)) {
-      // Caso FSE (blocos de navegação)
-      if (source[0]?.content?.rendered) {
-        return source.flatMap(item => fromHTML(item.content.rendered));
+    // Case 2: Array of items that might be hierarchical
+    if (Array.isArray(data)) {
+      // Check if any item has a parent reference
+      const isHierarchical = data.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+      if (isHierarchical) return buildTree(data);
+      rawItems = data;
+    } else if (data.items || data.children || data.menu_items || data.data) {
+      const subSource = data.items || data.children || data.menu_items || data.data;
+      if (Array.isArray(subSource)) {
+        const isHierarchical = subSource.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+        if (isHierarchical) return buildTree(subSource);
       }
-      
-      // Caso hierárquico (parent id)
-      const hasParentRef = source.some(i => i.parent || i.menu_item_parent);
-      if (hasParentRef) return buildTree(source);
-
-      // Caso lista plana com filhos já aninhados
-      return source.map(item => ({
-        label: getLabel(item),
-        link: getLink(item),
-        children: Array.isArray(item.children || item.items) 
-          ? (item.children || item.items).map((c: any) => ({ label: getLabel(c), link: getLink(c), children: [] }))
-          : []
-      })).filter(i => i.label);
+      rawItems = subSource;
+    } else if (typeof data === 'object') {
+      const possibleArray = Object.values(data).find(val => Array.isArray(val));
+      if (possibleArray) rawItems = possibleArray as any[];
+      else rawItems = [data];
     }
 
-    return [];
+    // If we have items but they look like "Menus" (objects with titles but no links)
+    // and they have their own content/rendered, try to dive deeper
+    if (Array.isArray(rawItems) && rawItems.length > 0 && rawItems[0] && !rawItems[0].url && !rawItems[0].link && rawItems[0].content?.rendered) {
+       const divedItems = rawItems.flatMap(item => fromHTML(item.content.rendered));
+       if (divedItems.length > 0) return divedItems;
+    }
+
+    if (!Array.isArray(rawItems)) return [];
+
+    return rawItems.map((item: any) => {
+      let label = '';
+      if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
+      else if (item.title && typeof item.title === 'string') label = item.title;
+      else if (item.label) label = item.label;
+      else if (item.name) label = item.name;
+      else if (item.post_title) label = item.post_title;
+      else if (item.text) label = item.text;
+
+      const link = item.url || item.link || item.guid || item.href || '#';
+      const children = item.children || item.items || item.sub_items || [];
+      
+      return { 
+        label, 
+        link,
+        children: Array.isArray(children) ? children.map((c: any) => ({
+          label: c.title?.rendered || c.title || c.label || c.name || '',
+          link: c.url || c.link || c.href || '#',
+          children: []
+        })).filter(c => c.label) : []
+      };
+    }).filter(i => i.label);
   };
 
   const syncWithSystemMenu = () => {
@@ -587,7 +610,7 @@ export default function AdminToolboxPage() {
             }
           }
 
-          // Se tiver filhos e o link for apenas '#' ou o título for um "wrapper", mergulha nos filhos
+          // Se tiver filhos e o link for apenas '#' ou o título for um "wrapper" conhecido, mergulha nos filhos
           const isWrapper = (link === '#' || link === '' || link.endsWith('/') || 
                             lowerTitle.includes("principal") || lowerTitle.includes("menu") || 
                             lowerTitle.includes("navegação") || lowerTitle.includes("main") ||
@@ -602,7 +625,7 @@ export default function AdminToolboxPage() {
             }
           }
 
-          if (children && children.length > 0) {
+          if (children.length > 0) {
             html += \`<div class="has-submenu">
               <a href="\${link}">\${title}</a>
               <ul class="submenu">\${renderItems(children)}</ul>
@@ -615,57 +638,84 @@ export default function AdminToolboxPage() {
       }
 
       const wpApiUrl = '${menuConfig.wpApiUrl}';
-      const enableWpApi = ${menuConfig.enableWpApi};
-      const enableAutoDetect = ${menuConfig.enableAutoDetect};
-
-      if (enableWpApi && wpApiUrl && wpApiUrl.length > 10) {
+      if (wpApiUrl && wpApiUrl.length > 10) {
         try {
           console.log('Buscando via WP API:', wpApiUrl);
           const response = await fetch(wpApiUrl);
           if (response.ok) {
             const data = await response.json();
-            
-            function extractWidgetItems(sourceData) {
-              if (!sourceData) return [];
-              const getLabel = (i) => {
-                if (!i) return '';
-                if (i.title && typeof i.title === 'object' && i.title.rendered) return i.title.rendered;
-                return i.title || i.label || i.name || i.post_title || i.text || '';
-              };
-              const getLink = (i) => i.url || i.link || i.guid || i.href || '#';
-
-              let base = sourceData;
-              if (sourceData.items || sourceData.children || sourceData.menu_items) {
-                base = sourceData.items || sourceData.children || sourceData.menu_items;
-              }
-              if (!Array.isArray(base)) return [];
-
-              if (base.some(i => i.parent || i.menu_item_parent)) {
-                const map = {};
-                const tree = [];
-                base.forEach(i => {
-                  const id = i.id || i.ID || i.db_id;
-                  map[id] = { title: getLabel(i), link: getLink(i), children: [] };
-                });
-                base.forEach(i => {
-                  const id = i.id || i.ID || i.db_id;
-                  const pid = i.parent || i.menu_item_parent;
-                  if (pid && map[pid]) map[pid].children.push(map[id]);
-                  else if (map[id].title) tree.push(map[id]);
-                });
-                return tree;
-              }
-
-              return base.map(i => ({
-                title: getLabel(i),
-                link: getLink(i),
-                children: i.children || i.items || []
-              })).filter(i => i.title);
+            let items = [];
+            if (Array.isArray(data)) {
+              items = data;
+            } else if (data.items || data.children || data.menu_items || data.data) {
+              items = data.items || data.children || data.menu_items || data.data;
             }
 
-            const items = extractWidgetItems(data);
-            if (items.length > 0) {
-              menuContainer.innerHTML = renderItems(items);
+            
+            // Função para extrair itens de estruturas aninhadas do WordPress
+            function extractItems(source) {
+              if (!source) return [];
+              
+              console.log('Analisando fonte de dados:', source);
+
+              // Helper para extrair de HTML renderizado (Gutenberg/FSE)
+              function fromHTML(html) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const links = Array.from(tempDiv.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
+                return links.map(a => ({
+                  title: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+                  link: a.getAttribute('href') || '#',
+                  children: []
+                })).filter(i => i.title && i.link !== '#');
+              }
+
+              // Se for um array de blocos de navegação (Modern WP)
+              if (Array.isArray(source) && source[0]?.content?.rendered) {
+                const items = source.flatMap(s => fromHTML(s.content.rendered));
+                if (items.length > 0) return items;
+              }
+
+              // Se for um objeto com propriedade de itens, mergulha nela
+              if (source.items && Array.isArray(source.items)) return source.items;
+              if (source.children && Array.isArray(source.children)) return source.children;
+              if (source.menu_items && Array.isArray(source.menu_items)) return source.menu_items;
+              if (source.navigation && source.navigation.items) return source.navigation.items;
+              if (source.data && Array.isArray(source.data)) return source.data;
+              if (source.nodes && Array.isArray(source.nodes)) return source.nodes;
+              if (source.edges && Array.isArray(source.edges)) return source.edges;
+              
+              // Se for um array
+              let baseArray = [];
+              if (Array.isArray(source)) {
+                // Se o array tem 1 item e esse item tem sub-itens, mergulha
+                if (source.length === 1 && (source[0].items || source[0].children || source[0].menu_items)) {
+                  return extractItems(source[0]);
+                }
+                baseArray = source;
+              } else if (typeof source === 'object') {
+                // Se for um objeto com chaves numéricas
+                const keys = Object.keys(source);
+                if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
+                  baseArray = Object.values(source);
+                }
+              }
+
+              // Se o array resultante contém objetos com HTML renderizado (menus sem links diretos)
+              if (baseArray.length > 0 && !baseArray[0].url && !baseArray[0].link && baseArray[0].content?.rendered) {
+                 const dived = baseArray.flatMap(item => fromHTML(item.content.rendered));
+                 if (dived.length > 0) return dived;
+              }
+
+              return baseArray;
+            }
+
+            items = extractItems(data);
+
+
+            const htmlContent = renderItems(items);
+            if (htmlContent && htmlContent.trim().length > 5) {
+              menuContainer.innerHTML = htmlContent;
               if (typeof highlightActiveLink === 'function') highlightActiveLink();
               return;
             }
