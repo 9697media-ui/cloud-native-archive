@@ -233,15 +233,22 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
-    // Normalização resiliente de itens do WP
+    const cleanLabel = (text: string) => {
+      if (!text) return '';
+      return text.replace(/[\u25BC\u25BE\u25B6\u25B8\u2304\u22EE]/g, '').trim(); // Remove setas comuns
+    };
+
     const normalizeItems = (items: any[]) => {
-      return items.map(item => ({
-        id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
-        parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
-        label: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título').toString(),
-        link: item.url || item.link || item.guid || item.href || '#',
-        children: item.children || item.items || item.sub_items || []
-      }));
+      return items.map(item => {
+        const rawLabel = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título';
+        return {
+          id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
+          parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
+          label: cleanLabel(rawLabel.toString()),
+          link: item.url || item.link || item.guid || item.href || '#',
+          children: item.children || item.items || item.sub_items || []
+        };
+      });
     };
 
     const buildTree = (flatItems: any[]) => {
@@ -249,24 +256,22 @@ export default function AdminToolboxPage() {
       const itemMap = new Map();
       const tree: any[] = [];
 
-      // Primeiro pass: mapeia todos
       normalized.forEach(item => {
         itemMap.set(item.id, { ...item, children: [] });
       });
 
-      // Segundo pass: organiza hierarquia
       normalized.forEach(item => {
         const node = itemMap.get(item.id);
-        const parentNode = itemMap.get(item.parent);
+        const parentId = item.parent;
+        const parentNode = itemMap.get(parentId);
         
-        if (item.parent !== "0" && parentNode) {
+        if (parentId !== "0" && parentId !== "" && parentNode && parentId !== item.id) {
           parentNode.children.push(node);
         } else {
           tree.push(node);
         }
       });
 
-      // Se a árvore ficou vazia mas temos itens, algo falhou na detecção de parentesco; retorna flat
       return tree.length > 0 ? tree : normalized;
     };
 
@@ -276,7 +281,7 @@ export default function AdminToolboxPage() {
       let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
       
       return links.map((a: any) => ({
-        label: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+        label: cleanLabel(a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || ''),
         link: a.getAttribute('href') || '#',
         children: []
       })).filter(i => i.label && i.link !== '#');
@@ -292,7 +297,6 @@ export default function AdminToolboxPage() {
         return itemsSource.flatMap(item => fromHTML(item.content.rendered));
       }
       
-      // Tenta reconstruir árvore se parecer flat
       const hasParentRefs = itemsSource.some(item => 
         (item.parent !== undefined && item.parent.toString() !== "0") || 
         (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0")
@@ -300,7 +304,6 @@ export default function AdminToolboxPage() {
 
       if (hasParentRefs) return buildTree(itemsSource);
       
-      // Fallback: recursão simples para dados já aninhados
       return normalizeItems(itemsSource).map(item => ({
         ...item,
         children: Array.isArray(item.children) && item.children.length > 0 ? extractWPItems(item.children) : []
