@@ -171,14 +171,27 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): { label: string, link: string }[] => {
     if (!data) return [];
     
+    console.log('--- Iniciando Extração Profunda WP ---');
+    console.log('Estrutura recebida:', data);
+
     // Lista de palavras que indicam que o item é apenas um título de menu/wrapper
     const wrapperKeywords = ['menu', 'navegação', 'navigation', 'principal', 'main', 'header', 'footer', 'topo', 'rodapé', 'sidebar'];
 
+    // Função auxiliar para verificar se um objeto se parece com um item de link real
+    const isRealLinkItem = (item: any): boolean => {
+      if (!item || typeof item !== 'object') return false;
+      const hasTitle = !!(item.title || item.label || item.name || item.post_title || item.text);
+      const hasLink = !!(item.url || item.link || item.guid || item.href);
+      // Se tiver link e título, é um candidato forte
+      if (hasTitle && hasLink && item.url !== '#' && item.url !== '') return true;
+      return false;
+    };
+
     // Função auxiliar recursiva para encontrar arrays de itens em qualquer profundidade
-    const findItemsArray = (obj: any): any[] => {
-      if (!obj) return [];
+    const findItemsArray = (obj: any, depth = 0): any[] => {
+      if (!obj || depth > 10) return [];
       
-      // Se for o bloco moderno de navegação (FSE)
+      // Caso 1: Bloco moderno de navegação (FSE)
       if (obj.content?.rendered) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(obj.content.rendered, 'text/html');
@@ -191,43 +204,58 @@ export default function AdminToolboxPage() {
         }
       }
 
+      // Caso 2: Se for um array
       if (Array.isArray(obj)) {
-        // Se o array tem apenas um item e ele tem filhos, o primeiro item pode ser o título do menu
-        if (obj.length === 1) {
-          const firstItem = obj[0];
-          const label = (firstItem.title?.rendered || firstItem.title || firstItem.label || firstItem.name || '').toString().toLowerCase();
-          const hasChildren = firstItem.items || firstItem.children || firstItem.menu_items;
-          
-          if (hasChildren && (wrapperKeywords.some(k => label.includes(k)) || !firstItem.url || firstItem.url === '#')) {
-            return findItemsArray(hasChildren);
+        // Se o array tem itens, mas o primeiro item parece ser um wrapper de menu (ex: um objeto com 'items')
+        // ou se o array tem apenas 1 item que contém sub-itens
+        if (obj.length === 1 && (obj[0].items || obj[0].children || obj[0].menu_items)) {
+          console.log('Mergulhando em array de item único (wrapper detectado)');
+          return findItemsArray(obj[0].items || obj[0].children || obj[0].menu_items, depth + 1);
+        }
+
+        // Se pelo menos um item no array parece ser um link real, este é o nosso array
+        if (obj.some(item => isRealLinkItem(item))) {
+          return obj;
+        }
+
+        // Se não, tenta mergulhar em cada item do array (caso o array seja uma lista de menus e não de itens)
+        for (const item of obj) {
+          const sub = item.items || item.children || item.menu_items;
+          if (sub) {
+            const result = findItemsArray(sub, depth + 1);
+            if (result.length > 0) return result;
           }
         }
+        
         return obj;
       }
 
-      // Procura em propriedades comuns
+      // Caso 3: Objeto com propriedades comuns de lista
       const commonProps = ['items', 'children', 'menu_items', 'navigation', 'data'];
       for (const prop of commonProps) {
-        if (obj[prop]) {
-          const label = (obj.title?.rendered || obj.title || obj.label || obj.name || '').toString().toLowerCase();
-          // Se o objeto pai parece ser um wrapper de menu, mergulha direto nos itens
-          if (wrapperKeywords.some(k => label.includes(k)) || !obj.url || obj.url === '#') {
-             return findItemsArray(obj[prop]);
-          }
-          return findItemsArray(obj[prop]);
+        if (obj[prop] && (Array.isArray(obj[prop]) || typeof obj[prop] === 'object')) {
+          console.log(`Encontrada propriedade de lista: ${prop}`);
+          return findItemsArray(obj[prop], depth + 1);
         }
       }
 
-      // Se for um objeto com chaves numéricas
+      // Caso 4: Se o objeto em si tiver um título e um link real, mas não é um array
+      if (isRealLinkItem(obj)) {
+        return [obj];
+      }
+
+      // Caso 5: Objeto com chaves numéricas
       const keys = Object.keys(obj);
       if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
-        return Object.values(obj);
+        return findItemsArray(Object.values(obj), depth + 1);
       }
 
       return [];
     };
 
     const rawItems = findItemsArray(data);
+    console.log('Itens brutos extraídos:', rawItems);
+
     if (!Array.isArray(rawItems)) return [];
 
     return rawItems.map((item: any) => {
