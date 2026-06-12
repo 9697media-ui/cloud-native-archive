@@ -458,22 +458,21 @@ export default function AdminToolboxPage() {
     margin: 0 !important;
     padding: 0 !important;
   }
-  .custom-nav-992 .menu-items a {
-    color: inherit;
+  .custom-nav-992 a {
+    color: inherit !important;
     text-decoration: none !important;
-    font-size: 15px;
-    font-weight: 500;
-    padding: 10px 15px;
-    border-radius: 6px;
-    transition: all 0.2s;
-    opacity: 0.8;
-    white-space: nowrap;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    box-sizing: border-box;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    padding: 10px 15px !important;
+    border-radius: 6px !important;
+    transition: all 0.2s !important;
+    opacity: 0.8 !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
   }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative !important;
