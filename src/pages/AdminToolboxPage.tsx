@@ -168,99 +168,65 @@ export default function AdminToolboxPage() {
     testUrl: ''
   });
 
-  const [detectionLogs, setDetectionLogs] = useState<{
-    type: 'success' | 'info' | 'warning' | 'error';
-    message: string;
-    method?: 'API' | 'DOM';
-    details?: string;
-  }[]>([]);
-
-  const addDetectionLog = (type: 'success' | 'info' | 'warning' | 'error', message: string, method?: 'API' | 'DOM', details?: string) => {
-    setDetectionLogs(prev => [{ type, message, method, details }, ...prev].slice(0, 5));
-  };
-
-  const extractWPItems = (data: any): { label: string, link: string, children?: any[] }[] => {
+  const extractWPItems = (data: any): { label: string, link: string }[] => {
     if (!data) return [];
     
-    console.log('Extraindo itens do WordPress:', data);
-
-    const processItems = (items: any[]): any[] => {
-      return items.map((item: any) => {
-        let label = '';
-        let link = '#';
-        let children = [];
-
-        // Tenta extrair o label
-        if (item.title) {
-          if (typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
-          else if (typeof item.title === 'string') label = item.title;
-        } else if (item.label) {
-          label = item.label;
-        } else if (item.name) {
-          label = item.name;
-        } else if (item.post_title) {
-          label = item.post_title;
-        }
-
-        // Tenta extrair o link
-        link = item.url || item.link || item.guid || item.href || item.permalink || '#';
-
-        // Tenta extrair filhos (submenus)
-        const possibleChildren = item.children || item.items || item.menu_item_children || item._embedded?.['up:children'] || [];
-        if (Array.isArray(possibleChildren) && possibleChildren.length > 0) {
-          children = processItems(possibleChildren);
-        }
-
-        return { label, link, children: children.length > 0 ? children : undefined };
-      }).filter(i => i.label);
-    };
-
-    // Tenta encontrar a coleção de itens em diferentes níveis
-    const findItemsCollection = (obj: any): any[] | null => {
-      if (Array.isArray(obj)) {
-        // Se for array, verifica se os elementos têm cara de link ou se são menus
-        const first = obj[0];
-        if (first && (first.url || first.link || first.href || first.title || first.label)) {
-          return obj;
-        }
-        // Se for um array de objetos sem links, pode ser uma lista de menus, tenta entrar neles
-        for (const item of obj) {
-          const found = findItemsCollection(item);
-          if (found) return found;
-        }
-      } else if (obj && typeof obj === 'object') {
-        const keys = ['items', 'menu_items', 'navigation_items', 'data', 'children'];
-        for (const key of keys) {
-          if (Array.isArray(obj[key]) && obj[key].length > 0) return obj[key];
-        }
-        // Recursão limitada para chaves de objeto
-        for (const key in obj) {
-          if (obj[key] && typeof obj[key] === 'object' && key !== 'meta' && key !== '_links') {
-            const found = findItemsCollection(obj[key]);
-            if (found) return found;
-          }
-        }
-      }
-      return null;
-    };
-
-    const collection = findItemsCollection(data);
-    if (collection) return processItems(collection);
-
-    // Fallback para Navigation Block Content (Gutenberg)
-    if (typeof data === 'object' && !Array.isArray(data) && data.content?.rendered) {
+    let rawItems = [];
+    
+    // WordPress modern Navigation block (FSE)
+    // If it's an array and the first item has content.rendered, it's a Navigation Block
+    if (Array.isArray(data) && data[0]?.content?.rendered) {
+      const htmlContent = data[0].content.rendered;
       const parser = new DOMParser();
-      const doc = parser.parseFromString(data.content.rendered, 'text/html');
-      const links = doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link');
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+      
+      // Look for navigation link items specifically
+      const links = doc.querySelectorAll('.wp-block-navigation-item__content');
+      
       if (links.length > 0) {
-        return Array.from(links).map((a: any) => ({
-          label: (a.querySelector('.wp-block-navigation-item__label, .wp-block-navigation-link__label')?.textContent || a.textContent || '').trim(),
+        return Array.from(links).map((a: any) => {
+          // Try to get the label from the specific span if it exists, otherwise use textContent
+          const labelSpan = a.querySelector('.wp-block-navigation-item__label');
+          return {
+            label: (labelSpan?.textContent || a.textContent || '').trim(),
+            link: a.getAttribute('href') || '#'
+          };
+        }).filter(i => i.label);
+      }
+      
+      // Fallback: any link in the content
+      const allLinks = doc.querySelectorAll('a');
+      if (allLinks.length > 0) {
+        return Array.from(allLinks).map((a: any) => ({
+          label: (a.textContent || '').trim(),
           link: a.getAttribute('href') || '#'
         })).filter(i => i.label);
       }
     }
 
-    return [];
+    if (Array.isArray(data)) {
+      rawItems = data;
+    } else if (data.items || data.children || data.menu_items || data.data) {
+      rawItems = data.items || data.children || data.menu_items || data.data;
+    } else if (typeof data === 'object') {
+      const possibleArray = Object.values(data).find(val => Array.isArray(val));
+      if (possibleArray) rawItems = possibleArray as any[];
+      else rawItems = [data];
+    }
+
+    return rawItems.map((item: any) => {
+      let label = '';
+      if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
+      else if (item.title && typeof item.title === 'string') label = item.title;
+      else if (item.label) label = item.label;
+      else if (item.name) label = item.name;
+      else if (item.post_title) label = item.post_title;
+      else if (item.text) label = item.text;
+
+      const link = item.url || item.link || item.guid || item.href || '#';
+      
+      return { label, link };
+    }).filter(i => i.label);
   };
 
   const syncWithSystemMenu = () => {
@@ -274,19 +240,8 @@ export default function AdminToolboxPage() {
     });
   };
 
-  const clearMenuItems = () => {
-    setMenuConfig({
-      ...menuConfig,
-      items: []
-    });
-    toast({
-      title: "Menu Limpo",
-      description: "Todos os itens foram removidos.",
-    });
-  };
 
   // Função para copiar o código
-
   const handleCopyCode = (codeText: string) => {
     navigator.clipboard.writeText(codeText);
     setCopied(true);
@@ -579,56 +534,49 @@ export default function AdminToolboxPage() {
 
       console.log('Iniciando detecção de menu...');
 
-      function extractItemsFromData(data) {
-        if (!data) return [];
-        
-        function findCollection(obj) {
-          if (Array.isArray(obj)) {
-            const first = obj[0];
-            if (first && (first.url || first.link || first.href || first.title || first.label)) return obj;
-            for (const item of obj) {
-              const found = findCollection(item);
-              if (found) return found;
-            }
-          } else if (obj && typeof obj === 'object') {
-            const keys = ['items', 'menu_items', 'navigation_items', 'data', 'children'];
-            for (const key of keys) {
-              if (Array.isArray(obj[key]) && obj[key].length > 0) return obj[key];
-            }
-            for (const key in obj) {
-              if (obj[key] && typeof obj[key] === 'object' && key !== 'meta' && key !== '_links') {
-                const found = findCollection(obj[key]);
-                if (found) return found;
-              }
-            }
-          }
-          return null;
-        }
-
-        const rawItems = findCollection(data) || [];
-        return rawItems.map(item => {
-          let title = '';
-          if (item.title) {
-            if (typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
-            else if (typeof item.title === 'string') title = item.title;
-          } else if (item.label || item.name || item.post_title || item.text) {
-            title = item.label || item.name || item.post_title || item.text;
-          }
-          const link = item.url || item.link || item.guid || item.href || '#';
-          const childrenData = item.children || item.items || item.sub_items || item._embedded?.['up:children'] || [];
-          return { title, link, children: Array.isArray(childrenData) ? extractItemsFromData(childrenData) : [] };
-        }).filter(i => i && i.title);
-      }
-
       function renderItems(list) {
         if (!Array.isArray(list)) return '';
         let html = '';
         list.forEach(item => {
           if (!item) return;
-          const title = item.title || item.label;
-          const link = item.link || item.url || '#';
-          const children = item.children || item.items || [];
-          if (!title) return;
+
+          let title = '';
+          if (item.title && typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
+          else if (item.title && typeof item.title === 'string') title = item.title;
+          else if (item.label) title = item.label;
+          else if (item.name) title = item.name;
+          else if (item.post_title) title = item.post_title;
+          else if (item.text) title = item.text;
+          
+          if (!title || title.trim() === '') return;
+          
+          const lowerTitle = title.trim().toLowerCase();
+          const children = item.children || item.items || item.sub_items || [];
+          const link = item.url || item.link || item.guid || item.href || '#';
+
+          // Se tiver apenas UM item na lista e ele tiver filhos, mergulha direto
+          if (list.length === 1 && children.length > 0) {
+            const childrenHtml = renderItems(children);
+            if (childrenHtml && childrenHtml.trim().length > 0) {
+              html += childrenHtml;
+              return;
+            }
+          }
+
+          // Se tiver filhos e o link for apenas '#' ou o título for um "wrapper" conhecido, mergulha nos filhos
+          const isWrapper = (link === '#' || link === '' || link.endsWith('/') || 
+                            lowerTitle.includes("principal") || lowerTitle.includes("menu") || 
+                            lowerTitle.includes("navegação") || lowerTitle.includes("main") ||
+                            lowerTitle.includes("topo") || lowerTitle.includes("header") ||
+                            lowerTitle.includes("footer") || lowerTitle.includes("rodapé"));
+          
+          if (children && children.length > 0 && isWrapper) {
+            const childrenHtml = renderItems(children);
+            if (childrenHtml && childrenHtml.trim().length > 0) {
+              html += childrenHtml;
+              return;
+            }
+          }
 
           if (children.length > 0) {
             html += \`<div class="has-submenu">
@@ -643,20 +591,62 @@ export default function AdminToolboxPage() {
       }
 
       const wpApiUrl = '${menuConfig.wpApiUrl}';
-      const fallbackItems = ${JSON.stringify(menuConfig.items)};
-
-      // Renderiza itens iniciais imediatamente (evita menu vazio se API falhar)
-      if (!menuContainer.innerHTML.trim() || menuContainer.innerHTML.includes('<!--')) {
-        menuContainer.innerHTML = renderItems(fallbackItems);
-      }
-
       if (wpApiUrl && wpApiUrl.length > 10) {
         try {
           console.log('Buscando via WP API:', wpApiUrl);
           const response = await fetch(wpApiUrl);
           if (response.ok) {
             const data = await response.json();
-            const items = extractItemsFromData(data);
+            let items = [];
+            if (Array.isArray(data)) {
+              items = data;
+            } else if (data.items || data.children || data.menu_items || data.data) {
+              items = data.items || data.children || data.menu_items || data.data;
+            }
+
+            
+            // Função para extrair itens de estruturas aninhadas do WordPress
+            function extractItems(source) {
+              if (!source) return [];
+              
+              console.log('Analisando fonte de dados:', source);
+
+              // Se for um objeto com propriedade de itens, mergulha nela
+              if (source.items && Array.isArray(source.items)) return source.items;
+              if (source.children && Array.isArray(source.children)) return source.children;
+              if (source.menu_items && Array.isArray(source.menu_items)) return source.menu_items;
+              if (source.navigation && source.navigation.items) return source.navigation.items;
+              if (source.data && Array.isArray(source.data)) return source.data;
+              if (source.nodes && Array.isArray(source.nodes)) return source.nodes;
+              if (source.edges && Array.isArray(source.edges)) return source.edges;
+              
+              // Se for um array
+              if (Array.isArray(source)) {
+                // Se o array tem 1 item e esse item tem sub-itens, mergulha
+                if (source.length === 1 && (source[0].items || source[0].children || source[0].menu_items)) {
+                  return extractItems(source[0]);
+                }
+                return source;
+              }
+              
+              // Se for um objeto com chaves numéricas (comum em APIs PHP/WP antigas)
+              if (typeof source === 'object') {
+                const keys = Object.keys(source);
+                if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
+                  return Object.values(source);
+                }
+              }
+
+              // Caso o objeto em si tenha itens/children (segunda checagem)
+              const possibleItems = source.items || source.children || source.menu_items;
+              if (Array.isArray(possibleItems)) return possibleItems;
+
+              return [];
+            }
+
+            items = extractItems(data);
+
+
             const htmlContent = renderItems(items);
             if (htmlContent && htmlContent.trim().length > 5) {
               menuContainer.innerHTML = htmlContent;
@@ -664,60 +654,53 @@ export default function AdminToolboxPage() {
               return;
             }
           }
-        } catch (e) { 
-          console.warn('WP API fail (CORS?):', e.message);
-          // Mantém o que já está lá (itens embutidos)
-        }
+        } catch (e) { console.warn('WP API fail:', e.message); }
       }
 
       if (${menuConfig.autoDetect}) {
-        console.log('Tentando auto-detecção local...');
-        const selectors = [
-          '.elementor-nav-menu', 
-          'nav', 
-          '.main-navigation', 
-          'ul[class*="menu"]', 
-          '.wp-block-navigation',
-          '.nav-menu',
-          '.site-navigation',
-          '#main-nav',
-          '.header-nav'
-        ];
-        
-        // Tenta detectar o menu até 5 vezes se não encontrar de primeira
-        let attempts = 0;
-        const tryDetect = setInterval(() => {
-          attempts++;
-          for (const selector of selectors) {
-            const nav = document.querySelector(selector);
-            if (nav && !nav.classList.contains('custom-nav-992')) {
-              const links = Array.from(nav.querySelectorAll('a')).slice(0, 15);
-              if (links.length > 0) {
-                const detected = links.map(a => ({ title: a.innerText.trim() || a.textContent.trim(), link: a.href })).filter(i => i.title.length > 1);
-                if (detected.length > 0) {
-                  console.log('Menu detectado via:', selector);
-                  menuContainer.innerHTML = renderItems(detected);
-                  if (typeof highlightActiveLink === 'function') highlightActiveLink();
-                  clearInterval(tryDetect);
-                  return;
-                }
+        console.log('Tentando auto-detecção...');
+        const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '.wp-block-navigation'];
+        const previewFrame = document.querySelector('iframe[title="Site Preview"]');
+        let targetDoc = document;
+        try {
+          if (previewFrame && previewFrame.contentDocument) targetDoc = previewFrame.contentDocument;
+          else if (previewFrame && previewFrame.contentWindow) targetDoc = previewFrame.contentWindow.document;
+        } catch (e) { console.warn('CORS restrict'); }
+
+        for (const selector of selectors) {
+          const containers = targetDoc.querySelectorAll(selector);
+          for (const container of containers) {
+            function getDOMItems(el) {
+              const uls = el.querySelectorAll('ul');
+              const mainUl = Array.from(uls).find(ul => !ul.parentElement.closest('li')) || el.querySelector('ul') || (el.tagName === 'UL' ? el : null);
+              if (!mainUl) return [];
+              return Array.from(mainUl.children).filter(li => li.tagName === 'LI').map(li => {
+                const link = li.querySelector('a');
+                if (!link) return null;
+                const sub = li.querySelector('ul, .sub-menu, .dropdown-menu');
+                return { title: link.innerText.trim(), link: link.href, children: sub ? getDOMItems(li) : [] };
+              }).filter(i => i && i.title);
+            }
+            const items = getDOMItems(container);
+            if (items.length >= 1) {
+              const html = renderItems(items);
+              if (html && html.trim().length > 5) {
+                menuContainer.innerHTML = html;
+                if (typeof highlightActiveLink === 'function') highlightActiveLink();
+                return;
               }
             }
           }
-          if (attempts >= 5) {
-            clearInterval(tryDetect);
-            console.warn('Auto-detecção finalizada após 5 tentativas.');
-          }
-        }, 2000);
+        }
       }
-
+      
       const manualItems = ${JSON.stringify(menuConfig.items)};
       if (manualItems && manualItems.length > 0) {
-         console.log('Usando itens manuais como base:', manualItems);
+         console.log('Usando itens manuais:', manualItems);
          menuContainer.innerHTML = renderItems(manualItems);
       }
     }
-    setTimeout(initializeMenuDetection, 1500);`;
+    setTimeout(initializeMenuDetection, 2500);`;
 
     const script = `
 <script>
@@ -780,9 +763,9 @@ export default function AdminToolboxPage() {
     <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
   </button>
   <div class="menu-items">
-    \${menuConfig.items.length > 0 
-      ? menuConfig.items.map(item => \`<a href="\${item.link}">\${item.label}</a>\`).join('\\n    ')
-      : '<!-- Aguardando detecção ou adicione itens manualmente -->'
+    ${menuConfig.items.length > 0 
+      ? menuConfig.items.map(item => `<a href="${item.link}">${item.label}</a>`).join('\n    ')
+      : '<!-- Aguardando carregamento... -->'
     }
   </div>
 </nav>
@@ -1129,40 +1112,12 @@ export default function AdminToolboxPage() {
 
                       <div className="space-y-2">
                         <Label className="text-xs">Endpoint WordPress (JSON)</Label>
-                        <div className="flex gap-2">
-                          <Input 
-                            placeholder="Ex: https://site.com/wp-json/wp/v2/navigation"
-                            value={menuConfig.wpApiUrl}
-                            onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value})}
-                          />
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="shrink-0"
-                            title="Sincronizar Itens Agora"
-                            onClick={async () => {
-                              if (!menuConfig.wpApiUrl) return;
-                              toast({ title: "Sincronizando...", description: "Buscando itens no endpoint informado." });
-                              try {
-                                const res = await fetch(menuConfig.wpApiUrl);
-                                if (!res.ok) throw new Error("Falha na resposta da API");
-                                const data = await res.json();
-                                const items = extractWPItems(data);
-                                if (items.length > 0) {
-                                  setMenuConfig(prev => ({ ...prev, items }));
-                                  toast({ title: "Sucesso!", description: `${items.length} itens importados.` });
-                                } else {
-                                  toast({ title: "Aviso", description: "Nenhum item encontrado no formato esperado.", variant: "destructive" });
-                                }
-                              } catch (e: any) {
-                                toast({ title: "Erro de Conexão", description: "O WordPress pode estar bloqueando (CORS) ou a URL está incorreta.", variant: "destructive" });
-                              }
-                            }}
-                          >
-                            <RefreshCw className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress (Navegação, Menus ou Posts).</p>
+                        <Input 
+                          placeholder="Ex: https://site.com/wp-json/wp/v2/menu-items"
+                          value={menuConfig.wpApiUrl}
+                          onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value})}
+                        />
+                        <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress para sincronização em tempo real.</p>
                       </div>
                     </div>
 
@@ -1184,24 +1139,20 @@ export default function AdminToolboxPage() {
                                 // Limpa timer anterior se existir
                                 if (debounceRef.current) clearTimeout(debounceRef.current);
                                 
-                                setDetectionLogs([]); // Limpa logs anteriores
-                                addDetectionLog('info', 'Iniciando busca por endpoints WordPress...', 'API');
-
                                 debounceRef.current = setTimeout(async () => {
                                   try {
                                     const origin = new URL(url).origin;
                                     const endpoints = [
                                       '/wp-json/wp/v2/navigation',
                                       '/wp-json/wp/v2/menu-items',
-                                      '/wp-json/wp/v2/posts?type=nav_menu_item',
                                       '/wp-json/menus/v1/menus',
                                       '/wp-json/menus/v1/locations/primary',
                                       '/wp-json/wp/v2/pages'
                                     ];
 
-                                    let foundAny = false;
                                     for (const endpoint of endpoints) {
                                       try {
+                                        // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
                                         const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
                                         if (testRes.ok) {
                                           const data = await testRes.json();
@@ -1213,9 +1164,6 @@ export default function AdminToolboxPage() {
                                               items: wpItems.length > 0 ? wpItems : prev.items
                                             }));
                                             
-                                            addDetectionLog('success', `API detectada com sucesso em ${endpoint}`, 'API', `${wpItems.length} itens extraídos.`);
-                                            foundAny = true;
-                                            
                                             toast({
                                               title: "API Detectada!",
                                               description: wpItems.length > 0 
@@ -1226,12 +1174,12 @@ export default function AdminToolboxPage() {
                                           }
                                         }
                                       } catch (e) {
+                                        // Se falhar por CORS, tentamos HEAD no-cors apenas para ver se o recurso existe
                                         try {
                                           const headRes = await fetch(`${origin}${endpoint}`, { method: 'HEAD', mode: 'no-cors' });
+                                          // No modo no-cors o status é sempre 0, mas se não deu erro de rede é um sinal positivo
                                           if (headRes.type === 'opaque') {
                                              setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
-                                             addDetectionLog('warning', `Atividade detectada em ${endpoint}, mas CORS bloqueou os dados.`, 'API');
-                                             foundAny = true;
                                              toast({
                                               title: "API Possível!",
                                               description: `Detectamos atividade em ${endpoint} (CORS restrito).`,
@@ -1241,12 +1189,7 @@ export default function AdminToolboxPage() {
                                         } catch (innerE) {}
                                       }
                                     }
-                                    if (!foundAny) {
-                                      addDetectionLog('error', 'Nenhum endpoint WP REST API padrão foi encontrado.', 'API');
-                                    }
-                                  } catch (e) { 
-                                    addDetectionLog('error', 'URL inválida ou erro de conexão.', 'API');
-                                  }
+                                  } catch (e) { /* invalid url */ }
                                 }, 1000);
                               }
                             }}
@@ -1254,46 +1197,12 @@ export default function AdminToolboxPage() {
                         </div>
                         <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo e tentaremos identificar o endpoint e os itens automaticamente.</p>
                       </div>
-
-                      {detectionLogs.length > 0 && (
-                        <div className="mt-2 space-y-1 bg-muted/30 p-2 rounded-md border border-dashed">
-                          <Label className="text-[10px] uppercase text-muted-foreground font-bold flex items-center gap-1">
-                            <Terminal className="h-3 w-3" /> Logs de Extração
-                          </Label>
-                          {detectionLogs.map((log, i) => (
-                            <div key={i} className="text-[10px] flex gap-1 items-start leading-tight">
-                              <span className={cn(
-                                "font-bold shrink-0",
-                                log.type === 'success' ? "text-green-500" : 
-                                log.type === 'error' ? "text-red-500" : 
-                                log.type === 'warning' ? "text-orange-500" : "text-blue-500"
-                              )}>
-                                [{log.method || 'SYS'}]
-                              </span>
-                              <span>
-                                {log.message} 
-                                {log.details && <span className="text-muted-foreground italic"> ({log.details})</span>}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
 
                     <div className="space-y-2 pt-2 border-t mt-4">
                       <div className="flex items-center justify-between mb-2">
                         <Label>Itens do Menu</Label>
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-7 px-2 text-[10px] text-destructive hover:text-destructive hover:bg-destructive/10 gap-1"
-                            onClick={clearMenuItems}
-                          >
-                            <Trash2 className="h-3 w-3" /> Limpar Tudo
-                          </Button>
-                          <span className="text-[10px] text-muted-foreground italic flex items-center">(Sincronizados via API ou Manual)</span>
-                        </div>
+                        <span className="text-[10px] text-muted-foreground italic">(Sincronizados via API ou Manual)</span>
                       </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
@@ -1328,15 +1237,6 @@ export default function AdminToolboxPage() {
                       >
                         + Adicionar Item Manual
                       </Button>
-                      
-                      {menuConfig.wpApiUrl && (
-                        <Alert className="mt-4 bg-orange-500/10 border-orange-500/20 py-2">
-                          <AlertTriangle className="h-3 w-3 text-orange-500" />
-                          <div className="text-[10px] leading-tight">
-                            <span className="font-bold">Aviso de CORS:</span> Se os itens não aparecerem no seu site, o WordPress pode estar bloqueando a requisição. Use "Auto-detectar" como alternativa.
-                          </div>
-                        </Alert>
-                      )}
                     </div>
                   </div>
                 )}
@@ -1394,51 +1294,34 @@ export default function AdminToolboxPage() {
                           className="w-full h-full border-none"
                           title="Site Preview"
                           onLoad={(e) => {
-                            addDetectionLog('info', 'Iframe carregado. Iniciando leitura visual do DOM...', 'DOM');
+                            // Tentar ler itens do DOM via injeção se possível (domínios amigáveis)
                             try {
                               const frame = e.currentTarget;
                               const doc = frame.contentDocument || frame.contentWindow?.document;
                               if (doc) {
-                                const selectors = [
-                                  '.elementor-nav-menu', 
-                                  'nav', 
-                                  '.main-navigation', 
-                                  'ul[class*="menu"]', 
-                                  '.wp-block-navigation',
-                                  '.nav-menu',
-                                  '.site-navigation',
-                                  '#main-nav',
-                                  '.header-nav'
-                                ];
-                                
-                                let foundInDOM = false;
+                                const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', 'ul[class*="menu"]'];
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
-                                    const links = Array.from(nav.querySelectorAll('a')).slice(0, 20);
+                                    const links = Array.from(nav.querySelectorAll('a')).slice(0, 10);
                                     if (links.length > 0) {
                                       const detectedItems = links.map(a => ({
-                                        label: (a as HTMLElement).innerText.trim() || (a as HTMLElement).textContent?.trim() || '',
+                                        label: (a as HTMLElement).innerText.trim(),
                                         link: (a as HTMLAnchorElement).href
-                                      })).filter(i => i.label && i.label.length > 1);
+                                      })).filter(i => i.label);
                                       
                                       if (detectedItems.length > 0) {
-                                        addDetectionLog('success', `Menu visual detectado via seletor: "${sel}"`, 'DOM', `${detectedItems.length} links encontrados.`);
-                                        foundInDOM = true;
-
+                                        // Substituir apenas se os itens atuais forem os padrão ou estiverem vazios
                                         const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
                                         if (isDefault || menuConfig.items.length === 0) {
-                                          setMenuConfig(prev => ({...prev, items: detectedItems, autoDetect: true}));
+                                          setMenuConfig(prev => ({...prev, items: detectedItems}));
                                           toast({ title: "Itens Detectados", description: `${detectedItems.length} links importados do preview.` });
                                         } else {
                                           toast({ 
                                             title: "Preview Carregado", 
-                                            description: `Encontramos ${detectedItems.length} links via seletor "${sel}". Deseja substituir?`,
+                                            description: "Links detectados no site. Deseja substituir os atuais?",
                                             action: (
-                                              <Button size="sm" onClick={() => {
-                                                setMenuConfig(prev => ({...prev, items: detectedItems}));
-                                                addDetectionLog('info', 'Itens manuais substituídos pelos detectados no DOM.', 'DOM');
-                                              }}>
+                                              <Button size="sm" onClick={() => setMenuConfig(prev => ({...prev, items: detectedItems}))}>
                                                 Substituir
                                               </Button>
                                             )
@@ -1449,12 +1332,8 @@ export default function AdminToolboxPage() {
                                     }
                                   }
                                 }
-                                if (!foundInDOM) {
-                                  addDetectionLog('warning', 'Nenhum menu reconhecível encontrado nos seletores padrão do DOM.', 'DOM');
-                                }
                               }
                             } catch (err) {
-                              addDetectionLog('error', 'CORS bloqueou a leitura do Iframe. Dependendo apenas da API.', 'DOM');
                               console.warn("Não foi possível ler o DOM do iframe devido a restrições de CORS.");
                             }
                           }}
