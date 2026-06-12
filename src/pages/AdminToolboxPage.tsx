@@ -1601,21 +1601,23 @@ export default function AdminToolboxPage() {
                               const frame = e.currentTarget;
                               const doc = frame.contentDocument || frame.contentWindow?.document;
                               if (doc) {
-                                const selectors = [
-                                  'nav', 
-                                  '.main-navigation', 
-                                  '.elementor-nav-menu', 
-                                  '.header-menu', 
-                                  '#site-navigation', 
-                                  'ul[class*="menu"]', 
-                                  '.wp-block-navigation',
-                                  '.navbar',
-                                  '.nav-menu',
-                                  '.navigation',
-                                  '[role="navigation"]',
-                                  'header .links',
-                                  '.header__nav'
-                                ];
+                                  const selectors = [
+                                    'nav', 
+                                    '.main-navigation', 
+                                    '.elementor-nav-menu', 
+                                    '.header-menu', 
+                                    '#site-navigation', 
+                                    'ul[class*="menu"]', 
+                                    '.wp-block-navigation',
+                                    '.navbar',
+                                    '.nav-menu',
+                                    '.navigation',
+                                    '[role="navigation"]',
+                                    'header .links',
+                                    '.header__nav',
+                                    '#header-menu',
+                                    '.menu-primary-container'
+                                  ];
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
