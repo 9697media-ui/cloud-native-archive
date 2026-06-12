@@ -157,11 +157,11 @@ export default function AdminToolboxPage() {
     bgColor: '#ffffff',
     textColor: '#1f2937',
     items: [
-      { label: 'Início', link: '#' },
-      { label: 'Sobre', link: '#' },
-      { label: 'Serviços', link: '#' },
-      { label: 'Contato', link: '#' }
-    ],
+      { label: 'Início', link: '#', children: [] as any[] },
+      { label: 'Sobre', link: '#', children: [] as any[] },
+      { label: 'Serviços', link: '#', children: [] as any[] },
+      { label: 'Contato', link: '#', children: [] as any[] }
+    ] as any[],
     sticky: true,
     enableAutoDetect: false,
     enableWpApi: true,
