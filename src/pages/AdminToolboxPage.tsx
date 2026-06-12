@@ -233,9 +233,7 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
-    // Helper to build tree from flat list (common in WP REST API)
     const buildTree = (items: any[], parentId: number | string = 0) => {
-      const tree: any[] = [];
       const childrenOf: {[key: string]: any[]} = {};
 
       items.forEach(item => {
@@ -255,10 +253,11 @@ export default function AdminToolboxPage() {
           else if (item.post_title) label = item.post_title;
           else if (item.text) label = item.text;
 
+          const id = item.id || item.ID || item.db_id || '';
           return {
             label: label || 'Sem título',
             link: item.url || item.link || item.guid || item.href || '#',
-            children: processBranch(item.id || item.ID || item.db_id || '')
+            children: processBranch(id)
           };
         }).filter(i => i.label);
       };
@@ -266,7 +265,6 @@ export default function AdminToolboxPage() {
       return processBranch(parentId);
     };
 
-    // Helper to extract from HTML string (Gutenberg/FSE)
     const fromHTML = (html: string) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
@@ -285,20 +283,22 @@ export default function AdminToolboxPage() {
     }
 
     if (Array.isArray(itemsSource)) {
-      // Case 1: HTML content in first item
       if (itemsSource[0]?.content?.rendered) {
         return itemsSource.flatMap(item => fromHTML(item.content.rendered));
       }
-      // Case 2: Flat list with parent references
-      const isHierarchical = itemsSource.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+      
+      const isHierarchical = itemsSource.some(item => 
+        (item.parent !== undefined && item.parent !== 0) || 
+        (item.menu_item_parent !== undefined && item.menu_item_parent !== "0" && item.menu_item_parent !== 0)
+      );
+      
       if (isHierarchical) return buildTree(itemsSource);
       
-      // Case 3: Standard flat map
       return itemsSource.map((item: any) => {
         let label = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
         let children = item.children || item.items || item.sub_items || [];
         return {
-          label,
+          label: label || 'Sem título',
           link: item.url || item.link || item.guid || item.href || '#',
           children: Array.isArray(children) && children.length > 0 ? extractWPItems(children) : []
         };
