@@ -171,45 +171,62 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): { label: string, link: string }[] => {
     if (!data) return [];
     
-    let rawItems = [];
-    
-    // WordPress modern Navigation block (FSE)
-    if (Array.isArray(data) && data[0]?.content?.rendered) {
-      const htmlContent = data[0].content.rendered;
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlContent, 'text/html');
+    // Função auxiliar recursiva para encontrar arrays de itens em qualquer profundidade
+    const findItemsArray = (obj: any): any[] => {
+      if (!obj) return [];
       
-      const links = doc.querySelectorAll('.wp-block-navigation-item__content');
-      if (links.length > 0) {
-        return Array.from(links).map((a: any) => {
-          const labelSpan = a.querySelector('.wp-block-navigation-item__label');
-          return {
-            label: (labelSpan?.textContent || a.textContent || '').trim(),
-            link: a.getAttribute('href') || '#'
-          };
-        }).filter(i => i.label);
+      // Se já for um array, este é o candidato
+      if (Array.isArray(obj)) {
+        // Se o array tem itens que parecem ser do WP (com title/rendered ou post_title)
+        if (obj.length > 0 && (obj[0].title || obj[0].post_title || obj[0].label || obj[0].content?.rendered)) {
+          return obj;
+        }
+        
+        // Se o array tem 1 item e ele tem itens dentro, mergulha
+        if (obj.length === 1) {
+          const sub = obj[0].items || obj[0].children || obj[0].menu_items;
+          if (sub) return findItemsArray(sub);
+        }
+        return obj;
       }
-      
-      const allLinks = doc.querySelectorAll('a');
-      if (allLinks.length > 0) {
-        return Array.from(allLinks).map((a: any) => ({
-          label: (a.textContent || '').trim(),
-          link: a.getAttribute('href') || '#'
-        })).filter(i => i.label);
-      }
-    }
 
-    if (Array.isArray(data)) {
-      rawItems = data;
-    } else if (data.items || data.children || data.menu_items || data.data) {
-      rawItems = data.items || data.children || data.menu_items || data.data;
-    } else if (typeof data === 'object') {
-      const possibleArray = Object.values(data).find(val => Array.isArray(val));
-      if (possibleArray) rawItems = possibleArray as any[];
-      else rawItems = [data];
-    }
+      // Se for o bloco moderno de navegação (FSE)
+      if (obj.content?.rendered) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(obj.content.rendered, 'text/html');
+        const links = doc.querySelectorAll('.wp-block-navigation-item__content, a');
+        if (links.length > 0) {
+          return Array.from(links).map((a: any) => ({
+            label: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+            link: a.getAttribute('href') || '#'
+          })).filter(i => i.label);
+        }
+      }
+
+      // Procura em propriedades comuns
+      const commonProps = ['items', 'children', 'menu_items', 'navigation', 'data'];
+      for (const prop of commonProps) {
+        if (obj[prop] && (Array.isArray(obj[prop]) || typeof obj[prop] === 'object')) {
+          return findItemsArray(obj[prop]);
+        }
+      }
+
+      // Se for um objeto com chaves numéricas
+      const keys = Object.keys(obj);
+      if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
+        return Object.values(obj);
+      }
+
+      return [];
+    };
+
+    const rawItems = findItemsArray(data);
+    if (!Array.isArray(rawItems)) return [];
 
     return rawItems.map((item: any) => {
+      // Se já foi processado pelo parser de HTML acima
+      if (item.label && item.link) return item;
+
       let label = '';
       if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
       else if (item.title && typeof item.title === 'string') label = item.title;
@@ -228,24 +245,29 @@ export default function AdminToolboxPage() {
     if (!url || url.length < 10) return;
     
     try {
+      console.log('Fetching WP items from:', url);
       const response = await fetch(url, { method: 'GET', mode: 'cors' });
       if (response.ok) {
         const data = await response.json();
+        console.log('WP API Data received:', data);
         const wpItems = extractWPItems(data);
         if (wpItems.length > 0) {
           setMenuConfig(prev => ({
             ...prev,
-            items: wpItems
+            items: wpItems,
+            wpApiUrl: url // Garante que a URL correta fique salva
           }));
           toast({
             title: "Itens Sincronizados",
             description: `Importamos ${wpItems.length} itens do endpoint informado.`,
           });
+          return true;
         }
       }
     } catch (e) {
       console.warn('Falha ao buscar endpoint diretamente:', e);
     }
+    return false;
   };
 
   const syncWithSystemMenu = () => {
@@ -1184,22 +1206,22 @@ export default function AdminToolboxPage() {
                                       try {
                                         const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
                                         if (testRes.ok) {
-                                          const data = await testRes.ok ? await testRes.json() : null;
+                                          const data = await testRes.json();
                                           if (data) {
                                             const wpItems = extractWPItems(data);
-                                            setMenuConfig(prev => ({
-                                              ...prev, 
-                                              wpApiUrl: `${origin}${endpoint}`,
-                                              items: wpItems.length > 0 ? wpItems : prev.items
-                                            }));
-                                            
-                                            toast({
-                                              title: "API Detectada!",
-                                              description: wpItems.length > 0 
-                                                ? `Importamos ${wpItems.length} itens do endpoint ${endpoint}`
-                                                : `Conectado ao endpoint ${endpoint}`,
-                                            });
-                                            break;
+                                            if (wpItems.length > 0) {
+                                              setMenuConfig(prev => ({
+                                                ...prev, 
+                                                wpApiUrl: `${origin}${endpoint}`,
+                                                items: wpItems
+                                              }));
+                                              
+                                              toast({
+                                                title: "API Detectada e Sincronizada!",
+                                                description: `Importamos ${wpItems.length} itens do endpoint ${endpoint}`,
+                                              });
+                                              break;
+                                            }
                                           }
                                         }
                                       } catch (e) {
