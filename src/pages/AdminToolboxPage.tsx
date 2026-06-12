@@ -235,16 +235,17 @@ export default function AdminToolboxPage() {
     
     const buildTree = (items: any[], parentId: number | string = 0) => {
       const childrenOf: {[key: string]: any[]} = {};
+      const pIdStr = parentId.toString();
 
       items.forEach(item => {
-        const pId = item.parent || item.menu_item_parent || 0;
+        const pId = (item.parent || item.menu_item_parent || 0).toString();
         if (!childrenOf[pId]) childrenOf[pId] = [];
         childrenOf[pId].push(item);
       });
 
-      const processBranch = (pId: number | string) => {
-        if (!childrenOf[pId]) return [];
-        return childrenOf[pId].map(item => {
+      const processBranch = (currentPId: string) => {
+        if (!childrenOf[currentPId]) return [];
+        return childrenOf[currentPId].map(item => {
           let label = '';
           if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
           else if (item.title && typeof item.title === 'string') label = item.title;
@@ -253,16 +254,16 @@ export default function AdminToolboxPage() {
           else if (item.post_title) label = item.post_title;
           else if (item.text) label = item.text;
 
-          const id = item.id || item.ID || item.db_id || '';
+          const id = (item.id || item.ID || item.db_id || '').toString();
           return {
             label: label || 'Sem título',
             link: item.url || item.link || item.guid || item.href || '#',
-            children: processBranch(id)
+            children: id ? processBranch(id) : []
           };
         }).filter(i => i.label);
       };
 
-      return processBranch(parentId);
+      return processBranch(pIdStr);
     };
 
     const fromHTML = (html: string) => {
@@ -287,10 +288,10 @@ export default function AdminToolboxPage() {
         return itemsSource.flatMap(item => fromHTML(item.content.rendered));
       }
       
-      const isHierarchical = itemsSource.some(item => 
-        (item.parent !== undefined && item.parent !== 0) || 
-        (item.menu_item_parent !== undefined && item.menu_item_parent !== "0" && item.menu_item_parent !== 0)
-      );
+      const isHierarchical = itemsSource.some(item => {
+        const pId = item.parent || item.menu_item_parent;
+        return pId !== undefined && pId.toString() !== "0" && pId !== 0;
+      });
       
       if (isHierarchical) return buildTree(itemsSource);
       
