@@ -659,7 +659,21 @@ export default function AdminToolboxPage() {
 
       if (${menuConfig.autoDetect}) {
         console.log('Tentando auto-detecção...');
-        const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '.wp-block-navigation'];
+        const selectors = [
+          'nav', 
+          '.main-navigation', 
+          '.elementor-nav-menu', 
+          '.header-menu', 
+          '#site-navigation', 
+          'ul[class*="menu"]', 
+          '.wp-block-navigation',
+          '.navbar',
+          '.nav-menu',
+          '.navigation',
+          '[role="navigation"]',
+          'header .links',
+          '.header__nav'
+        ];
         const previewFrame = document.querySelector('iframe[title="Site Preview"]');
         let targetDoc = document;
         try {
@@ -671,6 +685,22 @@ export default function AdminToolboxPage() {
           const containers = targetDoc.querySelectorAll(selector);
           for (const container of containers) {
             function getDOMItems(el) {
+              // Tenta encontrar links diretos se não houver estrutura de lista clara
+              const directLinks = Array.from(el.querySelectorAll('a')).filter(a => {
+                const parentLi = a.closest('li');
+                // Se estiver dentro de um LI, queremos apenas o link principal dele (evitar duplicatas)
+                if (parentLi) return parentLi.parentElement.closest(selector) === el || parentLi.parentElement === el;
+                return a.parentElement === el || a.parentElement.parentElement === el;
+              });
+
+              if (directLinks.length > 2) {
+                return directLinks.map(link => ({
+                  title: link.innerText.trim() || link.textContent.trim(),
+                  link: link.href,
+                  children: []
+                })).filter(i => i.title);
+              }
+
               const uls = el.querySelectorAll('ul');
               const mainUl = Array.from(uls).find(ul => !ul.parentElement.closest('li')) || el.querySelector('ul') || (el.tagName === 'UL' ? el : null);
               if (!mainUl) return [];
@@ -678,7 +708,7 @@ export default function AdminToolboxPage() {
                 const link = li.querySelector('a');
                 if (!link) return null;
                 const sub = li.querySelector('ul, .sub-menu, .dropdown-menu');
-                return { title: link.innerText.trim(), link: link.href, children: sub ? getDOMItems(li) : [] };
+                return { title: (link.innerText || link.textContent).trim(), link: link.href, children: sub ? getDOMItems(sub) : [] };
               }).filter(i => i && i.title);
             }
             const items = getDOMItems(container);
@@ -1201,7 +1231,18 @@ export default function AdminToolboxPage() {
 
                     <div className="space-y-2 pt-2 border-t mt-4">
                       <div className="flex items-center justify-between mb-2">
-                        <Label>Itens do Menu</Label>
+                        <div className="flex items-center gap-2">
+                          <Label>Itens do Menu</Label>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                            title="Limpar tudo"
+                            onClick={() => setMenuConfig({...menuConfig, items: []})}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
                         <span className="text-[10px] text-muted-foreground italic">(Sincronizados via API ou Manual)</span>
                       </div>
                       {menuConfig.items.map((item, idx) => (
@@ -1299,14 +1340,32 @@ export default function AdminToolboxPage() {
                               const frame = e.currentTarget;
                               const doc = frame.contentDocument || frame.contentWindow?.document;
                               if (doc) {
-                                const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', 'ul[class*="menu"]'];
+                                const selectors = [
+                                  'nav', 
+                                  '.main-navigation', 
+                                  '.elementor-nav-menu', 
+                                  '.header-menu', 
+                                  '#site-navigation', 
+                                  'ul[class*="menu"]', 
+                                  '.wp-block-navigation',
+                                  '.navbar',
+                                  '.nav-menu',
+                                  '.navigation',
+                                  '[role="navigation"]',
+                                  'header .links',
+                                  '.header__nav'
+                                ];
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
-                                    const links = Array.from(nav.querySelectorAll('a')).slice(0, 10);
-                                    if (links.length > 0) {
+                                    const links = Array.from(nav.querySelectorAll('a')).filter(a => {
+                                      const text = (a as HTMLElement).innerText || a.textContent || '';
+                                      return text.trim().length > 0;
+                                    }).slice(0, 15);
+                                    
+                                    if (links.length > 2) {
                                       const detectedItems = links.map(a => ({
-                                        label: (a as HTMLElement).innerText.trim(),
+                                        label: ((a as HTMLElement).innerText || a.textContent || '').trim(),
                                         link: (a as HTMLAnchorElement).href
                                       })).filter(i => i.label);
                                       
