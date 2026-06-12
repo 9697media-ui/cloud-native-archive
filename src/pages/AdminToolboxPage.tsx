@@ -184,7 +184,6 @@ export default function AdminToolboxPage() {
     
     console.log('Extraindo itens do WordPress:', data);
 
-    // Função recursiva para extrair itens e seus filhos
     const processItems = (items: any[]): any[] => {
       return items.map((item: any) => {
         let label = '';
@@ -207,7 +206,7 @@ export default function AdminToolboxPage() {
         link = item.url || item.link || item.guid || item.href || item.permalink || '#';
 
         // Tenta extrair filhos (submenus)
-        const possibleChildren = item.children || item._embedded?.['up:children'] || item.menu_item_children || [];
+        const possibleChildren = item.children || item.items || item.menu_item_children || item._embedded?.['up:children'] || [];
         if (Array.isArray(possibleChildren) && possibleChildren.length > 0) {
           children = processItems(possibleChildren);
         }
@@ -216,29 +215,49 @@ export default function AdminToolboxPage() {
       }).filter(i => i.label);
     };
 
-    // Caso seja o bloco de navegação moderno (FSE) que retorna um objeto com content.rendered
+    // Tenta encontrar a coleção de itens em diferentes níveis
+    const findItemsCollection = (obj: any): any[] | null => {
+      if (Array.isArray(obj)) {
+        // Se for array, verifica se os elementos têm cara de link ou se são menus
+        const first = obj[0];
+        if (first && (first.url || first.link || first.href || first.title || first.label)) {
+          return obj;
+        }
+        // Se for um array de objetos sem links, pode ser uma lista de menus, tenta entrar neles
+        for (const item of obj) {
+          const found = findItemsCollection(item);
+          if (found) return found;
+        }
+      } else if (obj && typeof obj === 'object') {
+        const keys = ['items', 'menu_items', 'navigation_items', 'data', 'children'];
+        for (const key of keys) {
+          if (Array.isArray(obj[key]) && obj[key].length > 0) return obj[key];
+        }
+        // Recursão limitada para chaves de objeto
+        for (const key in obj) {
+          if (obj[key] && typeof obj[key] === 'object' && key !== 'meta' && key !== '_links') {
+            const found = findItemsCollection(obj[key]);
+            if (found) return found;
+          }
+        }
+      }
+      return null;
+    };
+
+    const collection = findItemsCollection(data);
+    if (collection) return processItems(collection);
+
+    // Fallback para Navigation Block Content (Gutenberg)
     if (typeof data === 'object' && !Array.isArray(data) && data.content?.rendered) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data.content.rendered, 'text/html');
       const links = doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link');
-      
       if (links.length > 0) {
         return Array.from(links).map((a: any) => ({
           label: (a.querySelector('.wp-block-navigation-item__label, .wp-block-navigation-link__label')?.textContent || a.textContent || '').trim(),
           link: a.getAttribute('href') || '#'
         })).filter(i => i.label);
       }
-    }
-
-    // Se for uma lista direta (comum em /navigation ou /menu-items)
-    if (Array.isArray(data)) {
-      return processItems(data);
-    }
-
-    // Se os dados estiverem envelopados em um objeto (ex: { items: [...] })
-    const itemsLocation = data.items || data.data || data.navigation_items || [];
-    if (Array.isArray(itemsLocation)) {
-      return processItems(itemsLocation);
     }
 
     return [];
@@ -562,17 +581,31 @@ export default function AdminToolboxPage() {
 
       function extractItemsFromData(data) {
         if (!data) return [];
-        let rawItems = [];
-        if (Array.isArray(data)) {
-          rawItems = data;
-        } else {
-          const possible = [data.items, data.children, data.menu_items, data.data, data.navigation_items].filter(Boolean);
-          if (possible.length > 0) rawItems = possible[0];
-          else if (typeof data === 'object') {
-            const arr = Object.values(data).find(val => Array.isArray(val));
-            rawItems = arr || [data];
+        
+        function findCollection(obj) {
+          if (Array.isArray(obj)) {
+            const first = obj[0];
+            if (first && (first.url || first.link || first.href || first.title || first.label)) return obj;
+            for (const item of obj) {
+              const found = findCollection(item);
+              if (found) return found;
+            }
+          } else if (obj && typeof obj === 'object') {
+            const keys = ['items', 'menu_items', 'navigation_items', 'data', 'children'];
+            for (const key of keys) {
+              if (Array.isArray(obj[key]) && obj[key].length > 0) return obj[key];
+            }
+            for (const key in obj) {
+              if (obj[key] && typeof obj[key] === 'object' && key !== 'meta' && key !== '_links') {
+                const found = findCollection(obj[key]);
+                if (found) return found;
+              }
+            }
           }
+          return null;
         }
+
+        const rawItems = findCollection(data) || [];
         return rawItems.map(item => {
           let title = '';
           if (item.title) {
