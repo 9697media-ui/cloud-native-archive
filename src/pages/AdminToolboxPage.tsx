@@ -471,6 +471,7 @@ export default function AdminToolboxPage() {
     border-top: 4px solid currentColor;
     opacity: 0.5;
     margin-left: 6px;
+    transition: transform 0.2s ease;
   }
   .custom-nav-992 .submenu {
     position: absolute !important;
@@ -487,9 +488,19 @@ export default function AdminToolboxPage() {
     list-style: none !important;
     margin: 0 !important;
     border: 1px solid rgba(0,0,0,0.05) !important;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu {
     display: flex !important;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .custom-nav-992 .has-submenu:hover > a::after {
+    transform: rotate(180deg);
   }
   .custom-nav-992 .submenu a {
     padding: 12px 20px !important;
@@ -499,10 +510,12 @@ export default function AdminToolboxPage() {
     display: block !important;
     text-align: left !important;
     white-space: normal !important;
+    font-size: 14px !important;
   }
   .custom-nav-992 .submenu a:hover {
     background-color: rgba(0,0,0,0.05) !important;
     opacity: 1 !important;
+    padding-left: 25px !important;
   }
   .custom-nav-992 .mobile-toggle {
     display: none;
@@ -566,6 +579,36 @@ export default function AdminToolboxPage() {
       border-radius: 0;
       font-size: 16px;
       border-left: 4px solid transparent;
+      justify-content: space-between;
+    }
+    .custom-nav-992 .menu-items .has-submenu {
+      flex-direction: column;
+      align-items: flex-start !important;
+    }
+    .custom-nav-992 .menu-items .has-submenu > a {
+      width: 100%;
+    }
+    .custom-nav-992 .submenu {
+      position: static !important;
+      width: 100% !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      background-color: rgba(0,0,0,0.02) !important;
+      border: none !important;
+      display: none !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
+    }
+    .custom-nav-992 .has-submenu.open > .submenu {
+      display: flex !important;
+    }
+    .custom-nav-992 .has-submenu.open > a::after {
+      transform: rotate(180deg);
+    }
+    .custom-nav-992 .submenu a {
+      padding: 10px 40px !important;
+      font-size: 15px !important;
     }
     .custom-nav-992 .menu-items a.active {
       border-left-color: currentColor;
@@ -792,9 +835,21 @@ export default function AdminToolboxPage() {
 <script>
   function toggleCustomMenu() {
     const items = document.querySelector('.custom-nav-992 .menu-items');
-    const toggle = document.querySelector('.custom-nav-992 .mobile-toggle');
     items.classList.toggle('active');
   }
+
+  // Lógica para submenus no Mobile (clique)
+  document.addEventListener('click', function(e) {
+    const hasSubmenu = e.target.closest('.custom-nav-992 .has-submenu');
+    if (hasSubmenu && window.innerWidth <= 850) {
+      const link = e.target.closest('a');
+      // Se clicou na seta ou no item pai e ele tem submenu, toggle
+      if (link && link.parentElement === hasSubmenu) {
+        e.preventDefault();
+        hasSubmenu.classList.toggle('open');
+      }
+    }
+  });
 
   function highlightActiveLink() {
     const currentPath = window.location.pathname;
