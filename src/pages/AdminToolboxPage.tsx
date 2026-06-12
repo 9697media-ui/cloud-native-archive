@@ -168,6 +168,17 @@ export default function AdminToolboxPage() {
     testUrl: ''
   });
 
+  const [detectionLogs, setDetectionLogs] = useState<{
+    type: 'success' | 'info' | 'warning' | 'error';
+    message: string;
+    method?: 'API' | 'DOM';
+    details?: string;
+  }[]>([]);
+
+  const addDetectionLog = (type: 'success' | 'info' | 'warning' | 'error', message: string, method?: 'API' | 'DOM', details?: string) => {
+    setDetectionLogs(prev => [{ type, message, method, details }, ...prev].slice(0, 5));
+  };
+
   const extractWPItems = (data: any): { label: string, link: string }[] => {
     if (!data) return [];
     
@@ -1085,6 +1096,9 @@ export default function AdminToolboxPage() {
                                 // Limpa timer anterior se existir
                                 if (debounceRef.current) clearTimeout(debounceRef.current);
                                 
+                                setDetectionLogs([]); // Limpa logs anteriores
+                                addDetectionLog('info', 'Iniciando busca por endpoints WordPress...', 'API');
+
                                 debounceRef.current = setTimeout(async () => {
                                   try {
                                     const origin = new URL(url).origin;
@@ -1097,9 +1111,9 @@ export default function AdminToolboxPage() {
                                       '/wp-json/wp/v2/pages'
                                     ];
 
+                                    let foundAny = false;
                                     for (const endpoint of endpoints) {
                                       try {
-                                        // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
                                         const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
                                         if (testRes.ok) {
                                           const data = await testRes.json();
@@ -1111,6 +1125,9 @@ export default function AdminToolboxPage() {
                                               items: wpItems.length > 0 ? wpItems : prev.items
                                             }));
                                             
+                                            addDetectionLog('success', `API detectada com sucesso em ${endpoint}`, 'API', `${wpItems.length} itens extraídos.`);
+                                            foundAny = true;
+                                            
                                             toast({
                                               title: "API Detectada!",
                                               description: wpItems.length > 0 
@@ -1121,12 +1138,12 @@ export default function AdminToolboxPage() {
                                           }
                                         }
                                       } catch (e) {
-                                        // Se falhar por CORS, tentamos HEAD no-cors apenas para ver se o recurso existe
                                         try {
                                           const headRes = await fetch(`${origin}${endpoint}`, { method: 'HEAD', mode: 'no-cors' });
-                                          // No modo no-cors o status é sempre 0, mas se não deu erro de rede é um sinal positivo
                                           if (headRes.type === 'opaque') {
                                              setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
+                                             addDetectionLog('warning', `Atividade detectada em ${endpoint}, mas CORS bloqueou os dados.`, 'API');
+                                             foundAny = true;
                                              toast({
                                               title: "API Possível!",
                                               description: `Detectamos atividade em ${endpoint} (CORS restrito).`,
@@ -1136,7 +1153,12 @@ export default function AdminToolboxPage() {
                                         } catch (innerE) {}
                                       }
                                     }
-                                  } catch (e) { /* invalid url */ }
+                                    if (!foundAny) {
+                                      addDetectionLog('error', 'Nenhum endpoint WP REST API padrão foi encontrado.', 'API');
+                                    }
+                                  } catch (e) { 
+                                    addDetectionLog('error', 'URL inválida ou erro de conexão.', 'API');
+                                  }
                                 }, 1000);
                               }
                             }}
@@ -1144,6 +1166,30 @@ export default function AdminToolboxPage() {
                         </div>
                         <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo e tentaremos identificar o endpoint e os itens automaticamente.</p>
                       </div>
+
+                      {detectionLogs.length > 0 && (
+                        <div className="mt-2 space-y-1 bg-muted/30 p-2 rounded-md border border-dashed">
+                          <Label className="text-[10px] uppercase text-muted-foreground font-bold flex items-center gap-1">
+                            <Terminal className="h-3 w-3" /> Logs de Extração
+                          </Label>
+                          {detectionLogs.map((log, i) => (
+                            <div key={i} className="text-[10px] flex gap-1 items-start leading-tight">
+                              <span className={cn(
+                                "font-bold shrink-0",
+                                log.type === 'success' ? "text-green-500" : 
+                                log.type === 'error' ? "text-red-500" : 
+                                log.type === 'warning' ? "text-orange-500" : "text-blue-500"
+                              )}>
+                                [{log.method || 'SYS'}]
+                              </span>
+                              <span>
+                                {log.message} 
+                                {log.details && <span className="text-muted-foreground italic"> ({log.details})</span>}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-2 pt-2 border-t mt-4">
@@ -1251,24 +1297,28 @@ export default function AdminToolboxPage() {
                           className="w-full h-full border-none"
                           title="Site Preview"
                           onLoad={(e) => {
-                            // Tentar ler itens do DOM via injeção se possível (domínios amigáveis)
+                            addDetectionLog('info', 'Iframe carregado. Iniciando leitura visual do DOM...', 'DOM');
                             try {
                               const frame = e.currentTarget;
                               const doc = frame.contentDocument || frame.contentWindow?.document;
                               if (doc) {
                                 const selectors = [
+                                  '.elementor-nav-menu', 
                                   'nav', 
                                   '.main-navigation', 
-                                  '.elementor-nav-menu', 
                                   'ul[class*="menu"]', 
                                   '.wp-block-navigation',
                                   '.nav-menu',
-                                  '.site-navigation'
+                                  '.site-navigation',
+                                  '#main-nav',
+                                  '.header-nav'
                                 ];
+                                
+                                let foundInDOM = false;
                                 for (const sel of selectors) {
                                   const nav = doc.querySelector(sel);
                                   if (nav) {
-                                    const links = Array.from(nav.querySelectorAll('a')).slice(0, 15);
+                                    const links = Array.from(nav.querySelectorAll('a')).slice(0, 20);
                                     if (links.length > 0) {
                                       const detectedItems = links.map(a => ({
                                         label: (a as HTMLElement).innerText.trim() || (a as HTMLElement).textContent?.trim() || '',
@@ -1276,7 +1326,9 @@ export default function AdminToolboxPage() {
                                       })).filter(i => i.label && i.label.length > 1);
                                       
                                       if (detectedItems.length > 0) {
-                                        // Substituir apenas se os itens atuais forem os padrão ou estiverem vazios
+                                        addDetectionLog('success', `Menu visual detectado via seletor: "${sel}"`, 'DOM', `${detectedItems.length} links encontrados.`);
+                                        foundInDOM = true;
+
                                         const isDefault = menuConfig.items.length === 4 && menuConfig.items[0].label === 'Início';
                                         if (isDefault || menuConfig.items.length === 0) {
                                           setMenuConfig(prev => ({...prev, items: detectedItems, autoDetect: true}));
@@ -1284,9 +1336,12 @@ export default function AdminToolboxPage() {
                                         } else {
                                           toast({ 
                                             title: "Preview Carregado", 
-                                            description: "Links detectados no site. Deseja substituir os atuais?",
+                                            description: `Encontramos ${detectedItems.length} links via seletor "${sel}". Deseja substituir?`,
                                             action: (
-                                              <Button size="sm" onClick={() => setMenuConfig(prev => ({...prev, items: detectedItems}))}>
+                                              <Button size="sm" onClick={() => {
+                                                setMenuConfig(prev => ({...prev, items: detectedItems}));
+                                                addDetectionLog('info', 'Itens manuais substituídos pelos detectados no DOM.', 'DOM');
+                                              }}>
                                                 Substituir
                                               </Button>
                                             )
@@ -1297,8 +1352,12 @@ export default function AdminToolboxPage() {
                                     }
                                   }
                                 }
+                                if (!foundInDOM) {
+                                  addDetectionLog('warning', 'Nenhum menu reconhecível encontrado nos seletores padrão do DOM.', 'DOM');
+                                }
                               }
                             } catch (err) {
+                              addDetectionLog('error', 'CORS bloqueou a leitura do Iframe. Dependendo apenas da API.', 'DOM');
                               console.warn("Não foi possível ler o DOM do iframe devido a restrições de CORS.");
                             }
                           }}
