@@ -169,7 +169,7 @@ export default function AdminToolboxPage() {
     testUrl: ''
   });
 
-  const extractWPItems = (data: any): { label: string, link: string }[] => {
+  const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
     let rawItems = [];
@@ -184,8 +184,42 @@ export default function AdminToolboxPage() {
       
       return links.map((a: any) => ({
         label: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
-        link: a.getAttribute('href') || '#'
+        link: a.getAttribute('href') || '#',
+        children: []
       })).filter(i => i.label && i.link !== '#');
+    };
+
+    // Helper to build tree from flat list (common in WP REST API)
+    const buildTree = (items: any[], parentId: number | string = 0) => {
+      const tree: any[] = [];
+      const childrenOf: {[key: string]: any[]} = {};
+
+      items.forEach(item => {
+        const pId = item.parent || item.menu_item_parent || 0;
+        if (!childrenOf[pId]) childrenOf[pId] = [];
+        childrenOf[pId].push(item);
+      });
+
+      const processBranch = (pId: number | string) => {
+        if (!childrenOf[pId]) return [];
+        return childrenOf[pId].map(item => {
+          let label = '';
+          if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
+          else if (item.title && typeof item.title === 'string') label = item.title;
+          else if (item.label) label = item.label;
+          else if (item.name) label = item.name;
+          else if (item.post_title) label = item.post_title;
+          else if (item.text) label = item.text;
+
+          return {
+            label,
+            link: item.url || item.link || item.guid || item.href || '#',
+            children: processBranch(item.id || item.ID || item.db_id || '')
+          };
+        }).filter(i => i.label);
+      };
+
+      return processBranch(parentId);
     };
 
     // Case 1: Array of Navigation Blocks (Modern WP / FSE)
@@ -194,11 +228,19 @@ export default function AdminToolboxPage() {
       if (allItems.length > 0) return allItems;
     }
 
-    // Case 2: Direct Menu Item List
+    // Case 2: Array of items that might be hierarchical
     if (Array.isArray(data)) {
+      // Check if any item has a parent reference
+      const isHierarchical = data.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+      if (isHierarchical) return buildTree(data);
       rawItems = data;
     } else if (data.items || data.children || data.menu_items || data.data) {
-      rawItems = data.items || data.children || data.menu_items || data.data;
+      const subSource = data.items || data.children || data.menu_items || data.data;
+      if (Array.isArray(subSource)) {
+        const isHierarchical = subSource.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+        if (isHierarchical) return buildTree(subSource);
+      }
+      rawItems = subSource;
     } else if (typeof data === 'object') {
       const possibleArray = Object.values(data).find(val => Array.isArray(val));
       if (possibleArray) rawItems = possibleArray as any[];
@@ -207,10 +249,12 @@ export default function AdminToolboxPage() {
 
     // If we have items but they look like "Menus" (objects with titles but no links)
     // and they have their own content/rendered, try to dive deeper
-    if (rawItems.length > 0 && !rawItems[0].url && !rawItems[0].link && rawItems[0].content?.rendered) {
+    if (Array.isArray(rawItems) && rawItems.length > 0 && rawItems[0] && !rawItems[0].url && !rawItems[0].link && rawItems[0].content?.rendered) {
        const divedItems = rawItems.flatMap(item => fromHTML(item.content.rendered));
        if (divedItems.length > 0) return divedItems;
     }
+
+    if (!Array.isArray(rawItems)) return [];
 
     return rawItems.map((item: any) => {
       let label = '';
@@ -222,8 +266,17 @@ export default function AdminToolboxPage() {
       else if (item.text) label = item.text;
 
       const link = item.url || item.link || item.guid || item.href || '#';
+      const children = item.children || item.items || item.sub_items || [];
       
-      return { label, link };
+      return { 
+        label, 
+        link,
+        children: Array.isArray(children) ? children.map((c: any) => ({
+          label: c.title?.rendered || c.title || c.label || c.name || '',
+          link: c.url || c.link || c.href || '#',
+          children: []
+        })).filter(c => c.label) : []
+      };
     }).filter(i => i.label);
   };
 
