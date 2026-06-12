@@ -309,8 +309,6 @@ export default function AdminToolboxPage() {
   };
 
   const syncWithSystemMenu = () => {
-
-  const syncWithSystemMenu = () => {
     setMenuConfig({
       ...menuConfig,
       items: navItems.map(item => ({ label: item.label, link: item.to }))
