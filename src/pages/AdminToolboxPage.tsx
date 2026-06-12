@@ -939,7 +939,7 @@ export default function AdminToolboxPage() {
   <div class="menu-items">
     ${menuConfig.items.length > 0 
       ? renderUniversalMenu(menuConfig.items)
-      : '<!-- Aguardando carregamento... -->'
+      : '<!-- Sem itens para exibir -->'
     }
   </div>
 </nav>
