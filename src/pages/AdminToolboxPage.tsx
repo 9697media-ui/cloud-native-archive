@@ -179,77 +179,69 @@ export default function AdminToolboxPage() {
     setDetectionLogs(prev => [{ type, message, method, details }, ...prev].slice(0, 5));
   };
 
-  const extractWPItems = (data: any): { label: string, link: string }[] => {
+  const extractWPItems = (data: any): { label: string, link: string, children?: any[] }[] => {
     if (!data) return [];
     
     console.log('Extraindo itens do WordPress:', data);
 
-    // WordPress modern Navigation block (FSE)
-    const extractFromGutenberg = (content: string) => {
+    // Função recursiva para extrair itens e seus filhos
+    const processItems = (items: any[]): any[] => {
+      return items.map((item: any) => {
+        let label = '';
+        let link = '#';
+        let children = [];
+
+        // Tenta extrair o label
+        if (item.title) {
+          if (typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
+          else if (typeof item.title === 'string') label = item.title;
+        } else if (item.label) {
+          label = item.label;
+        } else if (item.name) {
+          label = item.name;
+        } else if (item.post_title) {
+          label = item.post_title;
+        }
+
+        // Tenta extrair o link
+        link = item.url || item.link || item.guid || item.href || item.permalink || '#';
+
+        // Tenta extrair filhos (submenus)
+        const possibleChildren = item.children || item._embedded?.['up:children'] || item.menu_item_children || [];
+        if (Array.isArray(possibleChildren) && possibleChildren.length > 0) {
+          children = processItems(possibleChildren);
+        }
+
+        return { label, link, children: children.length > 0 ? children : undefined };
+      }).filter(i => i.label);
+    };
+
+    // Caso seja o bloco de navegação moderno (FSE) que retorna um objeto com content.rendered
+    if (typeof data === 'object' && !Array.isArray(data) && data.content?.rendered) {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(content, 'text/html');
+      const doc = parser.parseFromString(data.content.rendered, 'text/html');
       const links = doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link');
       
       if (links.length > 0) {
-        return Array.from(links).map((a: any) => {
-          const labelSpan = a.querySelector('.wp-block-navigation-item__label, .wp-block-navigation-link__label');
-          return {
-            label: (labelSpan?.textContent || a.textContent || '').trim(),
-            link: a.getAttribute('href') || '#'
-          };
-        }).filter(i => i.label);
+        return Array.from(links).map((a: any) => ({
+          label: (a.querySelector('.wp-block-navigation-item__label, .wp-block-navigation-link__label')?.textContent || a.textContent || '').trim(),
+          link: a.getAttribute('href') || '#'
+        })).filter(i => i.label);
       }
-      return [];
-    };
-
-    if (Array.isArray(data) && data[0]?.content?.rendered) {
-      // Se for uma lista de posts/páginas mas tiver conteúdo gutenberg, tenta extrair
-      const items = extractFromGutenberg(data[0].content.rendered);
-      if (items.length > 0) return items;
     }
 
-    let rawItems: any[] = [];
+    // Se for uma lista direta (comum em /navigation ou /menu-items)
     if (Array.isArray(data)) {
-      rawItems = data;
-    } else {
-      const possibleCollections = [
-        data.items, 
-        data.children, 
-        data.menu_items, 
-        data.data, 
-        data.navigation_items,
-        data.items && Array.isArray(data.items) ? data.items : null
-      ].filter(Boolean);
-      
-      if (possibleCollections.length > 0) {
-        rawItems = possibleCollections[0];
-      } else if (typeof data === 'object') {
-        const arrayVal = Object.values(data).find(val => Array.isArray(val));
-        if (arrayVal) rawItems = arrayVal as any[];
-        else rawItems = [data];
-      }
+      return processItems(data);
     }
 
-    return rawItems.map((item: any) => {
-      let label = '';
-      
-      // Tenta extrair o label de várias formas comuns na API do WP
-      if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
-      else if (item.title && typeof item.title === 'string') label = item.title;
-      else if (item.label) label = item.label;
-      else if (item.name) label = item.name;
-      else if (item.post_title) label = item.post_title;
-      else if (item.text) label = item.text;
-      else if (item.content?.rendered) {
-         const extracted = extractFromGutenberg(item.content.rendered);
-         if (extracted.length > 0) return extracted[0];
-      }
+    // Se os dados estiverem envelopados em um objeto (ex: { items: [...] })
+    const itemsLocation = data.items || data.data || data.navigation_items || [];
+    if (Array.isArray(itemsLocation)) {
+      return processItems(itemsLocation);
+    }
 
-      // Se for um nav_menu_item, o link costuma estar em item.url ou item.link
-      const link = item.url || item.link || item.guid || item.href || item.permalink || '#';
-      
-      return { label, link };
-    }).flat().filter((i: any) => i && i.label);
+    return [];
   };
 
   const syncWithSystemMenu = () => {
@@ -583,12 +575,15 @@ export default function AdminToolboxPage() {
         }
         return rawItems.map(item => {
           let title = '';
-          if (item.title && typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
-          else if (item.title && typeof item.title === 'string') title = item.title;
-          else if (item.label || item.name || item.post_title || item.text) title = item.label || item.name || item.post_title || item.text;
+          if (item.title) {
+            if (typeof item.title === 'object' && item.title.rendered) title = item.title.rendered;
+            else if (typeof item.title === 'string') title = item.title;
+          } else if (item.label || item.name || item.post_title || item.text) {
+            title = item.label || item.name || item.post_title || item.text;
+          }
           const link = item.url || item.link || item.guid || item.href || '#';
-          const children = item.children || item.items || item.sub_items || [];
-          return { title, link, children: Array.isArray(children) ? extractItemsFromData(children) : [] };
+          const childrenData = item.children || item.items || item.sub_items || item._embedded?.['up:children'] || [];
+          return { title, link, children: Array.isArray(childrenData) ? extractItemsFromData(childrenData) : [] };
         }).filter(i => i && i.title);
       }
 
@@ -1101,12 +1096,40 @@ export default function AdminToolboxPage() {
 
                       <div className="space-y-2">
                         <Label className="text-xs">Endpoint WordPress (JSON)</Label>
-                        <Input 
-                          placeholder="Ex: https://site.com/wp-json/wp/v2/menu-items"
-                          value={menuConfig.wpApiUrl}
-                          onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value})}
-                        />
-                        <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress para sincronização em tempo real.</p>
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="Ex: https://site.com/wp-json/wp/v2/navigation"
+                            value={menuConfig.wpApiUrl}
+                            onChange={(e) => setMenuConfig({...menuConfig, wpApiUrl: e.target.value})}
+                          />
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="shrink-0"
+                            title="Sincronizar Itens Agora"
+                            onClick={async () => {
+                              if (!menuConfig.wpApiUrl) return;
+                              toast({ title: "Sincronizando...", description: "Buscando itens no endpoint informado." });
+                              try {
+                                const res = await fetch(menuConfig.wpApiUrl);
+                                if (!res.ok) throw new Error("Falha na resposta da API");
+                                const data = await res.json();
+                                const items = extractWPItems(data);
+                                if (items.length > 0) {
+                                  setMenuConfig(prev => ({ ...prev, items }));
+                                  toast({ title: "Sucesso!", description: `${items.length} itens importados.` });
+                                } else {
+                                  toast({ title: "Aviso", description: "Nenhum item encontrado no formato esperado.", variant: "destructive" });
+                                }
+                              } catch (e: any) {
+                                toast({ title: "Erro de Conexão", description: "O WordPress pode estar bloqueando (CORS) ou a URL está incorreta.", variant: "destructive" });
+                              }
+                            }}
+                          >
+                            <RefreshCw className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">URL da API REST do WordPress (Navegação, Menus ou Posts).</p>
                       </div>
                     </div>
 
