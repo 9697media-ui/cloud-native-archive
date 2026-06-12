@@ -1265,7 +1265,17 @@ export default function AdminToolboxPage() {
                     <div className="space-y-2 pt-2 border-t mt-4">
                       <div className="flex items-center justify-between mb-2">
                         <Label>Itens do Menu</Label>
-                        <span className="text-[10px] text-muted-foreground italic">(Sincronizados via API ou Manual)</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 text-[10px] text-destructive hover:text-destructive hover:bg-destructive/10 gap-1"
+                          onClick={() => {
+                            setMenuConfig({...menuConfig, items: []});
+                            toast({ title: "Menu Limpo", description: "Todos os itens foram removidos." });
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" /> Limpar Tudo
+                        </Button>
                       </div>
                       {menuConfig.items.map((item, idx) => (
                         <div key={idx} className="flex gap-2 mb-2">
