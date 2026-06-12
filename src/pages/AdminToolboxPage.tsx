@@ -172,10 +172,30 @@ export default function AdminToolboxPage() {
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
-    // Helper to build tree from flat list
+    let rawItems = [];
+    
+    // Helper to extract from HTML string
+    const fromHTML = (html: string) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      
+      // Look for specific WP navigation classes first
+      let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
+      
+      return links.map((a: any) => ({
+        label: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+        link: a.getAttribute('href') || '#',
+        children: []
+      })).filter(i => i.label && i.link !== '#');
+    };
+
+    // Helper to build tree from flat list (common in WP REST API)
     const buildTree = (items: any[], parentId: number | string = 0) => {
       const childrenOf: {[key: string]: any[]} = {};
+
       items.forEach(item => {
+        // WordPress uses 'parent' or 'menu_item_parent'
+        // Normalize parentId to string for comparison, handling 0, "0", null
         const pId = String(item.parent || item.menu_item_parent || 0);
         if (!childrenOf[pId]) childrenOf[pId] = [];
         childrenOf[pId].push(item);
@@ -200,29 +220,45 @@ export default function AdminToolboxPage() {
           };
         }).filter(i => i.label);
       };
+
       return processBranch(String(parentId));
     };
 
-    let items = [];
-    
-    // Unwrapping logic: WordPress often returns a single menu object containing items
-    if (Array.isArray(data)) {
-      if (data.length === 1 && (data[0].items || data[0].menu_items || data[0].children)) {
-        items = data[0].items || data[0].menu_items || data[0].children;
-      } else {
-        items = data;
-      }
-    } else if (typeof data === 'object') {
-      items = data.items || data.menu_items || data.children || data.data || Object.values(data).find(val => Array.isArray(val)) || [data];
+    // Case 1: Array of Navigation Blocks (Modern WP / FSE)
+    if (Array.isArray(data) && data[0]?.content?.rendered) {
+      const allItems = data.flatMap(item => fromHTML(item.content.rendered));
+      if (allItems.length > 0) return allItems;
     }
 
-    if (!Array.isArray(items)) return [];
+    // Case 2: Array of items that might be hierarchical
+    if (Array.isArray(data)) {
+      // Check if any item has a parent reference
+      const isHierarchical = data.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+      if (isHierarchical) return buildTree(data);
+      rawItems = data;
+    } else if (data.items || data.children || data.menu_items || data.data) {
+      const subSource = data.items || data.children || data.menu_items || data.data;
+      if (Array.isArray(subSource)) {
+        const isHierarchical = subSource.some(item => item.parent !== undefined || item.menu_item_parent !== undefined);
+        if (isHierarchical) return buildTree(subSource);
+      }
+      rawItems = subSource;
+    } else if (typeof data === 'object') {
+      const possibleArray = Object.values(data).find(val => Array.isArray(val));
+      if (possibleArray) rawItems = possibleArray as any[];
+      else rawItems = [data];
+    }
 
-    // Check for hierarchy
-    const hasHierarchy = items.some(i => i.parent !== undefined || i.menu_item_parent !== undefined);
-    if (hasHierarchy) return buildTree(items);
+    // If we have items but they look like "Menus" (objects with titles but no links)
+    // and they have their own content/rendered, try to dive deeper
+    if (Array.isArray(rawItems) && rawItems.length > 0 && rawItems[0] && !rawItems[0].url && !rawItems[0].link && rawItems[0].content?.rendered) {
+       const divedItems = rawItems.flatMap(item => fromHTML(item.content.rendered));
+       if (divedItems.length > 0) return divedItems;
+    }
 
-    return items.map((item: any) => {
+    if (!Array.isArray(rawItems)) return [];
+
+    return rawItems.map((item: any) => {
       let label = '';
       if (item.title && typeof item.title === 'object' && item.title.rendered) label = item.title.rendered;
       else if (item.title && typeof item.title === 'string') label = item.title;
@@ -648,14 +684,9 @@ export default function AdminToolboxPage() {
               
               let items = [];
               if (Array.isArray(source)) {
-                // Unwrapping: Se o array tem 1 item e esse item tem sub-itens, mergulha
-                if (source.length === 1 && (source[0].items || source[0].menu_items || source[0].children)) {
-                  items = source[0].items || source[0].menu_items || source[0].children;
-                } else {
-                  items = source;
-                }
-              } else if (typeof source === 'object') {
-                items = source.items || source.menu_items || source.children || source.data || [source];
+                items = source;
+              } else if (source.items || source.children || source.menu_items || source.data) {
+                items = source.items || source.children || source.menu_items || source.data;
               }
 
               if (!Array.isArray(items)) return [];
