@@ -307,6 +307,12 @@ export default function AdminToolboxPage() {
   // GERADORES DE CÓDIGO CRU (ANTI-ADBLOCK)
   // ==========================================
 
+  const getGeneratedCode = () => {
+    if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
+    if (activeWidgetType === 'banner') return generateBannerCode();
+    return generateMenuCode();
+  };
+
   const generateWhatsappCode = () => {
     const css = `<style>
   .custom-wa-widget-9982 {
