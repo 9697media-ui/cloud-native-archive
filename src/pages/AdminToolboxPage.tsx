@@ -437,7 +437,6 @@ export default function AdminToolboxPage() {
     box-sizing: border-box;
     transition: all 0.3s ease;
   }
-  .all-initial * { all: initial; box-sizing: border-box; }
   .custom-nav-992 .logo img {
     height: 40px;
     max-width: 180px;
@@ -445,47 +444,48 @@ export default function AdminToolboxPage() {
     object-fit: contain;
     display: block;
   }
-  .custom-nav-992 ul.menu-items {
-    display: flex !important;
-    gap: 5px !important;
-    align-items: center !important;
+  .custom-nav-992 .menu-items {
+    display: flex;
+    gap: 5px;
+    align-items: center;
     list-style: none !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-  .custom-nav-992 li {
-    position: relative !important;
-    list-style: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  .custom-nav-992 a {
-    color: inherit !important;
+  .custom-nav-992 .menu-items a {
+    color: inherit;
     text-decoration: none !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-    padding: 10px 15px !important;
-    border-radius: 6px !important;
-    transition: all 0.2s !important;
-    opacity: 0.8 !important;
-    white-space: nowrap !important;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    opacity: 0.8;
+    white-space: nowrap;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    box-sizing: border-box;
+  }
+  .custom-nav-992 .menu-items .has-submenu {
+    position: relative !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    gap: 6px !important;
-    box-sizing: border-box !important;
   }
-  .custom-nav-992 li.has-submenu > a::after {
-    content: "" !important;
-    width: 0 !important;
-    height: 0 !important;
-    border-left: 4px solid transparent !important;
-    border-right: 4px solid transparent !important;
-    border-top: 4px solid currentColor !important;
-    opacity: 0.5 !important;
-    transition: transform 0.2s ease !important;
+  .custom-nav-992 .menu-items .has-submenu > a::after {
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+    opacity: 0.5;
+    margin-left: 6px;
+    transition: transform 0.2s ease;
   }
-  .custom-nav-992 ul.submenu {
+  .custom-nav-992 .submenu {
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
@@ -494,38 +494,39 @@ export default function AdminToolboxPage() {
     border-radius: 10px !important;
     padding: 8px 0 !important;
     display: none !important;
-    flex-direction: column !important;
+    flex-direction: column !important; /* FORÇA EMPILHAMENTO VERTICAL */
     min-width: 220px !important;
     z-index: 9999999 !important;
     list-style: none !important;
     margin: 0 !important;
     border: 1px solid rgba(0,0,0,0.08) !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateY(10px) !important;
-    transition: all 0.25s ease !important;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.25s ease;
   }
-  .custom-nav-992 li.has-submenu:hover > ul.submenu {
+  .custom-nav-992 .has-submenu:hover > .submenu {
     display: flex !important;
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
   }
-  .custom-nav-992 li.has-submenu:hover > a::after {
-    transform: rotate(180deg) !important;
+  .custom-nav-992 .has-submenu:hover > a::after {
+    transform: rotate(180deg);
   }
-  .custom-nav-992 ul.submenu li {
-    width: 100% !important;
-    display: block !important;
-  }
-  .custom-nav-992 ul.submenu a {
+  .custom-nav-992 .submenu a {
     padding: 12px 20px !important;
+    opacity: 0.9 !important;
     width: 100% !important;
     border-radius: 0 !important;
+    display: block !important; /* GARANTE QUE CADA ITEM OCUPE UMA LINHA */
+    text-align: left !important;
+    white-space: nowrap !important;
+    font-size: 14px !important;
     border-bottom: 1px solid rgba(0,0,0,0.03) !important;
-    justify-content: flex-start !important;
   }
-  .custom-nav-992 ul.submenu a:hover {
+  .custom-nav-992 .submenu a:last-child { border-bottom: none !important; }
+  .custom-nav-992 .submenu a:hover {
     background-color: rgba(0,0,0,0.04) !important;
     opacity: 1 !important;
     padding-left: 25px !important;
@@ -650,12 +651,12 @@ export default function AdminToolboxPage() {
           const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
 
           if (Array.isArray(children) && children.length > 0) {
-            html += \`<li class="has-submenu">
+            html += \`<div class="has-submenu">
               <a href="\${link}">\${title}</a>
               <ul class="submenu">\${renderItems(children)}</ul>
-            </li>\`;
+            </div>\`;
           } else {
-            html += \`<li><a href="\${link}">\${title}</a></li>\`;
+            html += \`<a href="\${link}">\${title}</a>\`;
           }
         });
         return html;
@@ -915,14 +916,14 @@ export default function AdminToolboxPage() {
         const hasChildren = Array.isArray(children) && children.length > 0;
 
         if (hasChildren) {
-          return `<li class="has-submenu">
+          return `<div class="has-submenu">
             <a href="${link}">${label}</a>
             <ul class="submenu">
               ${renderUniversalMenu(children)}
             </ul>
-          </li>`;
+          </div>`;
         }
-        return `<li><a href="${link}">${label}</a></li>`;
+        return `<a href="${link}">${label}</a>`;
       }).join('\n');
     };
 
@@ -935,12 +936,12 @@ export default function AdminToolboxPage() {
   <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
     <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
   </button>
-  <ul class="menu-items">
+  <div class="menu-items">
     ${menuConfig.items.length > 0 
       ? renderUniversalMenu(menuConfig.items)
       : '<!-- Sem itens para exibir -->'
     }
-  </ul>
+  </div>
 </nav>
 <!-- Fim: Menu Responsivo Nativo -->`;
 
@@ -1716,10 +1717,10 @@ export default function AdminToolboxPage() {
                     )}
 
                     {/* Widget Injection */}
-                    <div className="absolute inset-0 pointer-events-none z-[1000000] all-initial">
+                    <div className="absolute inset-0 pointer-events-none z-[1000000]">
                        <div 
                          className="relative w-full h-full pointer-events-auto" 
-                         key={activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
+                         key={activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length} // Force re-render on structure changes
                          dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
                        />
                     </div>
