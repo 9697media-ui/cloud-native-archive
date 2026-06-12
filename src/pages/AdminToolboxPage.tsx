@@ -597,55 +597,9 @@ export default function AdminToolboxPage() {
           const response = await fetch(wpApiUrl);
           if (response.ok) {
             const data = await response.json();
-            let items = [];
-            if (Array.isArray(data)) {
-              items = data;
-            } else if (data.items || data.children || data.menu_items || data.data) {
-              items = data.items || data.children || data.menu_items || data.data;
-            }
 
-            
-            // Função para extrair itens de estruturas aninhadas do WordPress
-            function extractItems(source) {
-              if (!source) return [];
-              
-              console.log('Analisando fonte de dados:', source);
 
-              // Se for um objeto com propriedade de itens, mergulha nela
-              if (source.items && Array.isArray(source.items)) return source.items;
-              if (source.children && Array.isArray(source.children)) return source.children;
-              if (source.menu_items && Array.isArray(source.menu_items)) return source.menu_items;
-              if (source.navigation && source.navigation.items) return source.navigation.items;
-              if (source.data && Array.isArray(source.data)) return source.data;
-              if (source.nodes && Array.isArray(source.nodes)) return source.nodes;
-              if (source.edges && Array.isArray(source.edges)) return source.edges;
-              
-              // Se for um array
-              if (Array.isArray(source)) {
-                // Se o array tem 1 item e esse item tem sub-itens, mergulha
-                if (source.length === 1 && (source[0].items || source[0].children || source[0].menu_items)) {
-                  return extractItems(source[0]);
-                }
-                return source;
-              }
-              
-              // Se for um objeto com chaves numéricas (comum em APIs PHP/WP antigas)
-              if (typeof source === 'object') {
-                const keys = Object.keys(source);
-                if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
-                  return Object.values(source);
-                }
-              }
-
-              // Caso o objeto em si tenha itens/children (segunda checagem)
-              const possibleItems = source.items || source.children || source.menu_items;
-              if (Array.isArray(possibleItems)) return possibleItems;
-
-              return [];
-            }
-
-            items = extractItems(data);
-
+            const items = extractItemsFromData(data);
 
             const htmlContent = renderItems(items);
             if (htmlContent && htmlContent.trim().length > 5) {
@@ -659,7 +613,16 @@ export default function AdminToolboxPage() {
 
       if (${menuConfig.autoDetect}) {
         console.log('Tentando auto-detecção...');
-        const selectors = ['nav', '.main-navigation', '.elementor-nav-menu', '.header-menu', '#site-navigation', 'ul[class*="menu"]', '.wp-block-navigation'];
+        const selectors = [
+          'nav', 
+          '.main-navigation', 
+          '.elementor-nav-menu', 
+          '.header-menu', 
+          '#site-navigation', 
+          'ul[class*="menu"]', 
+          '.wp-block-navigation',
+          '.navigation'
+        ];
         const previewFrame = document.querySelector('iframe[title="Site Preview"]');
         let targetDoc = document;
         try {
