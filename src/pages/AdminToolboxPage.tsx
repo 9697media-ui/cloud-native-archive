@@ -286,6 +286,11 @@ export default function AdminToolboxPage() {
     fontSize: 15,
     itemSpacing: 5,
     itemPadding: 15,
+    hoverBgColor: '#f1f0fb',
+    hoverTextColor: '#4f46e5',
+    activeBorderColor: '#4f46e5',
+    activeBorderWidth: 2,
+    activeRadius: 999,
     items: [
       { label: 'Início', link: '#', children: [] as any[] },
       { label: 'Sobre', link: '#', children: [] as any[] },
