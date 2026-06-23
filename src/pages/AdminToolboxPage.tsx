@@ -1356,7 +1356,7 @@ export default function AdminToolboxPage() {
 <!-- Início: Menu Responsivo Nativo -->
 <nav class="custom-nav-992">
   <div class="logo">
-    <a href="/"><img src="${menuConfig.logoUrl}" alt="Logo"></a>
+    <a href="/"><img class="logo-desktop" src="${menuConfig.logoUrl}" alt="Logo">${menuConfig.logoUrlMobile ? `<img class="logo-mobile" src="${menuConfig.logoUrlMobile}" alt="Logo">` : ''}</a>
   </div>
   <button class="mobile-toggle" onclick="toggleCustomMenu(this)" aria-label="Menu">
     <span class="bars"><span></span><span></span><span></span></span>
