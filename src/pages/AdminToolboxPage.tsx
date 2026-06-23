@@ -62,6 +62,23 @@ export default function AdminToolboxPage() {
     return () => ro.disconnect();
   }, [deviceView]);
 
+  const demoRef = React.useRef<HTMLDivElement | null>(null);
+  const [demoScale, setDemoScale] = useState(0.6);
+  useEffect(() => {
+    const el = demoRef.current;
+    if (!el) return;
+    const native = DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop;
+    const update = () => {
+      const w = el.clientWidth;
+      if (w > 0) setDemoScale(Math.min(w / native.width, 1));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [deviceView]);
+
+
   // No preview, os <script> injetados via innerHTML não executam, então o menu
   // ficaria "travado" no layout desktop. Forçamos o modo mobile/tablet aplicando
   // a classe .force-mobile no menu renderizado conforme o dispositivo selecionado.
