@@ -29,6 +29,8 @@ export default function AdminToolboxPage() {
   const [savedTemplates, setSavedTemplates] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+  const skipDraftRef = React.useRef(false);
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -123,6 +125,22 @@ export default function AdminToolboxPage() {
     }
   };
 
+  const currentConfig = () => activeWidgetType === 'whatsapp' ? whatsappConfig :
+    activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+
+  const applyConfig = (type: string, config: any) => {
+    if (type === 'whatsapp') setWhatsappConfig(config);
+    else if (type === 'banner') setBannerConfig(config);
+    else setMenuConfig(prev => ({
+      ...prev,
+      ...config,
+      activeRadiusTablet: config.activeRadiusTablet ?? config.activeRadius ?? prev.activeRadiusTablet,
+      activeRadiusMobile: config.activeRadiusMobile ?? config.activeRadius ?? prev.activeRadiusMobile,
+      itemRadiusTablet: config.itemRadiusTablet ?? config.itemRadius ?? prev.itemRadiusTablet,
+      itemRadiusMobile: config.itemRadiusMobile ?? config.itemRadius ?? prev.itemRadiusMobile,
+    }));
+  };
+
   const saveTemplate = async () => {
     if (!templateName.trim()) {
       toast({ title: "Erro", description: "Dê um nome ao seu modelo.", variant: "destructive" });
@@ -164,6 +182,8 @@ export default function AdminToolboxPage() {
       if (error) throw error;
 
       toast({ title: "Sucesso", description: `Modelo "${templateName}" salvo!` });
+      if (currentTemplateId) localStorage.removeItem(`widget_draft_${currentTemplateId}`);
+      setDraftSavedAt(null);
       setTemplateName('');
       setCurrentTemplateId(null);
       setIsDialogOpen(false);
@@ -176,23 +196,58 @@ export default function AdminToolboxPage() {
   };
 
   const loadTemplate = (template: any) => {
+    skipDraftRef.current = true;
+    let cfg = template.config;
+    let savedAt: string | null = null;
+    try {
+      const raw = localStorage.getItem(`widget_draft_${template.id}`);
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d && d.config) { cfg = d.config; savedAt = d.savedAt ?? null; }
+      }
+    } catch { /* ignore drafts corrompidos */ }
+
     setActiveWidgetType(template.type);
     setCurrentTemplateId(template.id);
     setTemplateName(template.name);
-    
-    if (template.type === 'whatsapp') setWhatsappConfig(template.config);
-    else if (template.type === 'banner') setBannerConfig(template.config);
-    else if (template.type === 'menu') setMenuConfig(prev => ({
-      ...prev,
-      ...template.config,
-      activeRadiusTablet: template.config.activeRadiusTablet ?? template.config.activeRadius ?? prev.activeRadiusTablet,
-      activeRadiusMobile: template.config.activeRadiusMobile ?? template.config.activeRadius ?? prev.activeRadiusMobile,
-      itemRadiusTablet: template.config.itemRadiusTablet ?? template.config.itemRadius ?? prev.itemRadiusTablet,
-      itemRadiusMobile: template.config.itemRadiusMobile ?? template.config.itemRadius ?? prev.itemRadiusMobile,
-    }));
+    applyConfig(template.type, cfg);
+    setDraftSavedAt(savedAt);
 
-    toast({ title: "Modelo carregado", description: `Editando: ${template.name}` });
+    toast(savedAt
+      ? { title: "Rascunho restaurado", description: `Alterações não salvas de "${template.name}".` }
+      : { title: "Modelo carregado", description: `Editando: ${template.name}` });
   };
+
+  // Sobrepõe o modelo no banco com o rascunho atual.
+  const overwriteWithDraft = async () => {
+    if (!currentTemplateId) return;
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('widget_templates')
+        .update({ config: currentConfig() })
+        .eq('id', currentTemplateId);
+      if (error) throw error;
+      localStorage.removeItem(`widget_draft_${currentTemplateId}`);
+      setDraftSavedAt(null);
+      toast({ title: "Modelo atualizado", description: "O rascunho sobrepôs o modelo." });
+      fetchTemplates();
+    } catch (error: any) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Salva o rascunho atual como um novo modelo.
+  const saveDraftAsNew = () => {
+    if (currentTemplateId) localStorage.removeItem(`widget_draft_${currentTemplateId}`);
+    setDraftSavedAt(null);
+    setCurrentTemplateId(null);
+    setTemplateName(prev => (prev ? `${prev} (cópia)` : ''));
+    setIsDialogOpen(true);
+  };
+
 
   const deleteTemplate = async (id: string) => {
     try {
@@ -415,6 +470,28 @@ export default function AdminToolboxPage() {
     if (!live) { live = doc.createElement('style'); live.id = 'live-style'; doc.head.appendChild(live); }
     live.innerHTML = css;
   });
+
+  // ===== Auto-save de rascunho =====
+  // Com um modelo selecionado, qualquer alteração salva automaticamente um
+  // rascunho local (sem sobrepor o modelo no banco). O usuário decide depois
+  // entre "Sobrepor modelo" ou "Salvar como novo".
+  useEffect(() => {
+    if (!currentTemplateId) return;
+    if (skipDraftRef.current) { skipDraftRef.current = false; return; }
+    const config = activeWidgetType === 'whatsapp' ? whatsappConfig :
+      activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+    const t = setTimeout(() => {
+      try {
+        const at = new Date().toISOString();
+        localStorage.setItem(`widget_draft_${currentTemplateId}`, JSON.stringify({ type: activeWidgetType, config, savedAt: at }));
+        setDraftSavedAt(at);
+      } catch { /* storage indisponível */ }
+    }, 800);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [whatsappConfig, bannerConfig, menuConfig, activeWidgetType, currentTemplateId]);
+
+
 
 
 
@@ -1884,6 +1961,28 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
           </div>
         </div>
+
+        {currentTemplateId && draftSavedAt && (
+          <Alert className="bg-amber-500/10 border-amber-500/30">
+            <Save className="h-4 w-4 text-amber-600" />
+            <AlertTitle>Rascunho salvo automaticamente</AlertTitle>
+            <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-sm">
+                Alterações não salvas em <strong>{templateName || 'modelo'}</strong> — salvas localmente às {new Date(draftSavedAt).toLocaleTimeString()}.
+              </span>
+              <span className="flex gap-2 shrink-0">
+                <Button size="sm" variant="default" disabled={isSaving} onClick={overwriteWithDraft}>
+                  Sobrepor modelo
+                </Button>
+                <Button size="sm" variant="outline" disabled={isSaving} onClick={saveDraftAsNew}>
+                  Salvar como novo
+                </Button>
+              </span>
+            </AlertDescription>
+          </Alert>
+        )}
+
+
 
 
         <Alert className="bg-primary/5 border-primary/20">
