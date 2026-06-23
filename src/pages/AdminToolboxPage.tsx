@@ -769,12 +769,32 @@ export default function AdminToolboxPage() {
               function fromHTML(html) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
-                const links = Array.from(tempDiv.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
-                return links.map(a => ({
-                  title: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
-                  link: a.getAttribute('href') || '#',
-                  children: []
-                })).filter(i => i.title && i.link !== '#');
+
+                function parseList(root) {
+                  const listItems = Array.from(root.children || []).filter(child => child.tagName === 'LI');
+                  if (listItems.length === 0) {
+                    return Array.from(root.querySelectorAll(':scope > a, :scope > .wp-block-navigation-item__content'))
+                      .map(a => ({
+                        title: (a.querySelector?.('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+                        link: a.getAttribute('href') || '#',
+                        children: []
+                      }))
+                      .filter(i => i.title);
+                  }
+
+                  return listItems.map(li => {
+                    const link = li.querySelector(':scope > a, :scope > .wp-block-navigation-item__content, :scope > div > a');
+                    const subList = li.querySelector(':scope > ul, :scope > ol, :scope > .wp-block-navigation__submenu-container, :scope > .sub-menu, :scope > div > ul');
+                    return {
+                      title: (link?.querySelector?.('.wp-block-navigation-item__label')?.textContent || link?.textContent || '').trim(),
+                      link: link?.getAttribute?.('href') || '#',
+                      children: subList ? parseList(subList) : []
+                    };
+                  }).filter(i => i.title);
+                }
+
+                const root = tempDiv.querySelector('ul, ol, .wp-block-navigation__container, nav') || tempDiv;
+                return parseList(root);
               }
 
               let itemsSource = source;
