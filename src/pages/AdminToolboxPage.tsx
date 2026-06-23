@@ -909,6 +909,18 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative !important;
+    display: flex;
+    align-items: center;
+  }
+  .custom-nav-992 .menu-items .has-submenu::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: max(100%, 230px);
+    height: 14px;
+    background: transparent;
+    z-index: 2147483646;
   }
   .custom-nav-992 .menu-items .has-submenu > a::after {
     content: "";
@@ -924,7 +936,7 @@ export default function AdminToolboxPage() {
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
-    margin-top: 8px !important;
+    margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
     box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
     border-radius: ${(menuConfig.activeRadius/100*2.5).toFixed(3)}em !important;
@@ -942,18 +954,8 @@ export default function AdminToolboxPage() {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(-12px);
-    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
-  }
-  /* ponte invisível para o mouse não perder o hover no espaço entre item e submenu */
-  .custom-nav-992 .has-submenu > .submenu::before {
-    content: "";
-    position: absolute;
-    top: -10px;
-    left: 0;
-    width: 100%;
-    height: 12px;
-    background: transparent;
+    transform: translateY(-18px);
+    transition: opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), visibility 0.25s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu,
   .custom-nav-992 .has-submenu:focus-within > .submenu {
