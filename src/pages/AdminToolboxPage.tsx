@@ -747,7 +747,7 @@ export default function AdminToolboxPage() {
                 return itemsSource.map(item => {
                   const title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título';
                   const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
-                  const children = item.children || item.items || item.sub_items || item.nodes || item.edges || [];
+                  const children = item.child_items || item.children || item.items || item.sub_items || item.nodes || item.edges || [];
                   return {
                     title,
                     link: link,
