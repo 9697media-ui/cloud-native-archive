@@ -2604,7 +2604,7 @@ export default function AdminToolboxPage() {
                 )}
 
                 {viewMode === 'preview' && (
-                  <div className="w-full max-w-5xl shrink-0">
+                  <div className="w-full shrink-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo do Widget (isolado)</span>
                       <div className="flex-1 h-px bg-border" />
