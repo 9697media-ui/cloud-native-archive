@@ -244,13 +244,27 @@ export default function AdminToolboxPage() {
         const parent = (item.parent || item.menu_item_parent || item.parentId || item.meta?.menu_item_parent || item.node?.parentId || 0).toString();
         const label = cleanLabel(item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título');
         const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
-        const children = item.children || item.items || item.sub_items || item.nodes || item.edges || [];
+        const children = item.child_items || item.children || item.items || item.sub_items || item.nodes || item.edges || [];
         return { id, parent, label, link, children };
       });
     };
 
     const buildTree = (flatItems: any[]) => {
       const normalized = normalizeItems(flatItems);
+
+      // Caso os dados já venham aninhados (ex.: campo child_items dos plugins de menu),
+      // preservamos a hierarquia recursivamente em vez de achatar tudo.
+      const hasNested = normalized.some(i => Array.isArray(i.children) && i.children.length > 0);
+      const hasParentRefs = normalized.some(i => i.parent !== "0" && i.parent !== "");
+
+      if (hasNested && !hasParentRefs) {
+        const mapNested = (list: any[]): any[] => list.map(i => ({
+          ...i,
+          children: Array.isArray(i.children) && i.children.length > 0 ? mapNested(normalizeItems(i.children)) : []
+        }));
+        return mapNested(normalized);
+      }
+
       const itemMap = new Map();
       const tree: any[] = [];
       normalized.forEach(item => itemMap.set(item.id, { ...item, children: [] }));
@@ -644,7 +658,7 @@ export default function AdminToolboxPage() {
           let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
           if (!title || title.trim() === '') return;
           
-          const children = item.children || item.items || item.sub_items || [];
+          const children = item.child_items || item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
 
           if (children && children.length > 0) {
@@ -673,7 +687,7 @@ export default function AdminToolboxPage() {
                 parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
                 title: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título').toString(),
                 link: item.url || item.link || item.guid || item.href || '#',
-                children: item.children || item.items || item.sub_items || []
+                children: item.child_items || item.children || item.items || item.sub_items || []
               }));
 
               const normalized = normalize(flatItems);
@@ -733,7 +747,7 @@ export default function AdminToolboxPage() {
                 return itemsSource.map(item => {
                   const title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título';
                   const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
-                  const children = item.children || item.items || item.sub_items || item.nodes || item.edges || [];
+                  const children = item.child_items || item.children || item.items || item.sub_items || item.nodes || item.edges || [];
                   return {
                     title,
                     link: link,
