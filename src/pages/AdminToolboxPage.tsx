@@ -872,26 +872,28 @@ export default function AdminToolboxPage() {
     ${p} .submenu {
       position: static !important;
       width: 100% !important;
-      box-shadow: none !important;
-      border-radius: ${itemRadiusMobile}em !important;
-      padding: 0 !important;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
+      border-radius: ${(Number(itemRadiusMobile) + 0.5).toFixed(3)}em !important;
+      padding: 0 8px !important;
       margin-top: ${submenuGapMobile}px !important;
-      background-color: rgba(0,0,0,0.02) !important;
-      border: none !important;
+      background-color: ${menuConfig.bgColor} !important;
+      border: 1px solid rgba(0,0,0,0.08) !important;
       display: flex !important;
       flex-direction: column !important;
+      gap: 2px !important;
       opacity: 0 !important;
       visibility: hidden !important;
       max-height: 0 !important;
       overflow: hidden !important;
       transform: none !important;
       clip-path: inset(0 0 100% 0);
-      transition: max-height 0.32s cubic-bezier(.2,.8,.2,1), clip-path 0.32s cubic-bezier(.2,.8,.2,1), opacity 0.25s ease, margin-top 0.25s ease, visibility 0.25s ease;
+      transition: max-height 0.32s cubic-bezier(.2,.8,.2,1), clip-path 0.32s cubic-bezier(.2,.8,.2,1), opacity 0.25s ease, margin-top 0.25s ease, padding 0.25s ease, visibility 0.25s ease;
     }
     ${p} .has-submenu.open > .submenu {
       opacity: 1 !important;
       visibility: visible !important;
       max-height: 80vh !important;
+      padding: 8px !important;
       clip-path: inset(0 0 0 0);
     }
     ${p} .has-submenu.open > a::after {
