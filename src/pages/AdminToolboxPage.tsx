@@ -838,16 +838,18 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .logo .logo-mobile { display: none; }
   .custom-nav-992 .logo .logo-desktop { display: block; }
-  .custom-nav-992 .menu-items {
-    display: flex;
-    gap: ${menuConfig.itemSpacing}px;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    list-style: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
+   .custom-nav-992 .menu-items {
+     display: flex;
+     flex-wrap: nowrap;
+     gap: ${menuConfig.itemSpacing}px;
+     align-items: center;
+     justify-content: center;
+     flex: 1 1 0;
+     min-width: 0;
+     list-style: none !important;
+     margin: 0 !important;
+     padding: 0 !important;
+   }
   .custom-nav-992 .nav-search {
     display: flex;
     align-items: center;
@@ -871,23 +873,27 @@ export default function AdminToolboxPage() {
     opacity: 0.7;
     fill: currentColor;
   }
-  .custom-nav-992 .menu-items a {
-    color: inherit;
-    text-decoration: none !important;
-    font-size: ${menuConfig.fontSize}px;
-    font-weight: 500;
-    padding: 10px ${menuConfig.itemPadding}px;
-    border-radius: 6px;
-    transition: all 0.2s;
-    opacity: 0.8;
-    white-space: nowrap;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    box-sizing: border-box;
-  }
+   .custom-nav-992 .menu-items a {
+     color: inherit;
+     text-decoration: none !important;
+     font-size: ${menuConfig.fontSize}px;
+     font-weight: 500;
+     padding: 10px ${menuConfig.itemPadding}px;
+     border-radius: 6px;
+     transition: all 0.2s;
+     opacity: 0.8;
+     white-space: nowrap;
+     position: relative;
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     gap: 6px;
+     box-sizing: border-box;
+     flex-shrink: 1;
+     min-width: 0;
+     overflow: hidden;
+     text-overflow: ellipsis;
+   }
   .custom-nav-992 .menu-items > a:hover,
   .custom-nav-992 .menu-items > .has-submenu > a:hover {
     color: ${menuConfig.hoverTextColor};
@@ -907,11 +913,13 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .menu-items a:focus-visible {
     outline: none;
   }
-  .custom-nav-992 .menu-items .has-submenu {
-    position: relative !important;
-    display: flex;
-    align-items: center;
-  }
+   .custom-nav-992 .menu-items .has-submenu {
+     position: relative !important;
+     display: flex;
+     align-items: center;
+     flex-shrink: 1;
+     min-width: 0;
+   }
   .custom-nav-992 .menu-items .has-submenu::before {
     content: "";
     position: absolute;
