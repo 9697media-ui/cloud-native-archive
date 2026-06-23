@@ -1817,6 +1817,28 @@ export default function AdminToolboxPage() {
                       />
                       <p className="text-xs text-muted-foreground">Se vazio, usa o logo desktop também no mobile/tablet.</p>
                     </div>
+                    {(/\.svg(\?|#|$)/i.test(menuConfig.logoUrl) || /\.svg(\?|#|$)/i.test(menuConfig.logoUrlMobile)) && (
+                      <div className="space-y-2">
+                        <Label>Cor do Logo (SVG)</Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="color"
+                            className="h-9 w-14 p-1"
+                            value={menuConfig.logoColor || '#000000'}
+                            onChange={(e) => setMenuConfig({...menuConfig, logoColor: e.target.value})}
+                          />
+                          <Input
+                            value={menuConfig.logoColor}
+                            onChange={(e) => setMenuConfig({...menuConfig, logoColor: e.target.value})}
+                            placeholder="Ex: #4f46e5 (vazio = cor original)"
+                          />
+                          {menuConfig.logoColor && (
+                            <Button variant="outline" size="sm" onClick={() => setMenuConfig({...menuConfig, logoColor: ''})}>Limpar</Button>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Detectado SVG: aplica esta cor ao logo. Deixe vazio para manter as cores originais.</p>
+                      </div>
+                    )}
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
                         <Label className="text-xs">Fundo</Label>
