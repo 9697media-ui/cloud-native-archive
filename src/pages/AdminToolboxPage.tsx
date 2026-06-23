@@ -855,7 +855,7 @@ export default function AdminToolboxPage() {
     ${p} .menu-items.active {
       max-height: 80vh;
       padding: 8px;
-      box-shadow: 0 14px 28px rgba(0,0,0,0.22);
+      box-shadow: ${menuShadow};
       border-color: rgba(0,0,0,0.08);
       overflow-y: auto;
       opacity: 1;
