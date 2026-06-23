@@ -922,49 +922,51 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .submenu {
     position: absolute !important;
-    top: 100% !important;
+    top: calc(100% + 8px) !important;
     left: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
-    border-radius: 10px !important;
-    padding: 8px 0 !important;
-    display: none !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
+    border-radius: ${(menuConfig.activeRadius/100*2.5).toFixed(3)}em !important;
+    padding: 8px !important;
+    display: flex !important;
     flex-direction: column !important;
-    min-width: 220px !important;
-    z-index: 9999999 !important;
+    gap: 2px !important;
+    min-width: 230px !important;
+    z-index: 2147483647 !important;
     list-style: none !important;
     margin: 0 !important;
     border: 1px solid rgba(0,0,0,0.08) !important;
+    overflow: hidden !important;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.25s ease;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu {
-    display: flex !important;
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
     transform: translateY(0);
   }
   .custom-nav-992 .has-submenu:hover > a::after {
     transform: rotate(180deg);
   }
   .custom-nav-992 .submenu a {
-    padding: 12px 20px !important;
+    padding: 11px 16px !important;
     opacity: 0.9 !important;
     width: 100% !important;
-    border-radius: 0 !important;
+    border-radius: ${(menuConfig.activeRadius/100*1.4).toFixed(3)}em !important;
     display: flex !important;
     text-align: left !important;
     white-space: normal !important;
     font-size: 14px !important;
-    border-bottom: 1px solid rgba(0,0,0,0.03);
+    border-bottom: none !important;
   }
-  .custom-nav-992 .submenu a:last-child { border-bottom: none; }
   .custom-nav-992 .submenu a:hover {
-    background-color: rgba(0,0,0,0.04) !important;
+    background-color: ${menuConfig.hoverBgColor || 'rgba(0,0,0,0.04)'} !important;
+    color: ${menuConfig.hoverTextColor || 'inherit'} !important;
     opacity: 1 !important;
-    padding-left: 25px !important;
   }
   .custom-nav-992 .mobile-toggle {
     display: none;
