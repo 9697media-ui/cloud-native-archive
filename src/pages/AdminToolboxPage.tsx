@@ -2954,8 +2954,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               transformOrigin: 'top center',
                             }}
                             sandbox="allow-scripts"
-                            srcDoc={getGeneratedCode() + `<style>.menu-items a{border-radius:${(previewItemRadius/100*2.5).toFixed(3)}em !important;}.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(previewActiveRadius/100*2.5).toFixed(3)}em !important;opacity:1 !important;}</style><script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`}
-                            key={'demo' + deviceView + activeWidgetType + getGeneratedCode()}
+                            ref={demoIframeRef}
+                            srcDoc={demoDoc}
+                            key={'demo' + deviceView + activeWidgetType}
                           />
                         );
                       })()}
