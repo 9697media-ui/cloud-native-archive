@@ -819,6 +819,13 @@ export default function AdminToolboxPage() {
                 });
                 
                 if (hasParentRefs && !hasNestedItems) return buildTree(itemsSource);
+                if (hasParentRefs && hasNestedItems) {
+                  const ids = new Set(itemsSource.map(item => (item.id || item.ID || item.db_id || item.object_id || item.key || item.node?.id || '').toString()).filter(Boolean));
+                  itemsSource = itemsSource.filter(item => {
+                    const parent = (item.parent || item.menu_item_parent || item.parentId || item.meta?.menu_item_parent || item.node?.parentId || 0).toString();
+                    return parent === '0' || parent === '' || !ids.has(parent);
+                  });
+                }
                 
                 return itemsSource.map(item => {
                   const title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título';
