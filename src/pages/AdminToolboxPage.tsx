@@ -290,19 +290,28 @@ export default function AdminToolboxPage() {
       // de detecção usado nos itens que já funcionavam.
       const candidates = Array.from(
         doc.querySelectorAll(
-          'nav ul, .wp-block-navigation__container, nav, ul[class*="menu"], ul[class*="nav"], ul, ol'
+          '#main-menu, .ha-navbar-nav, .elementor-nav-menu, .wp-block-navigation__container, nav ul, nav, ul[class*="menu"], ul[class*="nav"], ul, ol'
         )
       );
 
       const countDeep = (items: any[]): number =>
         items.reduce((acc, it) => acc + 1 + countDeep(it.children || []), 0);
 
+      const hasMenuSignal = (element: Element): boolean => {
+        const signature = `${element.id || ''} ${element.className || ''} ${element.getAttribute('role') || ''}`.toLowerCase();
+        return /main-menu|nav|navbar|navigation|menu/.test(signature);
+      };
+
       let best: any[] = [];
       let bestScore = -1;
       for (const candidate of candidates) {
         const parsed = parseList(candidate);
-        const score = countDeep(parsed);
-        // priorizamos o container que cobre mais itens da árvore completa
+        const submenuScore = countSubmenuItems(parsed);
+        const directScore = parsed.length;
+        const signalScore = hasMenuSignal(candidate) ? 1000 : 0;
+        const score = signalScore + countDeep(parsed) + (submenuScore * 10) + (directScore * 3);
+        // Priorizamos containers com assinatura clara de menu e submenus reais,
+        // evitando aceitar uma lista de páginas/posts como se fosse navegação.
         if (score > bestScore) {
           bestScore = score;
           best = parsed;
@@ -819,15 +828,22 @@ export default function AdminToolboxPage() {
                 }
 
                 const candidates = Array.from(
-                  tempDiv.querySelectorAll('nav ul, .wp-block-navigation__container, nav, ul[class*="menu"], ul[class*="nav"], ul, ol')
+                  tempDiv.querySelectorAll('#main-menu, .ha-navbar-nav, .elementor-nav-menu, .wp-block-navigation__container, nav ul, nav, ul[class*="menu"], ul[class*="nav"], ul, ol')
                 );
                 function countDeep(items) {
                   return items.reduce((acc, it) => acc + 1 + countDeep(it.children || []), 0);
                 }
+                function countSubmenus(items) {
+                  return items.reduce((acc, it) => acc + (it.children?.length || 0) + countSubmenus(it.children || []), 0);
+                }
+                function hasMenuSignal(element) {
+                  const signature = ((element.id || '') + ' ' + (element.className || '') + ' ' + (element.getAttribute?.('role') || '')).toLowerCase();
+                  return /main-menu|nav|navbar|navigation|menu/.test(signature);
+                }
                 let best = [], bestScore = -1;
                 for (const candidate of candidates) {
                   const parsed = parseList(candidate);
-                  const score = countDeep(parsed);
+                  const score = (hasMenuSignal(candidate) ? 1000 : 0) + countDeep(parsed) + (countSubmenus(parsed) * 10) + (parsed.length * 3);
                   if (score > bestScore) { bestScore = score; best = parsed; }
                 }
                 return best.length ? best : parseList(tempDiv);
@@ -1455,9 +1471,7 @@ export default function AdminToolboxPage() {
                                       '/wp-json/wp/v2/navigation',
                                       '/wp-json/wp/v2/menu-items',
                                       '/wp-json/menus/v1/menus',
-                                      '/wp-json/menus/v1/locations/primary',
-                                      '/wp-json/wp/v2/pages',
-                                      '/wp-json/wp/v2/posts'
+                                       '/wp-json/menus/v1/locations/primary'
                                     ];
 
                                      let detected = false;
@@ -1551,10 +1565,22 @@ export default function AdminToolboxPage() {
                                      // através de um proxy CORS e extraímos o menu + subitens direto do DOM.
                                      if (!detected) {
                                        try {
-                                         const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                                         const htmlRes = await fetch(proxied);
-                                         if (htmlRes.ok) {
-                                           const html = await htmlRes.text();
+                                          const proxyReaders = [
+                                            async () => {
+                                              const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+                                              return res.ok ? res.text() : '';
+                                            },
+                                            async () => {
+                                              const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                                              if (!res.ok) return '';
+                                              const payload = await res.json();
+                                              return payload?.contents || '';
+                                            }
+                                          ];
+
+                                          for (const readHtml of proxyReaders) {
+                                            const html = await readHtml();
+                                            if (!html) continue;
                                            const wpItems = extractWPItems([{ content: { rendered: html } }]);
                                            const submenuCount = countSubmenuItems(wpItems);
                                            if (wpItems.length > 0) {
@@ -1572,6 +1598,8 @@ export default function AdminToolboxPage() {
                                                title: "Menu Detectado!",
                                                description: `Importamos ${wpItems.length} itens (com submenus) lendo o HTML da página.`,
                                              });
+                                              detected = true;
+                                              break;
                                            } else {
                                              setMenuDetectionDetails({
                                                status: 'warning',
@@ -1580,6 +1608,13 @@ export default function AdminToolboxPage() {
                                              });
                                            }
                                          }
+                                          if (!detected) {
+                                            setMenuDetectionDetails({
+                                              status: 'warning',
+                                              message: 'Não foi possível ler um HTML completo da página pelos proxies disponíveis.',
+                                              endpoint: `${origin} (HTML)`
+                                            });
+                                          }
                                        } catch (htmlErr) {
                                          setMenuDetectionDetails({
                                            status: 'warning',
