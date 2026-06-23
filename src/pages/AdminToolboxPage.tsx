@@ -87,7 +87,7 @@ export default function AdminToolboxPage() {
       const root = frameRef.current;
       if (!root) return;
       root.querySelectorAll('.custom-nav-992').forEach((nav) => {
-        nav.classList.toggle('force-mobile', deviceView !== 'desktop');
+        nav.classList.toggle('force-mobile', deviceView === 'mobile');
       });
     }, 60);
     return () => clearTimeout(t);
