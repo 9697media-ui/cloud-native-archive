@@ -965,8 +965,11 @@ export default function AdminToolboxPage() {
               }
 
               if (Array.isArray(itemsSource)) {
-                if (itemsSource[0]?.content?.rendered) {
-                  return itemsSource.flatMap(s => fromHTML(s.content.rendered));
+                const renderedMenus = itemsSource
+                  .map(item => item?.content?.rendered)
+                  .filter(html => typeof html === 'string' && /<\s*(li|ul|nav|a)\b/i.test(html));
+                if (renderedMenus.length > 0) {
+                  return renderedMenus.flatMap(html => fromHTML(html));
                 }
                 
                 const hasParentRefs = itemsSource.some(item => 
