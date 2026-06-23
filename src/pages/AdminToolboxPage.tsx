@@ -658,7 +658,7 @@ export default function AdminToolboxPage() {
           let title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || '';
           if (!title || title.trim() === '') return;
           
-          const children = item.children || item.items || item.sub_items || [];
+          const children = item.child_items || item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
 
           if (children && children.length > 0) {
