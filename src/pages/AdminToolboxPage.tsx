@@ -37,7 +37,7 @@ export default function AdminToolboxPage() {
   // mas o conteúdo é renderizado nessas dimensões e escalado para caber).
   const DEVICE_RESOLUTIONS: Record<string, { width: number; height: number }> = {
     desktop: { width: 1366, height: 768 }, // 16:9
-    tablet: { width: 810, height: 1080 },  // ~3:4 (iPad)
+    tablet: { width: 900, height: 1200 },  // ~3:4, dentro do breakpoint tablet
     mobile: { width: 390, height: 844 },   // ~9:19.5 (smartphone moderno)
   };
   const frameRef = React.useRef<HTMLDivElement | null>(null);
@@ -79,15 +79,15 @@ export default function AdminToolboxPage() {
   }, [deviceView]);
 
 
-  // No preview, os <script> injetados via innerHTML não executam, então o menu
-  // ficaria "travado" no layout desktop. Forçamos o modo mobile/tablet aplicando
-  // a classe .force-mobile no menu renderizado conforme o dispositivo selecionado.
+  // No preview inline, media queries usam a viewport real do app; por isso
+  // espelhamos o dispositivo selecionado com classes auxiliares no widget.
   useEffect(() => {
     const t = setTimeout(() => {
       const root = frameRef.current;
       if (!root) return;
       root.querySelectorAll('.custom-nav-992').forEach((nav) => {
-        nav.classList.toggle('force-mobile', deviceView !== 'desktop');
+        nav.classList.toggle('force-tablet', deviceView === 'tablet');
+        nav.classList.toggle('force-mobile', deviceView === 'mobile');
       });
     }, 60);
     return () => clearTimeout(t);
@@ -180,7 +180,14 @@ export default function AdminToolboxPage() {
     
     if (template.type === 'whatsapp') setWhatsappConfig(template.config);
     else if (template.type === 'banner') setBannerConfig(template.config);
-    else if (template.type === 'menu') setMenuConfig(template.config);
+    else if (template.type === 'menu') setMenuConfig(prev => ({
+      ...prev,
+      ...template.config,
+      activeRadiusTablet: template.config.activeRadiusTablet ?? template.config.activeRadius ?? prev.activeRadiusTablet,
+      activeRadiusMobile: template.config.activeRadiusMobile ?? template.config.activeRadiusTablet ?? template.config.activeRadius ?? prev.activeRadiusMobile,
+      itemRadiusTablet: template.config.itemRadiusTablet ?? template.config.itemRadiusMobile ?? template.config.itemRadius ?? prev.itemRadiusTablet,
+      itemRadiusMobile: template.config.itemRadiusMobile ?? template.config.itemRadiusTablet ?? template.config.itemRadius ?? prev.itemRadiusMobile,
+    }));
 
     toast({ title: "Modelo carregado", description: `Editando: ${template.name}` });
   };
@@ -233,7 +240,10 @@ export default function AdminToolboxPage() {
       activeBorderColor: '#4f46e5',
       activeBorderWidth: 2,
       activeRadius: 30,
+      activeRadiusTablet: 30,
+      activeRadiusMobile: 30,
       itemRadius: 10,
+      itemRadiusTablet: 10,
       itemRadiusMobile: 0,
       activeBgColor: 'transparent',
       activeTextColor: '#4f46e5',
@@ -326,7 +336,10 @@ export default function AdminToolboxPage() {
     activeBorderColor: '#4f46e5',
     activeBorderWidth: 2,
     activeRadius: 30,
+    activeRadiusTablet: 30,
+    activeRadiusMobile: 30,
     itemRadius: 10,
+    itemRadiusTablet: 10,
     itemRadiusMobile: 0,
     activeBgColor: 'transparent',
     activeTextColor: '#4f46e5',
@@ -764,6 +777,12 @@ export default function AdminToolboxPage() {
   };
 
   const generateMenuCode = () => {
+    const activeRadiusDesktop = ((menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const activeRadiusTablet = ((menuConfig.activeRadiusTablet ?? menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const activeRadiusMobile = ((menuConfig.activeRadiusMobile ?? menuConfig.activeRadiusTablet ?? menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const itemRadiusDesktop = ((menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const itemRadiusTablet = ((menuConfig.itemRadiusTablet ?? menuConfig.itemRadiusMobile ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const itemRadiusMobile = ((menuConfig.itemRadiusMobile ?? menuConfig.itemRadiusTablet ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
     const mobileRules = (p: string) => `
     ${p} {
       padding: 0 14px;
@@ -820,7 +839,7 @@ export default function AdminToolboxPage() {
       align-items: center;
       width: 100%;
       padding: 14px 22px;
-      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em;
+      border-radius: ${itemRadiusMobile}em;
       font-size: 15.5px;
       border-left: 3px solid transparent;
       border-bottom: 1px solid rgba(0,0,0,0.04);
@@ -876,7 +895,7 @@ export default function AdminToolboxPage() {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em !important;
+      border-radius: ${activeRadiusMobile}em !important;
     }`;
 
     const css = `<style>
@@ -1015,7 +1034,7 @@ export default function AdminToolboxPage() {
      font-size: ${menuConfig.fontSize}px;
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
-     border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em;
+     border-radius: ${itemRadiusDesktop}em;
      transition: all 0.2s;
      opacity: 0.8;
      white-space: nowrap !important;
@@ -1038,7 +1057,7 @@ export default function AdminToolboxPage() {
     color: ${menuConfig.hoverTextColor};
     background-color: ${menuConfig.hoverBgColor};
     opacity: 1;
-    border-radius: ${(menuConfig.activeRadius/100*2.5).toFixed(3)}em;
+     border-radius: ${activeRadiusDesktop}em;
   }
   .custom-nav-992 .menu-items > a.active,
   .custom-nav-992 .menu-items > .has-submenu > a.active {
@@ -1046,7 +1065,7 @@ export default function AdminToolboxPage() {
     opacity: 1;
     background-color: ${menuConfig.activeBgColor};
     border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
-    border-radius: ${(menuConfig.activeRadius/100*2.5).toFixed(3)}em;
+     border-radius: ${activeRadiusDesktop}em;
   }
   .custom-nav-992 .menu-items a:focus,
   .custom-nav-992 .menu-items a:focus-visible {
@@ -1086,7 +1105,7 @@ export default function AdminToolboxPage() {
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
     box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
-    border-radius: ${(menuConfig.itemRadius/100*2.5 + 0.5).toFixed(3)}em !important;
+    border-radius: ${(Number(itemRadiusDesktop) + 0.5).toFixed(3)}em !important;
     padding: 8px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1119,14 +1138,14 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .has-submenu:focus-within > a {
     color: ${menuConfig.activeTextColor} !important;
     background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
-    border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em !important;
+    border-radius: ${itemRadiusDesktop}em !important;
     opacity: 1 !important;
   }
   .custom-nav-992 .submenu a {
     padding: 11px 16px !important;
     opacity: 0.9 !important;
     width: 100% !important;
-    border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em !important;
+    border-radius: ${itemRadiusDesktop}em !important;
     display: flex !important;
      align-items: center !important;
     text-align: left !important;
@@ -1206,10 +1225,10 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .menu-items a {
       font-size: 13.5px;
       padding: 8px 10px;
-      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em !important;
+      border-radius: ${itemRadiusTablet}em !important;
     }
     .custom-nav-992 .menu-items a.active {
-      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em !important;
+      border-radius: ${activeRadiusTablet}em !important;
     }
     .custom-nav-992 .submenu {
       min-width: 200px !important;
@@ -1223,6 +1242,22 @@ export default function AdminToolboxPage() {
 
   /* ===== AUTO-BREAK: quando itens não cabem (padding < 10px) ===== */
   ${mobileRules('.custom-nav-992.force-mobile')}
+  @media (min-width: 851px) {
+    .custom-nav-992.force-tablet .menu-items a,
+    .custom-nav-992.force-mobile .menu-items a {
+      border-radius: ${itemRadiusTablet}em !important;
+    }
+    .custom-nav-992.force-tablet .menu-items a.active,
+    .custom-nav-992.force-mobile .menu-items a.active {
+      border-radius: ${activeRadiusTablet}em !important;
+    }
+    .custom-nav-992.force-mobile .menu-items a {
+      border-radius: ${itemRadiusMobile}em !important;
+    }
+    .custom-nav-992.force-mobile .menu-items a.active {
+      border-radius: ${activeRadiusMobile}em !important;
+    }
+  }
 </style>`;
 
     let fetchScript = `
@@ -2098,10 +2133,22 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                        </div>
                        </div>
                        <div className="space-y-2">
-                         <Label className="text-xs">Raio (%): {menuConfig.activeRadius}%</Label>
+                         <Label className="text-xs">Raio ativo PC (%): {menuConfig.activeRadius}%</Label>
                          <Slider min={0} max={100} step={1}
                            value={[menuConfig.activeRadius]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, activeRadius: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Raio ativo Tablet (%): {menuConfig.activeRadiusTablet}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.activeRadiusTablet]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, activeRadiusTablet: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Raio ativo Mobile (%): {menuConfig.activeRadiusMobile}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.activeRadiusMobile]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, activeRadiusMobile: v[0]})} />
                        </div>
                        <div className="space-y-2">
                          <Label className="text-xs">Arred. Itens PC (%): {menuConfig.itemRadius}%</Label>
@@ -2110,7 +2157,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                            onValueChange={(v) => setMenuConfig({...menuConfig, itemRadius: v[0]})} />
                        </div>
                        <div className="space-y-2">
-                         <Label className="text-xs">Arred. Itens Tablet/Mobile (%): {menuConfig.itemRadiusMobile}%</Label>
+                         <Label className="text-xs">Arred. Itens Tablet (%): {menuConfig.itemRadiusTablet}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.itemRadiusTablet]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusTablet: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Arred. Itens Mobile (%): {menuConfig.itemRadiusMobile}%</Label>
                          <Slider min={0} max={100} step={1}
                            value={[menuConfig.itemRadiusMobile]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusMobile: v[0]})} />
@@ -2726,6 +2779,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       {(() => {
                         const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
                         const scale = demoScale;
+                        const previewActiveRadius = deviceView === 'mobile'
+                          ? menuConfig.activeRadiusMobile
+                          : deviceView === 'tablet'
+                            ? menuConfig.activeRadiusTablet
+                            : menuConfig.activeRadius;
+                        const previewItemRadius = deviceView === 'mobile'
+                          ? menuConfig.itemRadiusMobile
+                          : deviceView === 'tablet'
+                            ? menuConfig.itemRadiusTablet
+                            : menuConfig.itemRadius;
                         return (
                           <iframe
                             title="Demo isolado do widget"
@@ -2737,7 +2800,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               transformOrigin: 'top center',
                             }}
                             sandbox="allow-scripts"
-                            srcDoc={getGeneratedCode() + `<style>.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(menuConfig.activeRadius/100*2.5).toFixed(3)}em;opacity:1 !important;}.custom-nav-992.force-mobile .menu-items a.active{border-radius:${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em !important;}</style><script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`}
+                            srcDoc={getGeneratedCode() + `<style>.menu-items a{border-radius:${(previewItemRadius/100*2.5).toFixed(3)}em !important;}.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(previewActiveRadius/100*2.5).toFixed(3)}em !important;opacity:1 !important;}</style><script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`}
                             key={'demo' + deviceView + activeWidgetType + getGeneratedCode()}
                           />
                         );
