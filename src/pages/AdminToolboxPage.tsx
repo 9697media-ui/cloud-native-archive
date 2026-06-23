@@ -801,6 +801,12 @@ export default function AdminToolboxPage() {
     const submenuGapDesktop = Math.max(0, Number(menuConfig.submenuGap ?? 0));
     const submenuGapTablet = Math.max(0, Number(menuConfig.submenuGapTablet ?? menuConfig.submenuGap ?? 0));
     const submenuGapMobile = Math.max(0, Number(menuConfig.submenuGapMobile ?? menuConfig.submenuGap ?? 0));
+    const shadowSize = Math.max(0, Number(menuConfig.shadowSize ?? 28));
+    const shadowIntensity = Math.min(100, Math.max(0, Number(menuConfig.shadowIntensity ?? 22)));
+    const menuShadow = (shadowSize === 0 || shadowIntensity === 0)
+      ? 'none'
+      : `0 ${Math.round(shadowSize * 0.5)}px ${shadowSize}px rgba(0,0,0,${(shadowIntensity / 100).toFixed(3)})`;
+    const tabletHamburger = (menuConfig.tabletMenuMode ?? 'header') === 'hamburger';
     const mobileRules = (p: string) => `
     ${p} {
       padding: 0 14px;
