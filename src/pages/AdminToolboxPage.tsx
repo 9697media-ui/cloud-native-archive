@@ -1113,6 +1113,13 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .has-submenu:hover > a::after {
     transform: rotate(180deg);
   }
+  .custom-nav-992 .has-submenu:hover > a,
+  .custom-nav-992 .has-submenu:focus-within > a {
+    color: ${menuConfig.activeTextColor} !important;
+    background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
+    border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em !important;
+    opacity: 1 !important;
+  }
   .custom-nav-992 .submenu a {
     padding: 11px 16px !important;
     opacity: 0.9 !important;
