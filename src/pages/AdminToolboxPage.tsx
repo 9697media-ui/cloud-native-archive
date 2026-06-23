@@ -848,6 +848,12 @@ export default function AdminToolboxPage() {
     object-fit: contain;
     display: block;
   }
+  .custom-nav-992 .logo .logo-svg {
+    height: 40px;
+    width: 180px;
+    max-width: 180px;
+    display: block;
+  }
   .custom-nav-992 .logo .logo-mobile { display: none; }
   .custom-nav-992 .logo .logo-desktop { display: block; }
    .custom-nav-992 .menu-items {
