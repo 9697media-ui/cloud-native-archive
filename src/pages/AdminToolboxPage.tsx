@@ -1095,7 +1095,7 @@ export default function AdminToolboxPage() {
     left: 0;
     top: 100%;
     width: max(100%, 230px);
-    height: 14px;
+    height: ${submenuGapDesktop + 14}px;
     background: transparent;
     z-index: 2147483646;
   }
