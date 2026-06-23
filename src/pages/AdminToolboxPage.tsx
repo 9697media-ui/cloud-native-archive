@@ -752,9 +752,9 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .menu-items a {
     color: inherit;
     text-decoration: none !important;
-    font-size: 15px;
+    font-size: ${menuConfig.fontSize}px;
     font-weight: 500;
-    padding: 10px 15px;
+    padding: 10px ${menuConfig.itemPadding}px;
     border-radius: 6px;
     transition: all 0.2s;
     opacity: 0.8;
