@@ -873,6 +873,7 @@ export default function AdminToolboxPage() {
       position: static !important;
       width: 100% !important;
       box-shadow: none !important;
+      border-radius: ${itemRadiusMobile}em !important;
       padding: 0 !important;
       margin-top: ${submenuGapMobile}px !important;
       background-color: rgba(0,0,0,0.02) !important;
@@ -903,6 +904,7 @@ export default function AdminToolboxPage() {
     ${p} .submenu a {
       padding: 10px 40px !important;
       font-size: 15px !important;
+      border-radius: ${itemRadiusMobile}em !important;
       white-space: nowrap !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
@@ -1259,6 +1261,10 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .submenu {
       min-width: 200px !important;
       top: calc(100% + ${submenuGapTablet}px) !important;
+      border-radius: ${itemRadiusTablet}em !important;
+    }
+    .custom-nav-992 .submenu a {
+      border-radius: ${itemRadiusTablet}em !important;
     }
   }
 
