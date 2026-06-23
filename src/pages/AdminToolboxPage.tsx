@@ -852,6 +852,7 @@ export default function AdminToolboxPage() {
     max-width: 180px;
     width: auto;
     object-fit: contain;
+    object-position: left center;
     display: block;
   }
   .custom-nav-992 .logo .logo-svg {
