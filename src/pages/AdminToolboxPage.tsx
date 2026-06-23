@@ -2090,18 +2090,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             value={menuConfig.activeBorderWidth}
                             onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs">Raio (%)</Label>
-                          <Input type="number" min={0} max={100}
-                            value={menuConfig.activeRadius}
-                            onChange={(e) => setMenuConfig({...menuConfig, activeRadius: Number(e.target.value) || 0})} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs">Arred. Itens (%)</Label>
-                          <Input type="number" min={0} max={100}
-                            value={menuConfig.itemRadius}
-                            onChange={(e) => setMenuConfig({...menuConfig, itemRadius: Number(e.target.value) || 0})} />
-                        </div>
+                         <div className="space-y-2">
+                           <Label className="text-xs">Raio (%): {menuConfig.activeRadius}%</Label>
+                           <Slider min={0} max={100} step={1}
+                             value={[menuConfig.activeRadius]}
+                             onValueChange={(v) => setMenuConfig({...menuConfig, activeRadius: v[0]})} />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-xs">Arred. Itens (%): {menuConfig.itemRadius}%</Label>
+                           <Slider min={0} max={100} step={1}
+                             value={[menuConfig.itemRadius]}
+                             onValueChange={(v) => setMenuConfig({...menuConfig, itemRadius: v[0]})} />
+                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
