@@ -37,7 +37,7 @@ export default function AdminToolboxPage() {
   // mas o conteúdo é renderizado nessas dimensões e escalado para caber).
   const DEVICE_RESOLUTIONS: Record<string, { width: number; height: number }> = {
     desktop: { width: 1366, height: 768 }, // 16:9
-    tablet: { width: 810, height: 1080 },  // ~3:4 (iPad)
+    tablet: { width: 900, height: 1200 },  // ~3:4, dentro do breakpoint tablet
     mobile: { width: 390, height: 844 },   // ~9:19.5 (smartphone moderno)
   };
   const frameRef = React.useRef<HTMLDivElement | null>(null);
@@ -233,7 +233,10 @@ export default function AdminToolboxPage() {
       activeBorderColor: '#4f46e5',
       activeBorderWidth: 2,
       activeRadius: 30,
+      activeRadiusTablet: 30,
+      activeRadiusMobile: 30,
       itemRadius: 10,
+      itemRadiusTablet: 10,
       itemRadiusMobile: 0,
       activeBgColor: 'transparent',
       activeTextColor: '#4f46e5',
@@ -326,7 +329,10 @@ export default function AdminToolboxPage() {
     activeBorderColor: '#4f46e5',
     activeBorderWidth: 2,
     activeRadius: 30,
+    activeRadiusTablet: 30,
+    activeRadiusMobile: 30,
     itemRadius: 10,
+    itemRadiusTablet: 10,
     itemRadiusMobile: 0,
     activeBgColor: 'transparent',
     activeTextColor: '#4f46e5',
