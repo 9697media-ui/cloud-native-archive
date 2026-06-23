@@ -820,7 +820,7 @@ export default function AdminToolboxPage() {
       align-items: center;
       width: 100%;
       padding: 14px 22px;
-      border-radius: 0;
+      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em;
       font-size: 15.5px;
       border-left: 3px solid transparent;
       border-bottom: 1px solid rgba(0,0,0,0.04);
