@@ -855,6 +855,10 @@ export default function AdminToolboxPage() {
     ${p} .has-submenu.open > a::after {
       transform: rotate(180deg);
     }
+    ${p} .has-submenu.open > a {
+      color: ${menuConfig.activeTextColor} !important;
+      background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
+    }
     ${p} .submenu a {
       padding: 10px 40px !important;
       font-size: 15px !important;
