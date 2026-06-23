@@ -1469,97 +1469,92 @@ export default function AdminToolboxPage() {
                                   try {
                                     const origin = new URL(url).origin;
                                     const endpoints = [
-                                      '/wp-json/wp/v2/navigation',
-                                      '/wp-json/wp/v2/menu-items',
                                       '/wp-json/menus/v1/menus',
                                       '/wp-json/menus/v1/locations/primary',
+                                      '/wp-json/wp/v2/menu-items',
+                                      '/wp-json/wp/v2/navigation',
                                       '/wp-json/wp/v2/pages',
                                       '/wp-json/wp/v2/posts'
                                     ];
+                                    let bestDetection: any = null;
+                                    let corsEndpoint = '';
+
+                                    const scoreItems = (items: any[]) => {
+                                      const submenuCount = countSubmenuItems(items);
+                                      return { submenuCount, score: (items.length + submenuCount) * 10 + submenuCount * 8 + items.length * 3 };
+                                    };
+
+                                    const considerData = (data: any, usedEndpoint: string) => {
+                                      if (!data || (!Array.isArray(data) && typeof data !== 'object')) return;
+                                      const wpItems = extractWPItems(data);
+                                      const { submenuCount, score } = scoreItems(wpItems);
+                                      if (wpItems.length > 0 && (!bestDetection || score > bestDetection.score)) {
+                                        bestDetection = { endpoint: usedEndpoint, items: wpItems, submenuCount, score };
+                                      }
+                                    };
 
                                     for (const endpoint of endpoints) {
                                       try {
-                                        // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
-                                         const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
-                                         if (testRes.ok) {
-                                           let data = await testRes.json();
-                                           let usedEndpoint = endpoint;
+                                        const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
+                                        if (!testRes.ok) continue;
 
-                                           // O endpoint /wp-json/menus/v1/menus retorna apenas a LISTA de menus
-                                           // (term_id, name, count) SEM os itens. Os itens com submenus (child_items)
-                                           // só vêm no detalhe: /wp-json/menus/v1/menus/{term_id}.
-                                           // Por isso, ao detectar a lista, seguimos automaticamente para o detalhe.
-                                           const isMenuList = Array.isArray(data) && data.length > 0
-                                             && data[0] && (data[0].term_id || data[0].ID || data[0].id)
-                                             && !data[0].url && !data[0].items && !data[0].child_items;
+                                        const data = await testRes.json();
+                                        const isMenuList = Array.isArray(data) && data.length > 0
+                                          && data[0] && (data[0].term_id || data[0].ID || data[0].id)
+                                          && !data[0].url && !data[0].items && !data[0].child_items;
 
-                                           if (isMenuList) {
-                                             // Escolhe o menu com mais itens (count) ou o primeiro disponível.
-                                             const best = [...data].sort((a, b) => (b.count || 0) - (a.count || 0))[0];
-                                             const menuId = best.term_id || best.ID || best.id;
-                                             try {
-                                               const detailRes = await fetch(`${origin}/wp-json/menus/v1/menus/${menuId}`, { method: 'GET', mode: 'cors' });
-                                               if (detailRes.ok) {
-                                                 const detailData = await detailRes.json();
-                                                 console.log('Detalhe do menu detectado:', detailData);
-                                                 data = detailData;
-                                                 usedEndpoint = `/wp-json/menus/v1/menus/${menuId}`;
-                                               }
-                                             } catch (detailErr) { /* mantém data original */ }
-                                           }
-
-                                           if (data && (Array.isArray(data) || typeof data === 'object')) {
-                                             console.log('Dados detectados via API:', data);
-                                             const wpItems = extractWPItems(data);
-                                             console.log('Itens extraídos (hierárquicos):', wpItems);
-                                              const submenuCount = countSubmenuItems(wpItems);
-                                             
-                                             setMenuConfig(prev => ({
-                                               ...prev, 
-                                               wpApiUrl: `${origin}${usedEndpoint}`,
-                                               items: wpItems.length > 0 ? wpItems : prev.items
-                                             }));
-                                              setMenuDetectionDetails({
-                                                status: wpItems.length > 0 ? 'success' : 'warning',
-                                                message: wpItems.length > 0
-                                                  ? submenuCount > 0
-                                                    ? 'Menu detectado com hierarquia preservada.'
-                                                    : 'Menu detectado, mas nenhum subitem foi encontrado neste endpoint.'
-                                                  : 'Endpoint encontrado, mas sem itens de menu legíveis.',
-                                                endpoint: `${origin}${usedEndpoint}`,
-                                                itemCount: wpItems.length,
-                                                submenuCount
-                                              });
-                                             
-                                             toast({
-                                               title: "API Detectada!",
-                                               description: wpItems.length > 0 
-                                                 ? `Importamos ${wpItems.length} itens (com submenus) de ${usedEndpoint}`
-                                                 : `Conectado ao endpoint ${usedEndpoint}`,
-                                             });
-                                             break;
-                                           }
-                                         }
+                                        if (isMenuList) {
+                                          for (const menu of data) {
+                                            const menuId = menu.term_id || menu.ID || menu.id;
+                                            if (!menuId) continue;
+                                            try {
+                                              const detailEndpoint = `/wp-json/menus/v1/menus/${menuId}`;
+                                              const detailRes = await fetch(`${origin}${detailEndpoint}`, { method: 'GET', mode: 'cors' });
+                                              if (detailRes.ok) considerData(await detailRes.json(), detailEndpoint);
+                                            } catch (detailErr) { /* tenta o próximo menu */ }
+                                          }
+                                        } else {
+                                          considerData(data, endpoint);
+                                        }
                                       } catch (e) {
-                                        // Se falhar por CORS, tentamos HEAD no-cors apenas para ver se o recurso existe
                                         try {
                                           const headRes = await fetch(`${origin}${endpoint}`, { method: 'HEAD', mode: 'no-cors' });
-                                          // No modo no-cors o status é sempre 0, mas se não deu erro de rede é um sinal positivo
-                                          if (headRes.type === 'opaque') {
-                                             setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
-                                              setMenuDetectionDetails({
-                                                status: 'warning',
-                                                message: 'Endpoint existe, mas o site bloqueou leitura dos itens por CORS.',
-                                                endpoint: `${origin}${endpoint}`
-                                              });
-                                             toast({
-                                              title: "API Possível!",
-                                              description: `Detectamos atividade em ${endpoint} (CORS restrito).`,
-                                            });
-                                            break;
-                                          }
+                                          if (headRes.type === 'opaque' && !corsEndpoint) corsEndpoint = endpoint;
                                         } catch (innerE) {}
                                       }
+                                    }
+
+                                    if (bestDetection) {
+                                      setMenuConfig(prev => ({
+                                        ...prev,
+                                        wpApiUrl: `${origin}${bestDetection.endpoint}`,
+                                        items: bestDetection.items
+                                      }));
+                                      setMenuDetectionDetails({
+                                        status: 'success',
+                                        message: bestDetection.submenuCount > 0
+                                          ? 'Menu mais completo detectado após comparar todos os endpoints.'
+                                          : 'Menu detectado, mas sem subitens legíveis neste site.',
+                                        endpoint: `${origin}${bestDetection.endpoint}`,
+                                        itemCount: bestDetection.items.length,
+                                        submenuCount: bestDetection.submenuCount
+                                      });
+                                      toast({
+                                        title: "Menu detectado!",
+                                        description: `Importamos ${bestDetection.items.length} itens e ${bestDetection.submenuCount} subitens.`,
+                                      });
+                                    } else if (corsEndpoint) {
+                                      setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${corsEndpoint}`}));
+                                      setMenuDetectionDetails({
+                                        status: 'warning',
+                                        message: 'Endpoint existe, mas o site bloqueou leitura dos itens por CORS.',
+                                        endpoint: `${origin}${corsEndpoint}`
+                                      });
+                                    } else {
+                                      setMenuDetectionDetails({
+                                        status: 'warning',
+                                        message: 'Nenhum endpoint de menu com itens legíveis foi encontrado.'
+                                      });
                                     }
                                   } catch (e) {
                                     setMenuDetectionDetails({
