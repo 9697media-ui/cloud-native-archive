@@ -237,6 +237,34 @@ export default function AdminToolboxPage() {
     testUrl: ''
   });
 
+  const [jsonInput, setJsonInput] = useState('');
+
+  const importMenuFromJson = () => {
+    try {
+      const parsed = JSON.parse(jsonInput);
+      const items = extractWPItems(parsed);
+      if (items.length > 0) {
+        setMenuConfig(prev => ({ ...prev, items }));
+        toast({
+          title: 'Menu importado',
+          description: `${items.length} item(ns) de topo detectado(s) a partir do JSON.`,
+        });
+      } else {
+        toast({
+          title: 'Nenhum item encontrado',
+          description: 'O JSON foi lido, mas não foi possível extrair itens de menu.',
+          variant: 'destructive',
+        });
+      }
+    } catch (e) {
+      toast({
+        title: 'JSON inválido',
+        description: 'Verifique se o conteúdo colado é um JSON válido.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
