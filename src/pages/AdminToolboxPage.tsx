@@ -897,9 +897,9 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .menu-items > a.active,
   .custom-nav-992 .menu-items > .has-submenu > a.active {
-    color: ${menuConfig.activeBorderColor};
+    color: ${menuConfig.activeTextColor};
     opacity: 1;
-    background-color: transparent;
+    background-color: ${menuConfig.activeBgColor};
     border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
     border-radius: ${menuConfig.activeRadius}px;
   }
