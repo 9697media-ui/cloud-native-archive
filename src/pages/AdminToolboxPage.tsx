@@ -984,99 +984,11 @@ export default function AdminToolboxPage() {
 
   /* ===== MOBILE (<= 850px) ===== */
   @media (max-width: 850px) {
-    .custom-nav-992 {
-      padding: 0 14px;
-      min-height: 60px;
-    }
-    .custom-nav-992 .logo img {
-      height: 34px;
-      max-width: 140px;
-    }
-    ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
-    .custom-nav-992 .mobile-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      order: 3;
-    }
-    .custom-nav-992 .logo { order: 1; margin-right: auto; }
-    .custom-nav-992 .nav-search { order: 2; }
-    .custom-nav-992 .menu-items {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      background-color: ${menuConfig.bgColor};
-      flex-direction: column;
-      align-items: stretch;
-      padding: 8px 0;
-      gap: 0;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-      border-top: 1px solid rgba(0,0,0,0.06);
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(-8px);
-      pointer-events: none;
-      transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease;
-      z-index: 999998;
-    }
-    .custom-nav-992 .menu-items.active {
-      max-height: 80vh;
-      overflow-y: auto;
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    .custom-nav-992 .menu-items a {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      padding: 14px 22px;
-      border-radius: 0;
-      font-size: 15.5px;
-      border-left: 3px solid transparent;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-      justify-content: space-between;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-    .custom-nav-992 .menu-items > .has-submenu:last-child > a,
-    .custom-nav-992 .menu-items > a:last-child { border-bottom: none; }
-    .custom-nav-992 .menu-items .has-submenu {
-      flex-direction: column;
-      align-items: stretch !important;
-    }
-    .custom-nav-992 .menu-items .has-submenu > a {
-      width: 100%;
-    }
-    .custom-nav-992 .submenu {
-      position: static !important;
-      width: 100% !important;
-      box-shadow: none !important;
-      padding: 0 !important;
-      background-color: rgba(0,0,0,0.02) !important;
-      border: none !important;
-      display: none !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      transform: none !important;
-    }
-    .custom-nav-992 .has-submenu.open > .submenu {
-      display: flex !important;
-    }
-    .custom-nav-992 .has-submenu.open > a::after {
-      transform: rotate(180deg);
-    }
-    .custom-nav-992 .submenu a {
-      padding: 10px 40px !important;
-      font-size: 15px !important;
-    }
-    .custom-nav-992 .menu-items a.active {
-      border-left-color: ${menuConfig.accentColor};
-      color: ${menuConfig.accentColor};
-      background-color: rgba(0,0,0,0.05);
-    }
+    ${mobileRules('.custom-nav-992')}
   }
+
+  /* ===== AUTO-BREAK: quando itens não cabem (padding < 10px) ===== */
+  ${mobileRules('.custom-nav-992.force-mobile')}
 </style>`;
 
     let fetchScript = `
