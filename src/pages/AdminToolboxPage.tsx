@@ -874,15 +874,24 @@ export default function AdminToolboxPage() {
       width: 100% !important;
       box-shadow: none !important;
       padding: 0 !important;
+      margin-top: ${submenuGapMobile}px !important;
       background-color: rgba(0,0,0,0.02) !important;
       border: none !important;
-      display: none !important;
-      opacity: 1 !important;
-      visibility: visible !important;
+      display: flex !important;
+      flex-direction: column !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      max-height: 0 !important;
+      overflow: hidden !important;
       transform: none !important;
+      clip-path: inset(0 0 100% 0);
+      transition: max-height 0.32s cubic-bezier(.2,.8,.2,1), clip-path 0.32s cubic-bezier(.2,.8,.2,1), opacity 0.25s ease, margin-top 0.25s ease, visibility 0.25s ease;
     }
     ${p} .has-submenu.open > .submenu {
-      display: flex !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      max-height: 80vh !important;
+      clip-path: inset(0 0 0 0);
     }
     ${p} .has-submenu.open > a::after {
       transform: rotate(180deg);
