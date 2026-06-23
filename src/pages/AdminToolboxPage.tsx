@@ -893,6 +893,7 @@ export default function AdminToolboxPage() {
       height: 34px;
       max-width: 140px;
     }
+    ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
     .custom-nav-992 .mobile-toggle {
       display: flex;
       align-items: center;
