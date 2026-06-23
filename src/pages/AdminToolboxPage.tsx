@@ -2260,6 +2260,32 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                            value={[menuConfig.submenuGapMobile]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, submenuGapMobile: v[0]})} />
                        </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Tamanho da sombra (px): {menuConfig.shadowSize}px {menuConfig.shadowSize === 0 ? '(sem sombra)' : ''}</Label>
+                         <Slider min={0} max={80} step={1}
+                           value={[menuConfig.shadowSize]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, shadowSize: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Intensidade da sombra (%): {menuConfig.shadowIntensity}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.shadowIntensity]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, shadowIntensity: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Menu no Tablet</Label>
+                         <div className="flex gap-2">
+                           <Button type="button" size="sm" variant={(menuConfig.tabletMenuMode ?? 'header') === 'header' ? 'default' : 'outline'}
+                             className="flex-1" onClick={() => setMenuConfig({...menuConfig, tabletMenuMode: 'header'})}>
+                             Itens no cabeçalho (PC)
+                           </Button>
+                           <Button type="button" size="sm" variant={menuConfig.tabletMenuMode === 'hamburger' ? 'default' : 'outline'}
+                             className="flex-1" onClick={() => setMenuConfig({...menuConfig, tabletMenuMode: 'hamburger'})}>
+                             Hambúrguer
+                           </Button>
+                         </div>
+                         <p className="text-xs text-muted-foreground">Escolha se o tablet mostra os itens de texto no cabeçalho (como no PC) ou o menu hambúrguer.</p>
+                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <Label className="text-xs">Fundo (ativo)</Label>
