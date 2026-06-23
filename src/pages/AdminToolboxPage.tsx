@@ -848,11 +848,17 @@ export default function AdminToolboxPage() {
             
             
             function buildTree(flatItems) {
+              const firstPresent = (...values) => values.find(value => value !== undefined && value !== null && value !== '');
+              const normalizeLink = (value) => {
+                if (!value) return undefined;
+                if (typeof value === 'object') return value.rendered || value.url || value.href;
+                return value;
+              };
               const normalize = (items) => items.map(item => ({
-                id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
-                parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
-                title: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título').toString(),
-                link: item.url || item.link || item.guid || item.href || '#',
+                id: (firstPresent(item.id, item.ID, item.db_id, item.object_id, item.key, item.node?.id) || Math.random().toString(36).substr(2, 9)).toString(),
+                parent: (firstPresent(item.parent, item.menu_item_parent, item.parentId, item.meta?.menu_item_parent, item.node?.parentId) || 0).toString(),
+                title: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título').toString(),
+                link: normalizeLink(firstPresent(item.url, item.link, item.guid, item.href, item.node?.url)) || '#',
                 children: item.child_items || item.children || item.items || item.sub_items || []
               }));
 
@@ -929,13 +935,15 @@ export default function AdminToolboxPage() {
                 }
                   function isNestedSubmenuCandidate(element) {
                     const signature = ((element.id || '') + ' ' + (element.className || '')).toLowerCase();
-                    return !!(element.parentElement?.closest('li')) || /submenu|sub-menu|dropdown|children/.test(signature);
+                    return /submenu|sub-menu|dropdown|children/.test(signature);
                   }
                 let best = [], bestScore = -1;
                 for (const candidate of candidates) {
                     if (isNestedSubmenuCandidate(candidate)) continue;
                   const parsed = parseList(candidate);
-                  const score = (hasMenuSignal(candidate) ? 1000 : 0) + countDeep(parsed) + (countSubmenus(parsed) * 10) + (parsed.length * 3);
+                  const nestedPenalty = candidate.closest('li') ? 300 : 0;
+                  const submenuBonus = countSubmenus(parsed) > 0 ? 50 : 0;
+                  const score = (hasMenuSignal(candidate) ? 1000 : 0) + (parsed.length * 25) + (countDeep(parsed) * 2) + submenuBonus - nestedPenalty;
                   if (score > bestScore) { bestScore = score; best = parsed; }
                 }
                 return best.length ? best : parseList(tempDiv);
