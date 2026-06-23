@@ -2370,10 +2370,10 @@ export default function AdminToolboxPage() {
                   <div
                     ref={frameRef}
                     className={cn(
-                      "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out",
-                      deviceView === 'mobile' && "w-[375px] aspect-[390/844] max-h-full rounded-[3rem] border-[8px] border-slate-900",
-                      deviceView === 'tablet' && "w-[768px] max-w-full aspect-[810/1080] max-h-full rounded-[1.5rem] border-[10px] border-slate-900",
-                      deviceView === 'desktop' && "w-full max-w-5xl aspect-video max-h-full rounded-lg"
+                      "bg-background shadow-2xl border overflow-hidden relative shrink-0 transition-all duration-500 ease-in-out",
+                      deviceView === 'mobile' && "w-[375px] max-w-full aspect-[390/844] rounded-[3rem] border-[8px] border-slate-900",
+                      deviceView === 'tablet' && "w-[768px] max-w-full aspect-[810/1080] rounded-[1.5rem] border-[10px] border-slate-900",
+                      deviceView === 'desktop' && "w-full max-w-5xl aspect-video rounded-lg"
                     )}
                   >
                     {/* Tela escalada: conteúdo renderizado em resolução nativa e reduzido para caber */}
