@@ -37,8 +37,8 @@ export default function AdminToolboxPage() {
   // mas o conteúdo é renderizado nessas dimensões e escalado para caber).
   const DEVICE_RESOLUTIONS: Record<string, { width: number; height: number }> = {
     desktop: { width: 1366, height: 768 }, // 16:9
-    tablet: { width: 768, height: 1024 },  // 3:4
-    mobile: { width: 375, height: 667 },   // ~9:16
+    tablet: { width: 810, height: 1080 },  // ~3:4 (iPad)
+    mobile: { width: 390, height: 844 },   // ~9:19.5 (smartphone moderno)
   };
   const frameRef = React.useRef<HTMLDivElement | null>(null);
   const [previewScale, setPreviewScale] = useState(1);
@@ -2132,8 +2132,8 @@ export default function AdminToolboxPage() {
                     ref={frameRef}
                     className={cn(
                       "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out",
-                      deviceView === 'mobile' && "w-[375px] aspect-[9/16] max-h-full rounded-[3rem] border-[8px] border-slate-900",
-                      deviceView === 'tablet' && "w-[768px] max-w-full aspect-[3/4] max-h-full rounded-[1.5rem] border-[10px] border-slate-900",
+                      deviceView === 'mobile' && "w-[375px] aspect-[390/844] max-h-full rounded-[3rem] border-[8px] border-slate-900",
+                      deviceView === 'tablet' && "w-[768px] max-w-full aspect-[810/1080] max-h-full rounded-[1.5rem] border-[10px] border-slate-900",
                       deviceView === 'desktop' && "w-full max-w-5xl aspect-video max-h-full rounded-lg"
                     )}
                   >
