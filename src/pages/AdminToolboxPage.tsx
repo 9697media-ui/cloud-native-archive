@@ -1543,8 +1543,50 @@ export default function AdminToolboxPage() {
                                             break;
                                           }
                                         } catch (innerE) {}
-                                      }
-                                    }
+                                       }
+                                     }
+
+                                     // Fallback: muitos menus (Elementor/Happy Addons, etc.) NÃO são
+                                     // expostos via REST. Nesses casos, lemos o HTML da própria página
+                                     // através de um proxy CORS e extraímos o menu + subitens direto do DOM.
+                                     if (!detected) {
+                                       try {
+                                         const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                                         const htmlRes = await fetch(proxied);
+                                         if (htmlRes.ok) {
+                                           const html = await htmlRes.text();
+                                           const wpItems = extractWPItems([{ content: { rendered: html } }]);
+                                           const submenuCount = countSubmenuItems(wpItems);
+                                           if (wpItems.length > 0) {
+                                             setMenuConfig(prev => ({ ...prev, items: wpItems }));
+                                             setMenuDetectionDetails({
+                                               status: 'success',
+                                               message: submenuCount > 0
+                                                 ? 'Menu detectado a partir do HTML da página (com submenus).'
+                                                 : 'Menu detectado a partir do HTML da página.',
+                                               endpoint: `${origin} (HTML)`,
+                                               itemCount: wpItems.length,
+                                               submenuCount
+                                             });
+                                             toast({
+                                               title: "Menu Detectado!",
+                                               description: `Importamos ${wpItems.length} itens (com submenus) lendo o HTML da página.`,
+                                             });
+                                           } else {
+                                             setMenuDetectionDetails({
+                                               status: 'warning',
+                                               message: 'Página lida, mas não encontramos uma estrutura de menu reconhecível.',
+                                               endpoint: `${origin} (HTML)`
+                                             });
+                                           }
+                                         }
+                                       } catch (htmlErr) {
+                                         setMenuDetectionDetails({
+                                           status: 'warning',
+                                           message: 'Não foi possível ler o HTML da página (CORS/proxy indisponível).'
+                                         });
+                                       }
+                                     }
                                   } catch (e) {
                                     setMenuDetectionDetails({
                                       status: 'error',
