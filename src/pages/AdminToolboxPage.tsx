@@ -858,6 +858,10 @@ export default function AdminToolboxPage() {
     width: 180px;
     max-width: 180px;
     display: block;
+    transition: background-color 0.25s ease;
+  }
+  .custom-nav-992 .logo a:hover .logo-svg {
+    background-color: ${menuConfig.hoverTextColor} !important;
   }
   .custom-nav-992 .logo .logo-mobile { display: none; }
   .custom-nav-992 .logo .logo-desktop { display: block; }
