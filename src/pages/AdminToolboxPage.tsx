@@ -341,6 +341,9 @@ export default function AdminToolboxPage() {
     itemRadius: 10,
     itemRadiusTablet: 10,
     itemRadiusMobile: 0,
+    submenuGap: 0,
+    submenuGapTablet: 0,
+    submenuGapMobile: 0,
     activeBgColor: 'transparent',
     activeTextColor: '#4f46e5',
     items: [
