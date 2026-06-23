@@ -1243,11 +1243,19 @@ export default function AdminToolboxPage() {
   /* ===== AUTO-BREAK: quando itens não cabem (padding < 10px) ===== */
   ${mobileRules('.custom-nav-992.force-mobile')}
   @media (min-width: 851px) {
+    .custom-nav-992.force-tablet .menu-items a,
     .custom-nav-992.force-mobile .menu-items a {
       border-radius: ${itemRadiusTablet}em !important;
     }
+    .custom-nav-992.force-tablet .menu-items a.active,
     .custom-nav-992.force-mobile .menu-items a.active {
       border-radius: ${activeRadiusTablet}em !important;
+    }
+    .custom-nav-992.force-mobile .menu-items a {
+      border-radius: ${itemRadiusMobile}em !important;
+    }
+    .custom-nav-992.force-mobile .menu-items a.active {
+      border-radius: ${activeRadiusMobile}em !important;
     }
   }
 </style>`;
