@@ -971,7 +971,10 @@ export default function AdminToolboxPage() {
     display: flex;
     align-items: ${menuConfig.spotlightAlign === 'center' ? 'center' : menuConfig.spotlightAlign === 'bottom' ? 'flex-end' : 'flex-start'};
     justify-content: center;
-    padding: ${menuConfig.spotlightAlign === 'top' ? '18vh' : menuConfig.spotlightAlign === 'bottom' ? '0 0 18vh' : '0'} ${menuConfig.spotlightPaddingX}px;
+    padding-left: ${menuConfig.spotlightPaddingX}px;
+    padding-right: ${menuConfig.spotlightPaddingX}px;
+    padding-top: ${menuConfig.spotlightAlign === 'top' ? '18vh' : '0'};
+    padding-bottom: ${menuConfig.spotlightAlign === 'bottom' ? '18vh' : '0'};
     background: rgba(0,0,0,0.4);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
