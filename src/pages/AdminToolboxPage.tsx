@@ -186,7 +186,7 @@ export default function AdminToolboxPage() {
       enableAutoDetect: false,
       enableWpApi: false,
       wpApiUrl: '',
-      testUrl: ''
+      testUrl: 'https://anabrasil.org/ana/'
     }
   };
 
@@ -234,7 +234,7 @@ export default function AdminToolboxPage() {
     enableAutoDetect: false,
     enableWpApi: true,
     wpApiUrl: '',
-    testUrl: ''
+    testUrl: 'https://anabrasil.org/ana/'
   });
 
   const [jsonInput, setJsonInput] = useState('');
@@ -289,6 +289,44 @@ export default function AdminToolboxPage() {
         description: 'Não foi possível extrair itens. Cole o JSON completo de /wp-json/wp/v2/navigation.',
         variant: 'destructive',
       });
+    }
+  };
+
+  const importMenuFromUrl = async (url: string) => {
+    if (!url.startsWith('http')) return false;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('menu-html-proxy', {
+        body: { url },
+      });
+
+      if (error) throw error;
+      const html = typeof data?.html === 'string' ? data.html : '';
+      const items = extractWPItems([{ content: { rendered: html } }]);
+      const submenuCount = countSubmenuItems(items);
+
+      if (items.length === 0) return false;
+
+      setMenuConfig(prev => ({ ...prev, testUrl: url, items }));
+      setMenuDetectionDetails({
+        status: 'success',
+        message: 'Menu detectado pela URL padrão via leitura completa do HTML.',
+        endpoint: url,
+        itemCount: items.length,
+        submenuCount,
+      });
+      toast({
+        title: 'Menu importado pela URL',
+        description: `${items.length} item(ns) principais e ${submenuCount} subitem(ns) detectados.`,
+      });
+      return true;
+    } catch (error: any) {
+      setMenuDetectionDetails({
+        status: 'warning',
+        message: error?.message || 'Não foi possível ler a URL pelo proxy interno.',
+        endpoint: url,
+      });
+      return false;
     }
   };
 
@@ -1570,6 +1608,9 @@ export default function AdminToolboxPage() {
                       <p className="text-[10px] text-muted-foreground">
                         Cole o JSON da API do WordPress (ex.: /wp-json/wp/v2/navigation) para detectar menu e subitens.
                       </p>
+                      <Button size="sm" variant="outline" onClick={() => importMenuFromUrl(menuConfig.testUrl || 'https://anabrasil.org/ana/')}>
+                        Importar pela URL padrão ANA
+                      </Button>
                       <Textarea
                         placeholder='[{"id":2060,"content":{"rendered":"<li>...</li>"}}]'
                         value={jsonInput}
@@ -1607,6 +1648,9 @@ export default function AdminToolboxPage() {
                                 
                                 debounceRef.current = setTimeout(async () => {
                                   try {
+                                    const proxyDetected = await importMenuFromUrl(url);
+                                    if (proxyDetected) return;
+
                                     const origin = new URL(url).origin;
                                     const endpoints = [
                                       '/wp-json/wp/v2/navigation',
