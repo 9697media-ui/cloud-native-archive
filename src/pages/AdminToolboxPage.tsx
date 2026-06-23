@@ -789,6 +789,9 @@ export default function AdminToolboxPage() {
     const itemRadiusDesktop = ((menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
     const itemRadiusTablet = ((menuConfig.itemRadiusTablet ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
     const itemRadiusMobile = ((menuConfig.itemRadiusMobile ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const submenuPanelRadiusDesktop = activeRadiusDesktop;
+    const submenuPanelRadiusTablet = activeRadiusTablet;
+    const submenuPanelRadiusMobile = activeRadiusMobile;
     const submenuGapDesktop = Math.max(0, Number(menuConfig.submenuGap ?? 0));
     const submenuGapTablet = Math.max(0, Number(menuConfig.submenuGapTablet ?? menuConfig.submenuGap ?? 0));
     const submenuGapMobile = Math.max(0, Number(menuConfig.submenuGapMobile ?? menuConfig.submenuGap ?? 0));
@@ -819,25 +822,29 @@ export default function AdminToolboxPage() {
     ${p} .menu-items {
       position: absolute;
       top: 100%;
-      left: 0;
-      width: 100%;
+      left: 14px;
+      width: calc(100% - 28px);
       background-color: ${menuConfig.bgColor};
       flex-direction: column;
       align-items: stretch;
-      padding: 8px 0;
+      padding: 0 8px;
       gap: 0;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-      border-top: 1px solid rgba(0,0,0,0.06);
+      box-shadow: none;
+      border: 1px solid transparent;
+      border-radius: ${activeRadiusMobile}em;
       max-height: 0;
       overflow: hidden;
       opacity: 0;
       transform: translateY(-8px);
       pointer-events: none;
-      transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease;
+      transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease, padding 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       z-index: 999998;
     }
     ${p} .menu-items.active {
       max-height: 80vh;
+      padding: 8px;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.22);
+      border-color: rgba(0,0,0,0.08);
       overflow-y: auto;
       opacity: 1;
       transform: translateY(0);
@@ -871,13 +878,13 @@ export default function AdminToolboxPage() {
     }
     ${p} .submenu {
       position: static !important;
-      width: 100% !important;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
-      border-radius: ${(Number(itemRadiusMobile) + 0.5).toFixed(3)}em !important;
+      width: calc(100% - 48px) !important;
+      margin: 0 24px !important;
+      box-shadow: none !important;
+      border-radius: ${submenuPanelRadiusMobile}em !important;
       padding: 0 8px !important;
-      margin-top: ${submenuGapMobile}px !important;
       background-color: ${menuConfig.bgColor} !important;
-      border: 1px solid rgba(0,0,0,0.08) !important;
+      border: 1px solid transparent !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 2px !important;
@@ -886,15 +893,18 @@ export default function AdminToolboxPage() {
       max-height: 0 !important;
       overflow: hidden !important;
       transform: none !important;
-      clip-path: inset(0 0 100% 0);
+      clip-path: inset(0 -32px 100% -32px);
       transition: max-height 0.32s cubic-bezier(.2,.8,.2,1), clip-path 0.32s cubic-bezier(.2,.8,.2,1), opacity 0.25s ease, margin-top 0.25s ease, padding 0.25s ease, visibility 0.25s ease;
     }
     ${p} .has-submenu.open > .submenu {
       opacity: 1 !important;
       visibility: visible !important;
       max-height: 80vh !important;
+      margin: ${submenuGapMobile}px 24px 18px !important;
       padding: 8px !important;
-      clip-path: inset(0 0 0 0);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
+      border-color: rgba(0,0,0,0.08) !important;
+      clip-path: inset(0 -32px -32px -32px);
     }
     ${p} .has-submenu.open > a::after {
       transform: rotate(180deg);
@@ -902,6 +912,7 @@ export default function AdminToolboxPage() {
     ${p} .has-submenu.open > a {
       color: ${menuConfig.activeTextColor} !important;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
+      border-radius: ${activeRadiusMobile}em !important;
     }
     ${p} .submenu a {
       padding: 10px 40px !important;
@@ -917,7 +928,7 @@ export default function AdminToolboxPage() {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      border-radius: ${itemRadiusMobile}em !important;
+      border-radius: ${activeRadiusMobile}em !important;
     }`;
 
     const css = `<style>
@@ -1128,8 +1139,8 @@ export default function AdminToolboxPage() {
     left: 0 !important;
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
-    border-radius: ${(Number(itemRadiusDesktop) + 0.5).toFixed(3)}em !important;
+    box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
+    border-radius: ${submenuPanelRadiusDesktop}em !important;
     padding: 8px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1147,7 +1158,7 @@ export default function AdminToolboxPage() {
     visibility: hidden;
     pointer-events: none;
     transform: translateY(-8px);
-    clip-path: inset(0 0 100% 0);
+    clip-path: inset(0 -32px 100% -32px);
     transition: opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), clip-path 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.25s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu,
@@ -1156,7 +1167,7 @@ export default function AdminToolboxPage() {
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
-    clip-path: inset(0 0 0 0);
+    clip-path: inset(0 -32px -32px -32px);
   }
   .custom-nav-992 .has-submenu:hover > a::after {
     transform: rotate(180deg);
@@ -1165,7 +1176,7 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .has-submenu:focus-within > a {
     color: ${menuConfig.activeTextColor} !important;
     background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
-    border-radius: ${itemRadiusDesktop}em !important;
+    border-radius: ${activeRadiusDesktop}em !important;
     opacity: 1 !important;
   }
   .custom-nav-992 .submenu a {
@@ -1263,10 +1274,14 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .submenu {
       min-width: 200px !important;
       top: calc(100% + ${submenuGapTablet}px) !important;
-      border-radius: ${itemRadiusTablet}em !important;
+      border-radius: ${submenuPanelRadiusTablet}em !important;
     }
     .custom-nav-992 .submenu a {
       border-radius: ${itemRadiusTablet}em !important;
+    }
+    .custom-nav-992 .has-submenu:hover > a,
+    .custom-nav-992 .has-submenu:focus-within > a {
+      border-radius: ${activeRadiusTablet}em !important;
     }
   }
 
@@ -1284,11 +1299,22 @@ export default function AdminToolboxPage() {
     .custom-nav-992.force-tablet .menu-items a.active {
       border-radius: ${activeRadiusTablet}em !important;
     }
+    .custom-nav-992.force-tablet .submenu {
+      top: calc(100% + ${submenuGapTablet}px) !important;
+      border-radius: ${submenuPanelRadiusTablet}em !important;
+    }
+    .custom-nav-992.force-tablet .submenu a {
+      border-radius: ${itemRadiusTablet}em !important;
+    }
+    .custom-nav-992.force-tablet .has-submenu:hover > a,
+    .custom-nav-992.force-tablet .has-submenu:focus-within > a {
+      border-radius: ${activeRadiusTablet}em !important;
+    }
     .custom-nav-992.force-mobile .menu-items a {
       border-radius: ${itemRadiusMobile}em !important;
     }
     .custom-nav-992.force-mobile .menu-items a.active {
-      border-radius: ${itemRadiusMobile}em !important;
+      border-radius: ${activeRadiusMobile}em !important;
     }
   }
 </style>`;
