@@ -818,12 +818,28 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .mobile-toggle:hover {
     background-color: rgba(0,0,0,0.05);
   }
-  .custom-nav-992 .mobile-toggle svg {
+  .custom-nav-992 .mobile-toggle .bars {
+    position: relative;
     width: 24px;
-    height: 24px;
+    height: 18px;
     display: block;
-    fill: currentColor;
   }
+  .custom-nav-992 .mobile-toggle .bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2.5px;
+    border-radius: 2px;
+    background-color: currentColor;
+    transition: transform 0.3s ease, opacity 0.25s ease, top 0.3s ease;
+  }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(1) { top: 0; }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(2) { top: 8px; }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(3) { top: 16px; }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(1) { top: 8px; transform: rotate(45deg); }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(2) { opacity: 0; }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(3) { top: 8px; transform: rotate(-45deg); }
+
   
   /* ===== TABLET (1024px - 851px) ===== */
   @media (max-width: 1024px) and (min-width: 851px) {
@@ -861,7 +877,10 @@ export default function AdminToolboxPage() {
       display: flex;
       align-items: center;
       justify-content: center;
+      order: 3;
     }
+    .custom-nav-992 .logo { order: 1; margin-right: auto; }
+    .custom-nav-992 .nav-search { order: 2; }
     .custom-nav-992 .menu-items {
       display: none;
       position: absolute;
@@ -1216,9 +1235,11 @@ export default function AdminToolboxPage() {
 
     const script = `
 <script>
-  function toggleCustomMenu() {
+  function toggleCustomMenu(btn) {
     const items = document.querySelector('.custom-nav-992 .menu-items');
-    items.classList.toggle('active');
+    const open = items.classList.toggle('active');
+    const toggle = btn || document.querySelector('.custom-nav-992 .mobile-toggle');
+    if (toggle) toggle.classList.toggle('open', open);
   }
 
   // Lógica para submenus no Mobile (clique)
@@ -1265,6 +1286,8 @@ export default function AdminToolboxPage() {
       const items = document.querySelector('.custom-nav-992 .menu-items');
       if (nav && !nav.contains(e.target) && items.classList.contains('active')) {
         items.classList.remove('active');
+        const toggle = nav.querySelector('.mobile-toggle');
+        if (toggle) toggle.classList.remove('open');
       }
     });
   }
@@ -1299,8 +1322,8 @@ export default function AdminToolboxPage() {
   <div class="logo">
     <a href="/"><img src="${menuConfig.logoUrl}" alt="Logo"></a>
   </div>
-  <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
-    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+  <button class="mobile-toggle" onclick="toggleCustomMenu(this)" aria-label="Menu">
+    <span class="bars"><span></span><span></span><span></span></span>
   </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
