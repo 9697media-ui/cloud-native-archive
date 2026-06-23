@@ -663,9 +663,34 @@ export default function AdminToolboxPage() {
     display: flex;
     gap: 5px;
     align-items: center;
+    justify-content: center;
+    flex: 1;
     list-style: none !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+  .custom-nav-992 .nav-search {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.06);
+    border-radius: 999px;
+    padding: 6px 12px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .custom-nav-992 .nav-search input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font-size: 14px;
+    width: 130px;
+  }
+  .custom-nav-992 .nav-search svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    fill: currentColor;
   }
   .custom-nav-992 .menu-items a {
     color: inherit;
@@ -1245,6 +1270,10 @@ export default function AdminToolboxPage() {
       : '<!-- Aguardando carregamento... -->'
     }
   </div>
+  <form class="nav-search" role="search" onsubmit="return false;">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.49-1.49-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+    <input type="search" placeholder="Buscar..." aria-label="Buscar">
+  </form>
 </nav>
 <!-- Fim: Menu Responsivo Nativo -->`;
 
