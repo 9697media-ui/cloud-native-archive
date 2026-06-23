@@ -2565,6 +2565,21 @@ export default function AdminToolboxPage() {
                     </div>
                   </div>
                 )}
+
+                {viewMode === 'preview' && (
+                  <div className="w-full mt-4 shrink-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo do Widget (isolado)</span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+                    <div className="relative w-full min-h-[80px] rounded-lg border bg-background overflow-hidden">
+                      <div
+                        key={'demo' + activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
+                        dangerouslySetInnerHTML={{ __html: getGeneratedCode() }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
               </Card>
             </div>
