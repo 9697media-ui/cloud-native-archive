@@ -1565,10 +1565,22 @@ export default function AdminToolboxPage() {
                                      // através de um proxy CORS e extraímos o menu + subitens direto do DOM.
                                      if (!detected) {
                                        try {
-                                         const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                                         const htmlRes = await fetch(proxied);
-                                         if (htmlRes.ok) {
-                                           const html = await htmlRes.text();
+                                          const proxyReaders = [
+                                            async () => {
+                                              const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+                                              return res.ok ? res.text() : '';
+                                            },
+                                            async () => {
+                                              const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                                              if (!res.ok) return '';
+                                              const payload = await res.json();
+                                              return payload?.contents || '';
+                                            }
+                                          ];
+
+                                          for (const readHtml of proxyReaders) {
+                                            const html = await readHtml();
+                                            if (!html) continue;
                                            const wpItems = extractWPItems([{ content: { rendered: html } }]);
                                            const submenuCount = countSubmenuItems(wpItems);
                                            if (wpItems.length > 0) {
@@ -1586,6 +1598,8 @@ export default function AdminToolboxPage() {
                                                title: "Menu Detectado!",
                                                description: `Importamos ${wpItems.length} itens (com submenus) lendo o HTML da página.`,
                                              });
+                                              detected = true;
+                                              break;
                                            } else {
                                              setMenuDetectionDetails({
                                                status: 'warning',
@@ -1594,6 +1608,13 @@ export default function AdminToolboxPage() {
                                              });
                                            }
                                          }
+                                          if (!detected) {
+                                            setMenuDetectionDetails({
+                                              status: 'warning',
+                                              message: 'Não foi possível ler um HTML completo da página pelos proxies disponíveis.',
+                                              endpoint: `${origin} (HTML)`
+                                            });
+                                          }
                                        } catch (htmlErr) {
                                          setMenuDetectionDetails({
                                            status: 'warning',
