@@ -1860,6 +1860,24 @@ export default function AdminToolboxPage() {
                             onChange={(e) => setMenuConfig({...menuConfig, activeRadius: Number(e.target.value) || 0})} />
                         </div>
                       </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Fundo (ativo)</Label>
+                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                            value={menuConfig.activeBgColor === 'transparent' ? '#ffffff' : menuConfig.activeBgColor}
+                            onChange={(e) => setMenuConfig({...menuConfig, activeBgColor: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Texto (ativo)</Label>
+                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                            value={menuConfig.activeTextColor}
+                            onChange={(e) => setMenuConfig({...menuConfig, activeTextColor: e.target.value})} />
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-7 text-[10px]"
+                        onClick={() => setMenuConfig({...menuConfig, activeBgColor: 'transparent'})}>
+                        Fundo transparente
+                      </Button>
                     </div>
                     <div className="flex gap-2">
                       <Button 
