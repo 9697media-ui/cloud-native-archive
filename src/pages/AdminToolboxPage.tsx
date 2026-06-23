@@ -887,7 +887,7 @@ export default function AdminToolboxPage() {
     display: flex;
     align-items: center;
     background: rgba(0,0,0,0.06);
-    border-radius: 999px;
+    border-radius: ${menuConfig.searchRadius}px;
     padding: 6px 12px;
     gap: 6px;
     flex-shrink: 0;
@@ -901,8 +901,11 @@ export default function AdminToolboxPage() {
     width: 130px;
   }
   .custom-nav-992 .nav-search svg {
-    width: 16px;
-    height: 16px;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px;
+    min-height: 16px;
+    flex-shrink: 0;
     opacity: 0.7;
     fill: currentColor;
   }
@@ -913,7 +916,7 @@ export default function AdminToolboxPage() {
     width: 38px;
     height: 38px;
     border: none;
-    border-radius: 999px;
+    border-radius: ${menuConfig.searchRadius}px;
     background: rgba(0,0,0,0.06);
     color: ${menuConfig.textColor};
     cursor: pointer;
@@ -921,7 +924,7 @@ export default function AdminToolboxPage() {
     transition: transform 0.2s ease, background 0.2s ease;
   }
   .custom-nav-992 .search-toggle:hover { transform: scale(1.08); background: rgba(0,0,0,0.1); }
-  .custom-nav-992 .search-toggle svg { width: 18px; height: 18px; fill: currentColor; }
+  .custom-nav-992 .search-toggle svg { width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px; flex-shrink: 0; fill: currentColor; }
   .custom-spotlight-9982 {
     position: fixed;
     inset: 0;
