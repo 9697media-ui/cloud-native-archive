@@ -79,13 +79,14 @@ export default function AdminToolboxPage() {
   }, [deviceView]);
 
 
-  // No preview, os <script> injetados via innerHTML não executam; no modo mobile
-  // forçamos a classe .force-mobile, enquanto tablet usa o breakpoint próprio.
+  // No preview inline, media queries usam a viewport real do app; por isso
+  // espelhamos o dispositivo selecionado com classes auxiliares no widget.
   useEffect(() => {
     const t = setTimeout(() => {
       const root = frameRef.current;
       if (!root) return;
       root.querySelectorAll('.custom-nav-992').forEach((nav) => {
+        nav.classList.toggle('force-tablet', deviceView === 'tablet');
         nav.classList.toggle('force-mobile', deviceView === 'mobile');
       });
     }, 60);
