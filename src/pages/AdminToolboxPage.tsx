@@ -1372,6 +1372,10 @@ export default function AdminToolboxPage() {
                             onChange={(e) => {
                               const url = e.target.value;
                               setMenuConfig({...menuConfig, testUrl: url});
+                              setMenuDetectionDetails(url.startsWith('http') ? {
+                                status: 'checking',
+                                message: 'Verificando endpoints do WordPress e procurando submenus...'
+                              } : null);
                               
                               if (url && url.startsWith('http')) {
                                 // Limpa timer anterior se existir
@@ -1424,12 +1428,24 @@ export default function AdminToolboxPage() {
                                              console.log('Dados detectados via API:', data);
                                              const wpItems = extractWPItems(data);
                                              console.log('Itens extraídos (hierárquicos):', wpItems);
+                                              const submenuCount = countSubmenuItems(wpItems);
                                              
                                              setMenuConfig(prev => ({
                                                ...prev, 
                                                wpApiUrl: `${origin}${usedEndpoint}`,
                                                items: wpItems.length > 0 ? wpItems : prev.items
                                              }));
+                                              setMenuDetectionDetails({
+                                                status: wpItems.length > 0 ? 'success' : 'warning',
+                                                message: wpItems.length > 0
+                                                  ? submenuCount > 0
+                                                    ? 'Menu detectado com hierarquia preservada.'
+                                                    : 'Menu detectado, mas nenhum subitem foi encontrado neste endpoint.'
+                                                  : 'Endpoint encontrado, mas sem itens de menu legíveis.',
+                                                endpoint: `${origin}${usedEndpoint}`,
+                                                itemCount: wpItems.length,
+                                                submenuCount
+                                              });
                                              
                                              toast({
                                                title: "API Detectada!",
@@ -1447,6 +1463,11 @@ export default function AdminToolboxPage() {
                                           // No modo no-cors o status é sempre 0, mas se não deu erro de rede é um sinal positivo
                                           if (headRes.type === 'opaque') {
                                              setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
+                                              setMenuDetectionDetails({
+                                                status: 'warning',
+                                                message: 'Endpoint existe, mas o site bloqueou leitura dos itens por CORS.',
+                                                endpoint: `${origin}${endpoint}`
+                                              });
                                              toast({
                                               title: "API Possível!",
                                               description: `Detectamos atividade em ${endpoint} (CORS restrito).`,
@@ -1456,7 +1477,12 @@ export default function AdminToolboxPage() {
                                         } catch (innerE) {}
                                       }
                                     }
-                                  } catch (e) { /* invalid url */ }
+                                  } catch (e) {
+                                    setMenuDetectionDetails({
+                                      status: 'error',
+                                      message: 'URL inválida ou inacessível para detecção automática.'
+                                    });
+                                  }
                                 }, 1000);
                               }
                             }}
