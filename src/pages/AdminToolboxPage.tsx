@@ -234,6 +234,7 @@ export default function AdminToolboxPage() {
       activeBorderWidth: 2,
       activeRadius: 30,
       itemRadius: 10,
+      itemRadiusMobile: 0,
       activeBgColor: 'transparent',
       activeTextColor: '#4f46e5',
       items: [
