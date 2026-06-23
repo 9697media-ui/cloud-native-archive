@@ -1084,7 +1084,7 @@ export default function AdminToolboxPage() {
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
     box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
-    border-radius: ${(menuConfig.activeRadius/100*2.5).toFixed(3)}em !important;
+    border-radius: ${(menuConfig.itemRadius/100*2.5 + 0.5).toFixed(3)}em !important;
     padding: 8px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1124,7 +1124,7 @@ export default function AdminToolboxPage() {
     padding: 11px 16px !important;
     opacity: 0.9 !important;
     width: 100% !important;
-    border-radius: ${(menuConfig.activeRadius/100*1.4).toFixed(3)}em !important;
+    border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em !important;
     display: flex !important;
      align-items: center !important;
     text-align: left !important;
