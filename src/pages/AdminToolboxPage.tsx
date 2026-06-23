@@ -32,6 +32,13 @@ export default function AdminToolboxPage() {
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
+  const [menuDetectionDetails, setMenuDetectionDetails] = useState<{
+    status: 'checking' | 'success' | 'warning' | 'error';
+    message: string;
+    endpoint?: string;
+    itemCount?: number;
+    submenuCount?: number;
+  } | null>(null);
 
   useEffect(() => {
     fetchTemplates();
@@ -249,6 +256,38 @@ export default function AdminToolboxPage() {
       });
     };
 
+    const parseMenuHTML = (html: string): any[] => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      const parseList = (root: Element): any[] => {
+        const listItems = Array.from(root.children).filter(child => child.tagName === 'LI');
+
+        if (listItems.length === 0) {
+          return Array.from(root.querySelectorAll(':scope > a, :scope > .wp-block-navigation-item__content'))
+            .map((a: any) => ({
+              label: cleanLabel(a.querySelector?.('.wp-block-navigation-item__label')?.textContent || a.textContent || ''),
+              link: a.getAttribute('href') || '#',
+              children: []
+            }))
+            .filter(item => item.label);
+        }
+
+        return listItems.map((li: Element) => {
+          const link = li.querySelector(':scope > a, :scope > .wp-block-navigation-item__content, :scope > div > a');
+          const subList = li.querySelector(':scope > ul, :scope > ol, :scope > .wp-block-navigation__submenu-container, :scope > .sub-menu, :scope > div > ul');
+          return {
+            label: cleanLabel((link as HTMLElement)?.textContent || ''),
+            link: (link as HTMLAnchorElement)?.getAttribute?.('href') || '#',
+            children: subList ? parseList(subList) : []
+          };
+        }).filter(item => item.label);
+      };
+
+      const menuRoot = doc.querySelector('ul, ol, .wp-block-navigation__container, nav') || doc.body;
+      return parseList(menuRoot);
+    };
+
     const buildTree = (flatItems: any[]) => {
       const normalized = normalizeItems(flatItems);
 
@@ -288,21 +327,18 @@ export default function AdminToolboxPage() {
 
     if (Array.isArray(itemsSource)) {
       if (itemsSource[0]?.content?.rendered) {
-        const fromHTML = (html: string) => {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
-          return links.map((a: any) => ({
-            label: cleanLabel(a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || ''),
-            link: a.getAttribute('href') || '#',
-            children: []
-          })).filter(i => i.label && i.link !== '#');
-        };
-        return itemsSource.flatMap(item => fromHTML(item.content.rendered));
+        return itemsSource.flatMap(item => parseMenuHTML(item.content.rendered));
       }
       return buildTree(itemsSource);
     }
     return [];
+  };
+
+  const countSubmenuItems = (items: any[]): number => {
+    return items.reduce((total, item) => {
+      const children = Array.isArray(item.children) ? item.children : [];
+      return total + children.length + countSubmenuItems(children);
+    }, 0);
   };
 
   const syncWithSystemMenu = () => {
