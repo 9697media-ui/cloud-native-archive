@@ -838,16 +838,18 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .logo .logo-mobile { display: none; }
   .custom-nav-992 .logo .logo-desktop { display: block; }
-  .custom-nav-992 .menu-items {
-    display: flex;
-    gap: ${menuConfig.itemSpacing}px;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    list-style: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
+   .custom-nav-992 .menu-items {
+     display: flex;
+     flex-wrap: nowrap;
+     gap: ${menuConfig.itemSpacing}px;
+     align-items: center;
+     justify-content: center;
+     flex: 1 1 0;
+     min-width: 0;
+     list-style: none !important;
+     margin: 0 !important;
+     padding: 0 !important;
+   }
   .custom-nav-992 .nav-search {
     display: flex;
     align-items: center;
