@@ -1235,9 +1235,11 @@ export default function AdminToolboxPage() {
 
     const script = `
 <script>
-  function toggleCustomMenu() {
+  function toggleCustomMenu(btn) {
     const items = document.querySelector('.custom-nav-992 .menu-items');
-    items.classList.toggle('active');
+    const open = items.classList.toggle('active');
+    const toggle = btn || document.querySelector('.custom-nav-992 .mobile-toggle');
+    if (toggle) toggle.classList.toggle('open', open);
   }
 
   // Lógica para submenus no Mobile (clique)
