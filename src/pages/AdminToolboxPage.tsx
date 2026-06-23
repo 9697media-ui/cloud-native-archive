@@ -2774,37 +2774,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                   </div>
                 )}
-
-                {viewMode === 'preview' && (
-                  <div className="w-full shrink-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo do Widget (isolado)</span>
-                      <div className="flex-1 h-px bg-border" />
-                    </div>
-                    <div className="relative w-full h-[220px] rounded-lg border bg-background overflow-hidden flex justify-center">
-                      {(() => {
-                        const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
-                        const scale = deviceView === 'desktop' ? 0.55 : deviceView === 'tablet' ? 0.55 : 0.6;
-                        return (
-                          <iframe
-                            title="Demo isolado do widget"
-                            className="border-none absolute bottom-0 left-1/2"
-                            style={{
-                              width: demoWidth,
-                              height: 220 / scale,
-                              transform: `translateX(-50%) scale(${scale})`,
-                              transformOrigin: 'bottom center',
-                            }}
-                            sandbox="allow-scripts"
-                            srcDoc={getGeneratedCode() + `<style>.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(menuConfig.activeRadius/100*2.5).toFixed(3)}em;opacity:1 !important;}</style><script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`}
-                            key={'demo' + deviceView + activeWidgetType + getGeneratedCode()}
-                          />
-                        );
-                      })()}
-                    </div>
-                  </div>
-                )}
               </div>
+
               </Card>
             </div>
           </div>
