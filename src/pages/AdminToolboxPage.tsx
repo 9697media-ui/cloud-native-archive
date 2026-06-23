@@ -2587,7 +2587,7 @@ export default function AdminToolboxPage() {
                               transformOrigin: 'bottom center',
                             }}
                             sandbox="allow-scripts"
-                            srcDoc={getGeneratedCode() + `<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(a){e.preventDefault();e.stopPropagation();}},true);window.open=function(){return null;};</scr`+`ipt>`}
+                            srcDoc={getGeneratedCode() + `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(!a)return;e.preventDefault();e.stopPropagation();if(a.closest('.menu-items')){document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');}},true);</scr`+`ipt>`}
                             key={'demo' + deviceView + activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
                           />
                         );
