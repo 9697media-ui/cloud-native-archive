@@ -2365,15 +2365,15 @@ export default function AdminToolboxPage() {
                 )}
               </div>
 
-              <div className="flex-1 bg-muted/10 overflow-auto p-4 md:p-8 flex justify-center items-center">
+              <div className="flex-1 bg-muted/10 overflow-auto p-4 md:p-8 flex flex-col justify-start items-center gap-4">
                 {viewMode === 'preview' ? (
                   <div
                     ref={frameRef}
                     className={cn(
-                      "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out",
-                      deviceView === 'mobile' && "w-[375px] aspect-[390/844] max-h-full rounded-[3rem] border-[8px] border-slate-900",
-                      deviceView === 'tablet' && "w-[768px] max-w-full aspect-[810/1080] max-h-full rounded-[1.5rem] border-[10px] border-slate-900",
-                      deviceView === 'desktop' && "w-full max-w-5xl aspect-video max-h-full rounded-lg"
+                      "bg-background shadow-2xl border overflow-hidden relative shrink-0 transition-all duration-500 ease-in-out",
+                      deviceView === 'mobile' && "w-[375px] max-w-full aspect-[390/844] rounded-[3rem] border-[8px] border-slate-900",
+                      deviceView === 'tablet' && "w-[768px] max-w-full aspect-[810/1080] rounded-[1.5rem] border-[10px] border-slate-900",
+                      deviceView === 'desktop' && "w-full max-w-5xl aspect-video rounded-lg"
                     )}
                   >
                     {/* Tela escalada: conteúdo renderizado em resolução nativa e reduzido para caber */}
@@ -2567,16 +2567,18 @@ export default function AdminToolboxPage() {
                 )}
 
                 {viewMode === 'preview' && (
-                  <div className="w-full mt-4 shrink-0">
+                  <div className="w-full max-w-5xl shrink-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo do Widget (isolado)</span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div className="relative w-full min-h-[80px] rounded-lg border bg-background overflow-hidden">
-                      <div
-                        className="[&_a]:pointer-events-none [&_button]:pointer-events-none"
+                    <div className="relative w-full h-[140px] rounded-lg border bg-background overflow-hidden">
+                      <iframe
+                        title="Demo isolado do widget"
+                        className="w-full h-full border-none pointer-events-none"
+                        sandbox="allow-scripts"
+                        srcDoc={getGeneratedCode()}
                         key={'demo' + activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
-                        dangerouslySetInnerHTML={{ __html: getGeneratedCode() }}
                       />
                     </div>
                   </div>
