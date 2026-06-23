@@ -874,10 +874,9 @@ export default function AdminToolboxPage() {
     }
     ${p} .submenu {
       position: static !important;
-      width: calc(100% - 24px) !important;
-      margin: 0 12px !important;
-      box-shadow: none !important;
-      filter: drop-shadow(0 14px 24px rgba(0,0,0,0.20));
+      width: calc(100% - 48px) !important;
+      margin: 0 24px !important;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
       border-radius: ${submenuPanelRadiusMobile}em !important;
       padding: 0 8px !important;
       background-color: ${menuConfig.bgColor} !important;
@@ -897,7 +896,7 @@ export default function AdminToolboxPage() {
       opacity: 1 !important;
       visibility: visible !important;
       max-height: 80vh !important;
-      margin: ${submenuGapMobile}px 12px 4px !important;
+      margin: ${submenuGapMobile}px 24px 8px !important;
       padding: 8px !important;
       clip-path: inset(0 -32px -32px -32px);
     }
@@ -1134,8 +1133,7 @@ export default function AdminToolboxPage() {
     left: 0 !important;
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
-    box-shadow: none !important;
-    filter: drop-shadow(0 14px 24px rgba(0,0,0,0.20));
+    box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
     border-radius: ${submenuPanelRadiusDesktop}em !important;
     padding: 8px !important;
     display: flex !important;
