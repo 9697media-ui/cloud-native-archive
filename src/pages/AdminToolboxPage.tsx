@@ -811,8 +811,12 @@ export default function AdminToolboxPage() {
                   (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0") ||
                   (item.parentId !== undefined && item.parentId.toString() !== "0")
                 );
+                const hasNestedItems = itemsSource.some(item => {
+                  const children = item.child_items || item.children || item.items || item.sub_items || item.nodes || item.edges || [];
+                  return Array.isArray(children) && children.length > 0;
+                });
                 
-                if (hasParentRefs) return buildTree(itemsSource);
+                if (hasParentRefs && !hasNestedItems) return buildTree(itemsSource);
                 
                 return itemsSource.map(item => {
                   const title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título';
