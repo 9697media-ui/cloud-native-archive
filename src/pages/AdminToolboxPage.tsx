@@ -877,7 +877,10 @@ export default function AdminToolboxPage() {
       display: flex;
       align-items: center;
       justify-content: center;
+      order: 3;
     }
+    .custom-nav-992 .logo { order: 1; margin-right: auto; }
+    .custom-nav-992 .nav-search { order: 2; }
     .custom-nav-992 .menu-items {
       display: none;
       position: absolute;
