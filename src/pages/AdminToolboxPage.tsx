@@ -2168,6 +2168,17 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerRadius: val})}
                           />
                         </div>
+                        <div className="space-y-2 pt-2">
+                          <Label>Arredondamento da Busca Mobile/Tablet: {menuConfig.spotlightRadius}%</Label>
+                          <Slider
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={[menuConfig.spotlightRadius]}
+                            onValueChange={([val]) => setMenuConfig({...menuConfig, spotlightRadius: val})}
+                          />
+                          <p className="text-xs text-muted-foreground">Controla o arredondamento da barra de busca central (spotlight).</p>
+                        </div>
                       </div>
                     )}
 
