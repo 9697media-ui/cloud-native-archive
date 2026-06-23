@@ -471,6 +471,28 @@ export default function AdminToolboxPage() {
     live.innerHTML = css;
   });
 
+  // ===== Auto-save de rascunho =====
+  // Com um modelo selecionado, qualquer alteração salva automaticamente um
+  // rascunho local (sem sobrepor o modelo no banco). O usuário decide depois
+  // entre "Sobrepor modelo" ou "Salvar como novo".
+  useEffect(() => {
+    if (!currentTemplateId) return;
+    if (skipDraftRef.current) { skipDraftRef.current = false; return; }
+    const config = activeWidgetType === 'whatsapp' ? whatsappConfig :
+      activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+    const t = setTimeout(() => {
+      try {
+        const at = new Date().toISOString();
+        localStorage.setItem(`widget_draft_${currentTemplateId}`, JSON.stringify({ type: activeWidgetType, config, savedAt: at }));
+        setDraftSavedAt(at);
+      } catch { /* storage indisponível */ }
+    }, 800);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [whatsappConfig, bannerConfig, menuConfig, activeWidgetType, currentTemplateId]);
+
+
+
 
 
   const [jsonInput, setJsonInput] = useState('');
