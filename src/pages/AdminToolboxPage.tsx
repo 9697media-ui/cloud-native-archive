@@ -2090,6 +2090,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             value={menuConfig.activeBorderWidth}
                             onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
                        </div>
+                       </div>
                        <div className="space-y-2">
                          <Label className="text-xs">Raio (%): {menuConfig.activeRadius}%</Label>
                          <Slider min={0} max={100} step={1}
