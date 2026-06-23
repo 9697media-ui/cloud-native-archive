@@ -1306,6 +1306,7 @@ export default function AdminToolboxPage() {
 
   /* ===== AUTO-BREAK: quando itens não cabem (padding < 10px) ===== */
   ${mobileRules('.custom-nav-992.force-mobile')}
+  ${tabletHamburger ? mobileRules('.custom-nav-992.force-tablet') : ''}
   @media (min-width: 851px) {
     .custom-nav-992.force-tablet .menu-items a {
       border-radius: ${itemRadiusTablet}em !important;
