@@ -32,6 +32,30 @@ export default function AdminToolboxPage() {
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Resoluções "nativas" simuladas por dispositivo (a janela mantém a proporção,
+  // mas o conteúdo é renderizado nessas dimensões e escalado para caber).
+  const DEVICE_RESOLUTIONS: Record<string, { width: number; height: number }> = {
+    desktop: { width: 1366, height: 768 }, // 16:9
+    tablet: { width: 768, height: 1024 },  // 3:4
+    mobile: { width: 375, height: 667 },   // ~9:16
+  };
+  const frameRef = React.useRef<HTMLDivElement | null>(null);
+  const [previewScale, setPreviewScale] = useState(1);
+
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const native = DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop;
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0) setPreviewScale(rect.width / native.width);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [deviceView]);
   const [menuDetectionDetails, setMenuDetectionDetails] = useState<{
     status: 'checking' | 'success' | 'warning' | 'error';
     message: string;
@@ -2104,12 +2128,25 @@ export default function AdminToolboxPage() {
 
               <div className="flex-1 bg-muted/10 overflow-auto p-4 md:p-8 flex justify-center items-center">
                 {viewMode === 'preview' ? (
-                  <div className={cn(
-                    "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out flex flex-col",
-                    deviceView === 'mobile' && "w-[375px] aspect-[9/16] max-h-full rounded-[3rem] border-[8px] border-slate-900",
-                    deviceView === 'tablet' && "w-[768px] max-w-full aspect-[3/4] max-h-full rounded-[1.5rem] border-[10px] border-slate-900",
-                    deviceView === 'desktop' && "w-full max-w-5xl aspect-video max-h-full rounded-lg"
-                  )}>
+                  <div
+                    ref={frameRef}
+                    className={cn(
+                      "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out",
+                      deviceView === 'mobile' && "w-[375px] aspect-[9/16] max-h-full rounded-[3rem] border-[8px] border-slate-900",
+                      deviceView === 'tablet' && "w-[768px] max-w-full aspect-[3/4] max-h-full rounded-[1.5rem] border-[10px] border-slate-900",
+                      deviceView === 'desktop' && "w-full max-w-5xl aspect-video max-h-full rounded-lg"
+                    )}
+                  >
+                    {/* Tela escalada: conteúdo renderizado em resolução nativa e reduzido para caber */}
+                    <div
+                      className="absolute top-0 left-0 flex flex-col bg-background"
+                      style={{
+                        width: (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width,
+                        height: (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).height,
+                        transform: `scale(${previewScale})`,
+                        transformOrigin: 'top left',
+                      }}
+                    >
                     {menuConfig.testUrl ? (
                       <div className="flex-1 w-full h-full relative">
                         <iframe 
@@ -2256,6 +2293,7 @@ export default function AdminToolboxPage() {
                          key={activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length} // Force re-render on structure changes
                          dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
                        />
+                    </div>
                     </div>
                   </div>
                 ) : (
