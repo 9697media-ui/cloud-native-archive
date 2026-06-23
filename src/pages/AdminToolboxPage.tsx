@@ -2551,7 +2551,7 @@ export default function AdminToolboxPage() {
                     <div className="absolute inset-0 pointer-events-none z-[1000000]">
                        <div 
                          className="relative w-full h-full pointer-events-auto" 
-                         key={activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length} // Force re-render on structure changes
+                         key={activeWidgetType + getGeneratedCode()} // Force re-render on any config change
                          dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
                        />
                     </div>
