@@ -125,6 +125,22 @@ export default function AdminToolboxPage() {
     }
   };
 
+  const currentConfig = () => activeWidgetType === 'whatsapp' ? whatsappConfig :
+    activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+
+  const applyConfig = (type: string, config: any) => {
+    if (type === 'whatsapp') setWhatsappConfig(config);
+    else if (type === 'banner') setBannerConfig(config);
+    else setMenuConfig(prev => ({
+      ...prev,
+      ...config,
+      activeRadiusTablet: config.activeRadiusTablet ?? config.activeRadius ?? prev.activeRadiusTablet,
+      activeRadiusMobile: config.activeRadiusMobile ?? config.activeRadius ?? prev.activeRadiusMobile,
+      itemRadiusTablet: config.itemRadiusTablet ?? config.itemRadius ?? prev.itemRadiusTablet,
+      itemRadiusMobile: config.itemRadiusMobile ?? config.itemRadius ?? prev.itemRadiusMobile,
+    }));
+  };
+
   const saveTemplate = async () => {
     if (!templateName.trim()) {
       toast({ title: "Erro", description: "Dê um nome ao seu modelo.", variant: "destructive" });
