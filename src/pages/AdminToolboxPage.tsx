@@ -865,6 +865,18 @@ export default function AdminToolboxPage() {
     color: ${menuConfig.accentColor};
     opacity: 1;
   }
+  .custom-nav-992 .menu-items > a.active,
+  .custom-nav-992 .menu-items > .has-submenu > a.active {
+    color: ${menuConfig.accentColor};
+    opacity: 1;
+    background-color: ${menuConfig.accentColor}1a;
+    border-radius: 999px;
+  }
+  .custom-nav-992 .menu-items a:focus,
+  .custom-nav-992 .menu-items a:focus-visible {
+    outline: none;
+    border-radius: 999px;
+  }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative !important;
   }
