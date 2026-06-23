@@ -896,7 +896,7 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .nav-search {
     display: flex;
     align-items: center;
-    background: rgba(0,0,0,0.06);
+    background: ${menuConfig.searchBgColor};
     border-radius: ${(menuConfig.searchRadius/100*2.5).toFixed(3)}em;
     padding: 6px 12px;
     gap: 6px;
@@ -906,7 +906,7 @@ export default function AdminToolboxPage() {
     border: none;
     outline: none;
     background: transparent;
-    color: inherit;
+    color: ${menuConfig.searchIconColor};
     font-size: 14px;
     width: 130px;
   }
@@ -917,7 +917,7 @@ export default function AdminToolboxPage() {
     min-height: 16px;
     flex-shrink: 0;
     opacity: 0.7;
-    fill: currentColor;
+    fill: ${menuConfig.searchIconColor};
   }
   .custom-nav-992 .search-toggle {
     display: none;
@@ -927,14 +927,14 @@ export default function AdminToolboxPage() {
     height: 38px;
     border: none;
     border-radius: ${(menuConfig.searchRadius/100*2.5).toFixed(3)}em;
-    background: rgba(0,0,0,0.06);
-    color: ${menuConfig.textColor};
+    background: ${menuConfig.searchBgColor};
+    color: ${menuConfig.searchIconColor};
     cursor: pointer;
     flex-shrink: 0;
     transition: transform 0.2s ease, background 0.2s ease;
   }
-  .custom-nav-992 .search-toggle:hover { transform: scale(1.08); background: rgba(0,0,0,0.1); }
-  .custom-nav-992 .search-toggle svg { width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px; flex-shrink: 0; fill: currentColor; }
+  .custom-nav-992 .search-toggle:hover { transform: scale(1.08); filter: brightness(0.92); }
+  .custom-nav-992 .search-toggle svg { width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px; flex-shrink: 0; fill: ${menuConfig.searchIconColor}; }
   .custom-spotlight-9982 {
     position: fixed;
     inset: 0;
