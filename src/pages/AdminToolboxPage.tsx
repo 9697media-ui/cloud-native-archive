@@ -1451,6 +1451,21 @@ export default function AdminToolboxPage() {
     if (toggle) toggle.classList.toggle('open', open);
   }
 
+  function openCustomSpotlight() {
+    const sp = document.querySelector('.custom-spotlight-9982');
+    if (!sp) return;
+    sp.classList.add('open');
+    const input = sp.querySelector('input');
+    setTimeout(() => input && input.focus(), 120);
+  }
+  function closeCustomSpotlight() {
+    const sp = document.querySelector('.custom-spotlight-9982');
+    if (sp) sp.classList.remove('open');
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeCustomSpotlight();
+  });
+
   // Lógica para submenus no Mobile (clique)
   document.addEventListener('click', function(e) {
     const hasSubmenu = e.target.closest('.custom-nav-992 .has-submenu');
