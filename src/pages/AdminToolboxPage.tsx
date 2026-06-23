@@ -772,6 +772,11 @@ export default function AdminToolboxPage() {
       border-left: 3px solid transparent;
       border-bottom: 1px solid rgba(0,0,0,0.04);
       justify-content: space-between;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
     ${p} .menu-items > .has-submenu:last-child > a,
@@ -804,6 +809,11 @@ export default function AdminToolboxPage() {
     ${p} .submenu a {
       padding: 10px 40px !important;
       font-size: 15px !important;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
     }
     ${p} .menu-items a.active {
       border-left-color: ${menuConfig.activeBorderColor};
@@ -846,6 +856,8 @@ export default function AdminToolboxPage() {
      justify-content: center;
      flex: 1 1 0;
      min-width: 0;
+     white-space: nowrap !important;
+     flex-wrap: nowrap !important;
      list-style: none !important;
      margin: 0 !important;
      padding: 0 !important;
@@ -882,7 +894,9 @@ export default function AdminToolboxPage() {
      border-radius: 6px;
      transition: all 0.2s;
      opacity: 0.8;
-     white-space: nowrap;
+     white-space: nowrap !important;
+     word-break: keep-all !important;
+     overflow-wrap: normal !important;
      position: relative;
      display: flex;
      align-items: center;
@@ -893,6 +907,7 @@ export default function AdminToolboxPage() {
      min-width: 0;
      overflow: hidden;
      text-overflow: ellipsis;
+     line-height: 1.2 !important;
    }
   .custom-nav-992 .menu-items > a:hover,
   .custom-nav-992 .menu-items > .has-submenu > a:hover {
@@ -953,6 +968,7 @@ export default function AdminToolboxPage() {
     flex-direction: column !important;
     gap: 2px !important;
     min-width: 230px !important;
+     max-width: min(92vw, 420px) !important;
     z-index: 2147483647 !important;
     list-style: none !important;
     margin-left: 0 !important;
@@ -981,8 +997,14 @@ export default function AdminToolboxPage() {
     width: 100% !important;
     border-radius: ${(menuConfig.activeRadius/100*1.4).toFixed(3)}em !important;
     display: flex !important;
+     align-items: center !important;
     text-align: left !important;
-    white-space: normal !important;
+     white-space: nowrap !important;
+     word-break: keep-all !important;
+     overflow-wrap: normal !important;
+     overflow: hidden !important;
+     text-overflow: ellipsis !important;
+     min-width: 0 !important;
     font-size: 14px !important;
     border-bottom: none !important;
   }
