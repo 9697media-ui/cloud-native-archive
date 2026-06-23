@@ -1111,7 +1111,7 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .submenu {
     position: absolute !important;
-    top: 100% !important;
+    top: calc(100% + ${submenuGapDesktop}px) !important;
     left: 0 !important;
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
@@ -1129,11 +1129,13 @@ export default function AdminToolboxPage() {
     margin-right: 0 !important;
     border: 1px solid rgba(0,0,0,0.08) !important;
     overflow: hidden !important;
+    transform-origin: top center;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(-18px);
-    transition: opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), visibility 0.25s ease;
+    transform: translateY(-8px);
+    clip-path: inset(0 0 100% 0);
+    transition: opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), clip-path 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.25s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu,
   .custom-nav-992 .has-submenu:focus-within > .submenu {
