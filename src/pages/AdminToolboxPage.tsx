@@ -241,6 +241,7 @@ export default function AdminToolboxPage() {
       ],
       sticky: true,
       searchEnabled: true,
+      searchRadius: 999,
       searchUrl: 'https://anabrasil.org/',
       enableAutoDetect: false,
       enableWpApi: false,
@@ -305,6 +306,7 @@ export default function AdminToolboxPage() {
     ] as any[],
     sticky: true,
     searchEnabled: true,
+    searchRadius: 999,
     searchUrl: 'https://anabrasil.org/',
     enableAutoDetect: false,
     enableWpApi: true,
@@ -885,7 +887,7 @@ export default function AdminToolboxPage() {
     display: flex;
     align-items: center;
     background: rgba(0,0,0,0.06);
-    border-radius: 999px;
+    border-radius: ${menuConfig.searchRadius}px;
     padding: 6px 12px;
     gap: 6px;
     flex-shrink: 0;
@@ -899,8 +901,11 @@ export default function AdminToolboxPage() {
     width: 130px;
   }
   .custom-nav-992 .nav-search svg {
-    width: 16px;
-    height: 16px;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px;
+    min-height: 16px;
+    flex-shrink: 0;
     opacity: 0.7;
     fill: currentColor;
   }
@@ -911,7 +916,7 @@ export default function AdminToolboxPage() {
     width: 38px;
     height: 38px;
     border: none;
-    border-radius: 999px;
+    border-radius: ${menuConfig.searchRadius}px;
     background: rgba(0,0,0,0.06);
     color: ${menuConfig.textColor};
     cursor: pointer;
@@ -919,7 +924,7 @@ export default function AdminToolboxPage() {
     transition: transform 0.2s ease, background 0.2s ease;
   }
   .custom-nav-992 .search-toggle:hover { transform: scale(1.08); background: rgba(0,0,0,0.1); }
-  .custom-nav-992 .search-toggle svg { width: 18px; height: 18px; fill: currentColor; }
+  .custom-nav-992 .search-toggle svg { width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px; flex-shrink: 0; fill: currentColor; }
   .custom-spotlight-9982 {
     position: fixed;
     inset: 0;
@@ -950,7 +955,7 @@ export default function AdminToolboxPage() {
     transition: transform 0.28s cubic-bezier(.2,.8,.2,1);
   }
   .custom-spotlight-9982.open .spotlight-box { transform: translateY(0) scale(1); }
-  .custom-spotlight-9982 svg { width: 22px; height: 22px; opacity: 0.5; fill: currentColor; flex-shrink: 0; }
+  .custom-spotlight-9982 svg { width: 22px !important; height: 22px !important; min-width: 22px; min-height: 22px; opacity: 0.5; fill: currentColor; flex-shrink: 0; }
   .custom-spotlight-9982 input { flex: 1; border: none; outline: none; background: transparent; font-size: 18px; color: inherit; }
 
    .custom-nav-992 .menu-items a {
@@ -2093,6 +2098,17 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           placeholder="https://seusite.com/"
                         />
                         <p className="text-xs text-muted-foreground">No WordPress use a URL base do site (ex: https://anabrasil.org/). A busca envia o termo via parâmetro <code>?s=</code>.</p>
+                        <div className="space-y-2 pt-2">
+                          <Label>Arredondamento da Busca: {menuConfig.searchRadius}px</Label>
+                          <Slider
+                            min={0}
+                            max={999}
+                            step={1}
+                            value={[menuConfig.searchRadius]}
+                            onValueChange={([val]) => setMenuConfig({...menuConfig, searchRadius: val})}
+                          />
+                          <p className="text-xs text-muted-foreground">999px = totalmente arredondado (mobile/tablet e desktop).</p>
+                        </div>
                       </div>
                     )}
 
