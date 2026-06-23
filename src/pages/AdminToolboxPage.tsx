@@ -1460,7 +1460,8 @@ export default function AdminToolboxPage() {
                                       '/wp-json/wp/v2/posts'
                                     ];
 
-                                    for (const endpoint of endpoints) {
+                                     let detected = false;
+                                     for (const endpoint of endpoints) {
                                       try {
                                         // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
                                          const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
