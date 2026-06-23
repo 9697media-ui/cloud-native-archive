@@ -1286,6 +1286,8 @@ export default function AdminToolboxPage() {
       const items = document.querySelector('.custom-nav-992 .menu-items');
       if (nav && !nav.contains(e.target) && items.classList.contains('active')) {
         items.classList.remove('active');
+        const toggle = nav.querySelector('.mobile-toggle');
+        if (toggle) toggle.classList.remove('open');
       }
     });
   }
