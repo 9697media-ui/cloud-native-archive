@@ -941,6 +941,7 @@ export default function AdminToolboxPage() {
      flex-wrap: nowrap;
      gap: ${menuConfig.itemSpacing}px;
      align-items: center;
+     align-self: stretch;
      justify-content: center;
      flex: 1 1 0;
      min-width: 0;
