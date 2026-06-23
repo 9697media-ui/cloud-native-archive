@@ -2100,10 +2100,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                            onValueChange={(v) => setMenuConfig({...menuConfig, activeRadius: v[0]})} />
                        </div>
                        <div className="space-y-2">
-                         <Label className="text-xs">Arred. Itens (%): {menuConfig.itemRadius}%</Label>
+                         <Label className="text-xs">Arred. Itens PC (%): {menuConfig.itemRadius}%</Label>
                          <Slider min={0} max={100} step={1}
                            value={[menuConfig.itemRadius]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, itemRadius: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Arred. Itens Tablet/Mobile (%): {menuConfig.itemRadiusMobile}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.itemRadiusMobile]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusMobile: v[0]})} />
                        </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
