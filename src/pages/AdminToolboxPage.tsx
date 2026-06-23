@@ -29,6 +29,8 @@ export default function AdminToolboxPage() {
   const [savedTemplates, setSavedTemplates] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+  const skipDraftRef = React.useRef(false);
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
