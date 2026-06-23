@@ -251,6 +251,20 @@ export default function AdminToolboxPage() {
 
     const buildTree = (flatItems: any[]) => {
       const normalized = normalizeItems(flatItems);
+
+      // Caso os dados já venham aninhados (ex.: campo child_items dos plugins de menu),
+      // preservamos a hierarquia recursivamente em vez de achatar tudo.
+      const hasNested = normalized.some(i => Array.isArray(i.children) && i.children.length > 0);
+      const hasParentRefs = normalized.some(i => i.parent !== "0" && i.parent !== "");
+
+      if (hasNested && !hasParentRefs) {
+        const mapNested = (list: any[]): any[] => list.map(i => ({
+          ...i,
+          children: Array.isArray(i.children) && i.children.length > 0 ? mapNested(normalizeItems(i.children)) : []
+        }));
+        return mapNested(normalized);
+      }
+
       const itemMap = new Map();
       const tree: any[] = [];
       normalized.forEach(item => itemMap.set(item.id, { ...item, children: [] }));
