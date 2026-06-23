@@ -2110,10 +2110,22 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                        </div>
                        </div>
                        <div className="space-y-2">
-                         <Label className="text-xs">Raio (%): {menuConfig.activeRadius}%</Label>
+                         <Label className="text-xs">Raio ativo PC (%): {menuConfig.activeRadius}%</Label>
                          <Slider min={0} max={100} step={1}
                            value={[menuConfig.activeRadius]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, activeRadius: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Raio ativo Tablet (%): {menuConfig.activeRadiusTablet}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.activeRadiusTablet]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, activeRadiusTablet: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Raio ativo Mobile (%): {menuConfig.activeRadiusMobile}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.activeRadiusMobile]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, activeRadiusMobile: v[0]})} />
                        </div>
                        <div className="space-y-2">
                          <Label className="text-xs">Arred. Itens PC (%): {menuConfig.itemRadius}%</Label>
@@ -2122,7 +2134,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                            onValueChange={(v) => setMenuConfig({...menuConfig, itemRadius: v[0]})} />
                        </div>
                        <div className="space-y-2">
-                         <Label className="text-xs">Arred. Itens Tablet/Mobile (%): {menuConfig.itemRadiusMobile}%</Label>
+                         <Label className="text-xs">Arred. Itens Tablet (%): {menuConfig.itemRadiusTablet}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.itemRadiusTablet]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusTablet: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Arred. Itens Mobile (%): {menuConfig.itemRadiusMobile}%</Label>
                          <Slider min={0} max={100} step={1}
                            value={[menuConfig.itemRadiusMobile]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusMobile: v[0]})} />
