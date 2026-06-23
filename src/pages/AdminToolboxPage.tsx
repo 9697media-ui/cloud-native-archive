@@ -828,15 +828,22 @@ export default function AdminToolboxPage() {
                 }
 
                 const candidates = Array.from(
-                  tempDiv.querySelectorAll('nav ul, .wp-block-navigation__container, nav, ul[class*="menu"], ul[class*="nav"], ul, ol')
+                  tempDiv.querySelectorAll('#main-menu, .ha-navbar-nav, .elementor-nav-menu, .wp-block-navigation__container, nav ul, nav, ul[class*="menu"], ul[class*="nav"], ul, ol')
                 );
                 function countDeep(items) {
                   return items.reduce((acc, it) => acc + 1 + countDeep(it.children || []), 0);
                 }
+                function countSubmenus(items) {
+                  return items.reduce((acc, it) => acc + (it.children?.length || 0) + countSubmenus(it.children || []), 0);
+                }
+                function hasMenuSignal(element) {
+                  const signature = `${element.id || ''} ${element.className || ''} ${element.getAttribute?.('role') || ''}`.toLowerCase();
+                  return /main-menu|nav|navbar|navigation|menu/.test(signature);
+                }
                 let best = [], bestScore = -1;
                 for (const candidate of candidates) {
                   const parsed = parseList(candidate);
-                  const score = countDeep(parsed);
+                  const score = (hasMenuSignal(candidate) ? 1000 : 0) + countDeep(parsed) + (countSubmenus(parsed) * 10) + (parsed.length * 3);
                   if (score > bestScore) { bestScore = score; best = parsed; }
                 }
                 return best.length ? best : parseList(tempDiv);
