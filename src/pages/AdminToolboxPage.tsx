@@ -290,19 +290,28 @@ export default function AdminToolboxPage() {
       // de detecção usado nos itens que já funcionavam.
       const candidates = Array.from(
         doc.querySelectorAll(
-          'nav ul, .wp-block-navigation__container, nav, ul[class*="menu"], ul[class*="nav"], ul, ol'
+          '#main-menu, .ha-navbar-nav, .elementor-nav-menu, .wp-block-navigation__container, nav ul, nav, ul[class*="menu"], ul[class*="nav"], ul, ol'
         )
       );
 
       const countDeep = (items: any[]): number =>
         items.reduce((acc, it) => acc + 1 + countDeep(it.children || []), 0);
 
+      const hasMenuSignal = (element: Element): boolean => {
+        const signature = `${element.id || ''} ${element.className || ''} ${element.getAttribute('role') || ''}`.toLowerCase();
+        return /main-menu|nav|navbar|navigation|menu/.test(signature);
+      };
+
       let best: any[] = [];
       let bestScore = -1;
       for (const candidate of candidates) {
         const parsed = parseList(candidate);
-        const score = countDeep(parsed);
-        // priorizamos o container que cobre mais itens da árvore completa
+        const submenuScore = countSubmenuItems(parsed);
+        const directScore = parsed.length;
+        const signalScore = hasMenuSignal(candidate) ? 1000 : 0;
+        const score = signalScore + countDeep(parsed) + (submenuScore * 10) + (directScore * 3);
+        // Priorizamos containers com assinatura clara de menu e submenus reais,
+        // evitando aceitar uma lista de páginas/posts como se fosse navegação.
         if (score > bestScore) {
           bestScore = score;
           best = parsed;
