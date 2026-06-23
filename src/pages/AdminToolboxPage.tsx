@@ -292,6 +292,44 @@ export default function AdminToolboxPage() {
     }
   };
 
+  const importMenuFromUrl = async (url: string) => {
+    if (!url.startsWith('http')) return false;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('menu-html-proxy', {
+        body: { url },
+      });
+
+      if (error) throw error;
+      const html = typeof data?.html === 'string' ? data.html : '';
+      const items = extractWPItems([{ content: { rendered: html } }]);
+      const submenuCount = countSubmenuItems(items);
+
+      if (items.length === 0) return false;
+
+      setMenuConfig(prev => ({ ...prev, testUrl: url, items }));
+      setMenuDetectionDetails({
+        status: 'success',
+        message: 'Menu detectado pela URL padrão via leitura completa do HTML.',
+        endpoint: url,
+        itemCount: items.length,
+        submenuCount,
+      });
+      toast({
+        title: 'Menu importado pela URL',
+        description: `${items.length} item(ns) principais e ${submenuCount} subitem(ns) detectados.`,
+      });
+      return true;
+    } catch (error: any) {
+      setMenuDetectionDetails({
+        status: 'warning',
+        message: error?.message || 'Não foi possível ler a URL pelo proxy interno.',
+        endpoint: url,
+      });
+      return false;
+    }
+  };
+
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
