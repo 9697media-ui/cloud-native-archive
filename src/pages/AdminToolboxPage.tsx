@@ -1521,7 +1521,7 @@ export default function AdminToolboxPage() {
                                                  ? `Importamos ${wpItems.length} itens (com submenus) de ${usedEndpoint}`
                                                  : `Conectado ao endpoint ${usedEndpoint}`,
                                              });
-                                             break;
+                                             if (wpItems.length > 0) { detected = true; break; }
                                            }
                                          }
                                       } catch (e) {
