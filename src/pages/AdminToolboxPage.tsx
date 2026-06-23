@@ -242,6 +242,11 @@ export default function AdminToolboxPage() {
       sticky: true,
       searchEnabled: true,
       searchRadius: 100,
+      searchBgColor: '#00000010',
+      searchIconColor: '#1f2937',
+      hamburgerColor: '#1f2937',
+      hamburgerBgColor: '#00000000',
+      hamburgerRadius: 32,
       searchUrl: 'https://anabrasil.org/',
       enableAutoDetect: false,
       enableWpApi: false,
@@ -307,6 +312,11 @@ export default function AdminToolboxPage() {
     sticky: true,
     searchEnabled: true,
     searchRadius: 100,
+    searchBgColor: '#00000010',
+    searchIconColor: '#1f2937',
+    hamburgerColor: '#1f2937',
+    hamburgerBgColor: '#00000000',
+    hamburgerRadius: 32,
     searchUrl: 'https://anabrasil.org/',
     enableAutoDetect: false,
     enableWpApi: true,
@@ -886,7 +896,7 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .nav-search {
     display: flex;
     align-items: center;
-    background: rgba(0,0,0,0.06);
+    background: ${menuConfig.searchBgColor};
     border-radius: ${(menuConfig.searchRadius/100*2.5).toFixed(3)}em;
     padding: 6px 12px;
     gap: 6px;
@@ -896,7 +906,7 @@ export default function AdminToolboxPage() {
     border: none;
     outline: none;
     background: transparent;
-    color: inherit;
+    color: ${menuConfig.searchIconColor};
     font-size: 14px;
     width: 130px;
   }
@@ -907,7 +917,7 @@ export default function AdminToolboxPage() {
     min-height: 16px;
     flex-shrink: 0;
     opacity: 0.7;
-    fill: currentColor;
+    fill: ${menuConfig.searchIconColor};
   }
   .custom-nav-992 .search-toggle {
     display: none;
@@ -917,14 +927,14 @@ export default function AdminToolboxPage() {
     height: 38px;
     border: none;
     border-radius: ${(menuConfig.searchRadius/100*2.5).toFixed(3)}em;
-    background: rgba(0,0,0,0.06);
-    color: ${menuConfig.textColor};
+    background: ${menuConfig.searchBgColor};
+    color: ${menuConfig.searchIconColor};
     cursor: pointer;
     flex-shrink: 0;
     transition: transform 0.2s ease, background 0.2s ease;
   }
-  .custom-nav-992 .search-toggle:hover { transform: scale(1.08); background: rgba(0,0,0,0.1); }
-  .custom-nav-992 .search-toggle svg { width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px; flex-shrink: 0; fill: currentColor; }
+  .custom-nav-992 .search-toggle:hover { transform: scale(1.08); filter: brightness(0.92); }
+  .custom-nav-992 .search-toggle svg { width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px; flex-shrink: 0; fill: ${menuConfig.searchIconColor}; }
   .custom-spotlight-9982 {
     position: fixed;
     inset: 0;
@@ -1088,15 +1098,15 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .mobile-toggle {
     display: none;
-    background: transparent;
+    background: ${menuConfig.hamburgerBgColor};
     border: none;
-    color: inherit;
+    color: ${menuConfig.hamburgerColor};
     padding: 10px;
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: ${(menuConfig.hamburgerRadius/100*2.5).toFixed(3)}em;
   }
   .custom-nav-992 .mobile-toggle:hover {
-    background-color: rgba(0,0,0,0.05);
+    filter: brightness(0.92);
   }
   .custom-nav-992 .mobile-toggle .bars {
     position: relative;
@@ -2108,6 +2118,36 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             onValueChange={([val]) => setMenuConfig({...menuConfig, searchRadius: val})}
                           />
                           <p className="text-xs text-muted-foreground">100% = totalmente arredondado (igual ao raio da página ativa).</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Cor de Fundo da Busca</Label>
+                            <Input type="color" value={menuConfig.searchBgColor.slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, searchBgColor: e.target.value})} className="h-9 p-1" />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Cor do Ícone/Texto da Busca</Label>
+                            <Input type="color" value={menuConfig.searchIconColor} onChange={(e) => setMenuConfig({...menuConfig, searchIconColor: e.target.value})} className="h-9 p-1" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Cor do Hambúrguer</Label>
+                            <Input type="color" value={menuConfig.hamburgerColor} onChange={(e) => setMenuConfig({...menuConfig, hamburgerColor: e.target.value})} className="h-9 p-1" />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Fundo do Hambúrguer</Label>
+                            <Input type="color" value={menuConfig.hamburgerBgColor.slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, hamburgerBgColor: e.target.value})} className="h-9 p-1" />
+                          </div>
+                        </div>
+                        <div className="space-y-2 pt-2">
+                          <Label>Arredondamento do Hambúrguer: {menuConfig.hamburgerRadius}%</Label>
+                          <Slider
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={[menuConfig.hamburgerRadius]}
+                            onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerRadius: val})}
+                          />
                         </div>
                       </div>
                     )}
