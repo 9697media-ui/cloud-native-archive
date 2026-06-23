@@ -1218,10 +1218,10 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .menu-items a {
       font-size: 13.5px;
       padding: 8px 10px;
-      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em !important;
+      border-radius: ${itemRadiusTablet}em !important;
     }
     .custom-nav-992 .menu-items a.active {
-      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em !important;
+      border-radius: ${activeRadiusTablet}em !important;
     }
     .custom-nav-992 .submenu {
       min-width: 200px !important;
