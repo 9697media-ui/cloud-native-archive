@@ -48,8 +48,13 @@ export default function AdminToolboxPage() {
     if (!el) return;
     const native = DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop;
     const update = () => {
-      const rect = el.getBoundingClientRect();
-      if (rect.width > 0) setPreviewScale(rect.width / native.width);
+      // clientWidth/Height excluem a borda do "dispositivo", evitando overflow do conteúdo.
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      if (w > 0) {
+        // Usa a menor escala para garantir que o conteúdo caiba sem cortar.
+        setPreviewScale(Math.min(w / native.width, h / native.height));
+      }
     };
     update();
     const ro = new ResizeObserver(update);
