@@ -264,7 +264,6 @@ export default function AdminToolboxPage() {
       hamburgerColor: '#1f2937',
       hamburgerBgColor: '#00000000',
       hamburgerRadius: 32,
-    spotlightRadius: 24,
       spotlightRadius: 24,
       searchUrl: 'https://anabrasil.org/',
       enableAutoDetect: false,
