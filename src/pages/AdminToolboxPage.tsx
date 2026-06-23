@@ -874,6 +874,7 @@ export default function AdminToolboxPage() {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
+      border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em !important;
     }`;
 
     const css = `<style>
