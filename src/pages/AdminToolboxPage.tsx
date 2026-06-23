@@ -60,7 +60,7 @@ export default function AdminToolboxPage() {
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [deviceView]);
+  }, [deviceView, menuConfig.testUrl]);
   const [menuDetectionDetails, setMenuDetectionDetails] = useState<{
     status: 'checking' | 'success' | 'warning' | 'error';
     message: string;
