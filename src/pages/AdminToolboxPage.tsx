@@ -873,6 +873,7 @@ export default function AdminToolboxPage() {
       position: static !important;
       width: 100% !important;
       box-shadow: none !important;
+      border-radius: ${itemRadiusMobile}em !important;
       padding: 0 !important;
       margin-top: ${submenuGapMobile}px !important;
       background-color: rgba(0,0,0,0.02) !important;
@@ -903,6 +904,7 @@ export default function AdminToolboxPage() {
     ${p} .submenu a {
       padding: 10px 40px !important;
       font-size: 15px !important;
+      border-radius: ${itemRadiusMobile}em !important;
       white-space: nowrap !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
@@ -913,7 +915,7 @@ export default function AdminToolboxPage() {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      border-radius: ${activeRadiusMobile}em !important;
+      border-radius: ${itemRadiusMobile}em !important;
     }`;
 
     const css = `<style>
@@ -1259,6 +1261,10 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .submenu {
       min-width: 200px !important;
       top: calc(100% + ${submenuGapTablet}px) !important;
+      border-radius: ${itemRadiusTablet}em !important;
+    }
+    .custom-nav-992 .submenu a {
+      border-radius: ${itemRadiusTablet}em !important;
     }
   }
 
@@ -1280,7 +1286,7 @@ export default function AdminToolboxPage() {
       border-radius: ${itemRadiusMobile}em !important;
     }
     .custom-nav-992.force-mobile .menu-items a.active {
-      border-radius: ${activeRadiusMobile}em !important;
+      border-radius: ${itemRadiusMobile}em !important;
     }
   }
 </style>`;
@@ -3014,7 +3020,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="absolute inset-0 pointer-events-none z-[1000000]">
                        <div 
                          className="relative w-full h-full pointer-events-auto" 
-                         key={activeWidgetType + getGeneratedCode()} // Force re-render on any config change
+                          key={activeWidgetType}
                          dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
                        />
                     </div>
