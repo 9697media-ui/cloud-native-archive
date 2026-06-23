@@ -188,8 +188,14 @@ export default function AdminToolboxPage() {
     },
     menu: {
       logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
+      logoUrlMobile: '',
       bgColor: '#ffffff',
       textColor: '#1f2937',
+      accentColor: '#4f46e5',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      fontSize: 15,
+      itemSpacing: 5,
+      itemPadding: 15,
       items: [
         { label: 'Início', link: '#' },
         { 
@@ -253,8 +259,14 @@ export default function AdminToolboxPage() {
 
   const [menuConfig, setMenuConfig] = useState({
     logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
+    logoUrlMobile: '',
     bgColor: '#ffffff',
     textColor: '#1f2937',
+    accentColor: '#4f46e5',
+    fontFamily: 'system-ui, -apple-system, sans-serif',
+    fontSize: 15,
+    itemSpacing: 5,
+    itemPadding: 15,
     items: [
       { label: 'Início', link: '#', children: [] as any[] },
       { label: 'Sobre', link: '#', children: [] as any[] },
@@ -687,7 +699,7 @@ export default function AdminToolboxPage() {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: ${menuConfig.fontFamily};
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: ${menuConfig.sticky ? 'sticky' : 'relative'};
     top: 0;
@@ -702,9 +714,11 @@ export default function AdminToolboxPage() {
     object-fit: contain;
     display: block;
   }
+  .custom-nav-992 .logo .logo-mobile { display: none; }
+  .custom-nav-992 .logo .logo-desktop { display: block; }
   .custom-nav-992 .menu-items {
     display: flex;
-    gap: 5px;
+    gap: ${menuConfig.itemSpacing}px;
     align-items: center;
     justify-content: center;
     flex: 1;
@@ -738,9 +752,9 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .menu-items a {
     color: inherit;
     text-decoration: none !important;
-    font-size: 15px;
+    font-size: ${menuConfig.fontSize}px;
     font-weight: 500;
-    padding: 10px 15px;
+    padding: 10px ${menuConfig.itemPadding}px;
     border-radius: 6px;
     transition: all 0.2s;
     opacity: 0.8;
@@ -751,6 +765,11 @@ export default function AdminToolboxPage() {
     justify-content: space-between;
     gap: 6px;
     box-sizing: border-box;
+  }
+  .custom-nav-992 .menu-items > a:hover,
+  .custom-nav-992 .menu-items > .has-submenu > a:hover {
+    color: ${menuConfig.accentColor};
+    opacity: 1;
   }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative !important;
@@ -856,6 +875,7 @@ export default function AdminToolboxPage() {
       height: 36px;
       max-width: 150px;
     }
+    ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
     .custom-nav-992 .menu-items {
       gap: 2px;
     }
@@ -878,6 +898,7 @@ export default function AdminToolboxPage() {
       height: 34px;
       max-width: 140px;
     }
+    ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
     .custom-nav-992 .mobile-toggle {
       display: flex;
       align-items: center;
@@ -957,7 +978,8 @@ export default function AdminToolboxPage() {
       font-size: 15px !important;
     }
     .custom-nav-992 .menu-items a.active {
-      border-left-color: currentColor;
+      border-left-color: ${menuConfig.accentColor};
+      color: ${menuConfig.accentColor};
       background-color: rgba(0,0,0,0.05);
     }
   }
@@ -1340,7 +1362,7 @@ export default function AdminToolboxPage() {
 <!-- Início: Menu Responsivo Nativo -->
 <nav class="custom-nav-992">
   <div class="logo">
-    <a href="/"><img src="${menuConfig.logoUrl}" alt="Logo"></a>
+    <a href="/"><img class="logo-desktop" src="${menuConfig.logoUrl}" alt="Logo">${menuConfig.logoUrlMobile ? `<img class="logo-mobile" src="${menuConfig.logoUrlMobile}" alt="Logo">` : ''}</a>
   </div>
   <button class="mobile-toggle" onclick="toggleCustomMenu(this)" aria-label="Menu">
     <span class="bars"><span></span><span></span><span></span></span>
@@ -1644,16 +1666,25 @@ export default function AdminToolboxPage() {
                 {activeWidgetType === 'menu' && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label>URL do Logo</Label>
+                      <Label>URL do Logo (Desktop)</Label>
                       <Input 
                         value={menuConfig.logoUrl}
                         onChange={(e) => setMenuConfig({...menuConfig, logoUrl: e.target.value})}
                         placeholder="https://sua-logo.png"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>URL do Logo (Mobile / Tablet)</Label>
+                      <Input 
+                        value={menuConfig.logoUrlMobile}
+                        onChange={(e) => setMenuConfig({...menuConfig, logoUrlMobile: e.target.value})}
+                        placeholder="Opcional — logo alternativa em telas pequenas"
+                      />
+                      <p className="text-xs text-muted-foreground">Se vazio, usa o logo desktop também no mobile/tablet.</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
-                        <Label>Cor de Fundo</Label>
+                        <Label className="text-xs">Fundo</Label>
                         <Input 
                           type="color" 
                           className="w-full h-10 p-1 cursor-pointer"
@@ -1662,12 +1693,63 @@ export default function AdminToolboxPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Cor do Texto</Label>
+                        <Label className="text-xs">Texto</Label>
                         <Input 
                           type="color" 
                           className="w-full h-10 p-1 cursor-pointer"
                           value={menuConfig.textColor}
                           onChange={(e) => setMenuConfig({...menuConfig, textColor: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Destaque</Label>
+                        <Input 
+                          type="color" 
+                          className="w-full h-10 p-1 cursor-pointer"
+                          value={menuConfig.accentColor}
+                          onChange={(e) => setMenuConfig({...menuConfig, accentColor: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Fonte</Label>
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        value={menuConfig.fontFamily}
+                        onChange={(e) => setMenuConfig({...menuConfig, fontFamily: e.target.value})}
+                      >
+                        <option value="system-ui, -apple-system, sans-serif">Sistema (padrão)</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="Georgia, serif">Georgia (serifada)</option>
+                        <option value="'Courier New', monospace">Monoespaçada</option>
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-2">
+                        <Label className="text-xs">Fonte (px)</Label>
+                        <Input 
+                          type="number" min={10} max={24}
+                          value={menuConfig.fontSize}
+                          onChange={(e) => setMenuConfig({...menuConfig, fontSize: Number(e.target.value) || 15})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Espaço (px)</Label>
+                        <Input 
+                          type="number" min={0} max={40}
+                          value={menuConfig.itemSpacing}
+                          onChange={(e) => setMenuConfig({...menuConfig, itemSpacing: Number(e.target.value) || 0})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Padding (px)</Label>
+                        <Input 
+                          type="number" min={4} max={40}
+                          value={menuConfig.itemPadding}
+                          onChange={(e) => setMenuConfig({...menuConfig, itemPadding: Number(e.target.value) || 15})}
                         />
                       </div>
                     </div>
