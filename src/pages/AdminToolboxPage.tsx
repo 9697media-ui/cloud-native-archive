@@ -1027,7 +1027,7 @@ export default function AdminToolboxPage() {
      font-size: ${menuConfig.fontSize}px;
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
-     border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em;
+     border-radius: ${itemRadiusDesktop}em;
      transition: all 0.2s;
      opacity: 0.8;
      white-space: nowrap !important;
@@ -1050,7 +1050,7 @@ export default function AdminToolboxPage() {
     color: ${menuConfig.hoverTextColor};
     background-color: ${menuConfig.hoverBgColor};
     opacity: 1;
-    border-radius: ${(menuConfig.activeRadius/100*2.5).toFixed(3)}em;
+     border-radius: ${activeRadiusDesktop}em;
   }
   .custom-nav-992 .menu-items > a.active,
   .custom-nav-992 .menu-items > .has-submenu > a.active {
@@ -1058,7 +1058,7 @@ export default function AdminToolboxPage() {
     opacity: 1;
     background-color: ${menuConfig.activeBgColor};
     border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
-    border-radius: ${(menuConfig.activeRadius/100*2.5).toFixed(3)}em;
+     border-radius: ${activeRadiusDesktop}em;
   }
   .custom-nav-992 .menu-items a:focus,
   .custom-nav-992 .menu-items a:focus-visible {
@@ -1098,7 +1098,7 @@ export default function AdminToolboxPage() {
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
     box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
-    border-radius: ${(menuConfig.itemRadius/100*2.5 + 0.5).toFixed(3)}em !important;
+    border-radius: ${(Number(itemRadiusDesktop) + 0.5).toFixed(3)}em !important;
     padding: 8px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1131,14 +1131,14 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .has-submenu:focus-within > a {
     color: ${menuConfig.activeTextColor} !important;
     background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
-    border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em !important;
+    border-radius: ${itemRadiusDesktop}em !important;
     opacity: 1 !important;
   }
   .custom-nav-992 .submenu a {
     padding: 11px 16px !important;
     opacity: 0.9 !important;
     width: 100% !important;
-    border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em !important;
+    border-radius: ${itemRadiusDesktop}em !important;
     display: flex !important;
      align-items: center !important;
     text-align: left !important;
