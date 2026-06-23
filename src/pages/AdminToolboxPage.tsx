@@ -887,34 +887,49 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .logo { order: 1; margin-right: auto; }
     .custom-nav-992 .nav-search { order: 2; }
     .custom-nav-992 .menu-items {
-      display: none;
       position: absolute;
       top: 100%;
       left: 0;
       width: 100%;
       background-color: ${menuConfig.bgColor};
       flex-direction: column;
-      padding: 15px 0;
-      gap: 5px;
-      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-      max-height: 80vh;
-      overflow-y: auto;
+      align-items: stretch;
+      padding: 8px 0;
+      gap: 0;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+      border-top: 1px solid rgba(0,0,0,0.06);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease;
       z-index: 999998;
     }
     .custom-nav-992 .menu-items.active {
-      display: flex;
+      max-height: 80vh;
+      overflow-y: auto;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
     }
     .custom-nav-992 .menu-items a {
+      display: flex;
+      align-items: center;
       width: 100%;
-      padding: 12px 25px;
+      padding: 14px 22px;
       border-radius: 0;
-      font-size: 16px;
-      border-left: 4px solid transparent;
+      font-size: 15.5px;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
       justify-content: space-between;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
     }
+    .custom-nav-992 .menu-items > .has-submenu:last-child > a,
+    .custom-nav-992 .menu-items > a:last-child { border-bottom: none; }
     .custom-nav-992 .menu-items .has-submenu {
       flex-direction: column;
-      align-items: flex-start !important;
+      align-items: stretch !important;
     }
     .custom-nav-992 .menu-items .has-submenu > a {
       width: 100%;
