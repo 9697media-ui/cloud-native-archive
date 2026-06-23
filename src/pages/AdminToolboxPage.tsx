@@ -1134,8 +1134,9 @@ export default function AdminToolboxPage() {
     left: 0 !important;
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
-    border-radius: ${(Number(itemRadiusDesktop) + 0.5).toFixed(3)}em !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0 14px 24px rgba(0,0,0,0.20));
+    border-radius: ${submenuPanelRadiusDesktop}em !important;
     padding: 8px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1269,7 +1270,7 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .submenu {
       min-width: 200px !important;
       top: calc(100% + ${submenuGapTablet}px) !important;
-      border-radius: ${itemRadiusTablet}em !important;
+      border-radius: ${submenuPanelRadiusTablet}em !important;
     }
     .custom-nav-992 .submenu a {
       border-radius: ${itemRadiusTablet}em !important;
@@ -1290,11 +1291,18 @@ export default function AdminToolboxPage() {
     .custom-nav-992.force-tablet .menu-items a.active {
       border-radius: ${activeRadiusTablet}em !important;
     }
+    .custom-nav-992.force-tablet .submenu {
+      top: calc(100% + ${submenuGapTablet}px) !important;
+      border-radius: ${submenuPanelRadiusTablet}em !important;
+    }
+    .custom-nav-992.force-tablet .submenu a {
+      border-radius: ${itemRadiusTablet}em !important;
+    }
     .custom-nav-992.force-mobile .menu-items a {
       border-radius: ${itemRadiusMobile}em !important;
     }
     .custom-nav-992.force-mobile .menu-items a.active {
-      border-radius: ${itemRadiusMobile}em !important;
+      border-radius: ${activeRadiusMobile}em !important;
     }
   }
 </style>`;
