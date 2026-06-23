@@ -818,12 +818,28 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .mobile-toggle:hover {
     background-color: rgba(0,0,0,0.05);
   }
-  .custom-nav-992 .mobile-toggle svg {
+  .custom-nav-992 .mobile-toggle .bars {
+    position: relative;
     width: 24px;
-    height: 24px;
+    height: 18px;
     display: block;
-    fill: currentColor;
   }
+  .custom-nav-992 .mobile-toggle .bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2.5px;
+    border-radius: 2px;
+    background-color: currentColor;
+    transition: transform 0.3s ease, opacity 0.25s ease, top 0.3s ease;
+  }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(1) { top: 0; }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(2) { top: 8px; }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(3) { top: 16px; }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(1) { top: 8px; transform: rotate(45deg); }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(2) { opacity: 0; }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(3) { top: 8px; transform: rotate(-45deg); }
+
   
   /* ===== TABLET (1024px - 851px) ===== */
   @media (max-width: 1024px) and (min-width: 851px) {
