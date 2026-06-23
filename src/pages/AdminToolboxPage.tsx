@@ -2365,7 +2365,7 @@ export default function AdminToolboxPage() {
                 )}
               </div>
 
-              <div className="flex-1 bg-muted/10 overflow-auto p-4 md:p-8 flex justify-center items-center">
+              <div className="flex-1 bg-muted/10 overflow-auto p-4 md:p-8 flex flex-col justify-start items-center gap-4">
                 {viewMode === 'preview' ? (
                   <div
                     ref={frameRef}
@@ -2567,16 +2567,18 @@ export default function AdminToolboxPage() {
                 )}
 
                 {viewMode === 'preview' && (
-                  <div className="w-full mt-4 shrink-0">
+                  <div className="w-full max-w-5xl shrink-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo do Widget (isolado)</span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div className="relative w-full min-h-[80px] rounded-lg border bg-background overflow-hidden">
-                      <div
-                        className="[&_a]:pointer-events-none [&_button]:pointer-events-none"
+                    <div className="relative w-full h-[140px] rounded-lg border bg-background overflow-hidden">
+                      <iframe
+                        title="Demo isolado do widget"
+                        className="w-full h-full border-none pointer-events-none"
+                        sandbox="allow-scripts"
+                        srcDoc={getGeneratedCode()}
                         key={'demo' + activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
-                        dangerouslySetInnerHTML={{ __html: getGeneratedCode() }}
                       />
                     </div>
                   </div>
