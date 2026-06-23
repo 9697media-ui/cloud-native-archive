@@ -728,6 +728,11 @@ export default function AdminToolboxPage() {
       height: 34px;
       max-width: 140px;
     }
+    ${p} .logo .logo-svg {
+      height: 34px;
+      width: 140px;
+      max-width: 140px;
+    }
     ${menuConfig.logoUrlMobile ? `${p} .logo .logo-desktop { display: none; } ${p} .logo .logo-mobile { display: block; }` : ''}
     ${p} .mobile-toggle {
       display: flex;
