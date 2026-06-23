@@ -953,8 +953,8 @@ export default function AdminToolboxPage() {
                   return /main-menu|nav|navbar|navigation|menu/.test(signature);
                 }
                   function isNestedSubmenuCandidate(element) {
-                    const signature = ((element.id || '') + ' ' + (element.className || '')).toLowerCase();
-                    return /submenu|sub-menu|dropdown|children/.test(signature);
+                    const tokens = Array.from(element.classList || []).map(token => token.toLowerCase());
+                    return tokens.some(token => token === 'sub-menu' || token === 'submenu' || token === 'dropdown' || token === 'children' || token.includes('__submenu') || token.includes('submenu-panel') || token.includes('dropdown-menu') || token.includes('wp-block-navigation-submenu'));
                   }
                 let best = [], bestScore = -1;
                 for (const candidate of candidates) {
