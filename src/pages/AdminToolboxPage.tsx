@@ -915,7 +915,7 @@ export default function AdminToolboxPage() {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      border-radius: ${activeRadiusMobile}em !important;
+      border-radius: ${itemRadiusMobile}em !important;
     }`;
 
     const css = `<style>
@@ -1286,7 +1286,7 @@ export default function AdminToolboxPage() {
       border-radius: ${itemRadiusMobile}em !important;
     }
     .custom-nav-992.force-mobile .menu-items a.active {
-      border-radius: ${activeRadiusMobile}em !important;
+      border-radius: ${itemRadiusMobile}em !important;
     }
   }
 </style>`;
