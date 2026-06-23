@@ -158,7 +158,7 @@ export default function AdminToolboxPage() {
       isDismissible: true
     },
     menu: {
-      logoUrl: 'https://anabrasil.org/logo.png',
+      logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
       bgColor: '#ffffff',
       textColor: '#1f2937',
       items: [
@@ -221,7 +221,7 @@ export default function AdminToolboxPage() {
   });
 
   const [menuConfig, setMenuConfig] = useState({
-    logoUrl: 'https://anabrasil.org/logo.png',
+    logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
     bgColor: '#ffffff',
     textColor: '#1f2937',
     items: [
