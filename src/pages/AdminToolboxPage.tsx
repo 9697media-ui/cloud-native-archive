@@ -376,8 +376,17 @@ export default function AdminToolboxPage() {
       };
 
       const isNestedSubmenuCandidate = (element: Element): boolean => {
-        const signature = `${element.id || ''} ${element.className || ''}`.toLowerCase();
-        return /submenu|sub-menu|dropdown|children/.test(signature);
+        const tokens = Array.from(element.classList || []).map(token => token.toLowerCase());
+        return tokens.some(token =>
+          token === 'sub-menu' ||
+          token === 'submenu' ||
+          token === 'dropdown' ||
+          token === 'children' ||
+          token.includes('__submenu') ||
+          token.includes('submenu-panel') ||
+          token.includes('dropdown-menu') ||
+          token.includes('wp-block-navigation-submenu')
+        );
       };
 
       let best: any[] = [];
