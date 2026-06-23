@@ -440,9 +440,12 @@ export default function AdminToolboxPage() {
       itemsSource = data.items || data.children || data.menu_items || data.data || data.nodes || data.edges || [data];
     }
 
-    if (Array.isArray(itemsSource)) {
-      if (itemsSource[0]?.content?.rendered) {
-        return itemsSource.flatMap(item => parseMenuHTML(item.content.rendered));
+      if (Array.isArray(itemsSource)) {
+        const renderedMenus = itemsSource
+          .map(item => item?.content?.rendered)
+          .filter((html): html is string => typeof html === 'string' && /<\s*(li|ul|nav|a)\b/i.test(html));
+        if (renderedMenus.length > 0) {
+          return renderedMenus.flatMap(html => parseMenuHTML(html));
       }
       return buildTree(itemsSource);
     }
