@@ -1066,6 +1066,11 @@ export default function AdminToolboxPage() {
       height: 36px;
       max-width: 150px;
     }
+    .custom-nav-992 .logo .logo-svg {
+      height: 36px;
+      width: 150px;
+      max-width: 150px;
+    }
     ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
     .custom-nav-992 .menu-items {
       gap: 2px;
