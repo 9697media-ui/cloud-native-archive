@@ -194,23 +194,58 @@ export default function AdminToolboxPage() {
   };
 
   const loadTemplate = (template: any) => {
+    skipDraftRef.current = true;
+    let cfg = template.config;
+    let savedAt: string | null = null;
+    try {
+      const raw = localStorage.getItem(`widget_draft_${template.id}`);
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d && d.config) { cfg = d.config; savedAt = d.savedAt ?? null; }
+      }
+    } catch { /* ignore drafts corrompidos */ }
+
     setActiveWidgetType(template.type);
     setCurrentTemplateId(template.id);
     setTemplateName(template.name);
-    
-    if (template.type === 'whatsapp') setWhatsappConfig(template.config);
-    else if (template.type === 'banner') setBannerConfig(template.config);
-    else if (template.type === 'menu') setMenuConfig(prev => ({
-      ...prev,
-      ...template.config,
-      activeRadiusTablet: template.config.activeRadiusTablet ?? template.config.activeRadius ?? prev.activeRadiusTablet,
-      activeRadiusMobile: template.config.activeRadiusMobile ?? template.config.activeRadius ?? prev.activeRadiusMobile,
-      itemRadiusTablet: template.config.itemRadiusTablet ?? template.config.itemRadius ?? prev.itemRadiusTablet,
-      itemRadiusMobile: template.config.itemRadiusMobile ?? template.config.itemRadius ?? prev.itemRadiusMobile,
-    }));
+    applyConfig(template.type, cfg);
+    setDraftSavedAt(savedAt);
 
-    toast({ title: "Modelo carregado", description: `Editando: ${template.name}` });
+    toast(savedAt
+      ? { title: "Rascunho restaurado", description: `Alterações não salvas de "${template.name}".` }
+      : { title: "Modelo carregado", description: `Editando: ${template.name}` });
   };
+
+  // Sobrepõe o modelo no banco com o rascunho atual.
+  const overwriteWithDraft = async () => {
+    if (!currentTemplateId) return;
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('widget_templates')
+        .update({ config: currentConfig() })
+        .eq('id', currentTemplateId);
+      if (error) throw error;
+      localStorage.removeItem(`widget_draft_${currentTemplateId}`);
+      setDraftSavedAt(null);
+      toast({ title: "Modelo atualizado", description: "O rascunho sobrepôs o modelo." });
+      fetchTemplates();
+    } catch (error: any) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Salva o rascunho atual como um novo modelo.
+  const saveDraftAsNew = () => {
+    if (currentTemplateId) localStorage.removeItem(`widget_draft_${currentTemplateId}`);
+    setDraftSavedAt(null);
+    setCurrentTemplateId(null);
+    setTemplateName(prev => (prev ? `${prev} (cópia)` : ''));
+    setIsDialogOpen(true);
+  };
+
 
   const deleteTemplate = async (id: string) => {
     try {
