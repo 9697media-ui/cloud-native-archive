@@ -766,6 +766,11 @@ export default function AdminToolboxPage() {
     gap: 6px;
     box-sizing: border-box;
   }
+  .custom-nav-992 .menu-items > a:hover,
+  .custom-nav-992 .menu-items > .has-submenu > a:hover {
+    color: ${menuConfig.accentColor};
+    opacity: 1;
+  }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative !important;
   }
