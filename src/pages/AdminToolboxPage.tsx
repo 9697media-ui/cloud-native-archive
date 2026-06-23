@@ -1652,7 +1652,7 @@ export default function AdminToolboxPage() {
   document.addEventListener('click', function(e) {
     const hasSubmenu = e.target.closest('.custom-nav-992 .has-submenu');
     const navEl = document.querySelector('.custom-nav-992');
-    const isMobileMode = window.innerWidth <= 850 || (navEl && navEl.classList.contains('force-mobile'));
+    const isMobileMode = window.innerWidth <= 850 || (navEl && navEl.classList.contains('force-mobile')) || (${tabletHamburger} && ((window.innerWidth <= 1024 && window.innerWidth >= 851) || (navEl && navEl.classList.contains('force-tablet'))));
     if (hasSubmenu && isMobileMode) {
       const link = e.target.closest('a');
       // Se clicou na seta ou no item pai e ele tem submenu, toggle
