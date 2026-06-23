@@ -1098,15 +1098,15 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .mobile-toggle {
     display: none;
-    background: transparent;
+    background: ${menuConfig.hamburgerBgColor};
     border: none;
-    color: inherit;
+    color: ${menuConfig.hamburgerColor};
     padding: 10px;
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: ${(menuConfig.hamburgerRadius/100*2.5).toFixed(3)}em;
   }
   .custom-nav-992 .mobile-toggle:hover {
-    background-color: rgba(0,0,0,0.05);
+    filter: brightness(0.92);
   }
   .custom-nav-992 .mobile-toggle .bars {
     position: relative;
