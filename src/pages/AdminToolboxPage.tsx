@@ -241,7 +241,7 @@ export default function AdminToolboxPage() {
       ],
       sticky: true,
       searchEnabled: true,
-      searchRadius: 999,
+      searchRadius: 100,
       searchUrl: 'https://anabrasil.org/',
       enableAutoDetect: false,
       enableWpApi: false,
@@ -306,7 +306,7 @@ export default function AdminToolboxPage() {
     ] as any[],
     sticky: true,
     searchEnabled: true,
-    searchRadius: 999,
+    searchRadius: 100,
     searchUrl: 'https://anabrasil.org/',
     enableAutoDetect: false,
     enableWpApi: true,
@@ -887,7 +887,7 @@ export default function AdminToolboxPage() {
     display: flex;
     align-items: center;
     background: rgba(0,0,0,0.06);
-    border-radius: ${menuConfig.searchRadius}px;
+    border-radius: ${(menuConfig.searchRadius/100*2.5).toFixed(3)}em;
     padding: 6px 12px;
     gap: 6px;
     flex-shrink: 0;
@@ -916,7 +916,7 @@ export default function AdminToolboxPage() {
     width: 38px;
     height: 38px;
     border: none;
-    border-radius: ${menuConfig.searchRadius}px;
+    border-radius: ${(menuConfig.searchRadius/100*2.5).toFixed(3)}em;
     background: rgba(0,0,0,0.06);
     color: ${menuConfig.textColor};
     cursor: pointer;
