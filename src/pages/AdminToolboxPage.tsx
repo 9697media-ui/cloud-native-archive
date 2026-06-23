@@ -718,7 +718,7 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .logo .logo-desktop { display: block; }
   .custom-nav-992 .menu-items {
     display: flex;
-    gap: 5px;
+    gap: ${menuConfig.itemSpacing}px;
     align-items: center;
     justify-content: center;
     flex: 1;
