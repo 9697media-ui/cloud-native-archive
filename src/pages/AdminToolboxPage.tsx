@@ -689,6 +689,100 @@ export default function AdminToolboxPage() {
   };
 
   const generateMenuCode = () => {
+    const mobileRules = (p: string) => `
+    ${p} {
+      padding: 0 14px;
+      min-height: 60px;
+    }
+    ${p} .logo img {
+      height: 34px;
+      max-width: 140px;
+    }
+    ${menuConfig.logoUrlMobile ? `${p} .logo .logo-desktop { display: none; } ${p} .logo .logo-mobile { display: block; }` : ''}
+    ${p} .mobile-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      order: 3;
+    }
+    ${p} .logo { order: 1; margin-right: auto; }
+    ${p} .nav-search { order: 2; }
+    ${p} .menu-items {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background-color: ${menuConfig.bgColor};
+      flex-direction: column;
+      align-items: stretch;
+      padding: 8px 0;
+      gap: 0;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+      border-top: 1px solid rgba(0,0,0,0.06);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease;
+      z-index: 999998;
+    }
+    ${p} .menu-items.active {
+      max-height: 80vh;
+      overflow-y: auto;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    ${p} .menu-items a {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 14px 22px;
+      border-radius: 0;
+      font-size: 15.5px;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      justify-content: space-between;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    ${p} .menu-items > .has-submenu:last-child > a,
+    ${p} .menu-items > a:last-child { border-bottom: none; }
+    ${p} .menu-items .has-submenu {
+      flex-direction: column;
+      align-items: stretch !important;
+    }
+    ${p} .menu-items .has-submenu > a {
+      width: 100%;
+    }
+    ${p} .submenu {
+      position: static !important;
+      width: 100% !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      background-color: rgba(0,0,0,0.02) !important;
+      border: none !important;
+      display: none !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
+    }
+    ${p} .has-submenu.open > .submenu {
+      display: flex !important;
+    }
+    ${p} .has-submenu.open > a::after {
+      transform: rotate(180deg);
+    }
+    ${p} .submenu a {
+      padding: 10px 40px !important;
+      font-size: 15px !important;
+    }
+    ${p} .menu-items a.active {
+      border-left-color: ${menuConfig.accentColor};
+      color: ${menuConfig.accentColor};
+      background-color: rgba(0,0,0,0.05);
+    }`;
+
     const css = `<style>
   .custom-nav-992 {
     width: 100%;
@@ -890,99 +984,11 @@ export default function AdminToolboxPage() {
 
   /* ===== MOBILE (<= 850px) ===== */
   @media (max-width: 850px) {
-    .custom-nav-992 {
-      padding: 0 14px;
-      min-height: 60px;
-    }
-    .custom-nav-992 .logo img {
-      height: 34px;
-      max-width: 140px;
-    }
-    ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
-    .custom-nav-992 .mobile-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      order: 3;
-    }
-    .custom-nav-992 .logo { order: 1; margin-right: auto; }
-    .custom-nav-992 .nav-search { order: 2; }
-    .custom-nav-992 .menu-items {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      background-color: ${menuConfig.bgColor};
-      flex-direction: column;
-      align-items: stretch;
-      padding: 8px 0;
-      gap: 0;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-      border-top: 1px solid rgba(0,0,0,0.06);
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(-8px);
-      pointer-events: none;
-      transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease;
-      z-index: 999998;
-    }
-    .custom-nav-992 .menu-items.active {
-      max-height: 80vh;
-      overflow-y: auto;
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    .custom-nav-992 .menu-items a {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      padding: 14px 22px;
-      border-radius: 0;
-      font-size: 15.5px;
-      border-left: 3px solid transparent;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-      justify-content: space-between;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-    .custom-nav-992 .menu-items > .has-submenu:last-child > a,
-    .custom-nav-992 .menu-items > a:last-child { border-bottom: none; }
-    .custom-nav-992 .menu-items .has-submenu {
-      flex-direction: column;
-      align-items: stretch !important;
-    }
-    .custom-nav-992 .menu-items .has-submenu > a {
-      width: 100%;
-    }
-    .custom-nav-992 .submenu {
-      position: static !important;
-      width: 100% !important;
-      box-shadow: none !important;
-      padding: 0 !important;
-      background-color: rgba(0,0,0,0.02) !important;
-      border: none !important;
-      display: none !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      transform: none !important;
-    }
-    .custom-nav-992 .has-submenu.open > .submenu {
-      display: flex !important;
-    }
-    .custom-nav-992 .has-submenu.open > a::after {
-      transform: rotate(180deg);
-    }
-    .custom-nav-992 .submenu a {
-      padding: 10px 40px !important;
-      font-size: 15px !important;
-    }
-    .custom-nav-992 .menu-items a.active {
-      border-left-color: ${menuConfig.accentColor};
-      color: ${menuConfig.accentColor};
-      background-color: rgba(0,0,0,0.05);
-    }
+    ${mobileRules('.custom-nav-992')}
   }
+
+  /* ===== AUTO-BREAK: quando itens não cabem (padding < 10px) ===== */
+  ${mobileRules('.custom-nav-992.force-mobile')}
 </style>`;
 
     let fetchScript = `
@@ -1287,7 +1293,9 @@ export default function AdminToolboxPage() {
   // Lógica para submenus no Mobile (clique)
   document.addEventListener('click', function(e) {
     const hasSubmenu = e.target.closest('.custom-nav-992 .has-submenu');
-    if (hasSubmenu && window.innerWidth <= 850) {
+    const navEl = document.querySelector('.custom-nav-992');
+    const isMobileMode = window.innerWidth <= 850 || (navEl && navEl.classList.contains('force-mobile'));
+    if (hasSubmenu && isMobileMode) {
       const link = e.target.closest('a');
       // Se clicou na seta ou no item pai e ele tem submenu, toggle
       if (link && link.parentElement === hasSubmenu) {
@@ -1318,10 +1326,26 @@ export default function AdminToolboxPage() {
     });
   }
 
+  function checkMenuFit() {
+    const nav = document.querySelector('.custom-nav-992');
+    if (!nav) return;
+    if (window.innerWidth <= 850) { nav.classList.remove('force-mobile'); return; }
+    // Mede no modo desktop: se o conteúdo não couber (itens ficariam apertados), quebra para mobile.
+    nav.classList.remove('force-mobile');
+    if (nav.scrollWidth > nav.clientWidth + 1) {
+      nav.classList.add('force-mobile');
+    }
+  }
+
   function initMenu() {
     highlightActiveLink();
     ${fetchScript}
-    
+    checkMenuFit();
+    window.addEventListener('resize', checkMenuFit);
+    // Recalcula após carregar fontes/imagens.
+    window.addEventListener('load', checkMenuFit);
+    setTimeout(checkMenuFit, 300);
+
     // Fechar menu mobile ao clicar fora
     document.addEventListener('click', (e) => {
       const nav = document.querySelector('.custom-nav-992');
