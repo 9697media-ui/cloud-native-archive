@@ -890,7 +890,7 @@ export default function AdminToolboxPage() {
       max-height: 0 !important;
       overflow: hidden !important;
       transform: none !important;
-      clip-path: inset(0 0 100% 0);
+      clip-path: inset(0 -32px 100% -32px);
       transition: max-height 0.32s cubic-bezier(.2,.8,.2,1), clip-path 0.32s cubic-bezier(.2,.8,.2,1), opacity 0.25s ease, margin-top 0.25s ease, padding 0.25s ease, visibility 0.25s ease;
     }
     ${p} .has-submenu.open > .submenu {
@@ -899,7 +899,7 @@ export default function AdminToolboxPage() {
       max-height: 80vh !important;
       margin: ${submenuGapMobile}px 12px 4px !important;
       padding: 8px !important;
-      clip-path: inset(0 0 0 0);
+      clip-path: inset(0 -32px -32px -32px);
     }
     ${p} .has-submenu.open > a::after {
       transform: rotate(180deg);
@@ -1154,7 +1154,7 @@ export default function AdminToolboxPage() {
     visibility: hidden;
     pointer-events: none;
     transform: translateY(-8px);
-    clip-path: inset(0 0 100% 0);
+    clip-path: inset(0 -32px 100% -32px);
     transition: opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), clip-path 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.25s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu,
@@ -1163,7 +1163,7 @@ export default function AdminToolboxPage() {
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
-    clip-path: inset(0 0 0 0);
+    clip-path: inset(0 -32px -32px -32px);
   }
   .custom-nav-992 .has-submenu:hover > a::after {
     transform: rotate(180deg);
