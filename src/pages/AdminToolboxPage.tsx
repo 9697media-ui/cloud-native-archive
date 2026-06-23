@@ -2119,6 +2119,36 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           />
                           <p className="text-xs text-muted-foreground">100% = totalmente arredondado (igual ao raio da página ativa).</p>
                         </div>
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Cor de Fundo da Busca</Label>
+                            <Input type="color" value={menuConfig.searchBgColor.slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, searchBgColor: e.target.value})} className="h-9 p-1" />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Cor do Ícone/Texto da Busca</Label>
+                            <Input type="color" value={menuConfig.searchIconColor} onChange={(e) => setMenuConfig({...menuConfig, searchIconColor: e.target.value})} className="h-9 p-1" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Cor do Hambúrguer</Label>
+                            <Input type="color" value={menuConfig.hamburgerColor} onChange={(e) => setMenuConfig({...menuConfig, hamburgerColor: e.target.value})} className="h-9 p-1" />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Fundo do Hambúrguer</Label>
+                            <Input type="color" value={menuConfig.hamburgerBgColor.slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, hamburgerBgColor: e.target.value})} className="h-9 p-1" />
+                          </div>
+                        </div>
+                        <div className="space-y-2 pt-2">
+                          <Label>Arredondamento do Hambúrguer: {menuConfig.hamburgerRadius}%</Label>
+                          <Slider
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={[menuConfig.hamburgerRadius]}
+                            onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerRadius: val})}
+                          />
+                        </div>
                       </div>
                     )}
 
