@@ -1962,6 +1962,28 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
           </div>
         </div>
 
+        {currentTemplateId && draftSavedAt && (
+          <Alert className="bg-amber-500/10 border-amber-500/30">
+            <Save className="h-4 w-4 text-amber-600" />
+            <AlertTitle>Rascunho salvo automaticamente</AlertTitle>
+            <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-sm">
+                Alterações não salvas em <strong>{templateName || 'modelo'}</strong> — salvas localmente às {new Date(draftSavedAt).toLocaleTimeString()}.
+              </span>
+              <span className="flex gap-2 shrink-0">
+                <Button size="sm" variant="default" disabled={isSaving} onClick={overwriteWithDraft}>
+                  Sobrepor modelo
+                </Button>
+                <Button size="sm" variant="outline" disabled={isSaving} onClick={saveDraftAsNew}>
+                  Salvar como novo
+                </Button>
+              </span>
+            </AlertDescription>
+          </Alert>
+        )}
+
+
+
 
         <Alert className="bg-primary/5 border-primary/20">
           <ShieldAlert className="h-4 w-4 text-primary" />
