@@ -234,6 +234,7 @@ export default function AdminToolboxPage() {
       activeBorderWidth: 2,
       activeRadius: 30,
       itemRadius: 10,
+      itemRadiusMobile: 0,
       activeBgColor: 'transparent',
       activeTextColor: '#4f46e5',
       items: [
@@ -326,6 +327,7 @@ export default function AdminToolboxPage() {
     activeBorderWidth: 2,
     activeRadius: 30,
     itemRadius: 10,
+    itemRadiusMobile: 0,
     activeBgColor: 'transparent',
     activeTextColor: '#4f46e5',
     items: [
@@ -818,7 +820,7 @@ export default function AdminToolboxPage() {
       align-items: center;
       width: 100%;
       padding: 14px 22px;
-      border-radius: 0;
+      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em;
       font-size: 15.5px;
       border-left: 3px solid transparent;
       border-bottom: 1px solid rgba(0,0,0,0.04);
@@ -874,7 +876,7 @@ export default function AdminToolboxPage() {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em !important;
+      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em !important;
     }`;
 
     const css = `<style>
@@ -2098,10 +2100,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                            onValueChange={(v) => setMenuConfig({...menuConfig, activeRadius: v[0]})} />
                        </div>
                        <div className="space-y-2">
-                         <Label className="text-xs">Arred. Itens (%): {menuConfig.itemRadius}%</Label>
+                         <Label className="text-xs">Arred. Itens PC (%): {menuConfig.itemRadius}%</Label>
                          <Slider min={0} max={100} step={1}
                            value={[menuConfig.itemRadius]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, itemRadius: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Arred. Itens Tablet/Mobile (%): {menuConfig.itemRadiusMobile}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.itemRadiusMobile]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusMobile: v[0]})} />
                        </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
