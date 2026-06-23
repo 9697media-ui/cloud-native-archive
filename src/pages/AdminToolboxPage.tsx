@@ -248,6 +248,9 @@ export default function AdminToolboxPage() {
       submenuGap: 0,
       submenuGapTablet: 0,
       submenuGapMobile: 0,
+      shadowSize: 28,
+      shadowIntensity: 22,
+      tabletMenuMode: 'header',
       activeBgColor: 'transparent',
       activeTextColor: '#4f46e5',
       items: [
@@ -347,6 +350,9 @@ export default function AdminToolboxPage() {
     submenuGap: 0,
     submenuGapTablet: 0,
     submenuGapMobile: 0,
+    shadowSize: 28,
+    shadowIntensity: 22,
+    tabletMenuMode: 'header',
     activeBgColor: 'transparent',
     activeTextColor: '#4f46e5',
     items: [
@@ -795,6 +801,12 @@ export default function AdminToolboxPage() {
     const submenuGapDesktop = Math.max(0, Number(menuConfig.submenuGap ?? 0));
     const submenuGapTablet = Math.max(0, Number(menuConfig.submenuGapTablet ?? menuConfig.submenuGap ?? 0));
     const submenuGapMobile = Math.max(0, Number(menuConfig.submenuGapMobile ?? menuConfig.submenuGap ?? 0));
+    const shadowSize = Math.max(0, Number(menuConfig.shadowSize ?? 28));
+    const shadowIntensity = Math.min(100, Math.max(0, Number(menuConfig.shadowIntensity ?? 22)));
+    const menuShadow = (shadowSize === 0 || shadowIntensity === 0)
+      ? 'none'
+      : `0 ${Math.round(shadowSize * 0.5)}px ${shadowSize}px rgba(0,0,0,${(shadowIntensity / 100).toFixed(3)})`;
+    const tabletHamburger = (menuConfig.tabletMenuMode ?? 'header') === 'hamburger';
     const mobileRules = (p: string) => `
     ${p} {
       padding: 0 14px;
@@ -843,7 +855,7 @@ export default function AdminToolboxPage() {
     ${p} .menu-items.active {
       max-height: 80vh;
       padding: 8px;
-      box-shadow: 0 14px 28px rgba(0,0,0,0.22);
+      box-shadow: ${menuShadow};
       border-color: rgba(0,0,0,0.08);
       overflow-y: auto;
       opacity: 1;
@@ -902,7 +914,7 @@ export default function AdminToolboxPage() {
       max-height: 80vh !important;
       margin: ${submenuGapMobile}px 24px 18px !important;
       padding: 8px !important;
-      box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
+      box-shadow: ${menuShadow} !important;
       border-color: rgba(0,0,0,0.08) !important;
       clip-path: inset(0 -32px -32px -32px);
     }
@@ -1139,7 +1151,7 @@ export default function AdminToolboxPage() {
     left: 0 !important;
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
-    box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
+    box-shadow: ${menuShadow} !important;
     border-radius: ${submenuPanelRadiusDesktop}em !important;
     padding: 8px !important;
     display: flex !important;
@@ -1257,6 +1269,7 @@ export default function AdminToolboxPage() {
       max-width: 150px;
     }
     ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
+    ${tabletHamburger ? mobileRules('.custom-nav-992') : `
     .custom-nav-992 .menu-items {
       gap: 2px;
     }
@@ -1283,6 +1296,7 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .has-submenu:focus-within > a {
       border-radius: ${activeRadiusTablet}em !important;
     }
+    `}
   }
 
   /* ===== MOBILE (<= 850px) ===== */
@@ -1292,6 +1306,7 @@ export default function AdminToolboxPage() {
 
   /* ===== AUTO-BREAK: quando itens não cabem (padding < 10px) ===== */
   ${mobileRules('.custom-nav-992.force-mobile')}
+  ${tabletHamburger ? mobileRules('.custom-nav-992.force-tablet') : ''}
   @media (min-width: 851px) {
     .custom-nav-992.force-tablet .menu-items a {
       border-radius: ${itemRadiusTablet}em !important;
@@ -1637,7 +1652,7 @@ export default function AdminToolboxPage() {
   document.addEventListener('click', function(e) {
     const hasSubmenu = e.target.closest('.custom-nav-992 .has-submenu');
     const navEl = document.querySelector('.custom-nav-992');
-    const isMobileMode = window.innerWidth <= 850 || (navEl && navEl.classList.contains('force-mobile'));
+    const isMobileMode = window.innerWidth <= 850 || (navEl && navEl.classList.contains('force-mobile')) || (${tabletHamburger} && ((window.innerWidth <= 1024 && window.innerWidth >= 851) || (navEl && navEl.classList.contains('force-tablet'))));
     if (hasSubmenu && isMobileMode) {
       const link = e.target.closest('a');
       // Se clicou na seta ou no item pai e ele tem submenu, toggle
@@ -2244,6 +2259,32 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                          <Slider min={0} max={40} step={1}
                            value={[menuConfig.submenuGapMobile]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, submenuGapMobile: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Tamanho da sombra (px): {menuConfig.shadowSize}px {menuConfig.shadowSize === 0 ? '(sem sombra)' : ''}</Label>
+                         <Slider min={0} max={80} step={1}
+                           value={[menuConfig.shadowSize]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, shadowSize: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Intensidade da sombra (%): {menuConfig.shadowIntensity}%</Label>
+                         <Slider min={0} max={100} step={1}
+                           value={[menuConfig.shadowIntensity]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, shadowIntensity: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Menu no Tablet</Label>
+                         <div className="flex gap-2">
+                           <Button type="button" size="sm" variant={(menuConfig.tabletMenuMode ?? 'header') === 'header' ? 'default' : 'outline'}
+                             className="flex-1" onClick={() => setMenuConfig({...menuConfig, tabletMenuMode: 'header'})}>
+                             Itens no cabeçalho (PC)
+                           </Button>
+                           <Button type="button" size="sm" variant={menuConfig.tabletMenuMode === 'hamburger' ? 'default' : 'outline'}
+                             className="flex-1" onClick={() => setMenuConfig({...menuConfig, tabletMenuMode: 'hamburger'})}>
+                             Hambúrguer
+                           </Button>
+                         </div>
+                         <p className="text-xs text-muted-foreground">Escolha se o tablet mostra os itens de texto no cabeçalho (como no PC) ou o menu hambúrguer.</p>
                        </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
