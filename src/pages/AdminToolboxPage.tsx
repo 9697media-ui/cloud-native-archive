@@ -2089,6 +2089,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             value={menuConfig.activeRadius}
                             onChange={(e) => setMenuConfig({...menuConfig, activeRadius: Number(e.target.value) || 0})} />
                         </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Arred. Itens (%)</Label>
+                          <Input type="number" min={0} max={100}
+                            value={menuConfig.itemRadius}
+                            onChange={(e) => setMenuConfig({...menuConfig, itemRadius: Number(e.target.value) || 0})} />
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
