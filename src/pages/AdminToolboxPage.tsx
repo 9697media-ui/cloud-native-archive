@@ -62,6 +62,23 @@ export default function AdminToolboxPage() {
     return () => ro.disconnect();
   }, [deviceView]);
 
+  const demoRef = React.useRef<HTMLDivElement | null>(null);
+  const [demoScale, setDemoScale] = useState(0.6);
+  useEffect(() => {
+    const el = demoRef.current;
+    if (!el) return;
+    const native = DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop;
+    const update = () => {
+      const w = el.clientWidth;
+      if (w > 0) setDemoScale(Math.min(w / native.width, 1));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [deviceView]);
+
+
   // No preview, os <script> injetados via innerHTML não executam, então o menu
   // ficaria "travado" no layout desktop. Forçamos o modo mobile/tablet aplicando
   // a classe .force-mobile no menu renderizado conforme o dispositivo selecionado.
@@ -2621,10 +2638,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo Interativo do Widget (clique e teste aqui)</span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div className="relative w-full h-[420px] rounded-lg border bg-background overflow-hidden flex justify-center">
+                    <div ref={demoRef} className="relative w-full h-[420px] rounded-lg border bg-background overflow-hidden flex justify-center">
                       {(() => {
                         const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
-                        const scale = deviceView === 'desktop' ? 0.6 : deviceView === 'tablet' ? 0.6 : 0.7;
+                        const scale = demoScale;
                         return (
                           <iframe
                             title="Demo isolado do widget"
