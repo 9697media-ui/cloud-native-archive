@@ -789,6 +789,9 @@ export default function AdminToolboxPage() {
     const itemRadiusDesktop = ((menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
     const itemRadiusTablet = ((menuConfig.itemRadiusTablet ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
     const itemRadiusMobile = ((menuConfig.itemRadiusMobile ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const submenuPanelRadiusDesktop = activeRadiusDesktop;
+    const submenuPanelRadiusTablet = activeRadiusTablet;
+    const submenuPanelRadiusMobile = activeRadiusMobile;
     const submenuGapDesktop = Math.max(0, Number(menuConfig.submenuGap ?? 0));
     const submenuGapTablet = Math.max(0, Number(menuConfig.submenuGapTablet ?? menuConfig.submenuGap ?? 0));
     const submenuGapMobile = Math.max(0, Number(menuConfig.submenuGapMobile ?? menuConfig.submenuGap ?? 0));
@@ -871,11 +874,12 @@ export default function AdminToolboxPage() {
     }
     ${p} .submenu {
       position: static !important;
-      width: 100% !important;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
-      border-radius: ${(Number(itemRadiusMobile) + 0.5).toFixed(3)}em !important;
+      width: calc(100% - 24px) !important;
+      margin: 0 12px !important;
+      box-shadow: none !important;
+      filter: drop-shadow(0 14px 24px rgba(0,0,0,0.20));
+      border-radius: ${submenuPanelRadiusMobile}em !important;
       padding: 0 8px !important;
-      margin-top: ${submenuGapMobile}px !important;
       background-color: ${menuConfig.bgColor} !important;
       border: 1px solid rgba(0,0,0,0.08) !important;
       display: flex !important;
@@ -893,6 +897,7 @@ export default function AdminToolboxPage() {
       opacity: 1 !important;
       visibility: visible !important;
       max-height: 80vh !important;
+      margin: ${submenuGapMobile}px 12px 4px !important;
       padding: 8px !important;
       clip-path: inset(0 0 0 0);
     }
@@ -902,6 +907,7 @@ export default function AdminToolboxPage() {
     ${p} .has-submenu.open > a {
       color: ${menuConfig.activeTextColor} !important;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
+      border-radius: ${activeRadiusMobile}em !important;
     }
     ${p} .submenu a {
       padding: 10px 40px !important;
@@ -917,7 +923,7 @@ export default function AdminToolboxPage() {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      border-radius: ${itemRadiusMobile}em !important;
+      border-radius: ${activeRadiusMobile}em !important;
     }`;
 
     const css = `<style>
