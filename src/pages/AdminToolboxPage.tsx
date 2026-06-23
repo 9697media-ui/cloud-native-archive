@@ -1517,8 +1517,17 @@ export default function AdminToolboxPage() {
       <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.49-1.49-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
     </button>
     <input type="search" name="s" placeholder="Buscar..." aria-label="Buscar">
-  </form>` : ''}
+  </form>
+  <button class="search-toggle" onclick="openCustomSpotlight()" aria-label="Buscar">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.49-1.49-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+  </button>` : ''}
 </nav>
+${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(event.target===this)closeCustomSpotlight()">
+  <form class="spotlight-box" role="search" method="get" action="${menuConfig.searchUrl}">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.49-1.49-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+    <input type="search" name="s" placeholder="Buscar..." aria-label="Buscar">
+  </form>
+</div>` : ''}
 <!-- Fim: Menu Responsivo Nativo -->`;
 
     return css + "\n" + html + "\n" + script;
