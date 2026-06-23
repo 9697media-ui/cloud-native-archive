@@ -784,7 +784,16 @@ export default function AdminToolboxPage() {
     }
   }
 
+  /* ===== MOBILE (<= 850px) ===== */
   @media (max-width: 850px) {
+    .custom-nav-992 {
+      padding: 0 14px;
+      min-height: 60px;
+    }
+    .custom-nav-992 .logo img {
+      height: 34px;
+      max-width: 140px;
+    }
     .custom-nav-992 .mobile-toggle {
       display: flex;
       align-items: center;
