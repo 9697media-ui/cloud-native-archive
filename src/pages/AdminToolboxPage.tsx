@@ -1318,8 +1318,8 @@ export default function AdminToolboxPage() {
   <div class="logo">
     <a href="/"><img src="${menuConfig.logoUrl}" alt="Logo"></a>
   </div>
-  <button class="mobile-toggle" onclick="toggleCustomMenu()" aria-label="Menu">
-    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+  <button class="mobile-toggle" onclick="toggleCustomMenu(this)" aria-label="Menu">
+    <span class="bars"><span></span><span></span><span></span></span>
   </button>
   <div class="menu-items">
     ${menuConfig.items.length > 0 
