@@ -358,6 +358,16 @@ export default function AdminToolboxPage() {
     }
   };
 
+  // Carrega automaticamente o menu da URL padrão ao montar/recarregar a página.
+  useEffect(() => {
+    if (menuConfig.testUrl) {
+      importMenuFromUrl(menuConfig.testUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
+
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
