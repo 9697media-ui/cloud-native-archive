@@ -1560,7 +1560,7 @@ export default function AdminToolboxPage() {
 
     const isSvgUrl = (u: string) => /\.svg(\?|#|$)/i.test(u || '');
     const getLogoBaseColor = () => menuConfig.logoColor || menuConfig.textColor || '#000000';
-    const svgLogoTag = (url: string, cls: string) => `<span class="${cls} logo-svg" role="img" aria-label="Logo" data-logo-color="${getLogoBaseColor()}" data-logo-hover="${menuConfig.hoverTextColor}" onmouseenter="this.style.backgroundColor=this.dataset.logoHover" onmouseleave="this.style.backgroundColor=this.dataset.logoColor" style="-webkit-mask:url('${url}') no-repeat center / contain;mask:url('${url}') no-repeat center / contain;background-color:${getLogoBaseColor()};"></span>`;
+    const svgLogoTag = (url: string, cls: string) => `<span class="${cls} logo-svg" role="img" aria-label="Logo" data-logo-color="${getLogoBaseColor()}" data-logo-hover="${menuConfig.hoverTextColor}" onmouseenter="this.style.backgroundColor=this.dataset.logoHover" onmouseleave="this.style.backgroundColor=this.dataset.logoColor" style="-webkit-mask:url('${url}') no-repeat left center / contain;mask:url('${url}') no-repeat left center / contain;background-color:${getLogoBaseColor()};"></span>`;
     const logoDesktopTag = isSvgUrl(menuConfig.logoUrl) ? svgLogoTag(menuConfig.logoUrl, 'logo-desktop') : `<img class="logo-desktop" src="${menuConfig.logoUrl}" alt="Logo">`;
     const logoMobileTag = menuConfig.logoUrlMobile ? (isSvgUrl(menuConfig.logoUrlMobile) ? svgLogoTag(menuConfig.logoUrlMobile, 'logo-mobile') : `<img class="logo-mobile" src="${menuConfig.logoUrlMobile}" alt="Logo">`) : '';
     const html = `
