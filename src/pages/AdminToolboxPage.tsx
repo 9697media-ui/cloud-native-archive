@@ -2933,16 +2933,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       {(() => {
                         const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
                         const scale = demoScale;
-                        const previewActiveRadius = deviceView === 'mobile'
-                          ? menuConfig.activeRadiusMobile
-                          : deviceView === 'tablet'
-                            ? menuConfig.activeRadiusTablet
-                            : menuConfig.activeRadius;
-                        const previewItemRadius = deviceView === 'mobile'
-                          ? menuConfig.itemRadiusMobile
-                          : deviceView === 'tablet'
-                            ? menuConfig.itemRadiusTablet
-                            : menuConfig.itemRadius;
+                        // Os raios de preview agora são aplicados via getDemoExtraCss em tempo real.
                         return (
                           <iframe
                             title="Demo isolado do widget"
