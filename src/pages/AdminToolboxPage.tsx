@@ -886,6 +886,12 @@ export default function AdminToolboxPage() {
             function extractItems(source) {
               if (!source) return [];
               console.log('Widget: Analisando fonte de dados:', source);
+              const firstPresent = (...values) => values.find(value => value !== undefined && value !== null && value !== '');
+              const normalizeLink = (value) => {
+                if (!value) return undefined;
+                if (typeof value === 'object') return value.rendered || value.url || value.href;
+                return value;
+              };
               
               function fromHTML(html) {
                 const tempDiv = document.createElement('div');
@@ -973,14 +979,14 @@ export default function AdminToolboxPage() {
                 if (hasParentRefs && hasNestedItems) {
                   const ids = new Set(itemsSource.map(item => (item.id || item.ID || item.db_id || item.object_id || item.key || item.node?.id || '').toString()).filter(Boolean));
                   itemsSource = itemsSource.filter(item => {
-                    const parent = (item.parent || item.menu_item_parent || item.parentId || item.meta?.menu_item_parent || item.node?.parentId || 0).toString();
+                    const parent = (firstPresent(item.parent, item.menu_item_parent, item.parentId, item.meta?.menu_item_parent, item.node?.parentId) || 0).toString();
                     return parent === '0' || parent === '' || !ids.has(parent);
                   });
                 }
                 
                 return itemsSource.map(item => {
                   const title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título';
-                  const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
+                  const link = normalizeLink(firstPresent(item.url, item.link, item.guid, item.href, item.node?.url)) || '#';
                   const children = item.child_items || item.children || item.items || item.sub_items || item.nodes || item.edges || [];
                   return {
                     title,
