@@ -2099,15 +2099,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         />
                         <p className="text-xs text-muted-foreground">No WordPress use a URL base do site (ex: https://anabrasil.org/). A busca envia o termo via parâmetro <code>?s=</code>.</p>
                         <div className="space-y-2 pt-2">
-                          <Label>Arredondamento da Busca: {menuConfig.searchRadius}px</Label>
+                          <Label>Arredondamento da Busca: {menuConfig.searchRadius}%</Label>
                           <Slider
                             min={0}
-                            max={999}
+                            max={100}
                             step={1}
                             value={[menuConfig.searchRadius]}
                             onValueChange={([val]) => setMenuConfig({...menuConfig, searchRadius: val})}
                           />
-                          <p className="text-xs text-muted-foreground">999px = totalmente arredondado (mobile/tablet e desktop).</p>
+                          <p className="text-xs text-muted-foreground">100% = totalmente arredondado (igual ao raio da página ativa).</p>
                         </div>
                       </div>
                     )}
