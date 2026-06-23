@@ -260,11 +260,19 @@ export default function AdminToolboxPage() {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
 
+      const resolveListRoot = (root: Element): Element => {
+        if (root.tagName === 'UL' || root.tagName === 'OL') return root;
+        return root.querySelector(
+          ':scope > ul, :scope > ol, :scope > div > ul, :scope > div > ol, :scope > .wp-block-navigation__container, :scope > div > .wp-block-navigation__container, :scope ul[class*="menu"], :scope ul[class*="nav"]'
+        ) || root;
+      };
+
       const parseList = (root: Element): any[] => {
-        const listItems = Array.from(root.children).filter(child => child.tagName === 'LI');
+        const listRoot = resolveListRoot(root);
+        const listItems = Array.from(listRoot.children).filter(child => child.tagName === 'LI');
 
         if (listItems.length === 0) {
-          return Array.from(root.querySelectorAll(':scope > a, :scope > .wp-block-navigation-item__content'))
+          return Array.from(listRoot.querySelectorAll(':scope > a, :scope > .wp-block-navigation-item__content'))
             .map((a: any) => ({
               label: cleanLabel(a.querySelector?.('.wp-block-navigation-item__label')?.textContent || a.textContent || ''),
               link: a.getAttribute('href') || '#',
@@ -274,8 +282,8 @@ export default function AdminToolboxPage() {
         }
 
         return listItems.map((li: Element) => {
-          const link = li.querySelector(':scope > a, :scope > .wp-block-navigation-item__content, :scope > div > a');
-          const subList = li.querySelector(':scope > ul, :scope > ol, :scope > .wp-block-navigation__submenu-container, :scope > .sub-menu, :scope > div > ul');
+          const link = li.querySelector(':scope > a, :scope > .wp-block-navigation-item__content, :scope > div > a, :scope > div > .wp-block-navigation-item__content');
+          const subList = li.querySelector(':scope > ul, :scope > ol, :scope > .wp-block-navigation__submenu-container, :scope > .sub-menu, :scope > div > ul, :scope > div > ol, :scope > div > .sub-menu, :scope > div > .wp-block-navigation__submenu-container');
           return {
             label: cleanLabel((link as HTMLElement)?.textContent || ''),
             link: (link as HTMLAnchorElement)?.getAttribute?.('href') || '#',
@@ -284,15 +292,13 @@ export default function AdminToolboxPage() {
         }).filter(item => item.label);
       };
 
-      // Em vez de pegar apenas a primeira lista (que costuma ser um subgrupo),
-      // avaliamos TODOS os candidatos a container de menu e escolhemos o mais rico
-      // (o que produz mais itens de topo + subitens). Esse é o mesmo princípio
-      // de detecção usado nos itens que já funcionavam.
-      const candidates = Array.from(
+      const allCandidates = Array.from(
         doc.querySelectorAll(
-          'nav ul, .wp-block-navigation__container, nav, ul[class*="menu"], ul[class*="nav"], ul, ol'
+          'nav, [role="navigation"], .wp-block-navigation, .wp-block-navigation__container, .elementor-nav-menu--main, .elementor-nav-menu, ul[class*="menu"], ul[class*="nav"], ol'
         )
       );
+      const topLevelCandidates = allCandidates.filter(candidate => !candidate.closest('li'));
+      const candidates = topLevelCandidates.length > 0 ? topLevelCandidates : allCandidates;
 
       const countDeep = (items: any[]): number =>
         items.reduce((acc, it) => acc + 1 + countDeep(it.children || []), 0);
@@ -301,8 +307,8 @@ export default function AdminToolboxPage() {
       let bestScore = -1;
       for (const candidate of candidates) {
         const parsed = parseList(candidate);
-        const score = countDeep(parsed);
-        // priorizamos o container que cobre mais itens da árvore completa
+        const submenuCount = countSubmenuItems(parsed);
+        const score = countDeep(parsed) * 10 + parsed.length * 3 + submenuCount * 6;
         if (score > bestScore) {
           bestScore = score;
           best = parsed;
