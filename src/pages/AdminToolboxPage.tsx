@@ -902,6 +902,55 @@ export default function AdminToolboxPage() {
     opacity: 0.7;
     fill: currentColor;
   }
+  .custom-nav-992 .search-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.06);
+    color: ${menuConfig.textColor};
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .custom-nav-992 .search-toggle:hover { transform: scale(1.08); background: rgba(0,0,0,0.1); }
+  .custom-nav-992 .search-toggle svg { width: 18px; height: 18px; fill: currentColor; }
+  .custom-spotlight-9982 {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 18vh;
+    background: rgba(0,0,0,0.4);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .custom-spotlight-9982.open { opacity: 1; visibility: visible; }
+  .custom-spotlight-9982 .spotlight-box {
+    width: min(92vw, 600px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: ${menuConfig.bgColor};
+    color: ${menuConfig.textColor};
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    transform: translateY(-20px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(.2,.8,.2,1);
+  }
+  .custom-spotlight-9982.open .spotlight-box { transform: translateY(0) scale(1); }
+  .custom-spotlight-9982 svg { width: 22px; height: 22px; opacity: 0.5; fill: currentColor; flex-shrink: 0; }
+  .custom-spotlight-9982 input { flex: 1; border: none; outline: none; background: transparent; font-size: 18px; color: inherit; }
+
    .custom-nav-992 .menu-items a {
      color: inherit;
      text-decoration: none !important;
