@@ -1170,7 +1170,7 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .has-submenu:focus-within > a {
     color: ${menuConfig.activeTextColor} !important;
     background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
-    border-radius: ${itemRadiusDesktop}em !important;
+    border-radius: ${activeRadiusDesktop}em !important;
     opacity: 1 !important;
   }
   .custom-nav-992 .submenu a {
@@ -1273,6 +1273,10 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .submenu a {
       border-radius: ${itemRadiusTablet}em !important;
     }
+    .custom-nav-992 .has-submenu:hover > a,
+    .custom-nav-992 .has-submenu:focus-within > a {
+      border-radius: ${activeRadiusTablet}em !important;
+    }
   }
 
   /* ===== MOBILE (<= 850px) ===== */
@@ -1295,6 +1299,10 @@ export default function AdminToolboxPage() {
     }
     .custom-nav-992.force-tablet .submenu a {
       border-radius: ${itemRadiusTablet}em !important;
+    }
+    .custom-nav-992.force-tablet .has-submenu:hover > a,
+    .custom-nav-992.force-tablet .has-submenu:focus-within > a {
+      border-radius: ${activeRadiusTablet}em !important;
     }
     .custom-nav-992.force-mobile .menu-items a {
       border-radius: ${itemRadiusMobile}em !important;
