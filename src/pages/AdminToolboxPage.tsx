@@ -2075,14 +2075,25 @@ export default function AdminToolboxPage() {
                       variant={deviceView === 'desktop' ? 'secondary' : 'ghost'} 
                       size="icon" 
                       className="h-8 w-8"
+                      title="Desktop / UHD (16:9)"
                       onClick={() => setDeviceView('desktop')}
                     >
                       <Monitor className="h-4 w-4" />
                     </Button>
                     <Button 
+                      variant={deviceView === 'tablet' ? 'secondary' : 'ghost'} 
+                      size="icon" 
+                      className="h-8 w-8"
+                      title="Tablet"
+                      onClick={() => setDeviceView('tablet')}
+                    >
+                      <Tablet className="h-4 w-4" />
+                    </Button>
+                    <Button 
                       variant={deviceView === 'mobile' ? 'secondary' : 'ghost'} 
                       size="icon" 
                       className="h-8 w-8"
+                      title="Mobile"
                       onClick={() => setDeviceView('mobile')}
                     >
                       <Smartphone className="h-4 w-4" />
@@ -2091,11 +2102,13 @@ export default function AdminToolboxPage() {
                 )}
               </div>
 
-              <div className="flex-1 bg-muted/10 overflow-auto p-4 md:p-8 flex justify-center items-start">
+              <div className="flex-1 bg-muted/10 overflow-auto p-4 md:p-8 flex justify-center items-center">
                 {viewMode === 'preview' ? (
                   <div className={cn(
                     "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out flex flex-col",
-                    deviceView === 'mobile' ? "w-[375px] h-[667px] rounded-[3rem] border-[8px] border-slate-900" : "w-full max-w-4xl h-[550px] rounded-lg"
+                    deviceView === 'mobile' && "w-[375px] aspect-[9/16] max-h-full rounded-[3rem] border-[8px] border-slate-900",
+                    deviceView === 'tablet' && "w-[768px] max-w-full aspect-[3/4] max-h-full rounded-[1.5rem] border-[10px] border-slate-900",
+                    deviceView === 'desktop' && "w-full max-w-5xl aspect-video max-h-full rounded-lg"
                   )}>
                     {menuConfig.testUrl ? (
                       <div className="flex-1 w-full h-full relative">
