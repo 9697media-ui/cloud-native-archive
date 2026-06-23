@@ -239,27 +239,54 @@ export default function AdminToolboxPage() {
 
   const [jsonInput, setJsonInput] = useState('');
 
+  // Fallback robusto: mesmo quando o JSON está truncado/inválido (ex.: colado
+  // pela metade), tentamos extrair diretamente o HTML do menu que vem dentro
+  // do campo content.rendered (formato wp_navigation do WordPress).
+  const extractMenuFromRawText = (raw: string): any[] => {
+    if (!raw) return [];
+    // Captura todos os blocos "rendered":"...". Aceita conteúdo truncado.
+    const matches = Array.from(raw.matchAll(/"rendered"\s*:\s*"((?:\\.|[^"\\])*)"?/g));
+    let bestHtml = '';
+    for (const m of matches) {
+      // Desescapa a string JSON manualmente (a string pode estar incompleta).
+      let html = m[1]
+        .replace(/\\\//g, '/')
+        .replace(/\\"/g, '"')
+        .replace(/\\n/g, '\n')
+        .replace(/\\t/g, '\t')
+        .replace(/\\\\/g, '\\');
+      // Só nos interessa o conteúdo que realmente parece um menu.
+      if (/<li[\s>]/i.test(html) && html.length > bestHtml.length) bestHtml = html;
+    }
+    if (!bestHtml) return [];
+    return extractWPItems([{ content: { rendered: bestHtml } }]);
+  };
+
   const importMenuFromJson = () => {
+    let items: any[] = [];
     try {
       const parsed = JSON.parse(jsonInput);
-      const items = extractWPItems(parsed);
-      if (items.length > 0) {
-        setMenuConfig(prev => ({ ...prev, items }));
-        toast({
-          title: 'Menu importado',
-          description: `${items.length} item(ns) de topo detectado(s) a partir do JSON.`,
-        });
-      } else {
-        toast({
-          title: 'Nenhum item encontrado',
-          description: 'O JSON foi lido, mas não foi possível extrair itens de menu.',
-          variant: 'destructive',
-        });
-      }
-    } catch (e) {
+      items = extractWPItems(parsed);
+    } catch {
+      // JSON inválido/truncado — seguimos para o fallback de texto bruto.
+    }
+
+    // Se a leitura estruturada não retornou nada, tentamos extrair o HTML do menu.
+    if (items.length === 0) {
+      items = extractMenuFromRawText(jsonInput);
+    }
+
+    if (items.length > 0) {
+      setMenuConfig(prev => ({ ...prev, items }));
+      const subCount = countSubmenuItems(items);
       toast({
-        title: 'JSON inválido',
-        description: 'Verifique se o conteúdo colado é um JSON válido.',
+        title: 'Menu importado',
+        description: `${items.length} item(ns) de topo e ${subCount} subitem(ns) detectado(s).`,
+      });
+    } else {
+      toast({
+        title: 'Nenhum item encontrado',
+        description: 'Não foi possível extrair itens. Cole o JSON completo de /wp-json/wp/v2/navigation.',
         variant: 'destructive',
       });
     }
