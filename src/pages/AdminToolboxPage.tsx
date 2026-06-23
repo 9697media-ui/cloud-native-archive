@@ -61,6 +61,20 @@ export default function AdminToolboxPage() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [deviceView]);
+
+  // No preview, os <script> injetados via innerHTML não executam, então o menu
+  // ficaria "travado" no layout desktop. Forçamos o modo mobile/tablet aplicando
+  // a classe .force-mobile no menu renderizado conforme o dispositivo selecionado.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const root = frameRef.current;
+      if (!root) return;
+      root.querySelectorAll('.custom-nav-992').forEach((nav) => {
+        nav.classList.toggle('force-mobile', deviceView !== 'desktop');
+      });
+    }, 60);
+    return () => clearTimeout(t);
+  });
   const [menuDetectionDetails, setMenuDetectionDetails] = useState<{
     status: 'checking' | 'success' | 'warning' | 'error';
     message: string;
@@ -196,6 +210,11 @@ export default function AdminToolboxPage() {
       fontSize: 15,
       itemSpacing: 5,
       itemPadding: 15,
+      hoverBgColor: '#f1f0fb',
+      hoverTextColor: '#4f46e5',
+      activeBorderColor: '#4f46e5',
+      activeBorderWidth: 2,
+      activeRadius: 999,
       items: [
         { label: 'Início', link: '#' },
         { 
@@ -267,6 +286,11 @@ export default function AdminToolboxPage() {
     fontSize: 15,
     itemSpacing: 5,
     itemPadding: 15,
+    hoverBgColor: '#f1f0fb',
+    hoverTextColor: '#4f46e5',
+    activeBorderColor: '#4f46e5',
+    activeBorderWidth: 2,
+    activeRadius: 999,
     items: [
       { label: 'Início', link: '#', children: [] as any[] },
       { label: 'Sobre', link: '#', children: [] as any[] },
@@ -862,20 +886,22 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .menu-items > a:hover,
   .custom-nav-992 .menu-items > .has-submenu > a:hover {
-    color: ${menuConfig.accentColor};
+    color: ${menuConfig.hoverTextColor};
+    background-color: ${menuConfig.hoverBgColor};
     opacity: 1;
+    border-radius: ${menuConfig.activeRadius}px;
   }
   .custom-nav-992 .menu-items > a.active,
   .custom-nav-992 .menu-items > .has-submenu > a.active {
-    color: ${menuConfig.accentColor};
+    color: ${menuConfig.activeBorderColor};
     opacity: 1;
-    background-color: ${menuConfig.accentColor}1a;
-    border-radius: 999px;
+    background-color: transparent;
+    border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
+    border-radius: ${menuConfig.activeRadius}px;
   }
   .custom-nav-992 .menu-items a:focus,
   .custom-nav-992 .menu-items a:focus-visible {
     outline: none;
-    border-radius: 999px;
   }
   .custom-nav-992 .menu-items .has-submenu {
     position: relative !important;
@@ -1787,6 +1813,48 @@ export default function AdminToolboxPage() {
                           value={menuConfig.itemPadding}
                           onChange={(e) => setMenuConfig({...menuConfig, itemPadding: Number(e.target.value) || 15})}
                         />
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-3 space-y-3">
+                      <Label className="text-xs font-bold uppercase text-muted-foreground">Mouse sobre o item (hover)</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Fundo hover</Label>
+                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                            value={menuConfig.hoverBgColor}
+                            onChange={(e) => setMenuConfig({...menuConfig, hoverBgColor: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Texto hover</Label>
+                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                            value={menuConfig.hoverTextColor}
+                            onChange={(e) => setMenuConfig({...menuConfig, hoverTextColor: e.target.value})} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-3 space-y-3">
+                      <Label className="text-xs font-bold uppercase text-muted-foreground">Página ativa (borda)</Label>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Cor</Label>
+                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                            value={menuConfig.activeBorderColor}
+                            onChange={(e) => setMenuConfig({...menuConfig, activeBorderColor: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Espessura</Label>
+                          <Input type="number" min={0} max={6}
+                            value={menuConfig.activeBorderWidth}
+                            onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Raio (px)</Label>
+                          <Input type="number" min={0} max={999}
+                            value={menuConfig.activeRadius}
+                            onChange={(e) => setMenuConfig({...menuConfig, activeRadius: Number(e.target.value) || 0})} />
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-2">
