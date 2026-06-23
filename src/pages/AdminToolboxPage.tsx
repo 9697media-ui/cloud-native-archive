@@ -837,7 +837,7 @@ export default function AdminToolboxPage() {
                   return items.reduce((acc, it) => acc + (it.children?.length || 0) + countSubmenus(it.children || []), 0);
                 }
                 function hasMenuSignal(element) {
-                  const signature = `${element.id || ''} ${element.className || ''} ${element.getAttribute?.('role') || ''}`.toLowerCase();
+                  const signature = ((element.id || '') + ' ' + (element.className || '') + ' ' + (element.getAttribute?.('role') || '')).toLowerCase();
                   return /main-menu|nav|navbar|navigation|menu/.test(signature);
                 }
                 let best = [], bestScore = -1;
