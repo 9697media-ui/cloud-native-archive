@@ -1471,9 +1471,7 @@ export default function AdminToolboxPage() {
                                       '/wp-json/wp/v2/navigation',
                                       '/wp-json/wp/v2/menu-items',
                                       '/wp-json/menus/v1/menus',
-                                      '/wp-json/menus/v1/locations/primary',
-                                      '/wp-json/wp/v2/pages',
-                                      '/wp-json/wp/v2/posts'
+                                       '/wp-json/menus/v1/locations/primary'
                                     ];
 
                                      let detected = false;
