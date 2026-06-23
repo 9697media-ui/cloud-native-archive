@@ -1143,6 +1143,7 @@ export default function AdminToolboxPage() {
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
+    clip-path: inset(0 0 0 0);
   }
   .custom-nav-992 .has-submenu:hover > a::after {
     transform: rotate(180deg);
