@@ -412,9 +412,9 @@ export default function AdminToolboxPage() {
       if (hasNested) {
         const ids = new Set(normalized.map(i => i.id));
         const rootItems = normalized.filter(i => i.parent === "0" || i.parent === "" || !ids.has(i.parent));
-        const mapNested = (list: any[]): any[] => list.map(i => ({
+        const mapNested = (list: any[]): any[] => normalizeItems(list).map(i => ({
           ...i,
-          children: Array.isArray(i.children) && i.children.length > 0 ? mapNested(normalizeItems(i.children)) : []
+          children: Array.isArray(i.children) && i.children.length > 0 ? mapNested(i.children) : []
         }));
         return mapNested(rootItems.length > 0 ? rootItems : normalized);
       }
