@@ -37,8 +37,8 @@ export default function AdminToolboxPage() {
   // mas o conteúdo é renderizado nessas dimensões e escalado para caber).
   const DEVICE_RESOLUTIONS: Record<string, { width: number; height: number }> = {
     desktop: { width: 1366, height: 768 }, // 16:9
-    tablet: { width: 768, height: 1024 },  // 3:4
-    mobile: { width: 375, height: 667 },   // ~9:16
+    tablet: { width: 810, height: 1080 },  // ~3:4 (iPad)
+    mobile: { width: 390, height: 844 },   // ~9:19.5 (smartphone moderno)
   };
   const frameRef = React.useRef<HTMLDivElement | null>(null);
   const [previewScale, setPreviewScale] = useState(1);
