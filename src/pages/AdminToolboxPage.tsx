@@ -818,8 +818,19 @@ export default function AdminToolboxPage() {
                   }).filter(i => i.title);
                 }
 
-                const root = tempDiv.querySelector('ul, ol, .wp-block-navigation__container, nav') || tempDiv;
-                return parseList(root);
+                const candidates = Array.from(
+                  tempDiv.querySelectorAll('nav ul, .wp-block-navigation__container, nav, ul[class*="menu"], ul[class*="nav"], ul, ol')
+                );
+                function countDeep(items) {
+                  return items.reduce((acc, it) => acc + 1 + countDeep(it.children || []), 0);
+                }
+                let best = [], bestScore = -1;
+                for (const candidate of candidates) {
+                  const parsed = parseList(candidate);
+                  const score = countDeep(parsed);
+                  if (score > bestScore) { bestScore = score; best = parsed; }
+                }
+                return best.length ? best : parseList(tempDiv);
               }
 
               let itemsSource = source;
