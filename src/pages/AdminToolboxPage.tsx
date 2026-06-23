@@ -203,6 +203,7 @@ export default function AdminToolboxPage() {
     menu: {
       logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
       logoUrlMobile: '',
+      logoColor: '',
       bgColor: '#ffffff',
       textColor: '#1f2937',
       accentColor: '#4f46e5',
@@ -281,6 +282,7 @@ export default function AdminToolboxPage() {
   const [menuConfig, setMenuConfig] = useState({
     logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
     logoUrlMobile: '',
+    logoColor: '',
     bgColor: '#ffffff',
     textColor: '#1f2937',
     accentColor: '#4f46e5',
@@ -726,6 +728,11 @@ export default function AdminToolboxPage() {
       height: 34px;
       max-width: 140px;
     }
+    ${p} .logo .logo-svg {
+      height: 34px;
+      width: 140px;
+      max-width: 140px;
+    }
     ${menuConfig.logoUrlMobile ? `${p} .logo .logo-desktop { display: none; } ${p} .logo .logo-mobile { display: block; }` : ''}
     ${p} .mobile-toggle {
       display: flex;
@@ -844,6 +851,12 @@ export default function AdminToolboxPage() {
     max-width: 180px;
     width: auto;
     object-fit: contain;
+    display: block;
+  }
+  .custom-nav-992 .logo .logo-svg {
+    height: 40px;
+    width: 180px;
+    max-width: 180px;
     display: block;
   }
   .custom-nav-992 .logo .logo-mobile { display: none; }
@@ -1056,6 +1069,11 @@ export default function AdminToolboxPage() {
     }
     .custom-nav-992 .logo img {
       height: 36px;
+      max-width: 150px;
+    }
+    .custom-nav-992 .logo .logo-svg {
+      height: 36px;
+      width: 150px;
       max-width: 150px;
     }
     ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
@@ -1471,11 +1489,15 @@ export default function AdminToolboxPage() {
       }).join('\n');
     }
 
+    const isSvgUrl = (u: string) => /\.svg(\?|#|$)/i.test(u || '');
+    const svgLogoTag = (url: string, cls: string) => `<span class="${cls} logo-svg" role="img" aria-label="Logo" style="-webkit-mask:url('${url}') no-repeat center / contain;mask:url('${url}') no-repeat center / contain;background-color:${menuConfig.logoColor};"></span>`;
+    const logoDesktopTag = (menuConfig.logoColor && isSvgUrl(menuConfig.logoUrl)) ? svgLogoTag(menuConfig.logoUrl, 'logo-desktop') : `<img class="logo-desktop" src="${menuConfig.logoUrl}" alt="Logo">`;
+    const logoMobileTag = menuConfig.logoUrlMobile ? ((menuConfig.logoColor && isSvgUrl(menuConfig.logoUrlMobile)) ? svgLogoTag(menuConfig.logoUrlMobile, 'logo-mobile') : `<img class="logo-mobile" src="${menuConfig.logoUrlMobile}" alt="Logo">`) : '';
     const html = `
 <!-- Início: Menu Responsivo Nativo -->
 <nav class="custom-nav-992">
   <div class="logo">
-    <a href="/"><img class="logo-desktop" src="${menuConfig.logoUrl}" alt="Logo">${menuConfig.logoUrlMobile ? `<img class="logo-mobile" src="${menuConfig.logoUrlMobile}" alt="Logo">` : ''}</a>
+    <a href="/">${logoDesktopTag}${logoMobileTag}</a>
   </div>
   <button class="mobile-toggle" onclick="toggleCustomMenu(this)" aria-label="Menu">
     <span class="bars"><span></span><span></span><span></span></span>
@@ -1795,6 +1817,28 @@ export default function AdminToolboxPage() {
                       />
                       <p className="text-xs text-muted-foreground">Se vazio, usa o logo desktop também no mobile/tablet.</p>
                     </div>
+                    {(/\.svg(\?|#|$)/i.test(menuConfig.logoUrl) || /\.svg(\?|#|$)/i.test(menuConfig.logoUrlMobile)) && (
+                      <div className="space-y-2">
+                        <Label>Cor do Logo (SVG)</Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="color"
+                            className="h-9 w-14 p-1"
+                            value={menuConfig.logoColor || '#000000'}
+                            onChange={(e) => setMenuConfig({...menuConfig, logoColor: e.target.value})}
+                          />
+                          <Input
+                            value={menuConfig.logoColor}
+                            onChange={(e) => setMenuConfig({...menuConfig, logoColor: e.target.value})}
+                            placeholder="Ex: #4f46e5 (vazio = cor original)"
+                          />
+                          {menuConfig.logoColor && (
+                            <Button variant="outline" size="sm" onClick={() => setMenuConfig({...menuConfig, logoColor: ''})}>Limpar</Button>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Detectado SVG: aplica esta cor ao logo. Deixe vazio para manter as cores originais.</p>
+                      </div>
+                    )}
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
                         <Label className="text-xs">Fundo</Label>
