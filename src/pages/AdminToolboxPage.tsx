@@ -2128,12 +2128,25 @@ export default function AdminToolboxPage() {
 
               <div className="flex-1 bg-muted/10 overflow-auto p-4 md:p-8 flex justify-center items-center">
                 {viewMode === 'preview' ? (
-                  <div className={cn(
-                    "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out flex flex-col",
-                    deviceView === 'mobile' && "w-[375px] aspect-[9/16] max-h-full rounded-[3rem] border-[8px] border-slate-900",
-                    deviceView === 'tablet' && "w-[768px] max-w-full aspect-[3/4] max-h-full rounded-[1.5rem] border-[10px] border-slate-900",
-                    deviceView === 'desktop' && "w-full max-w-5xl aspect-video max-h-full rounded-lg"
-                  )}>
+                  <div
+                    ref={frameRef}
+                    className={cn(
+                      "bg-background shadow-2xl border overflow-hidden relative transition-all duration-500 ease-in-out",
+                      deviceView === 'mobile' && "w-[375px] aspect-[9/16] max-h-full rounded-[3rem] border-[8px] border-slate-900",
+                      deviceView === 'tablet' && "w-[768px] max-w-full aspect-[3/4] max-h-full rounded-[1.5rem] border-[10px] border-slate-900",
+                      deviceView === 'desktop' && "w-full max-w-5xl aspect-video max-h-full rounded-lg"
+                    )}
+                  >
+                    {/* Tela escalada: conteúdo renderizado em resolução nativa e reduzido para caber */}
+                    <div
+                      className="absolute top-0 left-0 flex flex-col bg-background"
+                      style={{
+                        width: (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width,
+                        height: (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).height,
+                        transform: `scale(${previewScale})`,
+                        transformOrigin: 'top left',
+                      }}
+                    >
                     {menuConfig.testUrl ? (
                       <div className="flex-1 w-full h-full relative">
                         <iframe 
