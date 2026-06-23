@@ -265,6 +265,11 @@ export default function AdminToolboxPage() {
       hamburgerBgColor: '#00000000',
       hamburgerRadius: 32,
       spotlightRadius: 24,
+      searchIconSize: 16,
+      hamburgerSize: 24,
+      toggleSize: 38,
+      spotlightPaddingX: 20,
+      spotlightAlign: 'top',
       searchUrl: 'https://anabrasil.org/',
       enableAutoDetect: false,
       enableWpApi: false,
@@ -336,6 +341,11 @@ export default function AdminToolboxPage() {
     hamburgerBgColor: '#00000000',
     hamburgerRadius: 32,
     spotlightRadius: 24,
+    searchIconSize: 16,
+    hamburgerSize: 24,
+    toggleSize: 38,
+    spotlightPaddingX: 20,
+    spotlightAlign: 'top',
     searchUrl: 'https://anabrasil.org/',
     enableAutoDetect: false,
     enableWpApi: true,
@@ -930,10 +940,10 @@ export default function AdminToolboxPage() {
     width: 130px;
   }
   .custom-nav-992 .nav-search svg {
-    width: 16px !important;
-    height: 16px !important;
-    min-width: 16px;
-    min-height: 16px;
+    width: ${menuConfig.searchIconSize}px !important;
+    height: ${menuConfig.searchIconSize}px !important;
+    min-width: ${menuConfig.searchIconSize}px;
+    min-height: ${menuConfig.searchIconSize}px;
     flex-shrink: 0;
     opacity: 0.7;
     fill: ${menuConfig.searchIconColor};
@@ -942,8 +952,8 @@ export default function AdminToolboxPage() {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: ${menuConfig.toggleSize}px;
+    height: ${menuConfig.toggleSize}px;
     border: none;
     border-radius: ${(menuConfig.searchRadius/100*2.5).toFixed(3)}em;
     background: ${menuConfig.searchBgColor};
@@ -953,15 +963,18 @@ export default function AdminToolboxPage() {
     transition: transform 0.2s ease, background 0.2s ease;
   }
   .custom-nav-992 .search-toggle:hover { transform: scale(1.08); filter: brightness(0.92); }
-  .custom-nav-992 .search-toggle svg { width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px; flex-shrink: 0; fill: ${menuConfig.searchIconColor}; }
+  .custom-nav-992 .search-toggle svg { width: ${menuConfig.searchIconSize + 2}px !important; height: ${menuConfig.searchIconSize + 2}px !important; min-width: ${menuConfig.searchIconSize + 2}px; min-height: ${menuConfig.searchIconSize + 2}px; flex-shrink: 0; fill: ${menuConfig.searchIconColor}; }
   .custom-spotlight-9982 {
     position: fixed;
     inset: 0;
     z-index: 2147483647;
     display: flex;
-    align-items: flex-start;
+    align-items: ${menuConfig.spotlightAlign === 'center' ? 'center' : menuConfig.spotlightAlign === 'bottom' ? 'flex-end' : 'flex-start'};
     justify-content: center;
-    padding-top: 18vh;
+    padding-left: ${menuConfig.spotlightPaddingX}px;
+    padding-right: ${menuConfig.spotlightPaddingX}px;
+    padding-top: ${menuConfig.spotlightAlign === 'top' ? '18vh' : '0'};
+    padding-bottom: ${menuConfig.spotlightAlign === 'bottom' ? '18vh' : '0'};
     background: rgba(0,0,0,0.4);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
@@ -1117,11 +1130,16 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .mobile-toggle {
     display: none;
+    align-items: center;
+    justify-content: center;
+    width: ${menuConfig.toggleSize}px;
+    height: ${menuConfig.toggleSize}px;
     background: ${menuConfig.hamburgerBgColor};
     border: none;
     color: ${menuConfig.hamburgerColor};
-    padding: 10px;
+    padding: 0;
     cursor: pointer;
+    flex-shrink: 0;
     border-radius: ${(menuConfig.hamburgerRadius/100*2.5).toFixed(3)}em;
   }
   .custom-nav-992 .mobile-toggle:hover {
@@ -1129,8 +1147,8 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .mobile-toggle .bars {
     position: relative;
-    width: 24px;
-    height: 18px;
+    width: ${menuConfig.hamburgerSize}px;
+    height: ${(menuConfig.hamburgerSize * 0.75).toFixed(0)}px;
     display: block;
   }
   .custom-nav-992 .mobile-toggle .bars span {
@@ -1143,11 +1161,11 @@ export default function AdminToolboxPage() {
     transition: transform 0.3s ease, opacity 0.25s ease, top 0.3s ease;
   }
   .custom-nav-992 .mobile-toggle .bars span:nth-child(1) { top: 0; }
-  .custom-nav-992 .mobile-toggle .bars span:nth-child(2) { top: 8px; }
-  .custom-nav-992 .mobile-toggle .bars span:nth-child(3) { top: 16px; }
-  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(1) { top: 8px; transform: rotate(45deg); }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(2) { top: ${((menuConfig.hamburgerSize*0.75 - 2.5)/2).toFixed(1)}px; }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(3) { top: ${(menuConfig.hamburgerSize*0.75 - 2.5).toFixed(1)}px; }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(1) { top: ${((menuConfig.hamburgerSize*0.75 - 2.5)/2).toFixed(1)}px; transform: rotate(45deg); }
   .custom-nav-992 .mobile-toggle.open .bars span:nth-child(2) { opacity: 0; }
-  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(3) { top: 8px; transform: rotate(-45deg); }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(3) { top: ${((menuConfig.hamburgerSize*0.75 - 2.5)/2).toFixed(1)}px; transform: rotate(-45deg); }
 
   
   /* ===== TABLET (1024px - 851px) ===== */
@@ -2127,57 +2145,78 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           placeholder="https://seusite.com/"
                         />
                         <p className="text-xs text-muted-foreground">No WordPress use a URL base do site (ex: https://anabrasil.org/). A busca envia o termo via parâmetro <code>?s=</code>.</p>
-                        <div className="space-y-2 pt-2">
-                          <Label>Arredondamento da Busca: {menuConfig.searchRadius}%</Label>
-                          <Slider
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={[menuConfig.searchRadius]}
-                            onValueChange={([val]) => setMenuConfig({...menuConfig, searchRadius: val})}
-                          />
-                          <p className="text-xs text-muted-foreground">100% = totalmente arredondado (igual ao raio da página ativa).</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 pt-2">
-                          <div className="space-y-1">
-                            <Label className="text-xs">Cor de Fundo da Busca</Label>
-                            <Input type="color" value={(menuConfig.searchBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, searchBgColor: e.target.value})} className="h-9 p-1" />
+                        {/* ===== Seção: Busca ===== */}
+                        <div className="rounded-lg border p-3 mt-3 space-y-3 text-center">
+                          <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Busca</p>
+                          <div className="grid grid-cols-2 gap-3 text-left">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Cor de Fundo</Label>
+                              <Input type="color" value={(menuConfig.searchBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, searchBgColor: e.target.value})} className="h-9 p-1" />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Cor do Ícone/Texto</Label>
+                              <Input type="color" value={menuConfig.searchIconColor} onChange={(e) => setMenuConfig({...menuConfig, searchIconColor: e.target.value})} className="h-9 p-1" />
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            <Label className="text-xs">Cor do Ícone/Texto da Busca</Label>
-                            <Input type="color" value={menuConfig.searchIconColor} onChange={(e) => setMenuConfig({...menuConfig, searchIconColor: e.target.value})} className="h-9 p-1" />
+                          <div className="space-y-2 text-left">
+                            <Label>Tamanho do Ícone Buscar: {menuConfig.searchIconSize}px</Label>
+                            <Slider min={12} max={32} step={1} value={[menuConfig.searchIconSize]} onValueChange={([val]) => setMenuConfig({...menuConfig, searchIconSize: val})} />
                           </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 pt-2">
-                          <div className="space-y-1">
-                            <Label className="text-xs">Cor do Hambúrguer</Label>
-                            <Input type="color" value={menuConfig.hamburgerColor} onChange={(e) => setMenuConfig({...menuConfig, hamburgerColor: e.target.value})} className="h-9 p-1" />
-                          </div>
-                          <div className="space-y-1">
-                            <Label className="text-xs">Fundo do Hambúrguer</Label>
-                            <Input type="color" value={(menuConfig.hamburgerBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, hamburgerBgColor: e.target.value})} className="h-9 p-1" />
+                          <div className="space-y-2 text-left">
+                            <Label>Arredondamento: {menuConfig.searchRadius}%</Label>
+                            <Slider min={0} max={100} step={1} value={[menuConfig.searchRadius]} onValueChange={([val]) => setMenuConfig({...menuConfig, searchRadius: val})} />
                           </div>
                         </div>
-                        <div className="space-y-2 pt-2">
-                          <Label>Arredondamento do Hambúrguer: {menuConfig.hamburgerRadius}%</Label>
-                          <Slider
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={[menuConfig.hamburgerRadius]}
-                            onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerRadius: val})}
-                          />
+
+                        {/* ===== Seção: Menu Hambúrguer (mobile/tablet) ===== */}
+                        <div className="rounded-lg border p-3 mt-3 space-y-3 text-center">
+                          <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Menu Hambúrguer</p>
+                          <div className="grid grid-cols-2 gap-3 text-left">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Cor do Ícone</Label>
+                              <Input type="color" value={menuConfig.hamburgerColor} onChange={(e) => setMenuConfig({...menuConfig, hamburgerColor: e.target.value})} className="h-9 p-1" />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Cor de Fundo</Label>
+                              <Input type="color" value={(menuConfig.hamburgerBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, hamburgerBgColor: e.target.value})} className="h-9 p-1" />
+                            </div>
+                          </div>
+                          <div className="space-y-2 text-left">
+                            <Label>Tamanho do Ícone: {menuConfig.hamburgerSize}px</Label>
+                            <Slider min={16} max={40} step={1} value={[menuConfig.hamburgerSize]} onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerSize: val})} />
+                          </div>
+                          <div className="space-y-2 text-left">
+                            <Label>Tamanho do Fundo (quadrado): {menuConfig.toggleSize}px</Label>
+                            <Slider min={28} max={60} step={1} value={[menuConfig.toggleSize]} onValueChange={([val]) => setMenuConfig({...menuConfig, toggleSize: val})} />
+                          </div>
+                          <div className="space-y-2 text-left">
+                            <Label>Arredondamento: {menuConfig.hamburgerRadius}%</Label>
+                            <Slider min={0} max={100} step={1} value={[menuConfig.hamburgerRadius]} onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerRadius: val})} />
+                          </div>
                         </div>
-                        <div className="space-y-2 pt-2">
-                          <Label>Arredondamento da Busca Mobile/Tablet: {menuConfig.spotlightRadius}%</Label>
-                          <Slider
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={[menuConfig.spotlightRadius]}
-                            onValueChange={([val]) => setMenuConfig({...menuConfig, spotlightRadius: val})}
-                          />
-                          <p className="text-xs text-muted-foreground">Controla o arredondamento da barra de busca central (spotlight).</p>
+
+                        {/* ===== Seção: Busca Mobile/Tablet (Spotlight) ===== */}
+                        <div className="rounded-lg border p-3 mt-3 space-y-3 text-center">
+                          <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Busca Mobile/Tablet (Spotlight)</p>
+                          <div className="space-y-2 text-left">
+                            <Label>Arredondamento: {menuConfig.spotlightRadius}%</Label>
+                            <Slider min={0} max={100} step={1} value={[menuConfig.spotlightRadius]} onValueChange={([val]) => setMenuConfig({...menuConfig, spotlightRadius: val})} />
+                          </div>
+                          <div className="space-y-2 text-left">
+                            <Label>Padding Lateral: {menuConfig.spotlightPaddingX}px</Label>
+                            <Slider min={0} max={80} step={1} value={[menuConfig.spotlightPaddingX]} onValueChange={([val]) => setMenuConfig({...menuConfig, spotlightPaddingX: val})} />
+                          </div>
+                          <div className="space-y-1 text-left">
+                            <Label>Alinhamento Vertical</Label>
+                            <Select value={menuConfig.spotlightAlign} onValueChange={(val) => setMenuConfig({...menuConfig, spotlightAlign: val})}>
+                              <SelectTrigger><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="top">Superior</SelectItem>
+                                <SelectItem value="center">Centro</SelectItem>
+                                <SelectItem value="bottom">Inferior</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                       </div>
                     )}
