@@ -914,7 +914,7 @@ export default function AdminToolboxPage() {
       max-height: 80vh !important;
       margin: ${submenuGapMobile}px 24px 18px !important;
       padding: 8px !important;
-      box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
+      box-shadow: ${menuShadow} !important;
       border-color: rgba(0,0,0,0.08) !important;
       clip-path: inset(0 -32px -32px -32px);
     }
