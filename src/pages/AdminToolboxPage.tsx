@@ -762,16 +762,25 @@ export default function AdminToolboxPage() {
     fill: currentColor;
   }
   
-  @media (max-width: 1024px) {
+  /* ===== TABLET (1024px - 851px) ===== */
+  @media (max-width: 1024px) and (min-width: 851px) {
     .custom-nav-992 {
-      padding: 0 15px;
+      padding: 0 18px;
+      min-height: 64px;
+    }
+    .custom-nav-992 .logo img {
+      height: 36px;
+      max-width: 150px;
     }
     .custom-nav-992 .menu-items {
-      gap: 10px;
+      gap: 2px;
     }
     .custom-nav-992 .menu-items a {
-      font-size: 14px;
-      padding: 6px 10px;
+      font-size: 13.5px;
+      padding: 8px 10px;
+    }
+    .custom-nav-992 .submenu {
+      min-width: 200px !important;
     }
   }
 
