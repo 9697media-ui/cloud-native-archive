@@ -1660,16 +1660,25 @@ export default function AdminToolboxPage() {
                 {activeWidgetType === 'menu' && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label>URL do Logo</Label>
+                      <Label>URL do Logo (Desktop)</Label>
                       <Input 
                         value={menuConfig.logoUrl}
                         onChange={(e) => setMenuConfig({...menuConfig, logoUrl: e.target.value})}
                         placeholder="https://sua-logo.png"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>URL do Logo (Mobile / Tablet)</Label>
+                      <Input 
+                        value={menuConfig.logoUrlMobile}
+                        onChange={(e) => setMenuConfig({...menuConfig, logoUrlMobile: e.target.value})}
+                        placeholder="Opcional — logo alternativa em telas pequenas"
+                      />
+                      <p className="text-xs text-muted-foreground">Se vazio, usa o logo desktop também no mobile/tablet.</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
-                        <Label>Cor de Fundo</Label>
+                        <Label className="text-xs">Fundo</Label>
                         <Input 
                           type="color" 
                           className="w-full h-10 p-1 cursor-pointer"
@@ -1678,12 +1687,63 @@ export default function AdminToolboxPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Cor do Texto</Label>
+                        <Label className="text-xs">Texto</Label>
                         <Input 
                           type="color" 
                           className="w-full h-10 p-1 cursor-pointer"
                           value={menuConfig.textColor}
                           onChange={(e) => setMenuConfig({...menuConfig, textColor: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Destaque</Label>
+                        <Input 
+                          type="color" 
+                          className="w-full h-10 p-1 cursor-pointer"
+                          value={menuConfig.accentColor}
+                          onChange={(e) => setMenuConfig({...menuConfig, accentColor: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Fonte</Label>
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        value={menuConfig.fontFamily}
+                        onChange={(e) => setMenuConfig({...menuConfig, fontFamily: e.target.value})}
+                      >
+                        <option value="system-ui, -apple-system, sans-serif">Sistema (padrão)</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="Georgia, serif">Georgia (serifada)</option>
+                        <option value="'Courier New', monospace">Monoespaçada</option>
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-2">
+                        <Label className="text-xs">Fonte (px)</Label>
+                        <Input 
+                          type="number" min={10} max={24}
+                          value={menuConfig.fontSize}
+                          onChange={(e) => setMenuConfig({...menuConfig, fontSize: Number(e.target.value) || 15})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Espaço (px)</Label>
+                        <Input 
+                          type="number" min={0} max={40}
+                          value={menuConfig.itemSpacing}
+                          onChange={(e) => setMenuConfig({...menuConfig, itemSpacing: Number(e.target.value) || 0})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Padding (px)</Label>
+                        <Input 
+                          type="number" min={4} max={40}
+                          value={menuConfig.itemPadding}
+                          onChange={(e) => setMenuConfig({...menuConfig, itemPadding: Number(e.target.value) || 15})}
                         />
                       </div>
                     </div>
