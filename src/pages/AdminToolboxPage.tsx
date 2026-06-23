@@ -184,9 +184,9 @@ export default function AdminToolboxPage() {
       ...prev,
       ...template.config,
       activeRadiusTablet: template.config.activeRadiusTablet ?? template.config.activeRadius ?? prev.activeRadiusTablet,
-      activeRadiusMobile: template.config.activeRadiusMobile ?? template.config.activeRadiusTablet ?? template.config.activeRadius ?? prev.activeRadiusMobile,
-      itemRadiusTablet: template.config.itemRadiusTablet ?? template.config.itemRadiusMobile ?? template.config.itemRadius ?? prev.itemRadiusTablet,
-      itemRadiusMobile: template.config.itemRadiusMobile ?? template.config.itemRadiusTablet ?? template.config.itemRadius ?? prev.itemRadiusMobile,
+      activeRadiusMobile: template.config.activeRadiusMobile ?? template.config.activeRadius ?? prev.activeRadiusMobile,
+      itemRadiusTablet: template.config.itemRadiusTablet ?? template.config.itemRadius ?? prev.itemRadiusTablet,
+      itemRadiusMobile: template.config.itemRadiusMobile ?? template.config.itemRadius ?? prev.itemRadiusMobile,
     }));
 
     toast({ title: "Modelo carregado", description: `Editando: ${template.name}` });
@@ -779,10 +779,10 @@ export default function AdminToolboxPage() {
   const generateMenuCode = () => {
     const activeRadiusDesktop = ((menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
     const activeRadiusTablet = ((menuConfig.activeRadiusTablet ?? menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
-    const activeRadiusMobile = ((menuConfig.activeRadiusMobile ?? menuConfig.activeRadiusTablet ?? menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const activeRadiusMobile = ((menuConfig.activeRadiusMobile ?? menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
     const itemRadiusDesktop = ((menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
-    const itemRadiusTablet = ((menuConfig.itemRadiusTablet ?? menuConfig.itemRadiusMobile ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
-    const itemRadiusMobile = ((menuConfig.itemRadiusMobile ?? menuConfig.itemRadiusTablet ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const itemRadiusTablet = ((menuConfig.itemRadiusTablet ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const itemRadiusMobile = ((menuConfig.itemRadiusMobile ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
     const mobileRules = (p: string) => `
     ${p} {
       padding: 0 14px;
@@ -1058,7 +1058,7 @@ export default function AdminToolboxPage() {
     color: ${menuConfig.hoverTextColor};
     background-color: ${menuConfig.hoverBgColor};
     opacity: 1;
-     border-radius: ${activeRadiusDesktop}em;
+      border-radius: ${itemRadiusDesktop}em;
   }
   .custom-nav-992 .menu-items > a.active,
   .custom-nav-992 .menu-items > .has-submenu > a.active {
@@ -1245,12 +1245,10 @@ export default function AdminToolboxPage() {
   /* ===== AUTO-BREAK: quando itens não cabem (padding < 10px) ===== */
   ${mobileRules('.custom-nav-992.force-mobile')}
   @media (min-width: 851px) {
-    .custom-nav-992.force-tablet .menu-items a,
-    .custom-nav-992.force-mobile .menu-items a {
+    .custom-nav-992.force-tablet .menu-items a {
       border-radius: ${itemRadiusTablet}em !important;
     }
-    .custom-nav-992.force-tablet .menu-items a.active,
-    .custom-nav-992.force-mobile .menu-items a.active {
+    .custom-nav-992.force-tablet .menu-items a.active {
       border-radius: ${activeRadiusTablet}em !important;
     }
     .custom-nav-992.force-mobile .menu-items a {
