@@ -1013,7 +1013,7 @@ export default function AdminToolboxPage() {
      font-size: ${menuConfig.fontSize}px;
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
-     border-radius: 6px;
+     border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em;
      transition: all 0.2s;
      opacity: 0.8;
      white-space: nowrap !important;
