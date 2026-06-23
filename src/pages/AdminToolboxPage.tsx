@@ -182,6 +182,8 @@ export default function AdminToolboxPage() {
       if (error) throw error;
 
       toast({ title: "Sucesso", description: `Modelo "${templateName}" salvo!` });
+      if (currentTemplateId) localStorage.removeItem(`widget_draft_${currentTemplateId}`);
+      setDraftSavedAt(null);
       setTemplateName('');
       setCurrentTemplateId(null);
       setIsDialogOpen(false);
