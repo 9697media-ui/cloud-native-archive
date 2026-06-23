@@ -1706,7 +1706,7 @@ export default function AdminToolboxPage() {
                                      // Fallback: muitos menus (Elementor/Happy Addons, etc.) NÃO são
                                      // expostos via REST. Nesses casos, lemos o HTML da própria página
                                      // através de um proxy CORS e extraímos o menu + subitens direto do DOM.
-                                      if (true) {
+                                      if (url) {
                                        try {
                                           const proxyReaders = [
                                             async () => {
