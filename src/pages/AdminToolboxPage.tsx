@@ -909,11 +909,13 @@ export default function AdminToolboxPage() {
   .custom-nav-992 .menu-items a:focus-visible {
     outline: none;
   }
-  .custom-nav-992 .menu-items .has-submenu {
-    position: relative !important;
-    display: flex;
-    align-items: center;
-  }
+   .custom-nav-992 .menu-items .has-submenu {
+     position: relative !important;
+     display: flex;
+     align-items: center;
+     flex-shrink: 1;
+     min-width: 0;
+   }
   .custom-nav-992 .menu-items .has-submenu::before {
     content: "";
     position: absolute;
