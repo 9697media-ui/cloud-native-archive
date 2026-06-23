@@ -822,25 +822,29 @@ export default function AdminToolboxPage() {
     ${p} .menu-items {
       position: absolute;
       top: 100%;
-      left: 0;
-      width: 100%;
+      left: 14px;
+      width: calc(100% - 28px);
       background-color: ${menuConfig.bgColor};
       flex-direction: column;
       align-items: stretch;
-      padding: 8px 0;
+      padding: 0 8px;
       gap: 0;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-      border-top: 1px solid rgba(0,0,0,0.06);
+      box-shadow: none;
+      border: 1px solid transparent;
+      border-radius: ${activeRadiusMobile}em;
       max-height: 0;
       overflow: hidden;
       opacity: 0;
       transform: translateY(-8px);
       pointer-events: none;
-      transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease;
+      transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease, padding 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       z-index: 999998;
     }
     ${p} .menu-items.active {
       max-height: 80vh;
+      padding: 8px;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.22);
+      border-color: rgba(0,0,0,0.08);
       overflow-y: auto;
       opacity: 1;
       transform: translateY(0);
@@ -876,11 +880,11 @@ export default function AdminToolboxPage() {
       position: static !important;
       width: calc(100% - 48px) !important;
       margin: 0 24px !important;
-      box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
+      box-shadow: none !important;
       border-radius: ${submenuPanelRadiusMobile}em !important;
       padding: 0 8px !important;
       background-color: ${menuConfig.bgColor} !important;
-      border: 1px solid rgba(0,0,0,0.08) !important;
+      border: 1px solid transparent !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 2px !important;
@@ -898,6 +902,8 @@ export default function AdminToolboxPage() {
       max-height: 80vh !important;
       margin: ${submenuGapMobile}px 24px 8px !important;
       padding: 8px !important;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
+      border-color: rgba(0,0,0,0.08) !important;
       clip-path: inset(0 -32px -32px -32px);
     }
     ${p} .has-submenu.open > a::after {
