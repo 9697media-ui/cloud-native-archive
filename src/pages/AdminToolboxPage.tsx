@@ -958,6 +958,7 @@ export default function AdminToolboxPage() {
     flex-direction: column !important;
     gap: 2px !important;
     min-width: 230px !important;
+     max-width: min(92vw, 420px) !important;
     z-index: 2147483647 !important;
     list-style: none !important;
     margin-left: 0 !important;
@@ -986,8 +987,14 @@ export default function AdminToolboxPage() {
     width: 100% !important;
     border-radius: ${(menuConfig.activeRadius/100*1.4).toFixed(3)}em !important;
     display: flex !important;
+     align-items: center !important;
     text-align: left !important;
-    white-space: normal !important;
+     white-space: nowrap !important;
+     word-break: keep-all !important;
+     overflow-wrap: normal !important;
+     overflow: hidden !important;
+     text-overflow: ellipsis !important;
+     min-width: 0 !important;
     font-size: 14px !important;
     border-bottom: none !important;
   }
