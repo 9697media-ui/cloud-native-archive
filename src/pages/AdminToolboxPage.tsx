@@ -1489,11 +1489,15 @@ export default function AdminToolboxPage() {
       }).join('\n');
     }
 
+    const isSvgUrl = (u) => /\.svg(\?|#|$)/i.test(u || '');
+    const svgLogoTag = (url, cls) => `<span class="${cls} logo-svg" role="img" aria-label="Logo" style="-webkit-mask:url('${url}') no-repeat center / contain;mask:url('${url}') no-repeat center / contain;background-color:${menuConfig.logoColor};"></span>`;
+    const logoDesktopTag = (menuConfig.logoColor && isSvgUrl(menuConfig.logoUrl)) ? svgLogoTag(menuConfig.logoUrl, 'logo-desktop') : `<img class="logo-desktop" src="${menuConfig.logoUrl}" alt="Logo">`;
+    const logoMobileTag = menuConfig.logoUrlMobile ? ((menuConfig.logoColor && isSvgUrl(menuConfig.logoUrlMobile)) ? svgLogoTag(menuConfig.logoUrlMobile, 'logo-mobile') : `<img class="logo-mobile" src="${menuConfig.logoUrlMobile}" alt="Logo">`) : '';
     const html = `
 <!-- Início: Menu Responsivo Nativo -->
 <nav class="custom-nav-992">
   <div class="logo">
-    <a href="/"><img class="logo-desktop" src="${menuConfig.logoUrl}" alt="Logo">${menuConfig.logoUrlMobile ? `<img class="logo-mobile" src="${menuConfig.logoUrlMobile}" alt="Logo">` : ''}</a>
+    <a href="/">${logoDesktopTag}${logoMobileTag}</a>
   </div>
   <button class="mobile-toggle" onclick="toggleCustomMenu(this)" aria-label="Menu">
     <span class="bars"><span></span><span></span><span></span></span>
