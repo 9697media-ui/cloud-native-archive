@@ -1158,11 +1158,11 @@ export default function AdminToolboxPage() {
     transition: transform 0.3s ease, opacity 0.25s ease, top 0.3s ease;
   }
   .custom-nav-992 .mobile-toggle .bars span:nth-child(1) { top: 0; }
-  .custom-nav-992 .mobile-toggle .bars span:nth-child(2) { top: 8px; }
-  .custom-nav-992 .mobile-toggle .bars span:nth-child(3) { top: 16px; }
-  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(1) { top: 8px; transform: rotate(45deg); }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(2) { top: ${((menuConfig.hamburgerSize*0.75 - 2.5)/2).toFixed(1)}px; }
+  .custom-nav-992 .mobile-toggle .bars span:nth-child(3) { top: ${(menuConfig.hamburgerSize*0.75 - 2.5).toFixed(1)}px; }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(1) { top: ${((menuConfig.hamburgerSize*0.75 - 2.5)/2).toFixed(1)}px; transform: rotate(45deg); }
   .custom-nav-992 .mobile-toggle.open .bars span:nth-child(2) { opacity: 0; }
-  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(3) { top: 8px; transform: rotate(-45deg); }
+  .custom-nav-992 .mobile-toggle.open .bars span:nth-child(3) { top: ${((menuConfig.hamburgerSize*0.75 - 2.5)/2).toFixed(1)}px; transform: rotate(-45deg); }
 
   
   /* ===== TABLET (1024px - 851px) ===== */
