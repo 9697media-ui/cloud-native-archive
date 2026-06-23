@@ -1269,6 +1269,7 @@ export default function AdminToolboxPage() {
       max-width: 150px;
     }
     ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
+    ${tabletHamburger ? mobileRules('.custom-nav-992') : `
     .custom-nav-992 .menu-items {
       gap: 2px;
     }
@@ -1295,6 +1296,7 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .has-submenu:focus-within > a {
       border-radius: ${activeRadiusTablet}em !important;
     }
+    `}
   }
 
   /* ===== MOBILE (<= 850px) ===== */
