@@ -846,6 +846,8 @@ export default function AdminToolboxPage() {
      justify-content: center;
      flex: 1 1 0;
      min-width: 0;
+     white-space: nowrap !important;
+     flex-wrap: nowrap !important;
      list-style: none !important;
      margin: 0 !important;
      padding: 0 !important;
@@ -882,7 +884,9 @@ export default function AdminToolboxPage() {
      border-radius: 6px;
      transition: all 0.2s;
      opacity: 0.8;
-     white-space: nowrap;
+     white-space: nowrap !important;
+     word-break: keep-all !important;
+     overflow-wrap: normal !important;
      position: relative;
      display: flex;
      align-items: center;
@@ -893,6 +897,7 @@ export default function AdminToolboxPage() {
      min-width: 0;
      overflow: hidden;
      text-overflow: ellipsis;
+     line-height: 1.2 !important;
    }
   .custom-nav-992 .menu-items > a:hover,
   .custom-nav-992 .menu-items > .has-submenu > a:hover {
