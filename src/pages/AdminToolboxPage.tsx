@@ -79,9 +79,8 @@ export default function AdminToolboxPage() {
   }, [deviceView]);
 
 
-  // No preview, os <script> injetados via innerHTML não executam, então o menu
-  // ficaria "travado" no layout desktop. Forçamos o modo mobile/tablet aplicando
-  // a classe .force-mobile no menu renderizado conforme o dispositivo selecionado.
+  // No preview, os <script> injetados via innerHTML não executam; no modo mobile
+  // forçamos a classe .force-mobile, enquanto tablet usa o breakpoint próprio.
   useEffect(() => {
     const t = setTimeout(() => {
       const root = frameRef.current;
