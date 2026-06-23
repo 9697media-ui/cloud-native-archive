@@ -1620,6 +1620,26 @@ export default function AdminToolboxPage() {
                       />
                     </div>
 
+                    <div className="flex items-center justify-between border-t pt-4">
+                      <Label htmlFor="searchEnabled">Barra de Busca</Label>
+                      <Switch 
+                        id="searchEnabled" 
+                        checked={menuConfig.searchEnabled}
+                        onCheckedChange={(val) => setMenuConfig({...menuConfig, searchEnabled: val})}
+                      />
+                    </div>
+                    {menuConfig.searchEnabled && (
+                      <div className="space-y-2">
+                        <Label>URL de Busca do Site</Label>
+                        <Input 
+                          value={menuConfig.searchUrl}
+                          onChange={(e) => setMenuConfig({...menuConfig, searchUrl: e.target.value})}
+                          placeholder="https://seusite.com/"
+                        />
+                        <p className="text-xs text-muted-foreground">No WordPress use a URL base do site (ex: https://anabrasil.org/). A busca envia o termo via parâmetro <code>?s=</code>.</p>
+                      </div>
+                    )}
+
                     <div className="space-y-4 pt-2 border-t mt-4">
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
