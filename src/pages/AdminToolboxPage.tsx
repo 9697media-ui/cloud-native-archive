@@ -2574,6 +2574,7 @@ export default function AdminToolboxPage() {
                     </div>
                     <div className="relative w-full min-h-[80px] rounded-lg border bg-background overflow-hidden">
                       <div
+                        className="[&_a]:pointer-events-none [&_button]:pointer-events-none"
                         key={'demo' + activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
                         dangerouslySetInnerHTML={{ __html: getGeneratedCode() }}
                       />
