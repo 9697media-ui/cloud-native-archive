@@ -2294,6 +2294,7 @@ export default function AdminToolboxPage() {
                          dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
                        />
                     </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="w-full max-w-4xl bg-[#1e1e1e] rounded-xl shadow-2xl overflow-hidden flex flex-col font-mono">
