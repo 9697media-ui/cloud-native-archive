@@ -772,6 +772,11 @@ export default function AdminToolboxPage() {
       border-left: 3px solid transparent;
       border-bottom: 1px solid rgba(0,0,0,0.04);
       justify-content: space-between;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
     ${p} .menu-items > .has-submenu:last-child > a,
@@ -804,6 +809,11 @@ export default function AdminToolboxPage() {
     ${p} .submenu a {
       padding: 10px 40px !important;
       font-size: 15px !important;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
     }
     ${p} .menu-items a.active {
       border-left-color: ${menuConfig.activeBorderColor};
