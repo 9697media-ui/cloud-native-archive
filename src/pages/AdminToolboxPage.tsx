@@ -699,7 +699,7 @@ export default function AdminToolboxPage() {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: ${menuConfig.fontFamily};
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: ${menuConfig.sticky ? 'sticky' : 'relative'};
     top: 0;
