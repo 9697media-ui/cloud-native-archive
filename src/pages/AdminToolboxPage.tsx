@@ -1293,7 +1293,9 @@ export default function AdminToolboxPage() {
   // Lógica para submenus no Mobile (clique)
   document.addEventListener('click', function(e) {
     const hasSubmenu = e.target.closest('.custom-nav-992 .has-submenu');
-    if (hasSubmenu && window.innerWidth <= 850) {
+    const navEl = document.querySelector('.custom-nav-992');
+    const isMobileMode = window.innerWidth <= 850 || (navEl && navEl.classList.contains('force-mobile'));
+    if (hasSubmenu && isMobileMode) {
       const link = e.target.closest('a');
       // Se clicou na seta ou no item pai e ele tem submenu, toggle
       if (link && link.parentElement === hasSubmenu) {
