@@ -350,6 +350,9 @@ export default function AdminToolboxPage() {
     submenuGap: 0,
     submenuGapTablet: 0,
     submenuGapMobile: 0,
+    shadowSize: 28,
+    shadowIntensity: 22,
+    tabletMenuMode: 'header',
     activeBgColor: 'transparent',
     activeTextColor: '#4f46e5',
     items: [
