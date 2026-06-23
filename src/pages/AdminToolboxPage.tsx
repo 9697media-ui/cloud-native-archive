@@ -183,6 +183,8 @@ export default function AdminToolboxPage() {
         { label: 'Sobre Nós', link: '#' }
       ],
       sticky: true,
+      searchEnabled: true,
+      searchUrl: 'https://anabrasil.org/',
       enableAutoDetect: false,
       enableWpApi: false,
       wpApiUrl: '',
@@ -231,6 +233,8 @@ export default function AdminToolboxPage() {
       { label: 'Contato', link: '#', children: [] as any[] }
     ] as any[],
     sticky: true,
+    searchEnabled: true,
+    searchUrl: 'https://anabrasil.org/',
     enableAutoDetect: false,
     enableWpApi: true,
     wpApiUrl: '',
@@ -1270,10 +1274,12 @@ export default function AdminToolboxPage() {
       : '<!-- Aguardando carregamento... -->'
     }
   </div>
-  <form class="nav-search" role="search" onsubmit="return false;">
-    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.49-1.49-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
-    <input type="search" placeholder="Buscar..." aria-label="Buscar">
-  </form>
+  ${menuConfig.searchEnabled ? `<form class="nav-search" role="search" method="get" action="${menuConfig.searchUrl}">
+    <button type="submit" aria-label="Buscar" style="background:none;border:none;padding:0;cursor:pointer;color:inherit;display:flex;">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.49-1.49-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+    </button>
+    <input type="search" name="s" placeholder="Buscar..." aria-label="Buscar">
+  </form>` : ''}
 </nav>
 <!-- Fim: Menu Responsivo Nativo -->`;
 
@@ -1613,6 +1619,26 @@ export default function AdminToolboxPage() {
                         onCheckedChange={(val) => setMenuConfig({...menuConfig, sticky: val})}
                       />
                     </div>
+
+                    <div className="flex items-center justify-between border-t pt-4">
+                      <Label htmlFor="searchEnabled">Barra de Busca</Label>
+                      <Switch 
+                        id="searchEnabled" 
+                        checked={menuConfig.searchEnabled}
+                        onCheckedChange={(val) => setMenuConfig({...menuConfig, searchEnabled: val})}
+                      />
+                    </div>
+                    {menuConfig.searchEnabled && (
+                      <div className="space-y-2">
+                        <Label>URL de Busca do Site</Label>
+                        <Input 
+                          value={menuConfig.searchUrl}
+                          onChange={(e) => setMenuConfig({...menuConfig, searchUrl: e.target.value})}
+                          placeholder="https://seusite.com/"
+                        />
+                        <p className="text-xs text-muted-foreground">No WordPress use a URL base do site (ex: https://anabrasil.org/). A busca envia o termo via parâmetro <code>?s=</code>.</p>
+                      </div>
+                    )}
 
                     <div className="space-y-4 pt-2 border-t mt-4">
                       <div className="flex items-center justify-between">
