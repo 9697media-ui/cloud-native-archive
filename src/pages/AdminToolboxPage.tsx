@@ -825,6 +825,7 @@ export default function AdminToolboxPage() {
       }
 
       const wpApiUrl = '${menuConfig.wpApiUrl}';
+      const enableAutoDetect = ${menuConfig.enableAutoDetect};
       if (wpApiUrl && wpApiUrl.length > 10) {
         try {
           console.log('Buscando via WP API:', wpApiUrl);
