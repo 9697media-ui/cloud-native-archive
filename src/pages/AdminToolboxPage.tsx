@@ -203,6 +203,7 @@ export default function AdminToolboxPage() {
     menu: {
       logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
       logoUrlMobile: '',
+      logoColor: '',
       bgColor: '#ffffff',
       textColor: '#1f2937',
       accentColor: '#4f46e5',
