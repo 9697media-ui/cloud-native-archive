@@ -183,6 +183,8 @@ export default function AdminToolboxPage() {
         { label: 'Sobre Nós', link: '#' }
       ],
       sticky: true,
+      searchEnabled: true,
+      searchUrl: 'https://anabrasil.org/',
       enableAutoDetect: false,
       enableWpApi: false,
       wpApiUrl: '',
