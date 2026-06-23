@@ -900,7 +900,7 @@ export default function AdminToolboxPage() {
       opacity: 1 !important;
       visibility: visible !important;
       max-height: 80vh !important;
-      margin: ${submenuGapMobile}px 24px 8px !important;
+      margin: ${submenuGapMobile}px 24px 18px !important;
       padding: 8px !important;
       box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
       border-color: rgba(0,0,0,0.08) !important;
