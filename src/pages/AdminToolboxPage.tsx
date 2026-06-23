@@ -1854,8 +1854,8 @@ export default function AdminToolboxPage() {
                             onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-xs">Raio (px)</Label>
-                          <Input type="number" min={0} max={40}
+                          <Label className="text-xs">Raio (%)</Label>
+                          <Input type="number" min={0} max={100}
                             value={menuConfig.activeRadius}
                             onChange={(e) => setMenuConfig({...menuConfig, activeRadius: Number(e.target.value) || 0})} />
                         </div>
