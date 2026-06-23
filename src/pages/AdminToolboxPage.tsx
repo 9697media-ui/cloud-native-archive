@@ -1075,6 +1075,7 @@ export default function AdminToolboxPage() {
      position: relative !important;
      display: flex;
      align-items: center;
+     align-self: stretch;
      flex-shrink: 1;
      min-width: 0;
    }
