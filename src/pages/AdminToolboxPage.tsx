@@ -264,6 +264,7 @@ export default function AdminToolboxPage() {
       hamburgerColor: '#1f2937',
       hamburgerBgColor: '#00000000',
       hamburgerRadius: 32,
+      spotlightRadius: 24,
       searchUrl: 'https://anabrasil.org/',
       enableAutoDetect: false,
       enableWpApi: false,
@@ -334,6 +335,7 @@ export default function AdminToolboxPage() {
     hamburgerColor: '#1f2937',
     hamburgerBgColor: '#00000000',
     hamburgerRadius: 32,
+    spotlightRadius: 24,
     searchUrl: 'https://anabrasil.org/',
     enableAutoDetect: false,
     enableWpApi: true,
@@ -976,7 +978,7 @@ export default function AdminToolboxPage() {
     padding: 16px 20px;
     background: ${menuConfig.bgColor};
     color: ${menuConfig.textColor};
-    border-radius: 16px;
+    border-radius: ${(menuConfig.spotlightRadius/100*2.5).toFixed(3)}em;
     box-shadow: 0 24px 60px rgba(0,0,0,0.3);
     transform: translateY(-20px) scale(0.97);
     transition: transform 0.28s cubic-bezier(.2,.8,.2,1);
@@ -2165,6 +2167,17 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             value={[menuConfig.hamburgerRadius]}
                             onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerRadius: val})}
                           />
+                        </div>
+                        <div className="space-y-2 pt-2">
+                          <Label>Arredondamento da Busca Mobile/Tablet: {menuConfig.spotlightRadius}%</Label>
+                          <Slider
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={[menuConfig.spotlightRadius]}
+                            onValueChange={([val]) => setMenuConfig({...menuConfig, spotlightRadius: val})}
+                          />
+                          <p className="text-xs text-muted-foreground">Controla o arredondamento da barra de busca central (spotlight).</p>
                         </div>
                       </div>
                     )}
