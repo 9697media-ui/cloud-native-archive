@@ -1127,11 +1127,16 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .mobile-toggle {
     display: none;
+    align-items: center;
+    justify-content: center;
+    width: ${menuConfig.toggleSize}px;
+    height: ${menuConfig.toggleSize}px;
     background: ${menuConfig.hamburgerBgColor};
     border: none;
     color: ${menuConfig.hamburgerColor};
-    padding: 10px;
+    padding: 0;
     cursor: pointer;
+    flex-shrink: 0;
     border-radius: ${(menuConfig.hamburgerRadius/100*2.5).toFixed(3)}em;
   }
   .custom-nav-992 .mobile-toggle:hover {
@@ -1139,8 +1144,8 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .mobile-toggle .bars {
     position: relative;
-    width: 24px;
-    height: 18px;
+    width: ${menuConfig.hamburgerSize}px;
+    height: ${(menuConfig.hamburgerSize * 0.75).toFixed(0)}px;
     display: block;
   }
   .custom-nav-992 .mobile-toggle .bars span {
