@@ -312,6 +312,16 @@ export default function AdminToolboxPage() {
         }).filter(item => item.label);
       };
 
+      // O endpoint /wp-json/wp/v2/navigation costuma devolver vários <li> irmãos
+      // sem um <ul> raiz. Nessa situação, o menu correto é o body inteiro; se
+      // deixarmos a pontuação escolher entre todos os <ul>, ela pode pegar sempre
+      // apenas um submenu interno.
+      const bodyHasDirectMenuItems = Array.from(doc.body.children).some(child => child.tagName === 'LI');
+      if (bodyHasDirectMenuItems) {
+        const bodyItems = parseList(doc.body);
+        if (bodyItems.length > 0) return bodyItems;
+      }
+
       // Em vez de pegar apenas a primeira lista (que costuma ser um subgrupo),
       // avaliamos TODOS os candidatos a container de menu e escolhemos o mais rico
       // (o que produz mais itens de topo + subitens). Esse é o mesmo princípio
@@ -330,9 +340,15 @@ export default function AdminToolboxPage() {
         return /main-menu|nav|navbar|navigation|menu/.test(signature);
       };
 
+      const isNestedSubmenuCandidate = (element: Element): boolean => {
+        const signature = `${element.id || ''} ${element.className || ''}`.toLowerCase();
+        return Boolean(element.parentElement?.closest('li')) || /submenu|sub-menu|dropdown|children/.test(signature);
+      };
+
       let best: any[] = [];
       let bestScore = -1;
       for (const candidate of candidates) {
+        if (isNestedSubmenuCandidate(candidate)) continue;
         const parsed = parseList(candidate);
         const submenuScore = countSubmenuItems(parsed);
         const directScore = parsed.length;
