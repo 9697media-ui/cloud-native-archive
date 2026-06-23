@@ -1601,6 +1601,7 @@ export default function AdminToolboxPage() {
                                     ];
 
                                      let detected = false;
+                                     let bestDetectedScore = 0;
                                      for (const endpoint of endpoints) {
                                       try {
                                         // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
@@ -1634,9 +1635,10 @@ export default function AdminToolboxPage() {
 
                                            if (data && (Array.isArray(data) || typeof data === 'object')) {
                                              console.log('Dados detectados via API:', data);
-                                             const wpItems = extractWPItems(data);
+                                              const wpItems = extractWPItems(data);
                                              console.log('Itens extraídos (hierárquicos):', wpItems);
                                               const submenuCount = countSubmenuItems(wpItems);
+                                               const detectedScore = wpItems.length + submenuCount;
                                              
                                              setMenuConfig(prev => ({
                                                ...prev, 
@@ -1661,7 +1663,7 @@ export default function AdminToolboxPage() {
                                                  ? `Importamos ${wpItems.length} itens (com submenus) de ${usedEndpoint}`
                                                  : `Conectado ao endpoint ${usedEndpoint}`,
                                              });
-                                             if (wpItems.length > 0) { detected = true; break; }
+                                              if (wpItems.length > 0) { detected = true; bestDetectedScore = Math.max(bestDetectedScore, detectedScore); break; }
                                            }
                                          }
                                       } catch (e) {
@@ -1689,7 +1691,7 @@ export default function AdminToolboxPage() {
                                      // Fallback: muitos menus (Elementor/Happy Addons, etc.) NÃO são
                                      // expostos via REST. Nesses casos, lemos o HTML da própria página
                                      // através de um proxy CORS e extraímos o menu + subitens direto do DOM.
-                                     if (!detected) {
+                                      if (true) {
                                        try {
                                           const proxyReaders = [
                                             async () => {
@@ -1709,7 +1711,8 @@ export default function AdminToolboxPage() {
                                             if (!html) continue;
                                            const wpItems = extractWPItems([{ content: { rendered: html } }]);
                                            const submenuCount = countSubmenuItems(wpItems);
-                                           if (wpItems.length > 0) {
+                                           const htmlScore = wpItems.length + submenuCount;
+                                           if (wpItems.length > 0 && htmlScore > bestDetectedScore) {
                                              setMenuConfig(prev => ({ ...prev, items: wpItems }));
                                              setMenuDetectionDetails({
                                                status: 'success',
