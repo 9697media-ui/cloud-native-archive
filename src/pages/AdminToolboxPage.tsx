@@ -300,12 +300,20 @@ export default function AdminToolboxPage() {
       return text.toString().replace(/[\u25BC\u25BE\u25B6\u25B8\u2304\u22EE\u00BB\u203A\u25B2\u25BC]/g, '').trim();
     };
 
+    const firstPresent = (...values: any[]) => values.find(value => value !== undefined && value !== null && value !== '');
+
+    const normalizeLink = (value: any) => {
+      if (!value) return undefined;
+      if (typeof value === 'object') return value.rendered || value.url || value.href;
+      return value;
+    };
+
     const normalizeItems = (rawList: any[]) => {
       return rawList.map(item => {
-        const id = (item.id || item.ID || item.db_id || item.object_id || item.key || item.node?.id || Math.random().toString(36).substr(2, 9)).toString();
-        const parent = (item.parent || item.menu_item_parent || item.parentId || item.meta?.menu_item_parent || item.node?.parentId || 0).toString();
+        const id = (firstPresent(item.id, item.ID, item.db_id, item.object_id, item.key, item.node?.id) || Math.random().toString(36).substr(2, 9)).toString();
+        const parent = (firstPresent(item.parent, item.menu_item_parent, item.parentId, item.meta?.menu_item_parent, item.node?.parentId) || 0).toString();
         const label = cleanLabel(item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título');
-        const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
+        const link = normalizeLink(firstPresent(item.url, item.link, item.guid, item.href, item.node?.url)) || '#';
         const children = item.child_items || item.children || item.items || item.sub_items || item.nodes || item.edges || [];
         return { id, parent, label, link, children };
       });
@@ -369,7 +377,7 @@ export default function AdminToolboxPage() {
 
       const isNestedSubmenuCandidate = (element: Element): boolean => {
         const signature = `${element.id || ''} ${element.className || ''}`.toLowerCase();
-        return Boolean(element.parentElement?.closest('li')) || /submenu|sub-menu|dropdown|children/.test(signature);
+        return /submenu|sub-menu|dropdown|children/.test(signature);
       };
 
       let best: any[] = [];
@@ -380,7 +388,9 @@ export default function AdminToolboxPage() {
         const submenuScore = countSubmenuItems(parsed);
         const directScore = parsed.length;
         const signalScore = hasMenuSignal(candidate) ? 1000 : 0;
-        const score = signalScore + countDeep(parsed) + (submenuScore * 10) + (directScore * 3);
+        const nestedPenalty = candidate.closest('li') ? 300 : 0;
+        const submenuBonus = submenuScore > 0 ? 50 : 0;
+        const score = signalScore + (directScore * 25) + (countDeep(parsed) * 2) + submenuBonus - nestedPenalty;
         // Priorizamos containers com assinatura clara de menu e submenus reais,
         // evitando aceitar uma lista de páginas/posts como se fosse navegação.
         if (score > bestScore) {
