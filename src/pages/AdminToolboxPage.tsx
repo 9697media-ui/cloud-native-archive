@@ -384,6 +384,40 @@ export default function AdminToolboxPage() {
     testUrl: 'https://anabrasil.org/ana/'
   });
 
+  // ===== Preview "demo" em tempo real =====
+  // O documento (srcDoc) só é reconstruído quando a ESTRUTURA muda
+  // (dispositivo, widget ou itens). Mudanças de estilo são injetadas via
+  // <style id="live-style"> sem recarregar o iframe, preservando o estado
+  // (ex.: menu hambúrguer aberto).
+  const demoIframeRef = React.useRef<HTMLIFrameElement | null>(null);
+  const [demoDoc, setDemoDoc] = useState('');
+  const getDemoExtraCss = React.useCallback(() => {
+    const pAct = deviceView === 'mobile' ? menuConfig.activeRadiusMobile : deviceView === 'tablet' ? menuConfig.activeRadiusTablet : menuConfig.activeRadius;
+    const pItem = deviceView === 'mobile' ? menuConfig.itemRadiusMobile : deviceView === 'tablet' ? menuConfig.itemRadiusTablet : menuConfig.itemRadius;
+    return `.menu-items a{border-radius:${(pItem/100*2.5).toFixed(3)}em !important;}.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(pAct/100*2.5).toFixed(3)}em !important;opacity:1 !important;}`;
+  }, [deviceView, menuConfig]);
+  const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
+  // Reconstrói o documento apenas em mudanças estruturais.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setDemoDoc(getGeneratedCode() + `<style id="live-style">${getDemoExtraCss()}</style>` + demoScript);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deviceView, activeWidgetType, JSON.stringify(menuConfig.items)]);
+  // Injeta o CSS atualizado em tempo real sem recarregar o iframe.
+  useEffect(() => {
+    const ifr = demoIframeRef.current;
+    const doc = ifr && ifr.contentDocument;
+    if (!doc || !doc.head) return;
+    const full = getGeneratedCode();
+    const m = full.match(/<style[\s\S]*?<\/style>/i);
+    const css = (m ? m[0].replace(/<\/?style[^>]*>/gi, '') : '') + getDemoExtraCss();
+    let live = doc.getElementById('live-style') as HTMLStyleElement | null;
+    if (!live) { live = doc.createElement('style'); live.id = 'live-style'; doc.head.appendChild(live); }
+    live.innerHTML = css;
+  });
+
+
+
   const [jsonInput, setJsonInput] = useState('');
 
   // Fallback robusto: mesmo quando o JSON está truncado/inválido (ex.: colado
