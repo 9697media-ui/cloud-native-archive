@@ -245,6 +245,9 @@ export default function AdminToolboxPage() {
       itemRadius: 10,
       itemRadiusTablet: 10,
       itemRadiusMobile: 0,
+      submenuGap: 0,
+      submenuGapTablet: 0,
+      submenuGapMobile: 0,
       activeBgColor: 'transparent',
       activeTextColor: '#4f46e5',
       items: [
@@ -341,6 +344,9 @@ export default function AdminToolboxPage() {
     itemRadius: 10,
     itemRadiusTablet: 10,
     itemRadiusMobile: 0,
+    submenuGap: 0,
+    submenuGapTablet: 0,
+    submenuGapMobile: 0,
     activeBgColor: 'transparent',
     activeTextColor: '#4f46e5',
     items: [
@@ -783,6 +789,9 @@ export default function AdminToolboxPage() {
     const itemRadiusDesktop = ((menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
     const itemRadiusTablet = ((menuConfig.itemRadiusTablet ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
     const itemRadiusMobile = ((menuConfig.itemRadiusMobile ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const submenuGapDesktop = Math.max(0, Number(menuConfig.submenuGap ?? 0));
+    const submenuGapTablet = Math.max(0, Number(menuConfig.submenuGapTablet ?? menuConfig.submenuGap ?? 0));
+    const submenuGapMobile = Math.max(0, Number(menuConfig.submenuGapMobile ?? menuConfig.submenuGap ?? 0));
     const mobileRules = (p: string) => `
     ${p} {
       padding: 0 14px;
@@ -865,15 +874,24 @@ export default function AdminToolboxPage() {
       width: 100% !important;
       box-shadow: none !important;
       padding: 0 !important;
+      margin-top: ${submenuGapMobile}px !important;
       background-color: rgba(0,0,0,0.02) !important;
       border: none !important;
-      display: none !important;
-      opacity: 1 !important;
-      visibility: visible !important;
+      display: flex !important;
+      flex-direction: column !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      max-height: 0 !important;
+      overflow: hidden !important;
       transform: none !important;
+      clip-path: inset(0 0 100% 0);
+      transition: max-height 0.32s cubic-bezier(.2,.8,.2,1), clip-path 0.32s cubic-bezier(.2,.8,.2,1), opacity 0.25s ease, margin-top 0.25s ease, visibility 0.25s ease;
     }
     ${p} .has-submenu.open > .submenu {
-      display: flex !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      max-height: 80vh !important;
+      clip-path: inset(0 0 0 0);
     }
     ${p} .has-submenu.open > a::after {
       transform: rotate(180deg);
@@ -1086,7 +1104,7 @@ export default function AdminToolboxPage() {
     left: 0;
     top: 100%;
     width: max(100%, 230px);
-    height: 14px;
+    height: ${submenuGapDesktop + 14}px;
     background: transparent;
     z-index: 2147483646;
   }
@@ -1102,7 +1120,7 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .submenu {
     position: absolute !important;
-    top: 100% !important;
+    top: calc(100% + ${submenuGapDesktop}px) !important;
     left: 0 !important;
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
@@ -1120,11 +1138,13 @@ export default function AdminToolboxPage() {
     margin-right: 0 !important;
     border: 1px solid rgba(0,0,0,0.08) !important;
     overflow: hidden !important;
+    transform-origin: top center;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(-18px);
-    transition: opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), visibility 0.25s ease;
+    transform: translateY(-8px);
+    clip-path: inset(0 0 100% 0);
+    transition: opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), clip-path 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.25s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu,
   .custom-nav-992 .has-submenu:focus-within > .submenu {
@@ -1132,6 +1152,7 @@ export default function AdminToolboxPage() {
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
+    clip-path: inset(0 0 0 0);
   }
   .custom-nav-992 .has-submenu:hover > a::after {
     transform: rotate(180deg);
@@ -1232,8 +1253,12 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .menu-items a.active {
       border-radius: ${activeRadiusTablet}em !important;
     }
+    .custom-nav-992 .menu-items .has-submenu::before {
+      height: ${submenuGapTablet + 14}px;
+    }
     .custom-nav-992 .submenu {
       min-width: 200px !important;
+      top: calc(100% + ${submenuGapTablet}px) !important;
     }
   }
 
@@ -2167,6 +2192,24 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                          <Slider min={0} max={100} step={1}
                            value={[menuConfig.itemRadiusMobile]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusMobile: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Espaçamento submenu PC (px): {menuConfig.submenuGap}px {menuConfig.submenuGap === 0 ? '(colado)' : ''}</Label>
+                         <Slider min={0} max={40} step={1}
+                           value={[menuConfig.submenuGap]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, submenuGap: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Espaçamento submenu Tablet (px): {menuConfig.submenuGapTablet}px {menuConfig.submenuGapTablet === 0 ? '(colado)' : ''}</Label>
+                         <Slider min={0} max={40} step={1}
+                           value={[menuConfig.submenuGapTablet]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, submenuGapTablet: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Espaçamento submenu Mobile (px): {menuConfig.submenuGapMobile}px {menuConfig.submenuGapMobile === 0 ? '(colado)' : ''}</Label>
+                         <Slider min={0} max={40} step={1}
+                           value={[menuConfig.submenuGapMobile]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, submenuGapMobile: v[0]})} />
                        </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
