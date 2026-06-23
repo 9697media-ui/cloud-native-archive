@@ -2578,7 +2578,7 @@ export default function AdminToolboxPage() {
                         return (
                           <iframe
                             title="Demo isolado do widget"
-                            className="border-none pointer-events-none origin-top"
+                            className="border-none origin-top"
                             style={{
                               width: demoWidth,
                               height: 140 / 0.35,
