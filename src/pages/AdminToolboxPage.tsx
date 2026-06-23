@@ -1489,6 +1489,25 @@ export default function AdminToolboxPage() {
                           />
                         </div>
                         <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo e tentaremos identificar o endpoint e os itens automaticamente.</p>
+                        {menuDetectionDetails && (
+                          <Alert className="mt-3">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>
+                              {menuDetectionDetails.status === 'checking' ? 'Detectando menu...' : 'Detalhe do menu detectado'}
+                            </AlertTitle>
+                            <AlertDescription className="space-y-1 text-xs">
+                              <p>{menuDetectionDetails.message}</p>
+                              {menuDetectionDetails.endpoint && (
+                                <p className="break-all">Endpoint: {menuDetectionDetails.endpoint}</p>
+                              )}
+                              {typeof menuDetectionDetails.itemCount === 'number' && (
+                                <p>
+                                  Itens principais: {menuDetectionDetails.itemCount} · Subitens: {menuDetectionDetails.submenuCount || 0}
+                                </p>
+                              )}
+                            </AlertDescription>
+                          </Alert>
+                        )}
                       </div>
                     </div>
 
