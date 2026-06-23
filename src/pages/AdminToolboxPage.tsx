@@ -237,6 +237,34 @@ export default function AdminToolboxPage() {
     testUrl: ''
   });
 
+  const [jsonInput, setJsonInput] = useState('');
+
+  const importMenuFromJson = () => {
+    try {
+      const parsed = JSON.parse(jsonInput);
+      const items = extractWPItems(parsed);
+      if (items.length > 0) {
+        setMenuConfig(prev => ({ ...prev, items }));
+        toast({
+          title: 'Menu importado',
+          description: `${items.length} item(ns) de topo detectado(s) a partir do JSON.`,
+        });
+      } else {
+        toast({
+          title: 'Nenhum item encontrado',
+          description: 'O JSON foi lido, mas não foi possível extrair itens de menu.',
+          variant: 'destructive',
+        });
+      }
+    } catch (e) {
+      toast({
+        title: 'JSON inválido',
+        description: 'Verifique se o conteúdo colado é um JSON válido.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const extractWPItems = (data: any): any[] => {
     if (!data) return [];
     
@@ -1439,7 +1467,26 @@ export default function AdminToolboxPage() {
                           checked={menuConfig.enableAutoDetect}
                           onCheckedChange={(val) => setMenuConfig({...menuConfig, enableAutoDetect: val})}
                         />
-                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-4 border-t mt-4">
+                      <Label className="text-xs uppercase font-bold text-muted-foreground flex items-center gap-2">
+                        <Code className="h-3 w-3" /> Importar via JSON
+                      </Label>
+                      <p className="text-[10px] text-muted-foreground">
+                        Cole o JSON da API do WordPress (ex.: /wp-json/wp/v2/navigation) para detectar menu e subitens.
+                      </p>
+                      <Textarea
+                        placeholder='[{"id":2060,"content":{"rendered":"<li>...</li>"}}]'
+                        value={jsonInput}
+                        onChange={(e) => setJsonInput(e.target.value)}
+                        className="font-mono text-[10px] min-h-[120px]"
+                      />
+                      <Button size="sm" onClick={importMenuFromJson} disabled={!jsonInput.trim()}>
+                        Ler JSON e Importar Menu
+                      </Button>
+                    </div>
+
                     </div>
 
                     <div className="space-y-4 pt-2 border-t mt-4">
