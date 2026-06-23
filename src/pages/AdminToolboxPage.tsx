@@ -179,7 +179,14 @@ export default function AdminToolboxPage() {
     
     if (template.type === 'whatsapp') setWhatsappConfig(template.config);
     else if (template.type === 'banner') setBannerConfig(template.config);
-    else if (template.type === 'menu') setMenuConfig(template.config);
+    else if (template.type === 'menu') setMenuConfig(prev => ({
+      ...prev,
+      ...template.config,
+      activeRadiusTablet: template.config.activeRadiusTablet ?? template.config.activeRadius ?? prev.activeRadiusTablet,
+      activeRadiusMobile: template.config.activeRadiusMobile ?? template.config.activeRadiusTablet ?? template.config.activeRadius ?? prev.activeRadiusMobile,
+      itemRadiusTablet: template.config.itemRadiusTablet ?? template.config.itemRadiusMobile ?? template.config.itemRadius ?? prev.itemRadiusTablet,
+      itemRadiusMobile: template.config.itemRadiusMobile ?? template.config.itemRadiusTablet ?? template.config.itemRadius ?? prev.itemRadiusMobile,
+    }));
 
     toast({ title: "Modelo carregado", description: `Editando: ${template.name}` });
   };
