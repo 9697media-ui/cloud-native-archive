@@ -61,6 +61,20 @@ export default function AdminToolboxPage() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [deviceView]);
+
+  // No preview, os <script> injetados via innerHTML não executam, então o menu
+  // ficaria "travado" no layout desktop. Forçamos o modo mobile/tablet aplicando
+  // a classe .force-mobile no menu renderizado conforme o dispositivo selecionado.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const root = frameRef.current;
+      if (!root) return;
+      root.querySelectorAll('.custom-nav-992').forEach((nav) => {
+        nav.classList.toggle('force-mobile', deviceView !== 'desktop');
+      });
+    }, 60);
+    return () => clearTimeout(t);
+  });
   const [menuDetectionDetails, setMenuDetectionDetails] = useState<{
     status: 'checking' | 'success' | 'warning' | 'error';
     message: string;
