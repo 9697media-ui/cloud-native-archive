@@ -978,7 +978,8 @@ export default function AdminToolboxPage() {
       font-size: 15px !important;
     }
     .custom-nav-992 .menu-items a.active {
-      border-left-color: currentColor;
+      border-left-color: ${menuConfig.accentColor};
+      color: ${menuConfig.accentColor};
       background-color: rgba(0,0,0,0.05);
     }
   }
