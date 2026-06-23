@@ -233,6 +233,7 @@ export default function AdminToolboxPage() {
       activeBorderColor: '#4f46e5',
       activeBorderWidth: 2,
       activeRadius: 30,
+      itemRadius: 10,
       activeBgColor: 'transparent',
       activeTextColor: '#4f46e5',
       items: [
@@ -324,6 +325,7 @@ export default function AdminToolboxPage() {
     activeBorderColor: '#4f46e5',
     activeBorderWidth: 2,
     activeRadius: 30,
+    itemRadius: 10,
     activeBgColor: 'transparent',
     activeTextColor: '#4f46e5',
     items: [
@@ -872,6 +874,7 @@ export default function AdminToolboxPage() {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
+      border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em !important;
     }`;
 
     const css = `<style>
@@ -1010,7 +1013,7 @@ export default function AdminToolboxPage() {
      font-size: ${menuConfig.fontSize}px;
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
-     border-radius: 6px;
+     border-radius: ${(menuConfig.itemRadius/100*2.5).toFixed(3)}em;
      transition: all 0.2s;
      opacity: 0.8;
      white-space: nowrap !important;
@@ -2086,6 +2089,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             value={menuConfig.activeRadius}
                             onChange={(e) => setMenuConfig({...menuConfig, activeRadius: Number(e.target.value) || 0})} />
                         </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Arred. Itens (%)</Label>
+                          <Input type="number" min={0} max={100}
+                            value={menuConfig.itemRadius}
+                            onChange={(e) => setMenuConfig({...menuConfig, itemRadius: Number(e.target.value) || 0})} />
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
@@ -2709,7 +2718,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               transformOrigin: 'top center',
                             }}
                             sandbox="allow-scripts"
-                            srcDoc={getGeneratedCode() + `<style>.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(menuConfig.activeRadius/100*2.5).toFixed(3)}em;opacity:1 !important;}</style><script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`}
+                            srcDoc={getGeneratedCode() + `<style>.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(menuConfig.itemRadius/100*2.5).toFixed(3)}em;opacity:1 !important;}</style><script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`}
                             key={'demo' + deviceView + activeWidgetType + getGeneratedCode()}
                           />
                         );
