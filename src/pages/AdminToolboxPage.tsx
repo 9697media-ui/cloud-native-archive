@@ -871,6 +871,12 @@ export default function AdminToolboxPage() {
                   }).filter(i => i.title);
                 }
 
+                  const hasDirectMenuItems = Array.from(tempDiv.children || []).some(child => child.tagName === 'LI');
+                  if (hasDirectMenuItems) {
+                    const directItems = parseList(tempDiv);
+                    if (directItems.length > 0) return directItems;
+                  }
+
                 const candidates = Array.from(
                   tempDiv.querySelectorAll('#main-menu, .ha-navbar-nav, .elementor-nav-menu, .wp-block-navigation__container, nav ul, nav, ul[class*="menu"], ul[class*="nav"], ul, ol')
                 );
@@ -884,8 +890,13 @@ export default function AdminToolboxPage() {
                   const signature = ((element.id || '') + ' ' + (element.className || '') + ' ' + (element.getAttribute?.('role') || '')).toLowerCase();
                   return /main-menu|nav|navbar|navigation|menu/.test(signature);
                 }
+                  function isNestedSubmenuCandidate(element) {
+                    const signature = ((element.id || '') + ' ' + (element.className || '')).toLowerCase();
+                    return !!(element.parentElement?.closest('li')) || /submenu|sub-menu|dropdown|children/.test(signature);
+                  }
                 let best = [], bestScore = -1;
                 for (const candidate of candidates) {
+                    if (isNestedSubmenuCandidate(candidate)) continue;
                   const parsed = parseList(candidate);
                   const score = (hasMenuSignal(candidate) ? 1000 : 0) + countDeep(parsed) + (countSubmenus(parsed) * 10) + (parsed.length * 3);
                   if (score > bestScore) { bestScore = score; best = parsed; }
