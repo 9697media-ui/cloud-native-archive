@@ -2638,10 +2638,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo Interativo do Widget (clique e teste aqui)</span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div className="relative w-full h-[420px] rounded-lg border bg-background overflow-hidden flex justify-center">
+                    <div ref={demoRef} className="relative w-full h-[420px] rounded-lg border bg-background overflow-hidden flex justify-center">
                       {(() => {
                         const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
-                        const scale = deviceView === 'desktop' ? 0.6 : deviceView === 'tablet' ? 0.6 : 0.7;
+                        const scale = demoScale;
                         return (
                           <iframe
                             title="Demo isolado do widget"
