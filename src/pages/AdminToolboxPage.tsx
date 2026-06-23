@@ -687,7 +687,7 @@ export default function AdminToolboxPage() {
                 parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
                 title: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título').toString(),
                 link: item.url || item.link || item.guid || item.href || '#',
-                children: item.children || item.items || item.sub_items || []
+                children: item.child_items || item.children || item.items || item.sub_items || []
               }));
 
               const normalized = normalize(flatItems);
