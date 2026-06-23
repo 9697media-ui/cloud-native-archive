@@ -2587,7 +2587,7 @@ export default function AdminToolboxPage() {
                               transformOrigin: 'bottom center',
                             }}
                             sandbox="allow-scripts"
-                            srcDoc={getGeneratedCode()}
+                            srcDoc={getGeneratedCode() + `<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(a){e.preventDefault();e.stopPropagation();}},true);window.open=function(){return null;};</scr`+`ipt>`}
                             key={'demo' + deviceView + activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
                           />
                         );
