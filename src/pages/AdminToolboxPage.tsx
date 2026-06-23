@@ -241,6 +241,7 @@ export default function AdminToolboxPage() {
       ],
       sticky: true,
       searchEnabled: true,
+      searchRadius: 999,
       searchUrl: 'https://anabrasil.org/',
       enableAutoDetect: false,
       enableWpApi: false,
