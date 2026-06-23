@@ -940,10 +940,10 @@ export default function AdminToolboxPage() {
     width: 130px;
   }
   .custom-nav-992 .nav-search svg {
-    width: 16px !important;
-    height: 16px !important;
-    min-width: 16px;
-    min-height: 16px;
+    width: ${menuConfig.searchIconSize}px !important;
+    height: ${menuConfig.searchIconSize}px !important;
+    min-width: ${menuConfig.searchIconSize}px;
+    min-height: ${menuConfig.searchIconSize}px;
     flex-shrink: 0;
     opacity: 0.7;
     fill: ${menuConfig.searchIconColor};
@@ -952,8 +952,8 @@ export default function AdminToolboxPage() {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: ${menuConfig.toggleSize}px;
+    height: ${menuConfig.toggleSize}px;
     border: none;
     border-radius: ${(menuConfig.searchRadius/100*2.5).toFixed(3)}em;
     background: ${menuConfig.searchBgColor};
@@ -963,15 +963,15 @@ export default function AdminToolboxPage() {
     transition: transform 0.2s ease, background 0.2s ease;
   }
   .custom-nav-992 .search-toggle:hover { transform: scale(1.08); filter: brightness(0.92); }
-  .custom-nav-992 .search-toggle svg { width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px; flex-shrink: 0; fill: ${menuConfig.searchIconColor}; }
+  .custom-nav-992 .search-toggle svg { width: ${menuConfig.searchIconSize + 2}px !important; height: ${menuConfig.searchIconSize + 2}px !important; min-width: ${menuConfig.searchIconSize + 2}px; min-height: ${menuConfig.searchIconSize + 2}px; flex-shrink: 0; fill: ${menuConfig.searchIconColor}; }
   .custom-spotlight-9982 {
     position: fixed;
     inset: 0;
     z-index: 2147483647;
     display: flex;
-    align-items: flex-start;
+    align-items: ${menuConfig.spotlightAlign === 'center' ? 'center' : menuConfig.spotlightAlign === 'bottom' ? 'flex-end' : 'flex-start'};
     justify-content: center;
-    padding-top: 18vh;
+    padding: ${menuConfig.spotlightAlign === 'top' ? '18vh' : menuConfig.spotlightAlign === 'bottom' ? '0 0 18vh' : '0'} ${menuConfig.spotlightPaddingX}px;
     background: rgba(0,0,0,0.4);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
