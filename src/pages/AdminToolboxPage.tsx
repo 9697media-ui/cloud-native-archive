@@ -2153,46 +2153,78 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           />
                           <p className="text-xs text-muted-foreground">100% = totalmente arredondado (igual ao raio da página ativa).</p>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 pt-2">
-                          <div className="space-y-1">
-                            <Label className="text-xs">Cor de Fundo da Busca</Label>
-                            <Input type="color" value={(menuConfig.searchBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, searchBgColor: e.target.value})} className="h-9 p-1" />
+                        {/* ===== Seção: Busca ===== */}
+                        <div className="rounded-lg border p-3 mt-3 space-y-3 text-center">
+                          <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Busca</p>
+                          <div className="grid grid-cols-2 gap-3 text-left">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Cor de Fundo</Label>
+                              <Input type="color" value={(menuConfig.searchBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, searchBgColor: e.target.value})} className="h-9 p-1" />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Cor do Ícone/Texto</Label>
+                              <Input type="color" value={menuConfig.searchIconColor} onChange={(e) => setMenuConfig({...menuConfig, searchIconColor: e.target.value})} className="h-9 p-1" />
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            <Label className="text-xs">Cor do Ícone/Texto da Busca</Label>
-                            <Input type="color" value={menuConfig.searchIconColor} onChange={(e) => setMenuConfig({...menuConfig, searchIconColor: e.target.value})} className="h-9 p-1" />
+                          <div className="space-y-2 text-left">
+                            <Label>Tamanho do Ícone Buscar: {menuConfig.searchIconSize}px</Label>
+                            <Slider min={12} max={32} step={1} value={[menuConfig.searchIconSize]} onValueChange={([val]) => setMenuConfig({...menuConfig, searchIconSize: val})} />
+                          </div>
+                          <div className="space-y-2 text-left">
+                            <Label>Arredondamento: {menuConfig.searchRadius}%</Label>
+                            <Slider min={0} max={100} step={1} value={[menuConfig.searchRadius]} onValueChange={([val]) => setMenuConfig({...menuConfig, searchRadius: val})} />
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 pt-2">
-                          <div className="space-y-1">
-                            <Label className="text-xs">Cor do Hambúrguer</Label>
-                            <Input type="color" value={menuConfig.hamburgerColor} onChange={(e) => setMenuConfig({...menuConfig, hamburgerColor: e.target.value})} className="h-9 p-1" />
+
+                        {/* ===== Seção: Menu Hambúrguer (mobile/tablet) ===== */}
+                        <div className="rounded-lg border p-3 mt-3 space-y-3 text-center">
+                          <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Menu Hambúrguer</p>
+                          <div className="grid grid-cols-2 gap-3 text-left">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Cor do Ícone</Label>
+                              <Input type="color" value={menuConfig.hamburgerColor} onChange={(e) => setMenuConfig({...menuConfig, hamburgerColor: e.target.value})} className="h-9 p-1" />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Cor de Fundo</Label>
+                              <Input type="color" value={(menuConfig.hamburgerBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, hamburgerBgColor: e.target.value})} className="h-9 p-1" />
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            <Label className="text-xs">Fundo do Hambúrguer</Label>
-                            <Input type="color" value={(menuConfig.hamburgerBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, hamburgerBgColor: e.target.value})} className="h-9 p-1" />
+                          <div className="space-y-2 text-left">
+                            <Label>Tamanho do Ícone: {menuConfig.hamburgerSize}px</Label>
+                            <Slider min={16} max={40} step={1} value={[menuConfig.hamburgerSize]} onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerSize: val})} />
+                          </div>
+                          <div className="space-y-2 text-left">
+                            <Label>Tamanho do Fundo (quadrado): {menuConfig.toggleSize}px</Label>
+                            <Slider min={28} max={60} step={1} value={[menuConfig.toggleSize]} onValueChange={([val]) => setMenuConfig({...menuConfig, toggleSize: val})} />
+                          </div>
+                          <div className="space-y-2 text-left">
+                            <Label>Arredondamento: {menuConfig.hamburgerRadius}%</Label>
+                            <Slider min={0} max={100} step={1} value={[menuConfig.hamburgerRadius]} onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerRadius: val})} />
                           </div>
                         </div>
-                        <div className="space-y-2 pt-2">
-                          <Label>Arredondamento do Hambúrguer: {menuConfig.hamburgerRadius}%</Label>
-                          <Slider
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={[menuConfig.hamburgerRadius]}
-                            onValueChange={([val]) => setMenuConfig({...menuConfig, hamburgerRadius: val})}
-                          />
-                        </div>
-                        <div className="space-y-2 pt-2">
-                          <Label>Arredondamento da Busca Mobile/Tablet: {menuConfig.spotlightRadius}%</Label>
-                          <Slider
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={[menuConfig.spotlightRadius]}
-                            onValueChange={([val]) => setMenuConfig({...menuConfig, spotlightRadius: val})}
-                          />
-                          <p className="text-xs text-muted-foreground">Controla o arredondamento da barra de busca central (spotlight).</p>
+
+                        {/* ===== Seção: Busca Mobile/Tablet (Spotlight) ===== */}
+                        <div className="rounded-lg border p-3 mt-3 space-y-3 text-center">
+                          <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Busca Mobile/Tablet (Spotlight)</p>
+                          <div className="space-y-2 text-left">
+                            <Label>Arredondamento: {menuConfig.spotlightRadius}%</Label>
+                            <Slider min={0} max={100} step={1} value={[menuConfig.spotlightRadius]} onValueChange={([val]) => setMenuConfig({...menuConfig, spotlightRadius: val})} />
+                          </div>
+                          <div className="space-y-2 text-left">
+                            <Label>Padding Lateral: {menuConfig.spotlightPaddingX}px</Label>
+                            <Slider min={0} max={80} step={1} value={[menuConfig.spotlightPaddingX]} onValueChange={([val]) => setMenuConfig({...menuConfig, spotlightPaddingX: val})} />
+                          </div>
+                          <div className="space-y-1 text-left">
+                            <Label>Alinhamento Vertical</Label>
+                            <Select value={menuConfig.spotlightAlign} onValueChange={(val) => setMenuConfig({...menuConfig, spotlightAlign: val})}>
+                              <SelectTrigger><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="top">Superior</SelectItem>
+                                <SelectItem value="center">Centro</SelectItem>
+                                <SelectItem value="bottom">Inferior</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                       </div>
                     )}
