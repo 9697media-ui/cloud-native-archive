@@ -1244,8 +1244,12 @@ export default function AdminToolboxPage() {
     .custom-nav-992 .menu-items a.active {
       border-radius: ${activeRadiusTablet}em !important;
     }
+    .custom-nav-992 .menu-items .has-submenu::before {
+      height: ${submenuGapTablet + 14}px;
+    }
     .custom-nav-992 .submenu {
       min-width: 200px !important;
+      top: calc(100% + ${submenuGapTablet}px) !important;
     }
   }
 
