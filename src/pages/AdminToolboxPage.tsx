@@ -856,7 +856,7 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .logo .logo-svg {
     height: 40px;
-    width: 180px;
+    width: auto;
     max-width: 180px;
     display: block;
     transition: background-color 0.25s ease;
