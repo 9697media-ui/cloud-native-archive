@@ -2193,6 +2193,24 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                            value={[menuConfig.itemRadiusMobile]}
                            onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusMobile: v[0]})} />
                        </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Espaçamento submenu PC (px): {menuConfig.submenuGap}px {menuConfig.submenuGap === 0 ? '(colado)' : ''}</Label>
+                         <Slider min={0} max={40} step={1}
+                           value={[menuConfig.submenuGap]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, submenuGap: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Espaçamento submenu Tablet (px): {menuConfig.submenuGapTablet}px {menuConfig.submenuGapTablet === 0 ? '(colado)' : ''}</Label>
+                         <Slider min={0} max={40} step={1}
+                           value={[menuConfig.submenuGapTablet]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, submenuGapTablet: v[0]})} />
+                       </div>
+                       <div className="space-y-2">
+                         <Label className="text-xs">Espaçamento submenu Mobile (px): {menuConfig.submenuGapMobile}px {menuConfig.submenuGapMobile === 0 ? '(colado)' : ''}</Label>
+                         <Slider min={0} max={40} step={1}
+                           value={[menuConfig.submenuGapMobile]}
+                           onValueChange={(v) => setMenuConfig({...menuConfig, submenuGapMobile: v[0]})} />
+                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <Label className="text-xs">Fundo (ativo)</Label>
