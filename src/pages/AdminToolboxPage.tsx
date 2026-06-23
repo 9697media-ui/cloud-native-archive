@@ -741,7 +741,8 @@ export default function AdminToolboxPage() {
       order: 3;
     }
     ${p} .logo { order: 1; margin-right: auto; }
-    ${p} .nav-search { order: 2; }
+    ${p} .nav-search { display: none !important; }
+    ${p} .search-toggle { display: flex !important; order: 2; margin-right: 8px; }
     ${p} .menu-items {
       position: absolute;
       top: 100%;
