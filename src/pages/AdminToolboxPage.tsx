@@ -1608,6 +1608,9 @@ export default function AdminToolboxPage() {
                       <p className="text-[10px] text-muted-foreground">
                         Cole o JSON da API do WordPress (ex.: /wp-json/wp/v2/navigation) para detectar menu e subitens.
                       </p>
+                      <Button size="sm" variant="outline" onClick={() => importMenuFromUrl(menuConfig.testUrl || 'https://anabrasil.org/ana/')}>
+                        Importar pela URL padrão ANA
+                      </Button>
                       <Textarea
                         placeholder='[{"id":2060,"content":{"rendered":"<li>...</li>"}}]'
                         value={jsonInput}
