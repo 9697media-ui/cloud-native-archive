@@ -1467,7 +1467,26 @@ export default function AdminToolboxPage() {
                           checked={menuConfig.enableAutoDetect}
                           onCheckedChange={(val) => setMenuConfig({...menuConfig, enableAutoDetect: val})}
                         />
-                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-4 border-t mt-4">
+                      <Label className="text-xs uppercase font-bold text-muted-foreground flex items-center gap-2">
+                        <Code className="h-3 w-3" /> Importar via JSON
+                      </Label>
+                      <p className="text-[10px] text-muted-foreground">
+                        Cole o JSON da API do WordPress (ex.: /wp-json/wp/v2/navigation) para detectar menu e subitens.
+                      </p>
+                      <Textarea
+                        placeholder='[{"id":2060,"content":{"rendered":"<li>...</li>"}}]'
+                        value={jsonInput}
+                        onChange={(e) => setJsonInput(e.target.value)}
+                        className="font-mono text-[10px] min-h-[120px]"
+                      />
+                      <Button size="sm" onClick={importMenuFromJson} disabled={!jsonInput.trim()}>
+                        Ler JSON e Importar Menu
+                      </Button>
+                    </div>
+
                     </div>
 
                     <div className="space-y-4 pt-2 border-t mt-4">
