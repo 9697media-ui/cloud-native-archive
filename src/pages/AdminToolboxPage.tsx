@@ -801,10 +801,16 @@ export default function AdminToolboxPage() {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
 
+                function resolveListRoot(root) {
+                  if (root.tagName === 'UL' || root.tagName === 'OL') return root;
+                  return root.querySelector(':scope > ul, :scope > ol, :scope > div > ul, :scope > div > ol, :scope > .wp-block-navigation__container, :scope > div > .wp-block-navigation__container, :scope ul[class*="menu"], :scope ul[class*="nav"]') || root;
+                }
+
                 function parseList(root) {
-                  const listItems = Array.from(root.children || []).filter(child => child.tagName === 'LI');
+                  const listRoot = resolveListRoot(root);
+                  const listItems = Array.from(listRoot.children || []).filter(child => child.tagName === 'LI');
                   if (listItems.length === 0) {
-                    return Array.from(root.querySelectorAll(':scope > a, :scope > .wp-block-navigation-item__content'))
+                    return Array.from(listRoot.querySelectorAll(':scope > a, :scope > .wp-block-navigation-item__content'))
                       .map(a => ({
                         title: (a.querySelector?.('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
                         link: a.getAttribute('href') || '#',
@@ -814,8 +820,8 @@ export default function AdminToolboxPage() {
                   }
 
                   return listItems.map(li => {
-                    const link = li.querySelector(':scope > a, :scope > .wp-block-navigation-item__content, :scope > div > a');
-                    const subList = li.querySelector(':scope > ul, :scope > ol, :scope > .wp-block-navigation__submenu-container, :scope > .sub-menu, :scope > div > ul');
+                    const link = li.querySelector(':scope > a, :scope > .wp-block-navigation-item__content, :scope > div > a, :scope > div > .wp-block-navigation-item__content');
+                    const subList = li.querySelector(':scope > ul, :scope > ol, :scope > .wp-block-navigation__submenu-container, :scope > .sub-menu, :scope > div > ul, :scope > div > ol, :scope > div > .sub-menu, :scope > div > .wp-block-navigation__submenu-container');
                     return {
                       title: (link?.querySelector?.('.wp-block-navigation-item__label')?.textContent || link?.textContent || '').trim(),
                       link: link?.getAttribute?.('href') || '#',
@@ -824,16 +830,21 @@ export default function AdminToolboxPage() {
                   }).filter(i => i.title);
                 }
 
-                const candidates = Array.from(
-                  tempDiv.querySelectorAll('nav ul, .wp-block-navigation__container, nav, ul[class*="menu"], ul[class*="nav"], ul, ol')
+                const allCandidates = Array.from(
+                  tempDiv.querySelectorAll('nav, [role="navigation"], .wp-block-navigation, .wp-block-navigation__container, .elementor-nav-menu--main, .elementor-nav-menu, ul[class*="menu"], ul[class*="nav"], ol')
                 );
+                const topLevelCandidates = allCandidates.filter(candidate => !candidate.closest('li'));
+                const candidates = topLevelCandidates.length > 0 ? topLevelCandidates : allCandidates;
                 function countDeep(items) {
                   return items.reduce((acc, it) => acc + 1 + countDeep(it.children || []), 0);
+                }
+                function countSubmenus(items) {
+                  return items.reduce((acc, it) => acc + (it.children || []).length + countSubmenus(it.children || []), 0);
                 }
                 let best = [], bestScore = -1;
                 for (const candidate of candidates) {
                   const parsed = parseList(candidate);
-                  const score = countDeep(parsed);
+                  const score = countDeep(parsed) * 10 + parsed.length * 3 + countSubmenus(parsed) * 6;
                   if (score > bestScore) { bestScore = score; best = parsed; }
                 }
                 return best.length ? best : parseList(tempDiv);
