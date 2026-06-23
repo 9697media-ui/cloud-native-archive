@@ -284,8 +284,32 @@ export default function AdminToolboxPage() {
         }).filter(item => item.label);
       };
 
-      const menuRoot = doc.querySelector('ul, ol, .wp-block-navigation__container, nav') || doc.body;
-      return parseList(menuRoot);
+      // Em vez de pegar apenas a primeira lista (que costuma ser um subgrupo),
+      // avaliamos TODOS os candidatos a container de menu e escolhemos o mais rico
+      // (o que produz mais itens de topo + subitens). Esse é o mesmo princípio
+      // de detecção usado nos itens que já funcionavam.
+      const candidates = Array.from(
+        doc.querySelectorAll(
+          'nav ul, .wp-block-navigation__container, nav, ul[class*="menu"], ul[class*="nav"], ul, ol'
+        )
+      );
+
+      const countDeep = (items: any[]): number =>
+        items.reduce((acc, it) => acc + 1 + countDeep(it.children || []), 0);
+
+      let best: any[] = [];
+      let bestScore = -1;
+      for (const candidate of candidates) {
+        const parsed = parseList(candidate);
+        const score = countDeep(parsed);
+        // priorizamos o container que cobre mais itens da árvore completa
+        if (score > bestScore) {
+          bestScore = score;
+          best = parsed;
+        }
+      }
+
+      return best.length ? best : parseList(doc.body);
     };
 
     const buildTree = (flatItems: any[]) => {
@@ -794,8 +818,19 @@ export default function AdminToolboxPage() {
                   }).filter(i => i.title);
                 }
 
-                const root = tempDiv.querySelector('ul, ol, .wp-block-navigation__container, nav') || tempDiv;
-                return parseList(root);
+                const candidates = Array.from(
+                  tempDiv.querySelectorAll('nav ul, .wp-block-navigation__container, nav, ul[class*="menu"], ul[class*="nav"], ul, ol')
+                );
+                function countDeep(items) {
+                  return items.reduce((acc, it) => acc + 1 + countDeep(it.children || []), 0);
+                }
+                let best = [], bestScore = -1;
+                for (const candidate of candidates) {
+                  const parsed = parseList(candidate);
+                  const score = countDeep(parsed);
+                  if (score > bestScore) { bestScore = score; best = parsed; }
+                }
+                return best.length ? best : parseList(tempDiv);
               }
 
               let itemsSource = source;
