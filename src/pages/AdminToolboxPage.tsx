@@ -32,6 +32,30 @@ export default function AdminToolboxPage() {
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Resoluções "nativas" simuladas por dispositivo (a janela mantém a proporção,
+  // mas o conteúdo é renderizado nessas dimensões e escalado para caber).
+  const DEVICE_RESOLUTIONS: Record<string, { width: number; height: number }> = {
+    desktop: { width: 1366, height: 768 }, // 16:9
+    tablet: { width: 768, height: 1024 },  // 3:4
+    mobile: { width: 375, height: 667 },   // ~9:16
+  };
+  const frameRef = React.useRef<HTMLDivElement | null>(null);
+  const [previewScale, setPreviewScale] = useState(1);
+
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const native = DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop;
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0) setPreviewScale(rect.width / native.width);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [deviceView]);
   const [menuDetectionDetails, setMenuDetectionDetails] = useState<{
     status: 'checking' | 'success' | 'warning' | 'error';
     message: string;
