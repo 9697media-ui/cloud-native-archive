@@ -215,6 +215,8 @@ export default function AdminToolboxPage() {
       activeBorderColor: '#4f46e5',
       activeBorderWidth: 2,
       activeRadius: 999,
+      activeBgColor: 'transparent',
+      activeTextColor: '#4f46e5',
       items: [
         { label: 'Início', link: '#' },
         { 
@@ -291,6 +293,8 @@ export default function AdminToolboxPage() {
     activeBorderColor: '#4f46e5',
     activeBorderWidth: 2,
     activeRadius: 999,
+    activeBgColor: 'transparent',
+    activeTextColor: '#4f46e5',
     items: [
       { label: 'Início', link: '#', children: [] as any[] },
       { label: 'Sobre', link: '#', children: [] as any[] },
@@ -802,9 +806,9 @@ export default function AdminToolboxPage() {
       font-size: 15px !important;
     }
     ${p} .menu-items a.active {
-      border-left-color: ${menuConfig.accentColor};
-      color: ${menuConfig.accentColor};
-      background-color: rgba(0,0,0,0.05);
+      border-left-color: ${menuConfig.activeBorderColor};
+      color: ${menuConfig.activeTextColor};
+      background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
     }`;
 
     const css = `<style>
@@ -893,9 +897,9 @@ export default function AdminToolboxPage() {
   }
   .custom-nav-992 .menu-items > a.active,
   .custom-nav-992 .menu-items > .has-submenu > a.active {
-    color: ${menuConfig.activeBorderColor};
+    color: ${menuConfig.activeTextColor};
     opacity: 1;
-    background-color: transparent;
+    background-color: ${menuConfig.activeBgColor};
     border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
     border-radius: ${menuConfig.activeRadius}px;
   }
@@ -1856,6 +1860,24 @@ export default function AdminToolboxPage() {
                             onChange={(e) => setMenuConfig({...menuConfig, activeRadius: Number(e.target.value) || 0})} />
                         </div>
                       </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Fundo (ativo)</Label>
+                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                            value={menuConfig.activeBgColor === 'transparent' ? '#ffffff' : menuConfig.activeBgColor}
+                            onChange={(e) => setMenuConfig({...menuConfig, activeBgColor: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Texto (ativo)</Label>
+                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                            value={menuConfig.activeTextColor}
+                            onChange={(e) => setMenuConfig({...menuConfig, activeTextColor: e.target.value})} />
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-7 text-[10px]"
+                        onClick={() => setMenuConfig({...menuConfig, activeBgColor: 'transparent'})}>
+                        Fundo transparente
+                      </Button>
                     </div>
                     <div className="flex gap-2">
                       <Button 
