@@ -770,6 +770,12 @@ export default function AdminToolboxPage() {
   };
 
   const generateMenuCode = () => {
+    const activeRadiusDesktop = ((menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const activeRadiusTablet = ((menuConfig.activeRadiusTablet ?? menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const activeRadiusMobile = ((menuConfig.activeRadiusMobile ?? menuConfig.activeRadiusTablet ?? menuConfig.activeRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const itemRadiusDesktop = ((menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const itemRadiusTablet = ((menuConfig.itemRadiusTablet ?? menuConfig.itemRadiusMobile ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
+    const itemRadiusMobile = ((menuConfig.itemRadiusMobile ?? menuConfig.itemRadiusTablet ?? menuConfig.itemRadius ?? 0) / 100 * 2.5).toFixed(3);
     const mobileRules = (p: string) => `
     ${p} {
       padding: 0 14px;
@@ -826,7 +832,7 @@ export default function AdminToolboxPage() {
       align-items: center;
       width: 100%;
       padding: 14px 22px;
-      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em;
+      border-radius: ${itemRadiusMobile}em;
       font-size: 15.5px;
       border-left: 3px solid transparent;
       border-bottom: 1px solid rgba(0,0,0,0.04);
@@ -882,7 +888,7 @@ export default function AdminToolboxPage() {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      border-radius: ${(menuConfig.itemRadiusMobile/100*2.5).toFixed(3)}em !important;
+      border-radius: ${itemRadiusMobile}em !important;
     }`;
 
     const css = `<style>
