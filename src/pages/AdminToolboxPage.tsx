@@ -955,7 +955,7 @@ export default function AdminToolboxPage() {
     transition: transform 0.28s cubic-bezier(.2,.8,.2,1);
   }
   .custom-spotlight-9982.open .spotlight-box { transform: translateY(0) scale(1); }
-  .custom-spotlight-9982 svg { width: 22px; height: 22px; opacity: 0.5; fill: currentColor; flex-shrink: 0; }
+  .custom-spotlight-9982 svg { width: 22px !important; height: 22px !important; min-width: 22px; min-height: 22px; opacity: 0.5; fill: currentColor; flex-shrink: 0; }
   .custom-spotlight-9982 input { flex: 1; border: none; outline: none; background: transparent; font-size: 18px; color: inherit; }
 
    .custom-nav-992 .menu-items a {
