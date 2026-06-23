@@ -741,7 +741,8 @@ export default function AdminToolboxPage() {
       order: 3;
     }
     ${p} .logo { order: 1; margin-right: auto; }
-    ${p} .nav-search { order: 2; }
+    ${p} .nav-search { display: none !important; }
+    ${p} .search-toggle { display: flex !important; order: 2; margin-right: 8px; }
     ${p} .menu-items {
       position: absolute;
       top: 100%;
@@ -902,6 +903,55 @@ export default function AdminToolboxPage() {
     opacity: 0.7;
     fill: currentColor;
   }
+  .custom-nav-992 .search-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.06);
+    color: ${menuConfig.textColor};
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .custom-nav-992 .search-toggle:hover { transform: scale(1.08); background: rgba(0,0,0,0.1); }
+  .custom-nav-992 .search-toggle svg { width: 18px; height: 18px; fill: currentColor; }
+  .custom-spotlight-9982 {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 18vh;
+    background: rgba(0,0,0,0.4);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .custom-spotlight-9982.open { opacity: 1; visibility: visible; }
+  .custom-spotlight-9982 .spotlight-box {
+    width: min(92vw, 600px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: ${menuConfig.bgColor};
+    color: ${menuConfig.textColor};
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    transform: translateY(-20px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(.2,.8,.2,1);
+  }
+  .custom-spotlight-9982.open .spotlight-box { transform: translateY(0) scale(1); }
+  .custom-spotlight-9982 svg { width: 22px; height: 22px; opacity: 0.5; fill: currentColor; flex-shrink: 0; }
+  .custom-spotlight-9982 input { flex: 1; border: none; outline: none; background: transparent; font-size: 18px; color: inherit; }
+
    .custom-nav-992 .menu-items a {
      color: inherit;
      text-decoration: none !important;
@@ -1401,6 +1451,21 @@ export default function AdminToolboxPage() {
     if (toggle) toggle.classList.toggle('open', open);
   }
 
+  function openCustomSpotlight() {
+    const sp = document.querySelector('.custom-spotlight-9982');
+    if (!sp) return;
+    sp.classList.add('open');
+    const input = sp.querySelector('input');
+    setTimeout(() => input && input.focus(), 120);
+  }
+  function closeCustomSpotlight() {
+    const sp = document.querySelector('.custom-spotlight-9982');
+    if (sp) sp.classList.remove('open');
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeCustomSpotlight();
+  });
+
   // Lógica para submenus no Mobile (clique)
   document.addEventListener('click', function(e) {
     const hasSubmenu = e.target.closest('.custom-nav-992 .has-submenu');
@@ -1517,8 +1582,17 @@ export default function AdminToolboxPage() {
       <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.49-1.49-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
     </button>
     <input type="search" name="s" placeholder="Buscar..." aria-label="Buscar">
-  </form>` : ''}
+  </form>
+  <button class="search-toggle" onclick="openCustomSpotlight()" aria-label="Buscar">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.49-1.49-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+  </button>` : ''}
 </nav>
+${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(event.target===this)closeCustomSpotlight()">
+  <form class="spotlight-box" role="search" method="get" action="${menuConfig.searchUrl}">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5 1.49-1.49-5-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+    <input type="search" name="s" placeholder="Buscar..." aria-label="Buscar">
+  </form>
+</div>` : ''}
 <!-- Fim: Menu Responsivo Nativo -->`;
 
     return css + "\n" + html + "\n" + script;
