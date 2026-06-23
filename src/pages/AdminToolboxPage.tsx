@@ -186,7 +186,7 @@ export default function AdminToolboxPage() {
       enableAutoDetect: false,
       enableWpApi: false,
       wpApiUrl: '',
-      testUrl: ''
+      testUrl: 'https://anabrasil.org/ana/'
     }
   };
 
@@ -234,7 +234,7 @@ export default function AdminToolboxPage() {
     enableAutoDetect: false,
     enableWpApi: true,
     wpApiUrl: '',
-    testUrl: ''
+    testUrl: 'https://anabrasil.org/ana/'
   });
 
   const [jsonInput, setJsonInput] = useState('');
