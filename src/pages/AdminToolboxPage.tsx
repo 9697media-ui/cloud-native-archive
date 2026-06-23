@@ -300,12 +300,20 @@ export default function AdminToolboxPage() {
       return text.toString().replace(/[\u25BC\u25BE\u25B6\u25B8\u2304\u22EE\u00BB\u203A\u25B2\u25BC]/g, '').trim();
     };
 
+    const firstPresent = (...values: any[]) => values.find(value => value !== undefined && value !== null && value !== '');
+
+    const normalizeLink = (value: any) => {
+      if (!value) return undefined;
+      if (typeof value === 'object') return value.rendered || value.url || value.href;
+      return value;
+    };
+
     const normalizeItems = (rawList: any[]) => {
       return rawList.map(item => {
-        const id = (item.id || item.ID || item.db_id || item.object_id || item.key || item.node?.id || Math.random().toString(36).substr(2, 9)).toString();
-        const parent = (item.parent || item.menu_item_parent || item.parentId || item.meta?.menu_item_parent || item.node?.parentId || 0).toString();
+        const id = (firstPresent(item.id, item.ID, item.db_id, item.object_id, item.key, item.node?.id) || Math.random().toString(36).substr(2, 9)).toString();
+        const parent = (firstPresent(item.parent, item.menu_item_parent, item.parentId, item.meta?.menu_item_parent, item.node?.parentId) || 0).toString();
         const label = cleanLabel(item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título');
-        const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
+        const link = normalizeLink(firstPresent(item.url, item.link, item.guid, item.href, item.node?.url)) || '#';
         const children = item.child_items || item.children || item.items || item.sub_items || item.nodes || item.edges || [];
         return { id, parent, label, link, children };
       });
@@ -368,8 +376,17 @@ export default function AdminToolboxPage() {
       };
 
       const isNestedSubmenuCandidate = (element: Element): boolean => {
-        const signature = `${element.id || ''} ${element.className || ''}`.toLowerCase();
-        return Boolean(element.parentElement?.closest('li')) || /submenu|sub-menu|dropdown|children/.test(signature);
+        const tokens = Array.from(element.classList || []).map(token => token.toLowerCase());
+        return tokens.some(token =>
+          token === 'sub-menu' ||
+          token === 'submenu' ||
+          token === 'dropdown' ||
+          token === 'children' ||
+          token.includes('__submenu') ||
+          token.includes('submenu-panel') ||
+          token.includes('dropdown-menu') ||
+          token.includes('wp-block-navigation-submenu')
+        );
       };
 
       let best: any[] = [];
@@ -380,7 +397,9 @@ export default function AdminToolboxPage() {
         const submenuScore = countSubmenuItems(parsed);
         const directScore = parsed.length;
         const signalScore = hasMenuSignal(candidate) ? 1000 : 0;
-        const score = signalScore + countDeep(parsed) + (submenuScore * 10) + (directScore * 3);
+        const nestedPenalty = candidate.closest('li') ? 300 : 0;
+        const submenuBonus = submenuScore > 0 ? 50 : 0;
+        const score = signalScore + (directScore * 25) + (countDeep(parsed) * 2) + submenuBonus - nestedPenalty;
         // Priorizamos containers com assinatura clara de menu e submenus reais,
         // evitando aceitar uma lista de páginas/posts como se fosse navegação.
         if (score > bestScore) {
@@ -402,9 +421,9 @@ export default function AdminToolboxPage() {
       if (hasNested) {
         const ids = new Set(normalized.map(i => i.id));
         const rootItems = normalized.filter(i => i.parent === "0" || i.parent === "" || !ids.has(i.parent));
-        const mapNested = (list: any[]): any[] => list.map(i => ({
+        const mapNested = (list: any[]): any[] => normalizeItems(list).map(i => ({
           ...i,
-          children: Array.isArray(i.children) && i.children.length > 0 ? mapNested(normalizeItems(i.children)) : []
+          children: Array.isArray(i.children) && i.children.length > 0 ? mapNested(i.children) : []
         }));
         return mapNested(rootItems.length > 0 ? rootItems : normalized);
       }
@@ -430,9 +449,12 @@ export default function AdminToolboxPage() {
       itemsSource = data.items || data.children || data.menu_items || data.data || data.nodes || data.edges || [data];
     }
 
-    if (Array.isArray(itemsSource)) {
-      if (itemsSource[0]?.content?.rendered) {
-        return itemsSource.flatMap(item => parseMenuHTML(item.content.rendered));
+      if (Array.isArray(itemsSource)) {
+        const renderedMenus = itemsSource
+          .map(item => item?.content?.rendered)
+          .filter((html): html is string => typeof html === 'string' && /<\s*(li|ul|nav|a)\b/i.test(html));
+        if (renderedMenus.length > 0) {
+          return renderedMenus.flatMap(html => parseMenuHTML(html));
       }
       return buildTree(itemsSource);
     }
@@ -815,6 +837,7 @@ export default function AdminToolboxPage() {
       }
 
       const wpApiUrl = '${menuConfig.wpApiUrl}';
+      const enableAutoDetect = ${menuConfig.enableAutoDetect};
       if (wpApiUrl && wpApiUrl.length > 10) {
         try {
           console.log('Buscando via WP API:', wpApiUrl);
@@ -838,11 +861,17 @@ export default function AdminToolboxPage() {
             
             
             function buildTree(flatItems) {
+              const firstPresent = (...values) => values.find(value => value !== undefined && value !== null && value !== '');
+              const normalizeLink = (value) => {
+                if (!value) return undefined;
+                if (typeof value === 'object') return value.rendered || value.url || value.href;
+                return value;
+              };
               const normalize = (items) => items.map(item => ({
-                id: (item.id || item.ID || item.db_id || item.object_id || Math.random().toString(36).substr(2, 9)).toString(),
-                parent: (item.parent || item.menu_item_parent || item.meta?.menu_item_parent || 0).toString(),
-                title: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || 'Sem título').toString(),
-                link: item.url || item.link || item.guid || item.href || '#',
+                id: (firstPresent(item.id, item.ID, item.db_id, item.object_id, item.key, item.node?.id) || Math.random().toString(36).substr(2, 9)).toString(),
+                parent: (firstPresent(item.parent, item.menu_item_parent, item.parentId, item.meta?.menu_item_parent, item.node?.parentId) || 0).toString(),
+                title: (item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título').toString(),
+                link: normalizeLink(firstPresent(item.url, item.link, item.guid, item.href, item.node?.url)) || '#',
                 children: item.child_items || item.children || item.items || item.sub_items || []
               }));
 
@@ -870,6 +899,12 @@ export default function AdminToolboxPage() {
             function extractItems(source) {
               if (!source) return [];
               console.log('Widget: Analisando fonte de dados:', source);
+              const firstPresent = (...values) => values.find(value => value !== undefined && value !== null && value !== '');
+              const normalizeLink = (value) => {
+                if (!value) return undefined;
+                if (typeof value === 'object') return value.rendered || value.url || value.href;
+                return value;
+              };
               
               function fromHTML(html) {
                 const tempDiv = document.createElement('div');
@@ -918,14 +953,16 @@ export default function AdminToolboxPage() {
                   return /main-menu|nav|navbar|navigation|menu/.test(signature);
                 }
                   function isNestedSubmenuCandidate(element) {
-                    const signature = ((element.id || '') + ' ' + (element.className || '')).toLowerCase();
-                    return !!(element.parentElement?.closest('li')) || /submenu|sub-menu|dropdown|children/.test(signature);
+                    const tokens = Array.from(element.classList || []).map(token => token.toLowerCase());
+                    return tokens.some(token => token === 'sub-menu' || token === 'submenu' || token === 'dropdown' || token === 'children' || token.includes('__submenu') || token.includes('submenu-panel') || token.includes('dropdown-menu') || token.includes('wp-block-navigation-submenu'));
                   }
                 let best = [], bestScore = -1;
                 for (const candidate of candidates) {
                     if (isNestedSubmenuCandidate(candidate)) continue;
                   const parsed = parseList(candidate);
-                  const score = (hasMenuSignal(candidate) ? 1000 : 0) + countDeep(parsed) + (countSubmenus(parsed) * 10) + (parsed.length * 3);
+                  const nestedPenalty = candidate.closest('li') ? 300 : 0;
+                  const submenuBonus = countSubmenus(parsed) > 0 ? 50 : 0;
+                  const score = (hasMenuSignal(candidate) ? 1000 : 0) + (parsed.length * 25) + (countDeep(parsed) * 2) + submenuBonus - nestedPenalty;
                   if (score > bestScore) { bestScore = score; best = parsed; }
                 }
                 return best.length ? best : parseList(tempDiv);
@@ -937,8 +974,11 @@ export default function AdminToolboxPage() {
               }
 
               if (Array.isArray(itemsSource)) {
-                if (itemsSource[0]?.content?.rendered) {
-                  return itemsSource.flatMap(s => fromHTML(s.content.rendered));
+                const renderedMenus = itemsSource
+                  .map(item => item?.content?.rendered)
+                  .filter(html => typeof html === 'string' && /<\s*(li|ul|nav|a)\b/i.test(html));
+                if (renderedMenus.length > 0) {
+                  return renderedMenus.flatMap(html => fromHTML(html));
                 }
                 
                 const hasParentRefs = itemsSource.some(item => 
@@ -955,14 +995,14 @@ export default function AdminToolboxPage() {
                 if (hasParentRefs && hasNestedItems) {
                   const ids = new Set(itemsSource.map(item => (item.id || item.ID || item.db_id || item.object_id || item.key || item.node?.id || '').toString()).filter(Boolean));
                   itemsSource = itemsSource.filter(item => {
-                    const parent = (item.parent || item.menu_item_parent || item.parentId || item.meta?.menu_item_parent || item.node?.parentId || 0).toString();
+                    const parent = (firstPresent(item.parent, item.menu_item_parent, item.parentId, item.meta?.menu_item_parent, item.node?.parentId) || 0).toString();
                     return parent === '0' || parent === '' || !ids.has(parent);
                   });
                 }
                 
                 return itemsSource.map(item => {
                   const title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título';
-                  const link = item.url || item.link || item.guid || item.href || item.node?.url || '#';
+                  const link = normalizeLink(firstPresent(item.url, item.link, item.guid, item.href, item.node?.url)) || '#';
                   const children = item.child_items || item.children || item.items || item.sub_items || item.nodes || item.edges || [];
                   return {
                     title,
@@ -1576,6 +1616,7 @@ export default function AdminToolboxPage() {
                                     ];
 
                                      let detected = false;
+                                     let bestDetectedScore = 0;
                                      for (const endpoint of endpoints) {
                                       try {
                                         // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
@@ -1609,9 +1650,10 @@ export default function AdminToolboxPage() {
 
                                            if (data && (Array.isArray(data) || typeof data === 'object')) {
                                              console.log('Dados detectados via API:', data);
-                                             const wpItems = extractWPItems(data);
+                                              const wpItems = extractWPItems(data);
                                              console.log('Itens extraídos (hierárquicos):', wpItems);
                                               const submenuCount = countSubmenuItems(wpItems);
+                                               const detectedScore = wpItems.length + submenuCount;
                                              
                                              setMenuConfig(prev => ({
                                                ...prev, 
@@ -1636,7 +1678,7 @@ export default function AdminToolboxPage() {
                                                  ? `Importamos ${wpItems.length} itens (com submenus) de ${usedEndpoint}`
                                                  : `Conectado ao endpoint ${usedEndpoint}`,
                                              });
-                                             if (wpItems.length > 0) { detected = true; break; }
+                                              if (wpItems.length > 0) { detected = true; bestDetectedScore = Math.max(bestDetectedScore, detectedScore); break; }
                                            }
                                          }
                                       } catch (e) {
@@ -1664,7 +1706,7 @@ export default function AdminToolboxPage() {
                                      // Fallback: muitos menus (Elementor/Happy Addons, etc.) NÃO são
                                      // expostos via REST. Nesses casos, lemos o HTML da própria página
                                      // através de um proxy CORS e extraímos o menu + subitens direto do DOM.
-                                     if (!detected) {
+                                      if (url) {
                                        try {
                                           const proxyReaders = [
                                             async () => {
@@ -1684,7 +1726,8 @@ export default function AdminToolboxPage() {
                                             if (!html) continue;
                                            const wpItems = extractWPItems([{ content: { rendered: html } }]);
                                            const submenuCount = countSubmenuItems(wpItems);
-                                           if (wpItems.length > 0) {
+                                           const htmlScore = wpItems.length + submenuCount;
+                                           if (wpItems.length > 0 && htmlScore > bestDetectedScore) {
                                              setMenuConfig(prev => ({ ...prev, items: wpItems }));
                                              setMenuDetectionDetails({
                                                status: 'success',
@@ -1700,8 +1743,9 @@ export default function AdminToolboxPage() {
                                                description: `Importamos ${wpItems.length} itens (com submenus) lendo o HTML da página.`,
                                              });
                                               detected = true;
+                                               bestDetectedScore = htmlScore;
                                               break;
-                                           } else {
+                                            } else if (!detected) {
                                              setMenuDetectionDetails({
                                                status: 'warning',
                                                message: 'Página lida, mas não encontramos uma estrutura de menu reconhecível.',
