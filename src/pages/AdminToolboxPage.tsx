@@ -679,7 +679,22 @@ export default function AdminToolboxPage() {
           console.log('Buscando via WP API:', wpApiUrl);
           const response = await fetch(wpApiUrl);
           if (response.ok) {
-            const data = await response.json();
+            let data = await response.json();
+
+            // Se o endpoint for a LISTA de menus (sem itens), busca o detalhe com os child_items.
+            try {
+              const isMenuList = Array.isArray(data) && data.length > 0 && data[0]
+                && (data[0].term_id || data[0].ID || data[0].id)
+                && !data[0].url && !data[0].items && !data[0].child_items;
+              if (isMenuList && wpApiUrl.indexOf('/wp-json/menus/v1/menus') !== -1) {
+                const best = data.slice().sort((a, b) => (b.count || 0) - (a.count || 0))[0];
+                const menuId = best.term_id || best.ID || best.id;
+                const base = new URL(wpApiUrl).origin;
+                const detailRes = await fetch(base + '/wp-json/menus/v1/menus/' + menuId);
+                if (detailRes.ok) { data = await detailRes.json(); }
+              }
+            } catch (e) {}
+            
             
             function buildTree(flatItems) {
               const normalize = (items) => items.map(item => ({
