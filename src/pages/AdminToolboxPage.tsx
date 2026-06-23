@@ -1151,7 +1151,7 @@ export default function AdminToolboxPage() {
     left: 0 !important;
     margin-top: 0 !important;
     background-color: ${menuConfig.bgColor} !important;
-    box-shadow: 0 14px 28px rgba(0,0,0,0.22) !important;
+    box-shadow: ${menuShadow} !important;
     border-radius: ${submenuPanelRadiusDesktop}em !important;
     padding: 8px !important;
     display: flex !important;
