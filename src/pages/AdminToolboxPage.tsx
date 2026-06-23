@@ -2572,14 +2572,25 @@ export default function AdminToolboxPage() {
                       <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo do Widget (isolado)</span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div className="relative w-full h-[140px] rounded-lg border bg-background overflow-hidden">
-                      <iframe
-                        title="Demo isolado do widget"
-                        className="w-full h-full border-none pointer-events-none"
-                        sandbox="allow-scripts"
-                        srcDoc={getGeneratedCode()}
-                        key={'demo' + activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
-                      />
+                    <div className="relative w-full h-[140px] rounded-lg border bg-background overflow-hidden flex justify-center">
+                      {(() => {
+                        const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
+                        return (
+                          <iframe
+                            title="Demo isolado do widget"
+                            className="border-none pointer-events-none origin-top"
+                            style={{
+                              width: demoWidth,
+                              height: 140 / 0.35,
+                              transform: 'scale(0.35)',
+                              transformOrigin: 'top center',
+                            }}
+                            sandbox="allow-scripts"
+                            srcDoc={getGeneratedCode()}
+                            key={'demo' + deviceView + activeWidgetType + JSON.stringify(menuConfig.items) + getGeneratedCode().length}
+                          />
+                        );
+                      })()}
                     </div>
                   </div>
                 )}
