@@ -1734,8 +1734,9 @@ export default function AdminToolboxPage() {
                                                description: `Importamos ${wpItems.length} itens (com submenus) lendo o HTML da página.`,
                                              });
                                               detected = true;
+                                               bestDetectedScore = htmlScore;
                                               break;
-                                           } else {
+                                            } else if (!detected) {
                                              setMenuDetectionDetails({
                                                status: 'warning',
                                                message: 'Página lida, mas não encontramos uma estrutura de menu reconhecível.',
