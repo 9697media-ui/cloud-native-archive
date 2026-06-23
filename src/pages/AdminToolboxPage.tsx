@@ -32,6 +32,13 @@ export default function AdminToolboxPage() {
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
+  const [menuDetectionDetails, setMenuDetectionDetails] = useState<{
+    status: 'checking' | 'success' | 'warning' | 'error';
+    message: string;
+    endpoint?: string;
+    itemCount?: number;
+    submenuCount?: number;
+  } | null>(null);
 
   useEffect(() => {
     fetchTemplates();
@@ -249,20 +256,53 @@ export default function AdminToolboxPage() {
       });
     };
 
+    const parseMenuHTML = (html: string): any[] => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      const parseList = (root: Element): any[] => {
+        const listItems = Array.from(root.children).filter(child => child.tagName === 'LI');
+
+        if (listItems.length === 0) {
+          return Array.from(root.querySelectorAll(':scope > a, :scope > .wp-block-navigation-item__content'))
+            .map((a: any) => ({
+              label: cleanLabel(a.querySelector?.('.wp-block-navigation-item__label')?.textContent || a.textContent || ''),
+              link: a.getAttribute('href') || '#',
+              children: []
+            }))
+            .filter(item => item.label);
+        }
+
+        return listItems.map((li: Element) => {
+          const link = li.querySelector(':scope > a, :scope > .wp-block-navigation-item__content, :scope > div > a');
+          const subList = li.querySelector(':scope > ul, :scope > ol, :scope > .wp-block-navigation__submenu-container, :scope > .sub-menu, :scope > div > ul');
+          return {
+            label: cleanLabel((link as HTMLElement)?.textContent || ''),
+            link: (link as HTMLAnchorElement)?.getAttribute?.('href') || '#',
+            children: subList ? parseList(subList) : []
+          };
+        }).filter(item => item.label);
+      };
+
+      const menuRoot = doc.querySelector('ul, ol, .wp-block-navigation__container, nav') || doc.body;
+      return parseList(menuRoot);
+    };
+
     const buildTree = (flatItems: any[]) => {
       const normalized = normalizeItems(flatItems);
 
       // Caso os dados já venham aninhados (ex.: campo child_items dos plugins de menu),
       // preservamos a hierarquia recursivamente em vez de achatar tudo.
       const hasNested = normalized.some(i => Array.isArray(i.children) && i.children.length > 0);
-      const hasParentRefs = normalized.some(i => i.parent !== "0" && i.parent !== "");
 
-      if (hasNested && !hasParentRefs) {
+      if (hasNested) {
+        const ids = new Set(normalized.map(i => i.id));
+        const rootItems = normalized.filter(i => i.parent === "0" || i.parent === "" || !ids.has(i.parent));
         const mapNested = (list: any[]): any[] => list.map(i => ({
           ...i,
           children: Array.isArray(i.children) && i.children.length > 0 ? mapNested(normalizeItems(i.children)) : []
         }));
-        return mapNested(normalized);
+        return mapNested(rootItems.length > 0 ? rootItems : normalized);
       }
 
       const itemMap = new Map();
@@ -288,21 +328,18 @@ export default function AdminToolboxPage() {
 
     if (Array.isArray(itemsSource)) {
       if (itemsSource[0]?.content?.rendered) {
-        const fromHTML = (html: string) => {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          let links = Array.from(doc.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
-          return links.map((a: any) => ({
-            label: cleanLabel(a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || ''),
-            link: a.getAttribute('href') || '#',
-            children: []
-          })).filter(i => i.label && i.link !== '#');
-        };
-        return itemsSource.flatMap(item => fromHTML(item.content.rendered));
+        return itemsSource.flatMap(item => parseMenuHTML(item.content.rendered));
       }
       return buildTree(itemsSource);
     }
     return [];
+  };
+
+  const countSubmenuItems = (items: any[]): number => {
+    return items.reduce((total, item) => {
+      const children = Array.isArray(item.children) ? item.children : [];
+      return total + children.length + countSubmenuItems(children);
+    }, 0);
   };
 
   const syncWithSystemMenu = () => {
@@ -733,12 +770,32 @@ export default function AdminToolboxPage() {
               function fromHTML(html) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
-                const links = Array.from(tempDiv.querySelectorAll('.wp-block-navigation-item__content, .wp-block-navigation-link, a'));
-                return links.map(a => ({
-                  title: (a.querySelector('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
-                  link: a.getAttribute('href') || '#',
-                  children: []
-                })).filter(i => i.title && i.link !== '#');
+
+                function parseList(root) {
+                  const listItems = Array.from(root.children || []).filter(child => child.tagName === 'LI');
+                  if (listItems.length === 0) {
+                    return Array.from(root.querySelectorAll(':scope > a, :scope > .wp-block-navigation-item__content'))
+                      .map(a => ({
+                        title: (a.querySelector?.('.wp-block-navigation-item__label')?.textContent || a.textContent || '').trim(),
+                        link: a.getAttribute('href') || '#',
+                        children: []
+                      }))
+                      .filter(i => i.title);
+                  }
+
+                  return listItems.map(li => {
+                    const link = li.querySelector(':scope > a, :scope > .wp-block-navigation-item__content, :scope > div > a');
+                    const subList = li.querySelector(':scope > ul, :scope > ol, :scope > .wp-block-navigation__submenu-container, :scope > .sub-menu, :scope > div > ul');
+                    return {
+                      title: (link?.querySelector?.('.wp-block-navigation-item__label')?.textContent || link?.textContent || '').trim(),
+                      link: link?.getAttribute?.('href') || '#',
+                      children: subList ? parseList(subList) : []
+                    };
+                  }).filter(i => i.title);
+                }
+
+                const root = tempDiv.querySelector('ul, ol, .wp-block-navigation__container, nav') || tempDiv;
+                return parseList(root);
               }
 
               let itemsSource = source;
@@ -756,8 +813,19 @@ export default function AdminToolboxPage() {
                   (item.menu_item_parent !== undefined && item.menu_item_parent.toString() !== "0") ||
                   (item.parentId !== undefined && item.parentId.toString() !== "0")
                 );
+                const hasNestedItems = itemsSource.some(item => {
+                  const children = item.child_items || item.children || item.items || item.sub_items || item.nodes || item.edges || [];
+                  return Array.isArray(children) && children.length > 0;
+                });
                 
-                if (hasParentRefs) return buildTree(itemsSource);
+                if (hasParentRefs && !hasNestedItems) return buildTree(itemsSource);
+                if (hasParentRefs && hasNestedItems) {
+                  const ids = new Set(itemsSource.map(item => (item.id || item.ID || item.db_id || item.object_id || item.key || item.node?.id || '').toString()).filter(Boolean));
+                  itemsSource = itemsSource.filter(item => {
+                    const parent = (item.parent || item.menu_item_parent || item.parentId || item.meta?.menu_item_parent || item.node?.parentId || 0).toString();
+                    return parent === '0' || parent === '' || !ids.has(parent);
+                  });
+                }
                 
                 return itemsSource.map(item => {
                   const title = item.title?.rendered || item.title || item.label || item.name || item.post_title || item.text || item.node?.title || 'Sem título';
@@ -1336,6 +1404,10 @@ export default function AdminToolboxPage() {
                             onChange={(e) => {
                               const url = e.target.value;
                               setMenuConfig({...menuConfig, testUrl: url});
+                              setMenuDetectionDetails(url.startsWith('http') ? {
+                                status: 'checking',
+                                message: 'Verificando endpoints do WordPress e procurando submenus...'
+                              } : null);
                               
                               if (url && url.startsWith('http')) {
                                 // Limpa timer anterior se existir
@@ -1388,12 +1460,24 @@ export default function AdminToolboxPage() {
                                              console.log('Dados detectados via API:', data);
                                              const wpItems = extractWPItems(data);
                                              console.log('Itens extraídos (hierárquicos):', wpItems);
+                                              const submenuCount = countSubmenuItems(wpItems);
                                              
                                              setMenuConfig(prev => ({
                                                ...prev, 
                                                wpApiUrl: `${origin}${usedEndpoint}`,
                                                items: wpItems.length > 0 ? wpItems : prev.items
                                              }));
+                                              setMenuDetectionDetails({
+                                                status: wpItems.length > 0 ? 'success' : 'warning',
+                                                message: wpItems.length > 0
+                                                  ? submenuCount > 0
+                                                    ? 'Menu detectado com hierarquia preservada.'
+                                                    : 'Menu detectado, mas nenhum subitem foi encontrado neste endpoint.'
+                                                  : 'Endpoint encontrado, mas sem itens de menu legíveis.',
+                                                endpoint: `${origin}${usedEndpoint}`,
+                                                itemCount: wpItems.length,
+                                                submenuCount
+                                              });
                                              
                                              toast({
                                                title: "API Detectada!",
@@ -1411,6 +1495,11 @@ export default function AdminToolboxPage() {
                                           // No modo no-cors o status é sempre 0, mas se não deu erro de rede é um sinal positivo
                                           if (headRes.type === 'opaque') {
                                              setMenuConfig(prev => ({...prev, wpApiUrl: `${origin}${endpoint}`}));
+                                              setMenuDetectionDetails({
+                                                status: 'warning',
+                                                message: 'Endpoint existe, mas o site bloqueou leitura dos itens por CORS.',
+                                                endpoint: `${origin}${endpoint}`
+                                              });
                                              toast({
                                               title: "API Possível!",
                                               description: `Detectamos atividade em ${endpoint} (CORS restrito).`,
@@ -1420,13 +1509,37 @@ export default function AdminToolboxPage() {
                                         } catch (innerE) {}
                                       }
                                     }
-                                  } catch (e) { /* invalid url */ }
+                                  } catch (e) {
+                                    setMenuDetectionDetails({
+                                      status: 'error',
+                                      message: 'URL inválida ou inacessível para detecção automática.'
+                                    });
+                                  }
                                 }, 1000);
                               }
                             }}
                           />
                         </div>
                         <p className="text-[10px] text-muted-foreground">O site abrirá no frame abaixo e tentaremos identificar o endpoint e os itens automaticamente.</p>
+                        {menuDetectionDetails && (
+                          <Alert className="mt-3">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>
+                              {menuDetectionDetails.status === 'checking' ? 'Detectando menu...' : 'Detalhe do menu detectado'}
+                            </AlertTitle>
+                            <AlertDescription className="space-y-1 text-xs">
+                              <p>{menuDetectionDetails.message}</p>
+                              {menuDetectionDetails.endpoint && (
+                                <p className="break-all">Endpoint: {menuDetectionDetails.endpoint}</p>
+                              )}
+                              {typeof menuDetectionDetails.itemCount === 'number' && (
+                                <p>
+                                  Itens principais: {menuDetectionDetails.itemCount} · Subitens: {menuDetectionDetails.submenuCount || 0}
+                                </p>
+                              )}
+                            </AlertDescription>
+                          </Alert>
+                        )}
                       </div>
                     </div>
 
