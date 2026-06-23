@@ -214,7 +214,7 @@ export default function AdminToolboxPage() {
       hoverTextColor: '#4f46e5',
       activeBorderColor: '#4f46e5',
       activeBorderWidth: 2,
-      activeRadius: 50,
+      activeRadius: 8,
       activeBgColor: 'transparent',
       activeTextColor: '#4f46e5',
       items: [
@@ -292,7 +292,7 @@ export default function AdminToolboxPage() {
     hoverTextColor: '#4f46e5',
     activeBorderColor: '#4f46e5',
     activeBorderWidth: 2,
-    activeRadius: 50,
+    activeRadius: 8,
     activeBgColor: 'transparent',
     activeTextColor: '#4f46e5',
     items: [
@@ -893,7 +893,7 @@ export default function AdminToolboxPage() {
     color: ${menuConfig.hoverTextColor};
     background-color: ${menuConfig.hoverBgColor};
     opacity: 1;
-    border-radius: ${menuConfig.activeRadius}%;
+    border-radius: ${menuConfig.activeRadius}px;
   }
   .custom-nav-992 .menu-items > a.active,
   .custom-nav-992 .menu-items > .has-submenu > a.active {
@@ -901,7 +901,7 @@ export default function AdminToolboxPage() {
     opacity: 1;
     background-color: ${menuConfig.activeBgColor};
     border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
-    border-radius: ${menuConfig.activeRadius}%;
+    border-radius: ${menuConfig.activeRadius}px;
   }
   .custom-nav-992 .menu-items a:focus,
   .custom-nav-992 .menu-items a:focus-visible {
@@ -2609,7 +2609,7 @@ export default function AdminToolboxPage() {
                               transformOrigin: 'bottom center',
                             }}
                             sandbox="allow-scripts"
-                            srcDoc={getGeneratedCode() + `<style>.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${menuConfig.activeRadius}%;opacity:1 !important;}</style><script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`}
+                            srcDoc={getGeneratedCode() + `<style>.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${menuConfig.activeRadius}px;opacity:1 !important;}</style><script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`}
                             key={'demo' + deviceView + activeWidgetType + getGeneratedCode()}
                           />
                         );
