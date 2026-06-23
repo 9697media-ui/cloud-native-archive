@@ -679,7 +679,22 @@ export default function AdminToolboxPage() {
           console.log('Buscando via WP API:', wpApiUrl);
           const response = await fetch(wpApiUrl);
           if (response.ok) {
-            const data = await response.json();
+            let data = await response.json();
+
+            // Se o endpoint for a LISTA de menus (sem itens), busca o detalhe com os child_items.
+            try {
+              const isMenuList = Array.isArray(data) && data.length > 0 && data[0]
+                && (data[0].term_id || data[0].ID || data[0].id)
+                && !data[0].url && !data[0].items && !data[0].child_items;
+              if (isMenuList && wpApiUrl.indexOf('/wp-json/menus/v1/menus') !== -1) {
+                const best = data.slice().sort((a, b) => (b.count || 0) - (a.count || 0))[0];
+                const menuId = best.term_id || best.ID || best.id;
+                const base = new URL(wpApiUrl).origin;
+                const detailRes = await fetch(base + '/wp-json/menus/v1/menus/' + menuId);
+                if (detailRes.ok) { data = await detailRes.json(); }
+              }
+            } catch (e) {}
+            
             
             function buildTree(flatItems) {
               const normalize = (items) => items.map(item => ({
@@ -1341,29 +1356,54 @@ export default function AdminToolboxPage() {
                                     for (const endpoint of endpoints) {
                                       try {
                                         // Usar fetch normal primeiro, se falhar por CORS ele cai no catch
-                                        const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
-                                        if (testRes.ok) {
-                                          const data = await testRes.json();
-                                          if (data && (Array.isArray(data) || typeof data === 'object')) {
-                                            console.log('Dados detectados via API:', data);
-                                            const wpItems = extractWPItems(data);
-                                            console.log('Itens extraídos (hierárquicos):', wpItems);
-                                            
-                                            setMenuConfig(prev => ({
-                                              ...prev, 
-                                              wpApiUrl: `${origin}${endpoint}`,
-                                              items: wpItems.length > 0 ? wpItems : prev.items
-                                            }));
-                                            
-                                            toast({
-                                              title: "API Detectada!",
-                                              description: wpItems.length > 0 
-                                                ? `Importamos ${wpItems.length} itens do endpoint ${endpoint}`
-                                                : `Conectado ao endpoint ${endpoint}`,
-                                            });
-                                            break;
-                                          }
-                                        }
+                                         const testRes = await fetch(`${origin}${endpoint}`, { method: 'GET', mode: 'cors' });
+                                         if (testRes.ok) {
+                                           let data = await testRes.json();
+                                           let usedEndpoint = endpoint;
+
+                                           // O endpoint /wp-json/menus/v1/menus retorna apenas a LISTA de menus
+                                           // (term_id, name, count) SEM os itens. Os itens com submenus (child_items)
+                                           // só vêm no detalhe: /wp-json/menus/v1/menus/{term_id}.
+                                           // Por isso, ao detectar a lista, seguimos automaticamente para o detalhe.
+                                           const isMenuList = Array.isArray(data) && data.length > 0
+                                             && data[0] && (data[0].term_id || data[0].ID || data[0].id)
+                                             && !data[0].url && !data[0].items && !data[0].child_items;
+
+                                           if (isMenuList) {
+                                             // Escolhe o menu com mais itens (count) ou o primeiro disponível.
+                                             const best = [...data].sort((a, b) => (b.count || 0) - (a.count || 0))[0];
+                                             const menuId = best.term_id || best.ID || best.id;
+                                             try {
+                                               const detailRes = await fetch(`${origin}/wp-json/menus/v1/menus/${menuId}`, { method: 'GET', mode: 'cors' });
+                                               if (detailRes.ok) {
+                                                 const detailData = await detailRes.json();
+                                                 console.log('Detalhe do menu detectado:', detailData);
+                                                 data = detailData;
+                                                 usedEndpoint = `/wp-json/menus/v1/menus/${menuId}`;
+                                               }
+                                             } catch (detailErr) { /* mantém data original */ }
+                                           }
+
+                                           if (data && (Array.isArray(data) || typeof data === 'object')) {
+                                             console.log('Dados detectados via API:', data);
+                                             const wpItems = extractWPItems(data);
+                                             console.log('Itens extraídos (hierárquicos):', wpItems);
+                                             
+                                             setMenuConfig(prev => ({
+                                               ...prev, 
+                                               wpApiUrl: `${origin}${usedEndpoint}`,
+                                               items: wpItems.length > 0 ? wpItems : prev.items
+                                             }));
+                                             
+                                             toast({
+                                               title: "API Detectada!",
+                                               description: wpItems.length > 0 
+                                                 ? `Importamos ${wpItems.length} itens (com submenus) de ${usedEndpoint}`
+                                                 : `Conectado ao endpoint ${usedEndpoint}`,
+                                             });
+                                             break;
+                                           }
+                                         }
                                       } catch (e) {
                                         // Se falhar por CORS, tentamos HEAD no-cors apenas para ver se o recurso existe
                                         try {
