@@ -714,6 +714,8 @@ export default function AdminToolboxPage() {
     object-fit: contain;
     display: block;
   }
+  .custom-nav-992 .logo .logo-mobile { display: none; }
+  .custom-nav-992 .logo .logo-desktop { display: block; }
   .custom-nav-992 .menu-items {
     display: flex;
     gap: 5px;
