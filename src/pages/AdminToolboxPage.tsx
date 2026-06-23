@@ -231,6 +231,8 @@ export default function AdminToolboxPage() {
       { label: 'Contato', link: '#', children: [] as any[] }
     ] as any[],
     sticky: true,
+    searchEnabled: true,
+    searchUrl: 'https://anabrasil.org/',
     enableAutoDetect: false,
     enableWpApi: true,
     wpApiUrl: '',
