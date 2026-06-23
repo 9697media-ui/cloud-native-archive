@@ -293,6 +293,8 @@ export default function AdminToolboxPage() {
     activeBorderColor: '#4f46e5',
     activeBorderWidth: 2,
     activeRadius: 999,
+    activeBgColor: 'transparent',
+    activeTextColor: '#4f46e5',
     items: [
       { label: 'Início', link: '#', children: [] as any[] },
       { label: 'Sobre', link: '#', children: [] as any[] },
