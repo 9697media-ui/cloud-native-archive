@@ -1645,6 +1645,9 @@ export default function AdminToolboxPage() {
                                 
                                 debounceRef.current = setTimeout(async () => {
                                   try {
+                                    const proxyDetected = await importMenuFromUrl(url);
+                                    if (proxyDetected) return;
+
                                     const origin = new URL(url).origin;
                                     const endpoints = [
                                       '/wp-json/wp/v2/navigation',
