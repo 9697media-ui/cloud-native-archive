@@ -806,9 +806,9 @@ export default function AdminToolboxPage() {
       font-size: 15px !important;
     }
     ${p} .menu-items a.active {
-      border-left-color: ${menuConfig.accentColor};
-      color: ${menuConfig.accentColor};
-      background-color: rgba(0,0,0,0.05);
+      border-left-color: ${menuConfig.activeBorderColor};
+      color: ${menuConfig.activeTextColor};
+      background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
     }`;
 
     const css = `<style>
