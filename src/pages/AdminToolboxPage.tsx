@@ -1326,10 +1326,26 @@ export default function AdminToolboxPage() {
     });
   }
 
+  function checkMenuFit() {
+    const nav = document.querySelector('.custom-nav-992');
+    if (!nav) return;
+    if (window.innerWidth <= 850) { nav.classList.remove('force-mobile'); return; }
+    // Mede no modo desktop: se o conteúdo não couber (itens ficariam apertados), quebra para mobile.
+    nav.classList.remove('force-mobile');
+    if (nav.scrollWidth > nav.clientWidth + 1) {
+      nav.classList.add('force-mobile');
+    }
+  }
+
   function initMenu() {
     highlightActiveLink();
     ${fetchScript}
-    
+    checkMenuFit();
+    window.addEventListener('resize', checkMenuFit);
+    // Recalcula após carregar fontes/imagens.
+    window.addEventListener('load', checkMenuFit);
+    setTimeout(checkMenuFit, 300);
+
     // Fechar menu mobile ao clicar fora
     document.addEventListener('click', (e) => {
       const nav = document.querySelector('.custom-nav-992');
