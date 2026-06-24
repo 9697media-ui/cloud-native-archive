@@ -1867,6 +1867,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       if (manualItems && manualItems.length > 0) {
          console.log('Usando itens manuais:', manualItems);
          menuContainer.innerHTML = renderItems(manualItems);
+         if (typeof highlightActiveLink === 'function') highlightActiveLink();
       }
     }
     setTimeout(initializeMenuDetection, 2500);`;
@@ -1968,6 +1969,9 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     // Recalcula após carregar fontes/imagens.
     window.addEventListener('load', checkMenuFit);
     setTimeout(checkMenuFit, 300);
+    // Re-aplica o destaque após o carregamento assíncrono dos itens.
+    setTimeout(highlightActiveLink, 1200);
+    setTimeout(highlightActiveLink, 3000);
 
     // Fechar menu mobile ao clicar fora
     document.addEventListener('click', (e) => {
