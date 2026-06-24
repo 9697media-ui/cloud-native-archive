@@ -1032,7 +1032,13 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     const tabletHamburger = (menuConfig.tabletMenuMode ?? 'header') === 'hamburger';
     const mobileRules = (
       p: string,
-      metric = {
+      metric: {
+        activeRadius: string;
+        itemRadius: string;
+        submenuPanelRadius: string;
+        submenuGap: number;
+        submenuItemSpacing: number;
+      } = {
         activeRadius: activeRadiusMobile,
         itemRadius: itemRadiusMobile,
         submenuPanelRadius: submenuPanelRadiusMobile,
