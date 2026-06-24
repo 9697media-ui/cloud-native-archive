@@ -1920,22 +1920,28 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
   });
 
   function highlightActiveLink() {
-    const currentPath = window.location.pathname;
-    const currentUrl = window.location.href;
+    const normalizePath = (p) => {
+      if (!p) return '/';
+      try { p = decodeURIComponent(p); } catch (e) {}
+      p = p.replace(/\\/+$/, '');
+      return p === '' ? '/' : p;
+    };
+    const currentPath = normalizePath(window.location.pathname);
     const links = document.querySelectorAll('.custom-nav-992 .menu-items a');
-    
+
     links.forEach(link => {
       const href = link.getAttribute('href');
-      if (!href || href === '#') return;
-      
-      // Checagem exata ou base
-      const isExact = currentPath === href || currentUrl === href;
-      const isBase = href !== '/' && (currentPath.startsWith(href) || currentUrl.startsWith(href));
-      
-      if (isExact || isBase) {
+      link.classList.remove('active');
+      if (!href || href === '#' || href.trim() === '') return;
+
+      // Resolve href (absoluto ou relativo) para um caminho comparável.
+      let linkPath;
+      try { linkPath = normalizePath(new URL(href, window.location.origin).pathname); }
+      catch (e) { return; }
+
+      // Sempre comparação exata de caminho — evita que a home ("/") case com tudo.
+      if (linkPath === currentPath) {
         link.classList.add('active');
-      } else {
-        link.classList.remove('active');
       }
     });
   }
