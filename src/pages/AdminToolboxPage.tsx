@@ -513,14 +513,16 @@ export default function AdminToolboxPage() {
       enableWpApi: false,
       wpApiUrl: '',
       testUrl: 'https://anabrasil.org/ana/'
-    }
+    },
+    gateway: DEFAULT_GATEWAY_CONFIG
   };
 
-  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu') => {
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway') => {
     setActiveWidgetType(type);
     if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
     else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
     else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
+    else if (type === 'gateway') setGatewayConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.gateway)));
     
     toast({
       title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
