@@ -507,7 +507,7 @@ ${selector} .has-submenu:hover > a,
 ${selector} .has-submenu:focus-within > a,
 ${selector} .has-submenu.open > a,
 ${selector} .has-submenu.demo-open > a{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${metric.active}em !important;opacity:1 !important;}
-${selector} .menu-items a:hover{border:${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor} !important;border-radius:${metric.active}em !important;}
+${selector} .menu-items a:hover{border:${menuConfig.hoverBorderWidth}px solid ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
 ${metric.stacked
   ? `${selector} .has-submenu.open > .submenu,
