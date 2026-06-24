@@ -2357,22 +2357,21 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                        </div>
                        {(() => {
                          const devs = [
-                           { id: 'desktop' as const, label: 'PC', Icon: Monitor, ring: 'border-blue-500 bg-blue-500/10 text-blue-600', dot: 'bg-blue-500' },
-                           { id: 'tablet' as const, label: 'Tablet', Icon: Tablet, ring: 'border-amber-500 bg-amber-500/10 text-amber-600', dot: 'bg-amber-500' },
-                           { id: 'mobile' as const, label: 'Mobile', Icon: Smartphone, ring: 'border-emerald-500 bg-emerald-500/10 text-emerald-600', dot: 'bg-emerald-500' },
+                           { id: 'desktop' as const, label: 'PC', Icon: Monitor, border: 'border-blue-500', solid: 'bg-blue-500 border-blue-500 text-white' },
+                           { id: 'tablet' as const, label: 'Tablet', Icon: Tablet, border: 'border-amber-500', solid: 'bg-amber-500 border-amber-500 text-white' },
+                           { id: 'mobile' as const, label: 'Mobile', Icon: Smartphone, border: 'border-emerald-500', solid: 'bg-emerald-500 border-emerald-500 text-white' },
                          ];
                          const active = devs.find(d => d.id === panelDevice)!;
                          const ar = panelDevice === 'desktop' ? 'activeRadius' : panelDevice === 'tablet' ? 'activeRadiusTablet' : 'activeRadiusMobile';
                          const ir = panelDevice === 'desktop' ? 'itemRadius' : panelDevice === 'tablet' ? 'itemRadiusTablet' : 'itemRadiusMobile';
                          const sg = panelDevice === 'desktop' ? 'submenuGap' : panelDevice === 'tablet' ? 'submenuGapTablet' : 'submenuGapMobile';
                          return (
-                           <div className={cn('rounded-lg border-2 p-3 space-y-3 transition-colors', active.ring)}>
+                           <div className={cn('rounded-lg border-2 bg-transparent p-3 space-y-3 transition-colors', active.border)}>
                              <div className="grid grid-cols-3 gap-2">
                                {devs.map(d => (
                                  <button key={d.id} type="button" onClick={() => setPanelDevice(d.id)}
                                    className={cn('flex items-center justify-center gap-1.5 rounded-md border-2 py-1.5 text-xs font-semibold transition-colors',
-                                     panelDevice === d.id ? d.ring : 'border-transparent bg-muted/40 text-muted-foreground hover:bg-muted')}>
-                                   <span className={cn('h-2 w-2 rounded-full', d.dot)} />
+                                     panelDevice === d.id ? d.solid : 'border-transparent bg-muted/40 text-muted-foreground hover:bg-muted')}>
                                    <d.Icon className="h-3.5 w-3.5" />{d.label}
                                  </button>
                                ))}
