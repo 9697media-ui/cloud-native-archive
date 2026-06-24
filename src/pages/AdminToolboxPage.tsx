@@ -463,89 +463,27 @@ export default function AdminToolboxPage() {
     testUrl: 'https://anabrasil.org/ana/'
   });
 
-  // ===== Preview "demo" em tempo real =====
-  // O documento (srcDoc) só é reconstruído quando a ESTRUTURA muda
-  // (dispositivo, widget ou itens). Mudanças de estilo são injetadas via
-  // <style id="live-style"> sem recarregar o iframe, preservando o estado
-  // (ex.: menu hambúrguer aberto).
+  // ===== Preview "demo" orientado pelo código final =====
+  // Regra de paridade: o iframe recebe SEMPRE o HTML/CSS gerado por
+  // getGeneratedCode(). A demo só injeta um script de clique para simular
+  // interação; nenhum CSS visual extra é permitido aqui.
   const demoIframeRef = React.useRef<HTMLIFrameElement | null>(null);
   const [demoDoc, setDemoDoc] = useState('');
-  const getDemoExtraCss = React.useCallback(() => {
-    const toNumber = (value: unknown, fallback: number) => {
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : fallback;
-    };
-    const toEm = (value: number) => ((value / 100) * 2.5).toFixed(3);
-    const desktopActive = toNumber(menuConfig.activeRadius, 0);
-    const desktopItem = toNumber(menuConfig.itemRadius, 0);
-    const metrics = {
-      desktop: {
-        active: toEm(desktopActive),
-        item: toEm(desktopItem),
-        gap: Math.max(0, toNumber(menuConfig.submenuGap, 0)),
-        itemGap: Math.max(0, toNumber(menuConfig.submenuItemSpacing, 4)),
-        stacked: false,
-      },
-      tablet: {
-        active: toEm(toNumber(menuConfig.activeRadiusTablet, desktopActive)),
-        item: toEm(toNumber(menuConfig.itemRadiusTablet, desktopItem)),
-        gap: Math.max(0, toNumber(menuConfig.submenuGapTablet, toNumber(menuConfig.submenuGap, 0))),
-        itemGap: Math.max(0, toNumber(menuConfig.submenuItemSpacingTablet, toNumber(menuConfig.submenuItemSpacing, 4))),
-        stacked: (menuConfig.tabletMenuMode ?? 'header') === 'hamburger',
-      },
-      mobile: {
-        active: toEm(toNumber(menuConfig.activeRadiusMobile, desktopActive)),
-        item: toEm(toNumber(menuConfig.itemRadiusMobile, desktopItem)),
-        gap: Math.max(0, toNumber(menuConfig.submenuGapMobile, toNumber(menuConfig.submenuGap, 0))),
-        itemGap: Math.max(0, toNumber(menuConfig.submenuItemSpacingMobile, toNumber(menuConfig.submenuItemSpacing, 4))),
-        stacked: true,
-      },
-    };
-    const selected = metrics[deviceView];
-    const deviceCss = (selector: string, metric: typeof selected) => `
-${selector} .menu-items a,
-${selector} .submenu a{border-radius:${metric.item}em !important;}
-${selector} .has-submenu.open > a,
-${selector} .has-submenu.demo-open > a{color:${menuConfig.activeTextColor} !important;background-color:${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;border-radius:${metric.active}em !important;}
-${selector} .menu-items a.active,
-${selector} .menu-items > a.active,
-${selector} .menu-items > .has-submenu > a.active{box-shadow:inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor} !important;border-radius:${metric.active}em !important;}
-${selector} .menu-items a:hover{box-shadow:inset 0 0 0 ${menuConfig.hoverBorderWidth}px ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
-${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
-${metric.stacked
-  ? `${selector} .has-submenu.open > .submenu,
-${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:visible !important;max-height:80vh !important;margin:${metric.gap}px 24px 18px !important;padding:8px !important;clip-path:inset(0 -32px -32px -32px) !important;transform:none !important;pointer-events:auto !important;}`
-  : `${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:visible !important;clip-path:inset(0 -32px -32px -32px) !important;transform:translateY(0) !important;pointer-events:auto !important;}`}`;
+  const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a){document.querySelectorAll('.has-submenu.open').forEach(function(x){x.classList.remove('open');});return;}e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;var sub=a.closest('.submenu');var keep=hs||(sub?sub.closest('.has-submenu'):null);document.querySelectorAll('.has-submenu.open').forEach(function(x){if(!(keep&&(x===keep||x.contains(keep)))){x.classList.remove('open');}});if(hs){hs.classList.toggle('open');}var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
 
-    return deviceCss('.custom-nav-992', selected)
-      + deviceCss('.custom-nav-992.force-tablet', metrics.tablet)
-      + deviceCss('.custom-nav-992.force-mobile', metrics.mobile);
-  }, [deviceView, menuConfig]);
-  const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a){document.querySelectorAll('.has-submenu.demo-open,.has-submenu.open').forEach(function(x){x.classList.remove('demo-open');x.classList.remove('open');});return;}e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;var sub=a.closest('.submenu');var keep=hs||(sub?sub.closest('.has-submenu'):null);document.querySelectorAll('.has-submenu.demo-open,.has-submenu.open').forEach(function(x){if(!(keep&&(x===keep||x.contains(keep)))){x.classList.remove('demo-open');x.classList.remove('open');}});if(hs){hs.classList.toggle('demo-open');}var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
-  // Reconstrói o documento apenas em mudanças estruturais.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    setDemoDoc(getGeneratedCode() + `<style id="live-style">${getDemoExtraCss()}</style>` + demoScript);
+    setDemoDoc(getGeneratedCode() + demoScript);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceView, activeWidgetType, JSON.stringify(menuConfig.items)]);
-  // Injeta o CSS atualizado em tempo real sem recarregar o iframe.
+  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig]);
+
+  // A demo não altera CSS. Este efeito só espelha classe de dispositivo para o
+  // modo "Site" (fora do iframe isolado) e mantém o foco automático de submenu.
   useEffect(() => {
     try {
       const ifr = demoIframeRef.current;
       const doc = ifr && ifr.contentDocument;
       const target = doc && (doc.body || doc.head);
       if (!target) return;
-      const full = getGeneratedCode();
-      const m = full.match(/<style[\s\S]*?<\/style>/i);
-      const css = (m ? m[0].replace(/<\/?style[^>]*>/gi, '') : '') + getDemoExtraCss();
-      let live = doc.getElementById('live-style') as HTMLStyleElement | null;
-      if (!live) { live = doc.createElement('style'); live.id = 'live-style'; }
-      // Mantém o <style id="live-style"> sempre como ÚLTIMO nó do body para
-      // vencer, por ordem de origem, o <style> original gerado dentro do body.
-      if (live.parentNode !== target || target.lastElementChild !== live) {
-        target.appendChild(live);
-      }
-      live.innerHTML = css;
 
       // Espelha o dispositivo selecionado dentro do iframe da demo para que as
       // regras .force-tablet / .force-mobile (espaçamento, raios, stacking)
@@ -560,13 +498,12 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       // mostrar a alteração ao vivo. Permanece aberto até o usuário clicar na demo.
       if (editingFocus === 'submenu') {
         const firstSub = doc.querySelector('.custom-nav-992 .has-submenu');
-        doc.querySelectorAll('.custom-nav-992 .has-submenu.demo-open, .custom-nav-992 .has-submenu.open').forEach((sub) => {
+        doc.querySelectorAll('.custom-nav-992 .has-submenu.open').forEach((sub) => {
           if (sub !== firstSub) {
-            sub.classList.remove('demo-open');
             sub.classList.remove('open');
           }
         });
-        if (firstSub) firstSub.classList.add('demo-open');
+        if (firstSub) firstSub.classList.add('open');
       }
 
       // Quando o usuário clica dentro da demo, ele assume o controle: limpamos o
@@ -1197,7 +1134,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       color: ${menuConfig.activeTextColor};
       opacity: 1;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      border-radius: ${activeRadiusMobile}em !important;
+      box-shadow: inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor};
+      border-radius: ${metric.activeRadius}em !important;
     }`;
 
     const css = `<style>
@@ -1374,10 +1312,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       box-shadow: inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor};
       border-radius: ${activeRadiusDesktop}em;
    }
-   .custom-nav-992 .menu-items > a.active:hover,
-   .custom-nav-992 .menu-items > .has-submenu > a.active:hover,
-   .custom-nav-992 .menu-items > a:hover,
-   .custom-nav-992 .menu-items > .has-submenu > a:hover {
+   .custom-nav-992 .menu-items > a:not(.active):hover,
+   .custom-nav-992 .menu-items > .has-submenu > a:not(.active):hover {
      color: ${menuConfig.hoverTextColor} !important;
      background-color: ${menuConfig.hoverBgColor} !important;
      box-shadow: inset 0 0 0 ${menuConfig.hoverBorderWidth}px ${menuConfig.hoverBorderColor} !important;
@@ -1445,18 +1381,21 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     transition: opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), clip-path 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.25s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu,
-  .custom-nav-992 .has-submenu:focus-within > .submenu {
+  .custom-nav-992 .has-submenu:focus-within > .submenu,
+  .custom-nav-992 .has-submenu.open > .submenu {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
     clip-path: inset(0 -32px -32px -32px);
   }
-  .custom-nav-992 .has-submenu:hover > a::after {
+  .custom-nav-992 .has-submenu:hover > a::after,
+  .custom-nav-992 .has-submenu.open > a::after {
     transform: rotate(180deg);
   }
   .custom-nav-992 .has-submenu:hover > a,
-  .custom-nav-992 .has-submenu:focus-within > a {
+  .custom-nav-992 .has-submenu:focus-within > a,
+  .custom-nav-992 .has-submenu.open > a {
     color: ${menuConfig.activeTextColor} !important;
     background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
     border-radius: ${activeRadiusDesktop}em !important;
@@ -1565,7 +1504,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       border-radius: ${itemRadiusTablet}em !important;
     }
     .custom-nav-992 .has-submenu:hover > a,
-    .custom-nav-992 .has-submenu:focus-within > a {
+    .custom-nav-992 .has-submenu:focus-within > a,
+    .custom-nav-992 .has-submenu.open > a {
       border-radius: ${activeRadiusTablet}em !important;
     }
     `}
@@ -1595,7 +1535,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       border-radius: ${itemRadiusTablet}em !important;
     }
     .custom-nav-992.force-tablet .has-submenu:hover > a,
-    .custom-nav-992.force-tablet .has-submenu:focus-within > a {
+    .custom-nav-992.force-tablet .has-submenu:focus-within > a,
+    .custom-nav-992.force-tablet .has-submenu.open > a {
       border-radius: ${activeRadiusTablet}em !important;
     }
     .custom-nav-992.force-mobile .menu-items a {
@@ -2089,14 +2030,18 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       return items.map(item => {
         const hasChildren = item.children && item.children.length > 0;
         if (hasChildren) {
+          const paths = Array.isArray(item.activePaths) ? item.activePaths.join(',') : (item.activePaths || item.active_paths || '');
+          const activeAttr = paths ? ` data-active-paths="${String(paths).replace(/"/g, '&quot;')}"` : '';
           return `<div class="has-submenu">
-            <a href="${item.link}">${item.label}</a>
+            <a href="${item.link}"${activeAttr}>${item.label}</a>
             <ul class="submenu">
               ${renderHierarchicalItems(item.children)}
             </ul>
           </div>`;
         }
-        return `<a href="${item.link}">${item.label}</a>`;
+        const paths = Array.isArray(item.activePaths) ? item.activePaths.join(',') : (item.activePaths || item.active_paths || '');
+        const activeAttr = paths ? ` data-active-paths="${String(paths).replace(/"/g, '&quot;')}"` : '';
+        return `<a href="${item.link}"${activeAttr}>${item.label}</a>`;
       }).join('\n');
     }
 
@@ -3355,7 +3300,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       {(() => {
                         const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
                         const scale = demoScale;
-                        // Os raios de preview agora são aplicados via getDemoExtraCss em tempo real.
+                        // A demo renderiza o mesmo código final; só o script de clique é extra.
                         return (
                           <iframe
                             title="Demo isolado do widget"
@@ -3535,13 +3480,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </>
                     )}
 
-                    {/* Widget Injection */}
+                    {/* Widget Injection: também executa o código final em iframe isolado. */}
                     <div className="absolute inset-0 pointer-events-none z-[1000000]">
-                       <div 
-                         className="relative w-full h-full pointer-events-auto" 
-                          key={activeWidgetType}
-                         dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
-                       />
+                      <iframe
+                        title="Widget gerado pelo código final"
+                        className="relative w-full h-full border-none bg-transparent pointer-events-auto"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                        srcDoc={getGeneratedCode()}
+                        key={`site-widget-${activeWidgetType}-${deviceView}-${JSON.stringify(currentConfig())}`}
+                      />
                     </div>
                     </div>
                   </div>
