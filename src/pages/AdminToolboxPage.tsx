@@ -1365,8 +1365,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      from { opacity: var(--nav-active-from-opacity, 0.8); }
      to { opacity: 1; }
    }
-    .custom-nav-992 .menu-items > a.active-transitioning,
-    .custom-nav-992 .menu-items > .has-submenu > a.active-transitioning {
+    .custom-nav-992 .menu-items a.active-transitioning {
       animation: navActiveFade-992 ${activeAnimSeconds}s ease;
     }
    .custom-nav-992 .menu-items > a.active,
@@ -2023,6 +2022,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
         activateLink(link);
         return;
       }
+      const oldTimer = link.getAttribute('data-active-transition-timer');
+      if (oldTimer) window.clearTimeout(Number(oldTimer));
       link.classList.remove('active', 'active-transitioning');
       link.removeAttribute('data-active-transition-timer');
       link.style.removeProperty('--nav-active-from-opacity');
