@@ -472,18 +472,21 @@ export default function AdminToolboxPage() {
         active: toEm(desktopActive),
         item: toEm(desktopItem),
         gap: Math.max(0, toNumber(menuConfig.submenuGap, 0)),
+        itemGap: Math.max(0, toNumber(menuConfig.submenuItemSpacing, 4)),
         stacked: false,
       },
       tablet: {
         active: toEm(toNumber(menuConfig.activeRadiusTablet, desktopActive)),
         item: toEm(toNumber(menuConfig.itemRadiusTablet, desktopItem)),
         gap: Math.max(0, toNumber(menuConfig.submenuGapTablet, toNumber(menuConfig.submenuGap, 0))),
+        itemGap: Math.max(0, toNumber(menuConfig.submenuItemSpacingTablet, toNumber(menuConfig.submenuItemSpacing, 4))),
         stacked: (menuConfig.tabletMenuMode ?? 'header') === 'hamburger',
       },
       mobile: {
         active: toEm(toNumber(menuConfig.activeRadiusMobile, desktopActive)),
         item: toEm(toNumber(menuConfig.itemRadiusMobile, desktopItem)),
         gap: Math.max(0, toNumber(menuConfig.submenuGapMobile, toNumber(menuConfig.submenuGap, 0))),
+        itemGap: Math.max(0, toNumber(menuConfig.submenuItemSpacingMobile, toNumber(menuConfig.submenuItemSpacing, 4))),
         stacked: true,
       },
     };
@@ -498,7 +501,7 @@ ${selector} .has-submenu:hover > a,
 ${selector} .has-submenu:focus-within > a,
 ${selector} .has-submenu.open > a,
 ${selector} .has-submenu.demo-open > a{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${metric.active}em !important;opacity:1 !important;}
-${selector} .submenu{${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
+${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
 ${metric.stacked
   ? `${selector} .has-submenu.open > .submenu,
 ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:visible !important;max-height:80vh !important;margin:${metric.gap}px 24px 18px !important;padding:8px !important;clip-path:inset(0 -32px -32px -32px) !important;transform:none !important;pointer-events:auto !important;}`
@@ -508,7 +511,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       + deviceCss('.custom-nav-992.force-tablet', metrics.tablet)
       + deviceCss('.custom-nav-992.force-mobile', metrics.mobile);
   }, [deviceView, menuConfig]);
-  const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;if(hs){hs.classList.toggle('demo-open');}var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
+  const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a){document.querySelectorAll('.has-submenu.demo-open,.has-submenu.open').forEach(function(x){x.classList.remove('demo-open');x.classList.remove('open');});return;}e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;var sub=a.closest('.submenu');var keep=hs||(sub?sub.closest('.has-submenu'):null);document.querySelectorAll('.has-submenu.demo-open,.has-submenu.open').forEach(function(x){if(x!==keep){x.classList.remove('demo-open');x.classList.remove('open');}});if(hs){hs.classList.toggle('demo-open');}var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
   // Reconstrói o documento apenas em mudanças estruturais.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
