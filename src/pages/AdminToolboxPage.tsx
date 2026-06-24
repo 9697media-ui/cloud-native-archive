@@ -1378,7 +1378,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
    .custom-nav-992 .menu-items > .has-submenu > a:hover {
      color: ${menuConfig.hoverTextColor} !important;
      background-color: ${menuConfig.hoverBgColor} !important;
-     border: ${menuConfig.hoverBorderWidth}px solid ${menuConfig.hoverBorderColor} !important;
+     box-shadow: inset 0 0 0 ${menuConfig.hoverBorderWidth}px ${menuConfig.hoverBorderColor} !important;
      opacity: 1 !important;
    }
 
