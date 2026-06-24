@@ -2340,15 +2340,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Cor de Fundo</Label>
-                        <div className="flex gap-2 items-center">
-                          <Input 
-                            type="color" 
-                            className="w-10 h-10 p-1 cursor-pointer"
-                            value={whatsappConfig.bgColor}
-                            onChange={(e) => setWhatsappConfig({...whatsappConfig, bgColor: e.target.value})}
-                          />
-                          <span className="text-xs font-mono uppercase">{whatsappConfig.bgColor}</span>
-                        </div>
+                        <ColorField
+                          value={whatsappConfig.bgColor}
+                          onChange={(v) => setWhatsappConfig({...whatsappConfig, bgColor: v})}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>Cor do Texto</Label>
