@@ -1363,13 +1363,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     opacity: 1;
       border-radius: ${itemRadiusDesktop}em;
   }
-   @keyframes navActiveFade-992 {
-     from { opacity: var(--nav-active-from-opacity, 0.8); }
-     to { opacity: 1; }
-   }
-    .custom-nav-992 .menu-items a.active-transitioning {
-      animation: navActiveFade-992 ${activeAnimSeconds}s ease;
-    }
+    /* A transição de estado anterior -> ativo é feita pela transition do link. */
+
    .custom-nav-992 .menu-items > a.active,
    .custom-nav-992 .menu-items > .has-submenu > a.active {
      color: ${menuConfig.activeTextColor};
