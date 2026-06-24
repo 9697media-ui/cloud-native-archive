@@ -145,6 +145,8 @@ export default function AdminToolboxPage() {
       activeRadiusMobile: config.activeRadiusMobile ?? config.activeRadius ?? prev.activeRadiusMobile,
       itemRadiusTablet: config.itemRadiusTablet ?? config.itemRadius ?? prev.itemRadiusTablet,
       itemRadiusMobile: config.itemRadiusMobile ?? config.itemRadius ?? prev.itemRadiusMobile,
+      submenuItemSpacingTablet: config.submenuItemSpacingTablet ?? config.submenuItemSpacing ?? prev.submenuItemSpacingTablet,
+      submenuItemSpacingMobile: config.submenuItemSpacingMobile ?? config.submenuItemSpacing ?? prev.submenuItemSpacingMobile,
     }));
   };
 
