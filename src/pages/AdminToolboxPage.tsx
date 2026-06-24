@@ -1900,8 +1900,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     const hasSubmenu = e.target.closest('.custom-nav-992 .has-submenu');
     const navEl = document.querySelector('.custom-nav-992');
     const isMobileMode = window.innerWidth <= 850 || (navEl && navEl.classList.contains('force-mobile')) || (${tabletHamburger} && ((window.innerWidth <= 1024 && window.innerWidth >= 851) || (navEl && navEl.classList.contains('force-tablet'))));
-    if (hasSubmenu && isMobileMode) {
-      const link = e.target.closest('a');
+    if (isMobileMode) {
+      const link = e.target.closest('.custom-nav-992 .menu-items a');
       // Se clicou na seta ou no item pai e ele tem submenu, toggle
       if (link && link.parentElement === hasSubmenu) {
         e.preventDefault();
@@ -1909,6 +1909,12 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
           if (item !== hasSubmenu) item.classList.remove('open');
         });
         hasSubmenu.classList.toggle('open');
+        return;
+      }
+      if (link) {
+        document.querySelectorAll('.custom-nav-992 .has-submenu.open').forEach(function(item) {
+          item.classList.remove('open');
+        });
       }
     }
   });
