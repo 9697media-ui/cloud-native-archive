@@ -2413,7 +2413,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                            <div className={cn('rounded-lg border-2 bg-transparent p-3 space-y-3 transition-colors', active.border)}>
                              <div className="grid grid-cols-3 gap-2">
                                {devs.map(d => (
-                                 <button key={d.id} type="button" onClick={() => setPanelDevice(d.id)}
+                                  <button key={d.id} type="button" onClick={() => { setPanelDevice(d.id); setDeviceView(d.id); }}
                                    className={cn('flex items-center justify-center gap-1.5 rounded-md border-2 py-1.5 text-xs font-semibold transition-colors',
                                      panelDevice === d.id ? d.solid : 'border-transparent bg-muted/40 text-muted-foreground hover:bg-muted')}>
                                    <d.Icon className="h-3.5 w-3.5" />{d.label}
@@ -3041,7 +3041,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       size="icon" 
                       className="h-8 w-8"
                       title="Desktop / UHD (16:9)"
-                      onClick={() => setDeviceView('desktop')}
+                      onClick={() => { setDeviceView('desktop'); setPanelDevice('desktop'); }}
                     >
                       <Monitor className="h-4 w-4" />
                     </Button>
@@ -3050,7 +3050,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       size="icon" 
                       className="h-8 w-8"
                       title="Tablet"
-                      onClick={() => setDeviceView('tablet')}
+                      onClick={() => { setDeviceView('tablet'); setPanelDevice('tablet'); }}
                     >
                       <Tablet className="h-4 w-4" />
                     </Button>
@@ -3059,7 +3059,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       size="icon" 
                       className="h-8 w-8"
                       title="Mobile"
-                      onClick={() => setDeviceView('mobile')}
+                      onClick={() => { setDeviceView('mobile'); setPanelDevice('mobile'); }}
                     >
                       <Smartphone className="h-4 w-4" />
                     </Button>
