@@ -3102,7 +3102,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                   </div>
                 )}
-                {viewMode === 'preview' ? (
+                {viewMode === 'site' && (
                   <div
                     ref={frameRef}
                     className={cn(
