@@ -1336,8 +1336,9 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
      border-radius: ${itemRadiusDesktop}em;
-     border: ${menuConfig.activeBorderWidth}px solid transparent;
-     transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
+     border: none;
+     box-shadow: inset 0 0 0 0 transparent;
+     transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, box-shadow ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
      opacity: 0.8;
      white-space: nowrap !important;
      word-break: keep-all !important;
