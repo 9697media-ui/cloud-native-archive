@@ -504,13 +504,13 @@ export default function AdminToolboxPage() {
     const deviceCss = (selector: string, metric: typeof selected) => `
 ${selector} .menu-items a,
 ${selector} .submenu a{border-radius:${metric.item}em !important;}
-${selector} .menu-items a.active,
-${selector} .menu-items > a.active,
-${selector} .menu-items > .has-submenu > a.active,
 ${selector} .has-submenu:hover > a,
 ${selector} .has-submenu:focus-within > a,
 ${selector} .has-submenu.open > a,
 ${selector} .has-submenu.demo-open > a{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${metric.active}em !important;}
+${selector} .menu-items a.active,
+${selector} .menu-items > a.active,
+${selector} .menu-items > .has-submenu > a.active{border-radius:${metric.active}em !important;}
 ${selector} .menu-items a:hover{border:${menuConfig.hoverBorderWidth}px solid ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
 ${metric.stacked
