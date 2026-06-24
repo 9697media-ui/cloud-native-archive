@@ -524,6 +524,14 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       }
       live.innerHTML = css;
 
+      // Espelha o dispositivo selecionado dentro do iframe da demo para que as
+      // regras .force-tablet / .force-mobile (espaçamento, raios, stacking)
+      // sejam aplicadas mesmo sem media query correspondente.
+      doc.querySelectorAll('.custom-nav-992').forEach((nav) => {
+        nav.classList.toggle('force-tablet', deviceView === 'tablet');
+        nav.classList.toggle('force-mobile', deviceView === 'mobile');
+      });
+
     } catch {
       /* iframe ainda em origem opaca / não acessível; ignora */
     }
