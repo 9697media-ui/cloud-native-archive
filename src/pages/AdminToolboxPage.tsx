@@ -26,6 +26,10 @@ export default function AdminToolboxPage() {
   const [viewMode, setViewMode] = useState('preview'); // 'preview' ou 'code'
   const [deviceView, setDeviceView] = useState<DeviceView>('desktop');
   const [panelDevice, setPanelDevice] = useState<DeviceView>('desktop'); // aba de dispositivo no painel
+  // Foco de edição: revela elementos ocultos na demo enquanto o usuário ajusta.
+  const [editingFocus, setEditingFocus] = useState<'submenu' | null>(null);
+  const editingFocusRef = React.useRef<'submenu' | null>(null);
+  editingFocusRef.current = editingFocus;
   const [copied, setCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [templateName, setTemplateName] = useState('');
