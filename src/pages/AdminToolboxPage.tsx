@@ -2241,15 +2241,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
     const hasLord = (gatewayConfig.options || []).some((o: any) => o.lordIcon);
 
-    const cards = (gatewayConfig.options || []).map((o: any) => {
-      const mode = o.lordTrigger === 'loop' ? 'loop-on-hover' : 'manual';
+    const cards = (gatewayConfig.options || []).map((o: any, index: number) => {
+      const safeId = String(o.id || `card-${index}`).replace(/[^a-zA-Z0-9_-]/g, '-');
+      const cardClass = `ng-card-${safeId}`;
+      const mode = o.lordTrigger === 'loop' ? 'loop-on-hover' : 'boomerang';
       const iconHtml = o.lordIcon
-        ? `<lord-icon class="ng-lord" src="${o.lordIcon}" trigger="${mode}" colors="primary:${o.iconColor}" style="width:56px;height:56px"></lord-icon>`
+        ? `<lord-icon class="ng-lord" src="${o.lordIcon}" trigger="${mode}" target=".nav-gateway-441 .${cardClass}" colors="primary:${o.iconColor},secondary:${o.iconColor}" style="width:56px;height:56px"></lord-icon>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
-      const boomerang = o.lordIcon && o.lordTrigger !== 'loop';
       return `
     <div class="ng-col">
-      <a class="ng-card${boomerang ? ' ng-card-boom' : ''}" href="${o.link || '#'}">
+      <a class="ng-card ${cardClass}" href="${o.link || '#'}">
         ${iconHtml}
         <span class="ng-label">${o.cardLabel || ''}</span>
       </a>
@@ -2258,26 +2259,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     }).join('');
 
     const lordScript = hasLord ? `
-<script src="https://cdn.lordicon.com/lordicon.js"></script>
-<script>
-(function(){
-  function init(){
-    document.querySelectorAll('.nav-gateway-441 .ng-card-boom').forEach(function(card){
-      var icon = card.querySelector('lord-icon');
-      if(!icon || icon.dataset.bound) return;
-      function setup(){
-        var p = icon.playerInstance; if(!p) return;
-        icon.dataset.bound = '1';
-        p.goToFirstFrame();
-        card.addEventListener('mouseenter', function(){ p.direction = 1; p.playFromBeginning(); });
-        card.addEventListener('mouseleave', function(){ p.direction = -1; p.play(); });
-      }
-      if(icon.playerInstance) setup(); else icon.addEventListener('ready', setup);
-    });
-  }
-  if(document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
-})();
-</script>` : '';
+<script src="https://cdn.lordicon.com/lordicon.js"></script>` : '';
 
     const sticky = gatewayConfig.stickyLabel
       ? `\n  <a class="ng-sticky" href="${gatewayConfig.stickyLink || '#'}">${gatewayConfig.stickyLabel}</a>`
