@@ -537,6 +537,9 @@ export default function AdminToolboxPage() {
 
   const [menuConfig, setMenuConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_MENU_CONFIG)));
 
+  const [gatewayConfig, setGatewayConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_GATEWAY_CONFIG)));
+
+
 
   // ===== Preview "demo" orientado pelo código final =====
   // Regra de paridade: o iframe recebe SEMPRE o HTML/CSS gerado por
