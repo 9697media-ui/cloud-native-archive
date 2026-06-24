@@ -508,7 +508,7 @@ ${selector} .menu-items > .has-submenu > a.active,
 ${selector} .has-submenu:hover > a,
 ${selector} .has-submenu:focus-within > a,
 ${selector} .has-submenu.open > a,
-${selector} .has-submenu.demo-open > a{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${metric.active}em !important;opacity:1 !important;}
+${selector} .has-submenu.demo-open > a{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${metric.active}em !important;}
 ${selector} .menu-items a:hover{border:${menuConfig.hoverBorderWidth}px solid ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
 ${metric.stacked
@@ -1036,6 +1036,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     const menuShadow = (shadowSize === 0 || shadowIntensity === 0)
       ? 'none'
       : `0 ${Math.round(shadowSize * 0.5)}px ${shadowSize}px rgba(0,0,0,${(shadowIntensity / 100).toFixed(3)})`;
+    const activeAnimSeconds = Math.max(0, Number(menuConfig.activeAnimDuration ?? 3));
     const tabletHamburger = (menuConfig.tabletMenuMode ?? 'header') === 'hamburger';
     const tabletStackMetrics = {
       activeRadius: activeRadiusTablet,
@@ -1129,7 +1130,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       overflow-wrap: normal !important;
       overflow: hidden !important;
       text-overflow: ellipsis !important;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      opacity: 0.8;
+      transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
     }
     ${p} .menu-items > .has-submenu:last-child > a,
     ${p} .menu-items > a:last-child { border-bottom: none; }
@@ -1191,6 +1193,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     ${p} .menu-items a.active {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
+      opacity: 1;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
       border-radius: ${activeRadiusMobile}em !important;
     }`;
@@ -1333,7 +1336,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
      border-radius: ${itemRadiusDesktop}em;
-     transition: color ${menuConfig.activeAnimDuration ?? 3}s ease, background-color ${menuConfig.activeAnimDuration ?? 3}s ease, border-color ${menuConfig.activeAnimDuration ?? 3}s ease, opacity ${menuConfig.activeAnimDuration ?? 3}s ease;
+     border: ${menuConfig.activeBorderWidth}px solid transparent;
+     transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
      opacity: 0.8;
      white-space: nowrap !important;
      word-break: keep-all !important;
@@ -1358,17 +1362,19 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       border-radius: ${itemRadiusDesktop}em;
   }
    @keyframes navActiveFade-992 {
-     from { opacity: 0.55; }
+     from { opacity: var(--nav-active-from-opacity, 0.8); }
      to { opacity: 1; }
    }
+    .custom-nav-992 .menu-items a.active-transitioning {
+      animation: navActiveFade-992 ${activeAnimSeconds}s ease;
+    }
    .custom-nav-992 .menu-items > a.active,
    .custom-nav-992 .menu-items > .has-submenu > a.active {
      color: ${menuConfig.activeTextColor};
      opacity: 1;
      background-color: ${menuConfig.activeBgColor};
-     border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
+      border-color: ${menuConfig.activeBorderColor};
       border-radius: ${activeRadiusDesktop}em;
-     animation: navActiveFade-992 ${menuConfig.activeAnimDuration ?? 3}s ease;
    }
    .custom-nav-992 .menu-items > a.active:hover,
    .custom-nav-992 .menu-items > .has-submenu > a.active:hover,
@@ -1952,13 +1958,35 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       p = p.replace(/\\/+$/, '');
       return p === '' ? '/' : p;
     };
+    const pathMatchesCurrent = (raw, currentPath) => {
+      if (!raw || !raw.trim()) return false;
+      let targetPath;
+      try { targetPath = normalizePath(new URL(raw.trim(), window.location.origin).pathname); }
+      catch (e) { return false; }
+      return targetPath === currentPath || (targetPath !== '/' && currentPath.startsWith(targetPath + '/'));
+    };
+    const activateLink = (link) => {
+      const wasActive = link.classList.contains('active');
+      if (!wasActive) {
+        const currentOpacity = window.getComputedStyle(link).opacity || '0.8';
+        link.style.setProperty('--nav-active-from-opacity', currentOpacity);
+        link.classList.add('active-transitioning');
+        const oldTimer = link.getAttribute('data-active-transition-timer');
+        if (oldTimer) window.clearTimeout(Number(oldTimer));
+        const timer = window.setTimeout(function() {
+          link.classList.remove('active-transitioning');
+          link.removeAttribute('data-active-transition-timer');
+        }, ${Math.round(activeAnimSeconds * 1000)});
+        link.setAttribute('data-active-transition-timer', String(timer));
+      }
+      link.classList.add('active');
+    };
     const currentPath = normalizePath(window.location.pathname);
     const links = document.querySelectorAll('.custom-nav-992 .menu-items a');
+    const activeLinks = new Set();
 
     links.forEach(link => {
       const href = link.getAttribute('href');
-      link.classList.remove('active');
-
       let isActive = false;
 
       // Caminhos extras de ativação (links filhos) definidos pelo usuário.
@@ -1966,50 +1994,39 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       if (extra) {
         extra.split(',').forEach(raw => {
           if (isActive || !raw || !raw.trim()) return;
-          let ap;
-          try { ap = normalizePath(new URL(raw.trim(), window.location.origin).pathname); }
-          catch (e) { return; }
-          if (ap === currentPath || (ap !== '/' && currentPath.startsWith(ap + '/'))) isActive = true;
+          if (pathMatchesCurrent(raw, currentPath)) isActive = true;
         });
       }
 
       // Comparação pelo href do próprio item.
       if (!isActive && href && href !== '#' && href.trim() !== '') {
-        let linkPath;
-        try { linkPath = normalizePath(new URL(href, window.location.origin).pathname); }
-        catch (e) { linkPath = null; }
-        if (linkPath !== null) {
-          if (linkPath === currentPath) {
-            isActive = true;
-          } else if (linkPath !== '/' && currentPath.startsWith(linkPath + '/')) {
-            // Sub-página destaca o item pai (ex.: /blog/post -> /blog). Nunca a home.
-            isActive = true;
-          }
-        }
+        isActive = pathMatchesCurrent(href, currentPath);
       }
 
       if (!isActive) return;
-      // Força reflow para que a animação de transição seja reexecutada a cada ativação.
-      link.style.animation = 'none';
-      void link.offsetWidth;
-      link.style.animation = '';
-      link.classList.add('active');
-
+      activeLinks.add(link);
 
       // Se o link ativo está dentro de um submenu, propaga o destaque para o(s)
       // item(ns) pai fixo(s) no cabeçalho (suporta submenus aninhados).
       let parentLi = link.closest('.submenu') ? link.closest('.submenu').closest('.has-submenu') : null;
       while (parentLi) {
         const parentLink = parentLi.querySelector(':scope > a');
-        if (parentLink) {
-          parentLink.style.animation = 'none';
-          void parentLink.offsetWidth;
-          parentLink.style.animation = '';
-          parentLink.classList.add('active');
-        }
+        if (parentLink) activeLinks.add(parentLink);
         const outer = parentLi.parentElement ? parentLi.parentElement.closest('.has-submenu') : null;
         parentLi = outer;
       }
+    });
+
+    links.forEach(link => {
+      if (activeLinks.has(link)) {
+        activateLink(link);
+        return;
+      }
+      const oldTimer = link.getAttribute('data-active-transition-timer');
+      if (oldTimer) window.clearTimeout(Number(oldTimer));
+      link.classList.remove('active', 'active-transitioning');
+      link.removeAttribute('data-active-transition-timer');
+      link.style.removeProperty('--nav-active-from-opacity');
     });
 
   }
