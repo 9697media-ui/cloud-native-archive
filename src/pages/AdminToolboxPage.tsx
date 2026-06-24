@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
@@ -101,9 +101,26 @@ const DEFAULT_MENU_CONFIG = {
   testUrl: 'https://anabrasil.org/ana/',
 };
 
+const DEFAULT_GATEWAY_CONFIG = {
+  backgroundImage: '',
+  bgColor: '#0f172a',
+  overlayOpacity: 60,
+  title: 'Bem-vindo',
+  subtitle: 'Escolha por onde deseja começar',
+  titleColor: '#ffffff',
+  stickyLabel: 'Quero ajudar',
+  stickyLink: '#',
+  options: [
+    { id: 'social', icon: '👥', iconColor: '#14b8a6', cardLabel: 'Social', pillText: 'Associação Nazarena', link: '#' },
+    { id: 'educacao', icon: '🎓', iconColor: '#eab308', cardLabel: 'Educação', pillText: 'Grupo de Oração', link: '#' },
+  ] as any[],
+};
+
 const getDefaultConfig = (type: string) =>
   type === 'whatsapp' ? DEFAULT_WHATSAPP_CONFIG :
-  type === 'banner' ? DEFAULT_BANNER_CONFIG : DEFAULT_MENU_CONFIG;
+  type === 'banner' ? DEFAULT_BANNER_CONFIG :
+  type === 'gateway' ? DEFAULT_GATEWAY_CONFIG : DEFAULT_MENU_CONFIG;
+
 
 // Mescla a config padrão atual com a config salva: novas propriedades de
 // edição passam a existir, mas tudo que o usuário já configurou é preservado.
@@ -229,11 +246,13 @@ export default function AdminToolboxPage() {
   };
 
   const currentConfig = () => activeWidgetType === 'whatsapp' ? whatsappConfig :
-    activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+    activeWidgetType === 'banner' ? bannerConfig :
+    activeWidgetType === 'gateway' ? gatewayConfig : menuConfig;
 
   const applyConfig = (type: string, config: any) => {
     if (type === 'whatsapp') setWhatsappConfig(config);
     else if (type === 'banner') setBannerConfig(config);
+    else if (type === 'gateway') setGatewayConfig(config);
     else setMenuConfig(prev => ({
       ...prev,
       ...config,
@@ -261,7 +280,8 @@ export default function AdminToolboxPage() {
       }
 
       const rawConfig = activeWidgetType === 'whatsapp' ? whatsappConfig : 
-                     activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+                     activeWidgetType === 'banner' ? bannerConfig :
+                     activeWidgetType === 'gateway' ? gatewayConfig : menuConfig;
       // Deep clone para evitar referências compartilhadas/mutações em items.activePaths
       const config = JSON.parse(JSON.stringify(rawConfig));
 
@@ -493,14 +513,16 @@ export default function AdminToolboxPage() {
       enableWpApi: false,
       wpApiUrl: '',
       testUrl: 'https://anabrasil.org/ana/'
-    }
+    },
+    gateway: DEFAULT_GATEWAY_CONFIG
   };
 
-  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu') => {
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway') => {
     setActiveWidgetType(type);
     if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
     else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
     else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
+    else if (type === 'gateway') setGatewayConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.gateway)));
     
     toast({
       title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
@@ -515,6 +537,9 @@ export default function AdminToolboxPage() {
 
   const [menuConfig, setMenuConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_MENU_CONFIG)));
 
+  const [gatewayConfig, setGatewayConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_GATEWAY_CONFIG)));
+
+
 
   // ===== Preview "demo" orientado pelo código final =====
   // Regra de paridade: o iframe recebe SEMPRE o HTML/CSS gerado por
@@ -527,7 +552,7 @@ export default function AdminToolboxPage() {
   useEffect(() => {
     setDemoDoc(getGeneratedCode() + demoScript);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig]);
+  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig]);
 
   // A demo não altera CSS. Este efeito só espelha classe de dispositivo para o
   // modo "Site" (fora do iframe isolado) e mantém o foco automático de submenu.
@@ -584,7 +609,8 @@ export default function AdminToolboxPage() {
     if (!currentTemplateId) return;
     if (skipDraftRef.current) { skipDraftRef.current = false; return; }
     const config = activeWidgetType === 'whatsapp' ? whatsappConfig :
-      activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+      activeWidgetType === 'banner' ? bannerConfig :
+      activeWidgetType === 'gateway' ? gatewayConfig : menuConfig;
     const t = setTimeout(() => {
       try {
         const at = new Date().toISOString();
@@ -594,7 +620,7 @@ export default function AdminToolboxPage() {
     }, 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [whatsappConfig, bannerConfig, menuConfig, activeWidgetType, currentTemplateId]);
+  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, activeWidgetType, currentTemplateId]);
 
 
 
@@ -2191,11 +2217,63 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
 
   // Função utilitária para obter o código gerado
+  const generateGatewayCode = () => {
+    const opacity = (Number(gatewayConfig.overlayOpacity ?? 60) / 100).toFixed(2);
+    const bg = gatewayConfig.backgroundImage
+      ? `background-image: linear-gradient(rgba(0,0,0,${opacity}), rgba(0,0,0,${opacity})), url('${gatewayConfig.backgroundImage}'); background-size: cover; background-position: center;`
+      : `background-color: ${gatewayConfig.bgColor};`;
+
+    const css = `<style>
+  .nav-gateway-441 { position: relative; width: 100%; min-height: 600px; display: flex; align-items: center; justify-content: center; padding: 64px 24px; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; ${bg} }
+  .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
+  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px; }
+  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px; }
+  .nav-gateway-441 .ng-grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
+  .nav-gateway-441 .ng-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 176px; height: 176px; background: #fff; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
+  .nav-gateway-441 .ng-card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
+  .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
+  .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .nav-gateway-441 .ng-pill { background: rgba(255,255,255,.2); color: #fff; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
+  .nav-gateway-441 .ng-sticky { position: fixed; bottom: 96px; right: 0; transform-origin: bottom right; transform: rotate(-90deg); background: #4f46e5; color: #fff; font-size: 14px; font-weight: 600; padding: 8px 20px; border-radius: 8px 8px 0 0; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,.2); z-index: 999998; }
+  @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }
+</style>`;
+
+    const cards = (gatewayConfig.options || []).map((o: any) => `
+    <div class="ng-col">
+      <a class="ng-card" href="${o.link || '#'}">
+        <span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>
+        <span class="ng-label">${o.cardLabel || ''}</span>
+      </a>
+      ${o.pillText ? `<span class="ng-pill">${o.pillText}</span>` : ''}
+    </div>`).join('');
+
+    const sticky = gatewayConfig.stickyLabel
+      ? `\n  <a class="ng-sticky" href="${gatewayConfig.stickyLink || '#'}">${gatewayConfig.stickyLabel}</a>`
+      : '';
+
+    const html = `
+<!-- Início: Gateway de Navegação -->
+<div class="nav-gateway-441">
+  <div class="ng-inner">
+    <h1>${gatewayConfig.title || ''}</h1>
+    ${gatewayConfig.subtitle ? `<p class="ng-sub">${gatewayConfig.subtitle}</p>` : ''}
+    <div class="ng-grid">${cards}
+    </div>
+  </div>${sticky}
+</div>
+<!-- Fim: Gateway de Navegação -->`;
+
+    return css + "\n" + html;
+  };
+
   const getGeneratedCode = () => {
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
     if (activeWidgetType === 'banner') return generateBannerCode();
+    if (activeWidgetType === 'gateway') return generateGatewayCode();
     return generateMenuCode();
   };
+
 
   return (
     <div className="container mx-auto py-10 px-4 animate-in fade-in duration-500">
@@ -2323,6 +2401,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 >
                   <MenuIcon className="h-5 w-5" />
                   <span>Menu Responsivo</span>
+                </Button>
+                <Button 
+                  variant={activeWidgetType === 'gateway' ? 'default' : 'outline'} 
+                  className="w-full justify-start gap-3 h-12"
+                  onClick={() => setActiveWidgetType('gateway')}
+                >
+                  <LayoutGrid className="h-5 w-5" />
+                  <span>Gateway de Navegação</span>
                 </Button>
               </CardContent>
             </Card>
@@ -2477,6 +2563,99 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                   </>
                 ) : null}
+
+                {/* CONFIG: GATEWAY */}
+                {activeWidgetType === 'gateway' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Título</Label>
+                      <Input value={gatewayConfig.title} onChange={(e) => setGatewayConfig({...gatewayConfig, title: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Subtítulo</Label>
+                      <Input value={gatewayConfig.subtitle} onChange={(e) => setGatewayConfig({...gatewayConfig, subtitle: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Imagem de Fundo (URL)</Label>
+                      <Input value={gatewayConfig.backgroundImage} onChange={(e) => setGatewayConfig({...gatewayConfig, backgroundImage: e.target.value})} placeholder="https://... (opcional)" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Cor de Fundo</Label>
+                        <ColorField value={gatewayConfig.bgColor} onChange={(v) => setGatewayConfig({...gatewayConfig, bgColor: v})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Cor do Texto</Label>
+                        <ColorField value={gatewayConfig.titleColor} onChange={(v) => setGatewayConfig({...gatewayConfig, titleColor: v})} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Botão Lateral (texto)</Label>
+                        <Input value={gatewayConfig.stickyLabel} onChange={(e) => setGatewayConfig({...gatewayConfig, stickyLabel: e.target.value})} placeholder="Vazio = oculto" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Botão Lateral (link)</Label>
+                        <Input value={gatewayConfig.stickyLink} onChange={(e) => setGatewayConfig({...gatewayConfig, stickyLink: e.target.value})} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-2 border-t">
+                      <div className="flex items-center justify-between">
+                        <Label className="font-semibold">Cartões de Opção</Label>
+                        <Button
+                          type="button" variant="outline" size="sm" className="gap-1"
+                          onClick={() => setGatewayConfig({...gatewayConfig, options: [...gatewayConfig.options, { id: Math.random().toString(36).slice(2, 8), icon: '⭐', iconColor: '#4f46e5', cardLabel: 'Nova Opção', pillText: '', link: '#' }]})}
+                        >
+                          <Plus className="h-3 w-3" /> Adicionar
+                        </Button>
+                      </div>
+                      {gatewayConfig.options.map((opt: any, idx: number) => {
+                        const update = (patch: any) => {
+                          const next = [...gatewayConfig.options];
+                          next[idx] = { ...next[idx], ...patch };
+                          setGatewayConfig({...gatewayConfig, options: next});
+                        };
+                        return (
+                          <div key={opt.id ?? idx} className="space-y-2 rounded-lg border p-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-medium text-muted-foreground">Cartão {idx + 1}</span>
+                              <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setGatewayConfig({...gatewayConfig, options: gatewayConfig.options.filter((_: any, i: number) => i !== idx)})}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="space-y-1">
+                                <Label className="text-xs">Título</Label>
+                                <Input value={opt.cardLabel} onChange={(e) => update({ cardLabel: e.target.value })} />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Ícone (emoji)</Label>
+                                <Input value={opt.icon} onChange={(e) => update({ icon: e.target.value })} />
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Pílula (texto de apoio)</Label>
+                              <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="space-y-1">
+                                <Label className="text-xs">Link</Label>
+                                <Input value={opt.link} onChange={(e) => update({ link: e.target.value })} />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Cor do Ícone</Label>
+                                <ColorField value={opt.iconColor} onChange={(v) => update({ iconColor: v })} />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+
 
                 {/* CONFIG: MENU */}
                 {activeWidgetType === 'menu' && (
