@@ -1333,7 +1333,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
      border-radius: ${itemRadiusDesktop}em;
-     transition: color 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, opacity 0.35s ease;
+     transition: color ${menuConfig.activeAnimDuration ?? 3}s ease, background-color ${menuConfig.activeAnimDuration ?? 3}s ease, border-color ${menuConfig.activeAnimDuration ?? 3}s ease, opacity ${menuConfig.activeAnimDuration ?? 3}s ease;
      opacity: 0.8;
      white-space: nowrap !important;
      word-break: keep-all !important;
@@ -1368,7 +1368,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      background-color: ${menuConfig.activeBgColor};
      border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
       border-radius: ${activeRadiusDesktop}em;
-     animation: navActiveFade-992 0.4s ease;
+     animation: navActiveFade-992 ${menuConfig.activeAnimDuration ?? 3}s ease;
    }
    .custom-nav-992 .menu-items > a.active:hover,
    .custom-nav-992 .menu-items > .has-submenu > a.active:hover,
