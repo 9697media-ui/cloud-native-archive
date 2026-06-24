@@ -1134,7 +1134,8 @@ export default function AdminToolboxPage() {
       color: ${menuConfig.activeTextColor};
       opacity: 1;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      border-radius: ${activeRadiusMobile}em !important;
+      box-shadow: inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor};
+      border-radius: ${metric.activeRadius}em !important;
     }`;
 
     const css = `<style>
@@ -1311,10 +1312,8 @@ export default function AdminToolboxPage() {
       box-shadow: inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor};
       border-radius: ${activeRadiusDesktop}em;
    }
-   .custom-nav-992 .menu-items > a.active:hover,
-   .custom-nav-992 .menu-items > .has-submenu > a.active:hover,
-   .custom-nav-992 .menu-items > a:hover,
-   .custom-nav-992 .menu-items > .has-submenu > a:hover {
+   .custom-nav-992 .menu-items > a:not(.active):hover,
+   .custom-nav-992 .menu-items > .has-submenu > a:not(.active):hover {
      color: ${menuConfig.hoverTextColor} !important;
      background-color: ${menuConfig.hoverBgColor} !important;
      box-shadow: inset 0 0 0 ${menuConfig.hoverBorderWidth}px ${menuConfig.hoverBorderColor} !important;
@@ -1382,18 +1381,21 @@ export default function AdminToolboxPage() {
     transition: opacity 0.25s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), clip-path 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.25s ease;
   }
   .custom-nav-992 .has-submenu:hover > .submenu,
-  .custom-nav-992 .has-submenu:focus-within > .submenu {
+  .custom-nav-992 .has-submenu:focus-within > .submenu,
+  .custom-nav-992 .has-submenu.open > .submenu {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
     clip-path: inset(0 -32px -32px -32px);
   }
-  .custom-nav-992 .has-submenu:hover > a::after {
+  .custom-nav-992 .has-submenu:hover > a::after,
+  .custom-nav-992 .has-submenu.open > a::after {
     transform: rotate(180deg);
   }
   .custom-nav-992 .has-submenu:hover > a,
-  .custom-nav-992 .has-submenu:focus-within > a {
+  .custom-nav-992 .has-submenu:focus-within > a,
+  .custom-nav-992 .has-submenu.open > a {
     color: ${menuConfig.activeTextColor} !important;
     background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
     border-radius: ${activeRadiusDesktop}em !important;
@@ -2026,14 +2028,18 @@ export default function AdminToolboxPage() {
       return items.map(item => {
         const hasChildren = item.children && item.children.length > 0;
         if (hasChildren) {
+          const paths = Array.isArray(item.activePaths) ? item.activePaths.join(',') : (item.activePaths || item.active_paths || '');
+          const activeAttr = paths ? ` data-active-paths="${String(paths).replace(/"/g, '&quot;')}"` : '';
           return `<div class="has-submenu">
-            <a href="${item.link}">${item.label}</a>
+            <a href="${item.link}"${activeAttr}>${item.label}</a>
             <ul class="submenu">
               ${renderHierarchicalItems(item.children)}
             </ul>
           </div>`;
         }
-        return `<a href="${item.link}">${item.label}</a>`;
+        const paths = Array.isArray(item.activePaths) ? item.activePaths.join(',') : (item.activePaths || item.active_paths || '');
+        const activeAttr = paths ? ` data-active-paths="${String(paths).replace(/"/g, '&quot;')}"` : '';
+        return `<a href="${item.link}"${activeAttr}>${item.label}</a>`;
       }).join('\n');
     }
 
