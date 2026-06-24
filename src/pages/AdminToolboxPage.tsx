@@ -1989,6 +1989,10 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       }
 
       if (!isActive) return;
+      // Força reflow para que a animação de transição seja reexecutada a cada ativação.
+      link.style.animation = 'none';
+      void link.offsetWidth;
+      link.style.animation = '';
       link.classList.add('active');
 
 
@@ -1997,7 +2001,12 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       let parentLi = link.closest('.submenu') ? link.closest('.submenu').closest('.has-submenu') : null;
       while (parentLi) {
         const parentLink = parentLi.querySelector(':scope > a');
-        if (parentLink) parentLink.classList.add('active');
+        if (parentLink) {
+          parentLink.style.animation = 'none';
+          void parentLink.offsetWidth;
+          parentLink.style.animation = '';
+          parentLink.classList.add('active');
+        }
         const outer = parentLi.parentElement ? parentLi.parentElement.closest('.has-submenu') : null;
         parentLi = outer;
       }
