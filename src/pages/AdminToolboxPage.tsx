@@ -550,6 +550,12 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       // mostrar a alteração ao vivo. Permanece aberto até o usuário clicar na demo.
       if (editingFocus === 'submenu') {
         const firstSub = doc.querySelector('.custom-nav-992 .has-submenu');
+        doc.querySelectorAll('.custom-nav-992 .has-submenu.demo-open, .custom-nav-992 .has-submenu.open').forEach((sub) => {
+          if (sub !== firstSub) {
+            sub.classList.remove('demo-open');
+            sub.classList.remove('open');
+          }
+        });
         if (firstSub) firstSub.classList.add('demo-open');
       }
 
