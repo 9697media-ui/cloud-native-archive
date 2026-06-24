@@ -2242,12 +2242,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     const hasLord = (gatewayConfig.options || []).some((o: any) => o.lordIcon);
 
     const cards = (gatewayConfig.options || []).map((o: any) => {
+      const mode = o.lordTrigger === 'loop' ? 'loop-on-hover' : 'manual';
       const iconHtml = o.lordIcon
-        ? `<lord-icon class="ng-lord" src="${o.lordIcon}" trigger="manual" colors="primary:${o.iconColor}" style="width:56px;height:56px"></lord-icon>`
+        ? `<lord-icon class="ng-lord" src="${o.lordIcon}" trigger="${mode}" colors="primary:${o.iconColor}" style="width:56px;height:56px"></lord-icon>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
+      const boomerang = o.lordIcon && o.lordTrigger !== 'loop';
       return `
     <div class="ng-col">
-      <a class="ng-card${o.lordIcon ? ' ng-card-lord' : ''}" href="${o.link || '#'}">
+      <a class="ng-card${boomerang ? ' ng-card-boom' : ''}" href="${o.link || '#'}">
         ${iconHtml}
         <span class="ng-label">${o.cardLabel || ''}</span>
       </a>
@@ -2260,7 +2262,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 <script>
 (function(){
   function init(){
-    document.querySelectorAll('.nav-gateway-441 .ng-card-lord').forEach(function(card){
+    document.querySelectorAll('.nav-gateway-441 .ng-card-boom').forEach(function(card){
       var icon = card.querySelector('lord-icon');
       if(!icon || icon.dataset.bound) return;
       function setup(){
