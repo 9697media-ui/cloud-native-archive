@@ -23,6 +23,7 @@ export default function AdminToolboxPage() {
   const [activeWidgetType, setActiveWidgetType] = useState('whatsapp');
   const [viewMode, setViewMode] = useState('preview'); // 'preview' ou 'code'
   const [deviceView, setDeviceView] = useState('desktop'); // 'desktop' ou 'mobile'
+  const [panelDevice, setPanelDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop'); // aba de dispositivo no painel
   const [copied, setCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [templateName, setTemplateName] = useState('');
