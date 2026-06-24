@@ -1548,6 +1548,38 @@ export default function AdminToolboxPage() {
       border-radius: ${activeRadiusMobile}em !important;
     }
   }
+
+  /* Garantia visual final: o ativo NUNCA usa sombra/linha inferior.
+     Ele é sempre somente fundo + borda uniforme, igual ao código exportado. */
+  .custom-nav-992 .menu-items a.active,
+  .custom-nav-992 .menu-items a.active:hover,
+  .custom-nav-992 .menu-items a.active:focus,
+  .custom-nav-992 .menu-items a.active:focus-visible,
+  .custom-nav-992 .has-submenu:hover > a.active,
+  .custom-nav-992 .has-submenu:focus-within > a.active,
+  .custom-nav-992 .has-submenu.open > a.active {
+    border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor} !important;
+    border-block: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor} !important;
+    border-inline: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor} !important;
+    box-shadow: none !important;
+    outline: none !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    background-image: none !important;
+    background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
+    color: ${menuConfig.activeTextColor} !important;
+    opacity: 1 !important;
+    background-clip: padding-box !important;
+  }
+
+  .custom-nav-992 .menu-items > a.active::before,
+  .custom-nav-992 .submenu a.active::before,
+  .custom-nav-992 .menu-items > a.active::after,
+  .custom-nav-992 .submenu a.active::after {
+    content: none !important;
+    display: none !important;
+  }
 </style>`;
 
     let fetchScript = `
