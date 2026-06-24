@@ -463,13 +463,20 @@ export default function AdminToolboxPage() {
     try {
       const ifr = demoIframeRef.current;
       const doc = ifr && ifr.contentDocument;
-      if (!doc || !doc.head) return;
+      const target = doc && (doc.body || doc.head);
+      if (!target) return;
       const full = getGeneratedCode();
       const m = full.match(/<style[\s\S]*?<\/style>/i);
       const css = (m ? m[0].replace(/<\/?style[^>]*>/gi, '') : '') + getDemoExtraCss();
       let live = doc.getElementById('live-style') as HTMLStyleElement | null;
-      if (!live) { live = doc.createElement('style'); live.id = 'live-style'; doc.head.appendChild(live); }
+      if (!live) { live = doc.createElement('style'); live.id = 'live-style'; }
+      // Mantém o <style id="live-style"> sempre como ÚLTIMO nó do body para
+      // vencer, por ordem de origem, o <style> original gerado dentro do body.
+      if (live.parentNode !== target || target.lastElementChild !== live) {
+        target.appendChild(live);
+      }
       live.innerHTML = css;
+
     } catch {
       /* iframe ainda em origem opaca / não acessível; ignora */
     }
