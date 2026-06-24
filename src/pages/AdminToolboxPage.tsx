@@ -2517,6 +2517,25 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
                        </div>
                        </div>
+                     </div>
+
+                     <div className="border-t pt-3 space-y-3">
+                       <Label className="text-xs font-bold uppercase text-muted-foreground">Hover (borda)</Label>
+                       <div className="grid grid-cols-3 gap-3">
+                         <div className="space-y-2">
+                           <Label className="text-xs">Cor</Label>
+                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                             value={menuConfig.hoverBorderColor}
+                             onChange={(e) => setMenuConfig({...menuConfig, hoverBorderColor: e.target.value})} />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-xs">Espessura</Label>
+                           <Input type="number" min={0} max={6}
+                             value={menuConfig.hoverBorderWidth}
+                             onChange={(e) => setMenuConfig({...menuConfig, hoverBorderWidth: Number(e.target.value) || 0})} />
+                        </div>
+                       </div>
+
                        {(() => {
                          const devs = [
                            { id: 'desktop' as const, label: 'PC', Icon: Monitor, border: 'border-blue-500', solid: 'bg-blue-500 border-blue-500 text-white' },
