@@ -3147,11 +3147,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 const paths = Array.isArray(item.activePaths)
                                   ? item.activePaths
                                   : (item.activePaths ? String(item.activePaths).split(',').map((s: string) => s.trim()) : []);
-                                const setPaths = (next: string[]) => {
-                                  const newItems = [...menuConfig.items];
-                                  newItems[idx].activePaths = next;
-                                  setMenuConfig({...menuConfig, items: newItems});
-                                };
+                                 const setPaths = (next: string[]) => {
+                                   const newItems = menuConfig.items.map((it: any, i: number) =>
+                                     i === idx ? { ...it, activePaths: next } : it
+                                   );
+                                   setMenuConfig({...menuConfig, items: newItems});
+                                 };
+
                                 return (
                                   <div className="space-y-1.5">
                                     <span className="text-[10px] text-muted-foreground">Links de ativação</span>
