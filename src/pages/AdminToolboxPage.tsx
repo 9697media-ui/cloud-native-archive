@@ -2571,9 +2571,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                          </div>
                          <div className="space-y-2">
                            <Label className="text-xs">Cor borda hover</Label>
-                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                           <ColorField
                              value={menuConfig.hoverBorderColor}
-                             onChange={(e) => setMenuConfig({...menuConfig, hoverBorderColor: e.target.value})} />
+                             onChange={(v) => setMenuConfig({...menuConfig, hoverBorderColor: v})} />
                          </div>
                          <div className="space-y-2">
                            <Label className="text-xs">Espessura borda hover</Label>
