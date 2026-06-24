@@ -101,9 +101,26 @@ const DEFAULT_MENU_CONFIG = {
   testUrl: 'https://anabrasil.org/ana/',
 };
 
+const DEFAULT_GATEWAY_CONFIG = {
+  backgroundImage: '',
+  bgColor: '#0f172a',
+  overlayOpacity: 60,
+  title: 'Bem-vindo',
+  subtitle: 'Escolha por onde deseja começar',
+  titleColor: '#ffffff',
+  stickyLabel: 'Quero ajudar',
+  stickyLink: '#',
+  options: [
+    { id: 'social', icon: '👥', iconColor: '#14b8a6', cardLabel: 'Social', pillText: 'Associação Nazarena', link: '#' },
+    { id: 'educacao', icon: '🎓', iconColor: '#eab308', cardLabel: 'Educação', pillText: 'Grupo de Oração', link: '#' },
+  ] as any[],
+};
+
 const getDefaultConfig = (type: string) =>
   type === 'whatsapp' ? DEFAULT_WHATSAPP_CONFIG :
-  type === 'banner' ? DEFAULT_BANNER_CONFIG : DEFAULT_MENU_CONFIG;
+  type === 'banner' ? DEFAULT_BANNER_CONFIG :
+  type === 'gateway' ? DEFAULT_GATEWAY_CONFIG : DEFAULT_MENU_CONFIG;
+
 
 // Mescla a config padrão atual com a config salva: novas propriedades de
 // edição passam a existir, mas tudo que o usuário já configurou é preservado.
