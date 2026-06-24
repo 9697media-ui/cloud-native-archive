@@ -2456,7 +2456,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                <Label className="text-xs">Raio ativo {active.label} (%): {menuConfig[ar]}%</Label>
                                <Slider min={0} max={100} step={1}
                                  value={[menuConfig[ar]]}
-                                 onValueChange={(v) => setMenuConfig({...menuConfig, [ar]: v[0]})} />
+                                 onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [ar]: v[0]}); }} />
                              </div>
                              <div className="space-y-2">
                                <Label className="text-xs">Arred. Itens {active.label} (%): {menuConfig[ir]}%</Label>
