@@ -305,6 +305,7 @@ export default function AdminToolboxPage() {
       hoverTextColor: '#4f46e5',
       activeBorderColor: '#4f46e5',
       activeBorderWidth: 2,
+      activeAnimDuration: 3,
       hoverBorderColor: '#4f46e5',
       hoverBorderWidth: 2,
       activeRadius: 30,
@@ -412,6 +413,7 @@ export default function AdminToolboxPage() {
     hoverTextColor: '#4f46e5',
     activeBorderColor: '#4f46e5',
     activeBorderWidth: 2,
+    activeAnimDuration: 3,
     hoverBorderColor: '#4f46e5',
     hoverBorderWidth: 2,
     activeRadius: 30,
@@ -1331,7 +1333,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
      border-radius: ${itemRadiusDesktop}em;
-     transition: color 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, opacity 0.35s ease;
+     transition: color ${menuConfig.activeAnimDuration ?? 3}s ease, background-color ${menuConfig.activeAnimDuration ?? 3}s ease, border-color ${menuConfig.activeAnimDuration ?? 3}s ease, opacity ${menuConfig.activeAnimDuration ?? 3}s ease;
      opacity: 0.8;
      white-space: nowrap !important;
      word-break: keep-all !important;
@@ -1366,7 +1368,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      background-color: ${menuConfig.activeBgColor};
      border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
       border-radius: ${activeRadiusDesktop}em;
-     animation: navActiveFade-992 0.4s ease;
+     animation: navActiveFade-992 ${menuConfig.activeAnimDuration ?? 3}s ease;
    }
    .custom-nav-992 .menu-items > a.active:hover,
    .custom-nav-992 .menu-items > .has-submenu > a.active:hover,
@@ -2561,8 +2563,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                            <Input type="number" min={0} max={6}
                              value={menuConfig.activeBorderWidth}
                              onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-xs">Transição (s)</Label>
+                           <Input type="number" min={0} step={0.1}
+                             value={menuConfig.activeAnimDuration ?? 3}
+                             onChange={(e) => setMenuConfig({...menuConfig, activeAnimDuration: Number(e.target.value) || 0})} />
+                         </div>
                         </div>
-                       </div>
 
 
 
