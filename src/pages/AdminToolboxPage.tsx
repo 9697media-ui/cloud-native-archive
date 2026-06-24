@@ -19,6 +19,101 @@ import { ColorField } from "@/components/ColorField";
 
 type DeviceView = 'desktop' | 'tablet' | 'mobile';
 
+// Configurações padrão (fonte da verdade das propriedades de edição atuais).
+// Usadas para inicializar os estados e para "atualizar" modelos antigos,
+// preenchendo propriedades novas que ainda não existiam quando foram salvos.
+const DEFAULT_WHATSAPP_CONFIG = {
+  phone: '5511999999999',
+  text: 'Fale com nosso time',
+  bgColor: '#25D366',
+  textColor: '#ffffff',
+  position: 'right',
+  borderRadius: '50',
+};
+
+const DEFAULT_BANNER_CONFIG = {
+  message: '🎉 Aproveite 20% de desconto usando o cupom PROMO20!',
+  bgColor: '#111827',
+  textColor: '#ffffff',
+  link: 'https://seusite.com/promo',
+  isDismissible: true,
+};
+
+const DEFAULT_MENU_CONFIG = {
+  logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
+  logoUrlMobile: '',
+  logoColor: '',
+  bgColor: '#ffffff',
+  textColor: '#1f2937',
+  accentColor: '#4f46e5',
+  fontFamily: 'system-ui, -apple-system, sans-serif',
+  fontSize: 15,
+  itemSpacing: 5,
+  itemPadding: 15,
+  hoverBgColor: '#f1f0fb',
+  hoverTextColor: '#4f46e5',
+  activeBorderColor: '#4f46e5',
+  activeBorderWidth: 2,
+  activeAnimDuration: 3,
+  hoverBorderColor: '#4f46e5',
+  hoverBorderWidth: 2,
+  activeRadius: 30,
+  activeRadiusTablet: 30,
+  activeRadiusMobile: 30,
+  itemRadius: 10,
+  itemRadiusTablet: 10,
+  itemRadiusMobile: 0,
+  submenuGap: 0,
+  submenuGapTablet: 0,
+  submenuGapMobile: 0,
+  submenuItemSpacing: 4,
+  submenuItemSpacingTablet: 4,
+  submenuItemSpacingMobile: 4,
+  shadowSize: 28,
+  shadowIntensity: 22,
+  tabletMenuMode: 'header',
+  activeBgColor: 'transparent',
+  activeTextColor: '#4f46e5',
+  items: [
+    { label: 'Início', link: '#', children: [] as any[] },
+    { label: 'Sobre', link: '#', children: [] as any[] },
+    { label: 'Serviços', link: '#', children: [] as any[] },
+    { label: 'Contato', link: '#', children: [] as any[] },
+  ] as any[],
+  sticky: true,
+  searchEnabled: true,
+  searchRadius: 100,
+  searchBgColor: '#00000010',
+  searchIconColor: '#1f2937',
+  hamburgerColor: '#1f2937',
+  hamburgerBgColor: '#00000000',
+  hamburgerRadius: 32,
+  spotlightRadius: 24,
+  searchIconSize: 16,
+  hamburgerSize: 24,
+  toggleSize: 38,
+  spotlightPaddingX: 20,
+  spotlightAlign: 'top',
+  searchUrl: 'https://anabrasil.org/',
+  enableAutoDetect: false,
+  enableWpApi: true,
+  wpApiUrl: '',
+  testUrl: 'https://anabrasil.org/ana/',
+};
+
+const getDefaultConfig = (type: string) =>
+  type === 'whatsapp' ? DEFAULT_WHATSAPP_CONFIG :
+  type === 'banner' ? DEFAULT_BANNER_CONFIG : DEFAULT_MENU_CONFIG;
+
+// Mescla a config padrão atual com a config salva: novas propriedades de
+// edição passam a existir, mas tudo que o usuário já configurou é preservado.
+const upgradeConfig = (type: string, saved: any) => {
+  const base = JSON.parse(JSON.stringify(getDefaultConfig(type)));
+  return { ...base, ...(saved && typeof saved === 'object' ? saved : {}) };
+};
+
+
+
 
 export default function AdminToolboxPage() {
   const { toast } = useToast();
@@ -261,7 +356,37 @@ export default function AdminToolboxPage() {
   };
 
 
+  // Cria uma CÓPIA atualizada do modelo (mantém o original intacto),
+  // mesclando as propriedades de edição novas do sistema com a config salva.
+  const upgradeTemplate = async (template: any) => {
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Erro", description: "Você precisa estar logado.", variant: "destructive" });
+        return;
+      }
+      const merged = upgradeConfig(template.type, template.config);
+      const { error } = await supabase
+        .from('widget_templates')
+        .insert({
+          name: `${template.name} (atualizado)`,
+          type: template.type,
+          config: merged,
+          user_id: user.id,
+        });
+      if (error) throw error;
+      toast({ title: "Modelo atualizado", description: `Criada uma versão atualizada de "${template.name}". O original foi mantido.` });
+      fetchTemplates();
+    } catch (error: any) {
+      toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const deleteTemplate = async (id: string) => {
+
     try {
       const { error } = await supabase.from('widget_templates').delete().eq('id', id);
       if (error) throw error;
@@ -384,84 +509,12 @@ export default function AdminToolboxPage() {
   };
 
   // Estados de configuração dos widgets
-  const [whatsappConfig, setWhatsappConfig] = useState({
-    phone: '5511999999999',
-    text: 'Fale com nosso time',
-    bgColor: '#25D366',
-    textColor: '#ffffff',
-    position: 'right', // 'left' ou 'right'
-    borderRadius: '50'
-  });
+  const [whatsappConfig, setWhatsappConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_WHATSAPP_CONFIG)));
 
-  const [bannerConfig, setBannerConfig] = useState({
-    message: '🎉 Aproveite 20% de desconto usando o cupom PROMO20!',
-    bgColor: '#111827',
-    textColor: '#ffffff',
-    link: 'https://seusite.com/promo',
-    isDismissible: true
-  });
+  const [bannerConfig, setBannerConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_BANNER_CONFIG)));
 
-  const [menuConfig, setMenuConfig] = useState({
-    logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
-    logoUrlMobile: '',
-    logoColor: '',
-    bgColor: '#ffffff',
-    textColor: '#1f2937',
-    accentColor: '#4f46e5',
-    fontFamily: 'system-ui, -apple-system, sans-serif',
-    fontSize: 15,
-    itemSpacing: 5,
-    itemPadding: 15,
-    hoverBgColor: '#f1f0fb',
-    hoverTextColor: '#4f46e5',
-    activeBorderColor: '#4f46e5',
-    activeBorderWidth: 2,
-    activeAnimDuration: 3,
-    hoverBorderColor: '#4f46e5',
-    hoverBorderWidth: 2,
-    activeRadius: 30,
-    activeRadiusTablet: 30,
-    activeRadiusMobile: 30,
-    itemRadius: 10,
-    itemRadiusTablet: 10,
-    itemRadiusMobile: 0,
-    submenuGap: 0,
-    submenuGapTablet: 0,
-    submenuGapMobile: 0,
-    submenuItemSpacing: 4,
-    submenuItemSpacingTablet: 4,
-    submenuItemSpacingMobile: 4,
-    shadowSize: 28,
-    shadowIntensity: 22,
-    tabletMenuMode: 'header',
-    activeBgColor: 'transparent',
-    activeTextColor: '#4f46e5',
-    items: [
-      { label: 'Início', link: '#', children: [] as any[] },
-      { label: 'Sobre', link: '#', children: [] as any[] },
-      { label: 'Serviços', link: '#', children: [] as any[] },
-      { label: 'Contato', link: '#', children: [] as any[] }
-    ] as any[],
-    sticky: true,
-    searchEnabled: true,
-    searchRadius: 100,
-    searchBgColor: '#00000010',
-    searchIconColor: '#1f2937',
-    hamburgerColor: '#1f2937',
-    hamburgerBgColor: '#00000000',
-    hamburgerRadius: 32,
-    spotlightRadius: 24,
-    searchIconSize: 16,
-    hamburgerSize: 24,
-    toggleSize: 38,
-    spotlightPaddingX: 20,
-    spotlightAlign: 'top',
-    searchUrl: 'https://anabrasil.org/',
-    enableAutoDetect: false,
-    enableWpApi: true,
-    wpApiUrl: '',
-    testUrl: 'https://anabrasil.org/ana/'
-  });
+  const [menuConfig, setMenuConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_MENU_CONFIG)));
+
 
   // ===== Preview "demo" orientado pelo código final =====
   // Regra de paridade: o iframe recebe SEMPRE o HTML/CSS gerado por
@@ -2295,9 +2348,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <span className="text-[10px] text-muted-foreground uppercase">{template.type}</span>
                       </div>
                       <div className="flex gap-1 shrink-0">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => loadTemplate(template)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar" onClick={() => loadTemplate(template)}>
                           <Edit className="h-3 w-3" />
                         </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Atualizar modelo (cria cópia com novas propriedades)" disabled={isSaving} onClick={() => upgradeTemplate(template)}>
+                          <RefreshCw className="h-3 w-3" />
+                        </Button>
+
                         <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTemplate(template.id)}>
                           <Trash2 className="h-3 w-3" />
                         </Button>
