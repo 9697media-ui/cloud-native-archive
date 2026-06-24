@@ -1614,15 +1614,18 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
           
           const children = item.child_items || item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
+          const activePaths = item.activePaths || item.active_paths || '';
+          const apAttr = activePaths ? \` data-active-paths="\${String(activePaths).replace(/"/g, '&quot;')}"\` : '';
 
           if (children && children.length > 0) {
             html += \`<div class="has-submenu">
-              <a href="\${link}">\${title}</a>
+              <a href="\${link}"\${apAttr}>\${title}</a>
               <ul class="submenu">\${renderItems(children)}</ul>
             </div>\`;
           } else {
-            html += \`<a href="\${link}">\${title}</a>\`;
+            html += \`<a href="\${link}"\${apAttr}>\${title}</a>\`;
           }
+
         });
         return html;
       }
