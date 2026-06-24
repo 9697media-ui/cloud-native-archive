@@ -1331,7 +1331,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
      border-radius: ${itemRadiusDesktop}em;
-     transition: all 0.2s;
+     transition: color 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, opacity 0.35s ease;
      opacity: 0.8;
      white-space: nowrap !important;
      word-break: keep-all !important;
