@@ -1982,21 +1982,12 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       return targetPath === currentPath || (targetPath !== '/' && currentPath.startsWith(targetPath + '/'));
     };
     const activateLink = (link) => {
-      const wasActive = link.classList.contains('active');
-      if (!wasActive) {
-        const currentOpacity = window.getComputedStyle(link).opacity || '0.8';
-        link.style.setProperty('--nav-active-from-opacity', currentOpacity);
-        link.classList.add('active-transitioning');
-        const oldTimer = link.getAttribute('data-active-transition-timer');
-        if (oldTimer) window.clearTimeout(Number(oldTimer));
-        const timer = window.setTimeout(function() {
-          link.classList.remove('active-transitioning');
-          link.removeAttribute('data-active-transition-timer');
-        }, ${Math.round(activeAnimSeconds * 1000)});
-        link.setAttribute('data-active-transition-timer', String(timer));
-      }
+      // Apenas adiciona a classe; a transição CSS (color/background/opacity)
+      // anima suavemente do estado anterior para o estado ativo, sem reflow,
+      // sem flash de hover e sem deslocamento de layout.
       link.classList.add('active');
     };
+
     const currentPath = normalizePath(window.location.pathname);
     const links = document.querySelectorAll('.custom-nav-992 .menu-items a');
     const activeLinks = new Set();
