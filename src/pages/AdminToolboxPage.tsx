@@ -1867,6 +1867,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       if (manualItems && manualItems.length > 0) {
          console.log('Usando itens manuais:', manualItems);
          menuContainer.innerHTML = renderItems(manualItems);
+         if (typeof highlightActiveLink === 'function') highlightActiveLink();
       }
     }
     setTimeout(initializeMenuDetection, 2500);`;
