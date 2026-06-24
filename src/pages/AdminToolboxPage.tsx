@@ -1881,6 +1881,9 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       // Se clicou na seta ou no item pai e ele tem submenu, toggle
       if (link && link.parentElement === hasSubmenu) {
         e.preventDefault();
+        document.querySelectorAll('.custom-nav-992 .has-submenu.open').forEach(function(item) {
+          if (item !== hasSubmenu) item.classList.remove('open');
+        });
         hasSubmenu.classList.toggle('open');
       }
     }
@@ -1933,6 +1936,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       const items = document.querySelector('.custom-nav-992 .menu-items');
       if (nav && !nav.contains(e.target) && items.classList.contains('active')) {
         items.classList.remove('active');
+        nav.querySelectorAll('.has-submenu.open').forEach((item) => item.classList.remove('open'));
         const toggle = nav.querySelector('.mobile-toggle');
         if (toggle) toggle.classList.remove('open');
       }
