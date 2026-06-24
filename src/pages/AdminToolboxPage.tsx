@@ -1131,6 +1131,7 @@ export default function AdminToolboxPage() {
     }
     ${p} .menu-items a.active {
       border-left-color: ${menuConfig.activeBorderColor};
+      border-bottom-color: transparent !important;
       color: ${menuConfig.activeTextColor};
       opacity: 1;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
