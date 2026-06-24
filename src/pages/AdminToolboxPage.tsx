@@ -1135,13 +1135,14 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     }
     ${p} .submenu {
       position: static !important;
-      width: calc(100% - 48px) !important;
-      margin: 0 24px !important;
+      width: calc(100% - 12px) !important;
+      margin: 0 0 0 12px !important;
       box-shadow: none !important;
-      border-radius: ${metric.submenuPanelRadius}em !important;
-      padding: 0 8px !important;
-      background-color: ${menuConfig.bgColor} !important;
-      border: 1px solid transparent !important;
+      border-radius: 0 !important;
+      padding: 0 0 0 6px !important;
+      background-color: transparent !important;
+      border: none !important;
+      border-left: 2px solid rgba(0,0,0,0.08) !important;
       display: flex !important;
       flex-direction: column !important;
       gap: ${metric.submenuItemSpacing}px !important;
@@ -1150,18 +1151,15 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       max-height: 0 !important;
       overflow: hidden !important;
       transform: none !important;
-      clip-path: inset(0 -32px 100% -32px);
-      transition: max-height 0.32s cubic-bezier(.2,.8,.2,1), clip-path 0.32s cubic-bezier(.2,.8,.2,1), opacity 0.25s ease, margin-top 0.25s ease, padding 0.25s ease, visibility 0.25s ease;
+      transition: max-height 0.32s cubic-bezier(.2,.8,.2,1), opacity 0.25s ease, margin-top 0.25s ease, padding 0.25s ease, visibility 0.25s ease;
     }
     ${p} .has-submenu.open > .submenu {
       opacity: 1 !important;
       visibility: visible !important;
-      max-height: 80vh !important;
-      margin: ${metric.submenuGap}px 24px 18px !important;
-      padding: 8px !important;
-      box-shadow: ${menuShadow} !important;
-      border-color: rgba(0,0,0,0.08) !important;
-      clip-path: inset(0 -32px -32px -32px);
+      max-height: 1500px !important;
+      margin: ${metric.submenuGap}px 0 8px 12px !important;
+      padding: 4px 0 4px 6px !important;
+      border-left-color: ${menuConfig.activeBorderColor} !important;
     }
     ${p} .has-submenu.open > a::after {
       transform: rotate(180deg);
@@ -1172,9 +1170,11 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       border-radius: ${metric.activeRadius}em !important;
     }
     ${p} .submenu a {
-      padding: 10px 40px !important;
-      font-size: 15px !important;
+      padding: 10px 16px !important;
+      font-size: 14.5px !important;
       border-radius: ${metric.itemRadius}em !important;
+      justify-content: flex-start !important;
+      border-bottom: none !important;
       white-space: nowrap !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
