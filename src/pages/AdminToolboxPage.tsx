@@ -356,7 +356,37 @@ export default function AdminToolboxPage() {
   };
 
 
+  // Cria uma CÓPIA atualizada do modelo (mantém o original intacto),
+  // mesclando as propriedades de edição novas do sistema com a config salva.
+  const upgradeTemplate = async (template: any) => {
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Erro", description: "Você precisa estar logado.", variant: "destructive" });
+        return;
+      }
+      const merged = upgradeConfig(template.type, template.config);
+      const { error } = await supabase
+        .from('widget_templates')
+        .insert({
+          name: `${template.name} (atualizado)`,
+          type: template.type,
+          config: merged,
+          user_id: user.id,
+        });
+      if (error) throw error;
+      toast({ title: "Modelo atualizado", description: `Criada uma versão atualizada de "${template.name}". O original foi mantido.` });
+      fetchTemplates();
+    } catch (error: any) {
+      toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const deleteTemplate = async (id: string) => {
+
     try {
       const { error } = await supabase.from('widget_templates').delete().eq('id', id);
       if (error) throw error;
