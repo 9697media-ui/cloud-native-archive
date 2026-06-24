@@ -536,6 +536,26 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
         nav.classList.toggle('force-mobile', deviceView === 'mobile');
       });
 
+      // Auto-revelar elemento oculto enquanto o usuário ajusta controles relacionados.
+      // Ex.: ao mexer no espaçamento/raio do submenu, abrimos o 1º submenu para
+      // mostrar a alteração ao vivo. Permanece aberto até o usuário clicar na demo.
+      if (editingFocus === 'submenu') {
+        const firstSub = doc.querySelector('.custom-nav-992 .has-submenu');
+        if (firstSub) firstSub.classList.add('demo-open');
+      }
+
+      // Quando o usuário clica dentro da demo, ele assume o controle: limpamos o
+      // foco automático para não forçar reabertura nos próximos ajustes.
+      if (!doc.getElementById('__focusClearAttached')) {
+        const marker = doc.createElement('span');
+        marker.id = '__focusClearAttached';
+        marker.style.display = 'none';
+        target.appendChild(marker);
+        doc.addEventListener('click', () => {
+          if (editingFocusRef.current) setEditingFocus(null);
+        }, true);
+      }
+
     } catch {
       /* iframe ainda em origem opaca / não acessível; ignora */
     }
