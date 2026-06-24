@@ -450,9 +450,11 @@ export default function AdminToolboxPage() {
   const getDemoExtraCss = React.useCallback(() => {
     const pAct = deviceView === 'mobile' ? menuConfig.activeRadiusMobile : deviceView === 'tablet' ? menuConfig.activeRadiusTablet : menuConfig.activeRadius;
     const pItem = deviceView === 'mobile' ? menuConfig.itemRadiusMobile : deviceView === 'tablet' ? menuConfig.itemRadiusTablet : menuConfig.itemRadius;
-    return `.menu-items a{border-radius:${(pItem/100*2.5).toFixed(3)}em !important;}.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(pAct/100*2.5).toFixed(3)}em !important;opacity:1 !important;}`;
+    return `.menu-items a{border-radius:${(pItem/100*2.5).toFixed(3)}em !important;}.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(pAct/100*2.5).toFixed(3)}em !important;opacity:1 !important;}`
+      // Demo: mantém submenus abertos após o clique (todos os dispositivos)
+      + `.has-submenu.demo-open > .submenu{opacity:1 !important;visibility:visible !important;max-height:none !important;clip-path:none !important;transform:none !important;pointer-events:auto !important;}`;
   }, [deviceView, menuConfig]);
-  const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
+  const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;if(hs){hs.classList.toggle('demo-open');}var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
   // Reconstrói o documento apenas em mudanças estruturais.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
