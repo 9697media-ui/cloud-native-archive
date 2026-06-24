@@ -3047,9 +3047,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               transform: `translateX(-50%) scale(${scale})`,
                               transformOrigin: 'top center',
                             }}
-                            sandbox="allow-scripts"
+                            sandbox="allow-scripts allow-same-origin"
                             ref={demoIframeRef}
-                            srcDoc={demoDoc}
+                            srcDoc={demoDoc || (getGeneratedCode() + demoScript)}
                             key={'demo' + deviceView + activeWidgetType}
                           />
                         );
