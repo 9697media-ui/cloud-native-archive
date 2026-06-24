@@ -2693,9 +2693,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs">Texto (ativo)</Label>
-                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                          <ColorField
                             value={menuConfig.activeTextColor}
-                            onChange={(e) => setMenuConfig({...menuConfig, activeTextColor: e.target.value})} />
+                            onChange={(v) => setMenuConfig({...menuConfig, activeTextColor: v})} />
                         </div>
                       </div>
                       <Button variant="ghost" size="sm" className="h-7 text-[10px]"
