@@ -16,14 +16,16 @@ import { navItems } from '@/config/navigation';
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
+type DeviceView = 'desktop' | 'tablet' | 'mobile';
+
 
 export default function AdminToolboxPage() {
   const { toast } = useToast();
   // Estado geral
   const [activeWidgetType, setActiveWidgetType] = useState('whatsapp');
   const [viewMode, setViewMode] = useState('preview'); // 'preview' ou 'code'
-  const [deviceView, setDeviceView] = useState('desktop'); // 'desktop' ou 'mobile'
-  const [panelDevice, setPanelDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop'); // aba de dispositivo no painel
+  const [deviceView, setDeviceView] = useState<DeviceView>('desktop');
+  const [panelDevice, setPanelDevice] = useState<DeviceView>('desktop'); // aba de dispositivo no painel
   const [copied, setCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -448,11 +450,53 @@ export default function AdminToolboxPage() {
   const demoIframeRef = React.useRef<HTMLIFrameElement | null>(null);
   const [demoDoc, setDemoDoc] = useState('');
   const getDemoExtraCss = React.useCallback(() => {
-    const pAct = deviceView === 'mobile' ? menuConfig.activeRadiusMobile : deviceView === 'tablet' ? menuConfig.activeRadiusTablet : menuConfig.activeRadius;
-    const pItem = deviceView === 'mobile' ? menuConfig.itemRadiusMobile : deviceView === 'tablet' ? menuConfig.itemRadiusTablet : menuConfig.itemRadius;
-    return `.menu-items a{border-radius:${(pItem/100*2.5).toFixed(3)}em !important;}.menu-items a.active{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${(pAct/100*2.5).toFixed(3)}em !important;opacity:1 !important;}`
-      // Demo: mantém submenus abertos após o clique (todos os dispositivos)
-      + `.has-submenu.demo-open > .submenu{opacity:1 !important;visibility:visible !important;max-height:none !important;clip-path:none !important;transform:none !important;pointer-events:auto !important;}`;
+    const toNumber = (value: unknown, fallback: number) => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    };
+    const toEm = (value: number) => ((value / 100) * 2.5).toFixed(3);
+    const desktopActive = toNumber(menuConfig.activeRadius, 0);
+    const desktopItem = toNumber(menuConfig.itemRadius, 0);
+    const metrics = {
+      desktop: {
+        active: toEm(desktopActive),
+        item: toEm(desktopItem),
+        gap: Math.max(0, toNumber(menuConfig.submenuGap, 0)),
+        stacked: false,
+      },
+      tablet: {
+        active: toEm(toNumber(menuConfig.activeRadiusTablet, desktopActive)),
+        item: toEm(toNumber(menuConfig.itemRadiusTablet, desktopItem)),
+        gap: Math.max(0, toNumber(menuConfig.submenuGapTablet, toNumber(menuConfig.submenuGap, 0))),
+        stacked: (menuConfig.tabletMenuMode ?? 'header') === 'hamburger',
+      },
+      mobile: {
+        active: toEm(toNumber(menuConfig.activeRadiusMobile, desktopActive)),
+        item: toEm(toNumber(menuConfig.itemRadiusMobile, desktopItem)),
+        gap: Math.max(0, toNumber(menuConfig.submenuGapMobile, toNumber(menuConfig.submenuGap, 0))),
+        stacked: true,
+      },
+    };
+    const selected = metrics[deviceView];
+    const deviceCss = (selector: string, metric: typeof selected) => `
+${selector} .menu-items a,
+${selector} .submenu a{border-radius:${metric.item}em !important;}
+${selector} .menu-items a.active,
+${selector} .menu-items > a.active,
+${selector} .menu-items > .has-submenu > a.active,
+${selector} .has-submenu:hover > a,
+${selector} .has-submenu:focus-within > a,
+${selector} .has-submenu.open > a,
+${selector} .has-submenu.demo-open > a{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${metric.active}em !important;opacity:1 !important;}
+${selector} .submenu{${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
+${metric.stacked
+  ? `${selector} .has-submenu.open > .submenu,
+${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:visible !important;max-height:80vh !important;margin:${metric.gap}px 24px 18px !important;padding:8px !important;clip-path:inset(0 -32px -32px -32px) !important;transform:none !important;pointer-events:auto !important;}`
+  : `${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:visible !important;clip-path:inset(0 -32px -32px -32px) !important;transform:translateY(0) !important;pointer-events:auto !important;}`}`;
+
+    return deviceCss('.custom-nav-992', selected)
+      + deviceCss('.custom-nav-992.force-tablet', metrics.tablet)
+      + deviceCss('.custom-nav-992.force-mobile', metrics.mobile);
   }, [deviceView, menuConfig]);
   const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;if(hs){hs.classList.toggle('demo-open');}var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
   // Reconstrói o documento apenas em mudanças estruturais.
