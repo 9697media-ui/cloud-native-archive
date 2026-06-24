@@ -2779,7 +2779,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Cor de Fundo</Label>
-                              <Input type="color" value={(menuConfig.hamburgerBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, hamburgerBgColor: e.target.value})} className="h-9 p-1" />
+                              <ColorField value={menuConfig.hamburgerBgColor || "#ffffff"} onChange={(v) => setMenuConfig({...menuConfig, hamburgerBgColor: v})} />
                             </div>
                           </div>
                           <div className="space-y-2 text-left">
