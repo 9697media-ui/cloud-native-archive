@@ -460,15 +460,19 @@ export default function AdminToolboxPage() {
   }, [deviceView, activeWidgetType, JSON.stringify(menuConfig.items)]);
   // Injeta o CSS atualizado em tempo real sem recarregar o iframe.
   useEffect(() => {
-    const ifr = demoIframeRef.current;
-    const doc = ifr && ifr.contentDocument;
-    if (!doc || !doc.head) return;
-    const full = getGeneratedCode();
-    const m = full.match(/<style[\s\S]*?<\/style>/i);
-    const css = (m ? m[0].replace(/<\/?style[^>]*>/gi, '') : '') + getDemoExtraCss();
-    let live = doc.getElementById('live-style') as HTMLStyleElement | null;
-    if (!live) { live = doc.createElement('style'); live.id = 'live-style'; doc.head.appendChild(live); }
-    live.innerHTML = css;
+    try {
+      const ifr = demoIframeRef.current;
+      const doc = ifr && ifr.contentDocument;
+      if (!doc || !doc.head) return;
+      const full = getGeneratedCode();
+      const m = full.match(/<style[\s\S]*?<\/style>/i);
+      const css = (m ? m[0].replace(/<\/?style[^>]*>/gi, '') : '') + getDemoExtraCss();
+      let live = doc.getElementById('live-style') as HTMLStyleElement | null;
+      if (!live) { live = doc.createElement('style'); live.id = 'live-style'; doc.head.appendChild(live); }
+      live.innerHTML = css;
+    } catch {
+      /* iframe ainda em origem opaca / não acessível; ignora */
+    }
   });
 
   // ===== Auto-save de rascunho =====
