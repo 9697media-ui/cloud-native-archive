@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { navItems } from '@/config/navigation';
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ColorField } from "@/components/ColorField";
 
 type DeviceView = 'desktop' | 'tablet' | 'mobile';
 
