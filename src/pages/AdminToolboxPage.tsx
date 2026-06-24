@@ -3237,6 +3237,46 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                         setMenuConfig({...menuConfig, items: newItems});
                                       }}
                                     />
+                                    {(() => {
+                                      const cPaths = Array.isArray(child.activePaths)
+                                        ? child.activePaths
+                                        : (child.activePaths ? String(child.activePaths).split(',').map((s: string) => s.trim()) : []);
+                                      const setCPaths = (next: string[]) => {
+                                        const newItems = menuConfig.items.map((it: any, i: number) =>
+                                          i === idx
+                                            ? { ...it, children: it.children.map((ch: any, ci: number) => ci === cIdx ? { ...ch, activePaths: next } : ch) }
+                                            : it
+                                        );
+                                        setMenuConfig({...menuConfig, items: newItems});
+                                      };
+                                      return (
+                                        <div className="space-y-1">
+                                          <span className="text-[10px] text-muted-foreground">Links de ativação</span>
+                                          {cPaths.map((p: string, pi: number) => (
+                                            <div key={pi} className="flex gap-1">
+                                              <Input
+                                                className="h-7 text-xs"
+                                                placeholder="/promo"
+                                                value={p}
+                                                onChange={(e) => {
+                                                  const next = [...cPaths];
+                                                  next[pi] = e.target.value;
+                                                  setCPaths(next);
+                                                }}
+                                              />
+                                              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-destructive"
+                                                onClick={() => setCPaths(cPaths.filter((_: string, i: number) => i !== pi))}>
+                                                <Trash2 className="h-3 w-3" />
+                                              </Button>
+                                            </div>
+                                          ))}
+                                          <Button variant="outline" size="sm" className="w-full h-7 text-xs"
+                                            onClick={() => setCPaths([...cPaths, ''])}>
+                                            + Adicionar link de ativação
+                                          </Button>
+                                        </div>
+                                      );
+                                     })()}
                                   </div>
                                   <Button 
                                     variant="ghost" 
