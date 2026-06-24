@@ -2483,58 +2483,54 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                     </div>
 
-                    <div className="border-t pt-3 space-y-3">
-                      <Label className="text-xs font-bold uppercase text-muted-foreground">Mouse sobre o item (hover)</Label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-2">
-                          <Label className="text-xs">Fundo hover</Label>
-                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
-                            value={menuConfig.hoverBgColor}
-                            onChange={(e) => setMenuConfig({...menuConfig, hoverBgColor: e.target.value})} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs">Texto hover</Label>
-                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
-                            value={menuConfig.hoverTextColor}
-                            onChange={(e) => setMenuConfig({...menuConfig, hoverTextColor: e.target.value})} />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="border-t pt-3 space-y-3">
-                      <Label className="text-xs font-bold uppercase text-muted-foreground">Página ativa (borda)</Label>
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="space-y-2">
-                          <Label className="text-xs">Cor</Label>
-                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
-                            value={menuConfig.activeBorderColor}
-                            onChange={(e) => setMenuConfig({...menuConfig, activeBorderColor: e.target.value})} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs">Espessura</Label>
-                          <Input type="number" min={0} max={6}
-                            value={menuConfig.activeBorderWidth}
-                            onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
-                       </div>
-                       </div>
-                     </div>
-
                      <div className="border-t pt-3 space-y-3">
-                       <Label className="text-xs font-bold uppercase text-muted-foreground">Hover (borda)</Label>
-                       <div className="grid grid-cols-3 gap-3">
+                       <Label className="text-xs font-bold uppercase text-muted-foreground">Mouse sobre o item (hover)</Label>
+                       <div className="grid grid-cols-2 gap-3">
                          <div className="space-y-2">
-                           <Label className="text-xs">Cor</Label>
+                           <Label className="text-xs">Fundo hover</Label>
+                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                             value={menuConfig.hoverBgColor}
+                             onChange={(e) => setMenuConfig({...menuConfig, hoverBgColor: e.target.value})} />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-xs">Texto hover</Label>
+                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                             value={menuConfig.hoverTextColor}
+                             onChange={(e) => setMenuConfig({...menuConfig, hoverTextColor: e.target.value})} />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-xs">Cor borda hover</Label>
                            <Input type="color" className="w-full h-10 p-1 cursor-pointer"
                              value={menuConfig.hoverBorderColor}
                              onChange={(e) => setMenuConfig({...menuConfig, hoverBorderColor: e.target.value})} />
                          </div>
                          <div className="space-y-2">
-                           <Label className="text-xs">Espessura</Label>
+                           <Label className="text-xs">Espessura borda hover</Label>
                            <Input type="number" min={0} max={6}
                              value={menuConfig.hoverBorderWidth}
                              onChange={(e) => setMenuConfig({...menuConfig, hoverBorderWidth: Number(e.target.value) || 0})} />
+                         </div>
+                       </div>
+                     </div>
+
+                     <div className="border-t pt-3 space-y-3">
+                       <Label className="text-xs font-bold uppercase text-muted-foreground">Página ativa (borda)</Label>
+                       <div className="grid grid-cols-3 gap-3">
+                         <div className="space-y-2">
+                           <Label className="text-xs">Cor</Label>
+                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                             value={menuConfig.activeBorderColor}
+                             onChange={(e) => setMenuConfig({...menuConfig, activeBorderColor: e.target.value})} />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-xs">Espessura</Label>
+                           <Input type="number" min={0} max={6}
+                             value={menuConfig.activeBorderWidth}
+                             onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
                         </div>
                        </div>
+
+
 
                        {(() => {
                          const devs = [
