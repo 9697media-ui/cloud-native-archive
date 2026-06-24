@@ -2005,6 +2005,23 @@ export default function AdminToolboxPage() {
     setTimeout(highlightActiveLink, 1200);
     setTimeout(highlightActiveLink, 3000);
 
+    // Clique em um item: marca como ativo imediatamente para o usuário ver a
+    // estética do botão ativo (essencial na demo, onde href="#" não navega).
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest && e.target.closest('.custom-nav-992 .menu-items a');
+      if (!link) return;
+      const all = document.querySelectorAll('.custom-nav-992 .menu-items a');
+      all.forEach(a => a.classList.remove('active'));
+      link.classList.add('active');
+      // Propaga destaque para itens pai quando o clicado está num submenu.
+      let parentLi = link.closest('.submenu') ? link.closest('.submenu').closest('.has-submenu') : null;
+      while (parentLi) {
+        const parentLink = parentLi.querySelector(':scope > a');
+        if (parentLink) parentLink.classList.add('active');
+        parentLi = parentLi.parentElement ? parentLi.parentElement.closest('.has-submenu') : null;
+      }
+    });
+
     // Fechar menu mobile ao clicar fora
     document.addEventListener('click', (e) => {
       const nav = document.querySelector('.custom-nav-992');
