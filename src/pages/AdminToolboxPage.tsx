@@ -2002,7 +2002,7 @@ export default function AdminToolboxPage() {
       let targetPath;
       try { targetPath = normalizePath(new URL(raw.trim(), window.location.origin).pathname); }
       catch (e) { return false; }
-      return targetPath === currentPath || (targetPath !== '/' && currentPath.startsWith(targetPath + '/'));
+      return targetPath === currentPath;
     };
     const activateLink = (link) => {
       // Se já está ativo, nada a fazer (evita re-disparar a transição nas
