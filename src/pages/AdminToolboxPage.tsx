@@ -1614,15 +1614,18 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
           
           const children = item.child_items || item.children || item.items || item.sub_items || [];
           const link = item.url || item.link || item.guid || item.href || '#';
+          const activePaths = item.activePaths || item.active_paths || '';
+          const apAttr = activePaths ? \` data-active-paths="\${String(activePaths).replace(/"/g, '&quot;')}"\` : '';
 
           if (children && children.length > 0) {
             html += \`<div class="has-submenu">
-              <a href="\${link}">\${title}</a>
+              <a href="\${link}"\${apAttr}>\${title}</a>
               <ul class="submenu">\${renderItems(children)}</ul>
             </div>\`;
           } else {
-            html += \`<a href="\${link}">\${title}</a>\`;
+            html += \`<a href="\${link}"\${apAttr}>\${title}</a>\`;
           }
+
         });
         return html;
       }
@@ -1948,23 +1951,39 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     links.forEach(link => {
       const href = link.getAttribute('href');
       link.classList.remove('active');
-      if (!href || href === '#' || href.trim() === '') return;
 
-      // Resolve href (absoluto ou relativo) para um caminho comparável.
-      let linkPath;
-      try { linkPath = normalizePath(new URL(href, window.location.origin).pathname); }
-      catch (e) { return; }
-
-      // Comparação exata de caminho.
       let isActive = false;
-      if (linkPath === currentPath) {
-        isActive = true;
-      } else if (linkPath !== '/' && currentPath.startsWith(linkPath + '/')) {
-        // Sub-página destaca o item pai (ex.: /blog/post -> /blog). Nunca a home.
-        isActive = true;
+
+      // Caminhos extras de ativação (links filhos) definidos pelo usuário.
+      const extra = link.getAttribute('data-active-paths');
+      if (extra) {
+        extra.split(',').forEach(raw => {
+          if (isActive || !raw || !raw.trim()) return;
+          let ap;
+          try { ap = normalizePath(new URL(raw.trim(), window.location.origin).pathname); }
+          catch (e) { return; }
+          if (ap === currentPath || (ap !== '/' && currentPath.startsWith(ap + '/'))) isActive = true;
+        });
       }
+
+      // Comparação pelo href do próprio item.
+      if (!isActive && href && href !== '#' && href.trim() !== '') {
+        let linkPath;
+        try { linkPath = normalizePath(new URL(href, window.location.origin).pathname); }
+        catch (e) { linkPath = null; }
+        if (linkPath !== null) {
+          if (linkPath === currentPath) {
+            isActive = true;
+          } else if (linkPath !== '/' && currentPath.startsWith(linkPath + '/')) {
+            // Sub-página destaca o item pai (ex.: /blog/post -> /blog). Nunca a home.
+            isActive = true;
+          }
+        }
+      }
+
       if (!isActive) return;
       link.classList.add('active');
+
 
       // Se o link ativo está dentro de um submenu, propaga o destaque para o(s)
       // item(ns) pai fixo(s) no cabeçalho (suporta submenus aninhados).
@@ -3068,6 +3087,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 onChange={(e) => {
                                   const newItems = [...menuConfig.items];
                                   newItems[idx].link = e.target.value;
+                                  setMenuConfig({...menuConfig, items: newItems});
+                                }}
+                              />
+                              <Input 
+                                placeholder="Links de ativação (ex.: /promo, /campanha)" 
+                                value={item.activePaths || ''}
+                                onChange={(e) => {
+                                  const newItems = [...menuConfig.items];
+                                  newItems[idx].activePaths = e.target.value;
                                   setMenuConfig({...menuConfig, items: newItems});
                                 }}
                               />
