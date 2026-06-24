@@ -1355,6 +1355,10 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     opacity: 1;
       border-radius: ${itemRadiusDesktop}em;
   }
+   @keyframes navActiveFade-992 {
+     from { opacity: 0.55; }
+     to { opacity: 1; }
+   }
    .custom-nav-992 .menu-items > a.active,
    .custom-nav-992 .menu-items > .has-submenu > a.active {
      color: ${menuConfig.activeTextColor};
@@ -1362,6 +1366,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      background-color: ${menuConfig.activeBgColor};
      border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
       border-radius: ${activeRadiusDesktop}em;
+     animation: navActiveFade-992 0.4s ease;
    }
    .custom-nav-992 .menu-items > a.active:hover,
    .custom-nav-992 .menu-items > .has-submenu > a.active:hover,
