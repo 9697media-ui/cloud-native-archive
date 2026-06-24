@@ -3271,7 +3271,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                     </div>
                   </div>
-                ) : (
+                )}
+                {viewMode === 'code' && (
                   <div className="w-full max-w-4xl bg-[#1e1e1e] rounded-xl shadow-2xl overflow-hidden flex flex-col font-mono">
                     <div className="flex justify-between items-center px-4 py-3 bg-[#252526] border-b border-white/5">
                       <div className="flex space-x-2">
