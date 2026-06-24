@@ -2462,7 +2462,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                <Label className="text-xs">Arred. Itens {active.label} (%): {menuConfig[ir]}%</Label>
                                <Slider min={0} max={100} step={1}
                                  value={[menuConfig[ir]]}
-                                 onValueChange={(v) => setMenuConfig({...menuConfig, [ir]: v[0]})} />
+                                 onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [ir]: v[0]}); }} />
                              </div>
                              <div className="space-y-2">
                                <Label className="text-xs">Espaçamento submenu {active.label} (px): {menuConfig[sg]}px {menuConfig[sg] === 0 ? '(colado)' : ''}</Label>
