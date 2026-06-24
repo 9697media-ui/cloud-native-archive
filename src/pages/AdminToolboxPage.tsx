@@ -620,7 +620,7 @@ export default function AdminToolboxPage() {
     }, 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [whatsappConfig, bannerConfig, menuConfig, activeWidgetType, currentTemplateId]);
+  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, activeWidgetType, currentTemplateId]);
 
 
 
