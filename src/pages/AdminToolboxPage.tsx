@@ -509,7 +509,7 @@ ${selector} .has-submenu.demo-open > a{color:${menuConfig.activeTextColor} !impo
 ${selector} .menu-items a.active,
 ${selector} .menu-items > a.active,
 ${selector} .menu-items > .has-submenu > a.active{border-radius:${metric.active}em !important;}
-${selector} .menu-items a:hover{border:${menuConfig.hoverBorderWidth}px solid ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
+${selector} .menu-items a:hover{box-shadow:inset 0 0 0 ${menuConfig.hoverBorderWidth}px ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
 ${metric.stacked
   ? `${selector} .has-submenu.open > .submenu,
