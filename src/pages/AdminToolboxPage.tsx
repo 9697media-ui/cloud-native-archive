@@ -1122,16 +1122,17 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       padding: 14px 22px;
       border-radius: ${metric.itemRadius}em;
       font-size: 15.5px;
-      border-left: 3px solid transparent;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-      justify-content: space-between;
-      white-space: nowrap !important;
-      word-break: keep-all !important;
-      overflow-wrap: normal !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      opacity: 0.8;
-      transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
+       border-left: 3px solid transparent;
+       border-bottom: 1px solid rgba(0,0,0,0.04);
+       box-shadow: inset 0 0 0 0 transparent;
+       justify-content: space-between;
+       white-space: nowrap !important;
+       word-break: keep-all !important;
+       overflow-wrap: normal !important;
+       overflow: hidden !important;
+       text-overflow: ellipsis !important;
+       opacity: 0.8;
+       transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, box-shadow ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
     }
     ${p} .menu-items > .has-submenu:last-child > a,
     ${p} .menu-items > a:last-child { border-bottom: none; }
