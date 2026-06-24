@@ -164,8 +164,10 @@ export default function AdminToolboxPage() {
         return;
       }
 
-      const config = activeWidgetType === 'whatsapp' ? whatsappConfig : 
+      const rawConfig = activeWidgetType === 'whatsapp' ? whatsappConfig : 
                      activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+      // Deep clone para evitar referências compartilhadas/mutações em items.activePaths
+      const config = JSON.parse(JSON.stringify(rawConfig));
 
       const templateData = {
         name: templateName,
