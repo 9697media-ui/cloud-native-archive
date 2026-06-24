@@ -1030,6 +1030,13 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       ? 'none'
       : `0 ${Math.round(shadowSize * 0.5)}px ${shadowSize}px rgba(0,0,0,${(shadowIntensity / 100).toFixed(3)})`;
     const tabletHamburger = (menuConfig.tabletMenuMode ?? 'header') === 'hamburger';
+    const tabletStackMetrics = {
+      activeRadius: activeRadiusTablet,
+      itemRadius: itemRadiusTablet,
+      submenuPanelRadius: submenuPanelRadiusTablet,
+      submenuGap: submenuGapTablet,
+      submenuItemSpacing: submenuItemSpacingTablet,
+    };
     const mobileRules = (
       p: string,
       metric: {
@@ -1507,7 +1514,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       max-width: 150px;
     }
     ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
-    ${tabletHamburger ? mobileRules('.custom-nav-992') : `
+    ${tabletHamburger ? mobileRules('.custom-nav-992', tabletStackMetrics) : `
     .custom-nav-992 .menu-items {
       gap: 2px;
     }
@@ -1545,7 +1552,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
 
   /* ===== AUTO-BREAK: quando itens não cabem (padding < 10px) ===== */
   ${mobileRules('.custom-nav-992.force-mobile')}
-  ${tabletHamburger ? mobileRules('.custom-nav-992.force-tablet') : ''}
+  ${tabletHamburger ? mobileRules('.custom-nav-992.force-tablet', tabletStackMetrics) : ''}
   @media (min-width: 851px) {
     .custom-nav-992.force-tablet .menu-items a {
       border-radius: ${itemRadiusTablet}em !important;
