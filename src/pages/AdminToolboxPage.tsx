@@ -1036,6 +1036,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     const menuShadow = (shadowSize === 0 || shadowIntensity === 0)
       ? 'none'
       : `0 ${Math.round(shadowSize * 0.5)}px ${shadowSize}px rgba(0,0,0,${(shadowIntensity / 100).toFixed(3)})`;
+    const activeAnimSeconds = Math.max(0, Number(menuConfig.activeAnimDuration ?? 3));
     const tabletHamburger = (menuConfig.tabletMenuMode ?? 'header') === 'hamburger';
     const tabletStackMetrics = {
       activeRadius: activeRadiusTablet,
