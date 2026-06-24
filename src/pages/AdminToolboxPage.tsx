@@ -2244,9 +2244,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     const cards = (gatewayConfig.options || []).map((o: any, index: number) => {
       const safeId = String(o.id || `card-${index}`).replace(/[^a-zA-Z0-9_-]/g, '-');
       const cardClass = `ng-card-${safeId}`;
-      const mode = o.lordTrigger === 'loop' ? 'loop-on-hover' : 'boomerang';
+      const isLoop = o.lordTrigger === 'loop';
+      const lordAttrs = isLoop
+        ? `trigger="loop-on-hover" target=".nav-gateway-441 .${cardClass}"`
+        : `class="ng-lord ng-lord-hold"`;
       const iconHtml = o.lordIcon
-        ? `<lord-icon class="ng-lord" src="${o.lordIcon}" trigger="${mode}" target=".nav-gateway-441 .${cardClass}" colors="primary:${o.iconColor},secondary:${o.iconColor}" style="width:56px;height:56px"></lord-icon>`
+        ? `<lord-icon ${isLoop ? 'class="ng-lord"' : lordAttrs} src="${o.lordIcon}" ${isLoop ? lordAttrs : ''} colors="primary:${o.iconColor},secondary:${o.iconColor}" style="width:56px;height:56px"></lord-icon>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
@@ -2259,7 +2262,47 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     }).join('');
 
     const lordScript = hasLord ? `
-<script src="https://cdn.lordicon.com/lordicon.js"></script>` : '';
+<script src="https://cdn.lordicon.com/lordicon.js"></script>
+<script>
+(function(){
+  function bindHoldIcons(){
+    document.querySelectorAll('.nav-gateway-441 .ng-card').forEach(function(card){
+      var icon = card.querySelector('lord-icon.ng-lord-hold');
+      if(!icon || icon.dataset.bound === '1') return;
+
+      function setup(){
+        var player = icon.playerInstance;
+        if(!player) return;
+
+        icon.dataset.bound = '1';
+        if(typeof player.seekToStart === 'function') player.seekToStart();
+
+        card.addEventListener('mouseenter', function(){
+          player.loop = false;
+          player.direction = 1;
+          if(typeof player.playFromStart === 'function') player.playFromStart();
+          else { if(typeof player.seekToStart === 'function') player.seekToStart(); player.play(); }
+        });
+
+        card.addEventListener('mouseleave', function(){
+          player.loop = false;
+          player.direction = -1;
+          player.play();
+        });
+      }
+
+      if(icon.playerInstance) setup();
+      else icon.addEventListener('ready', setup, { once: true });
+    });
+  }
+
+  if(window.customElements && customElements.whenDefined){
+    customElements.whenDefined('lord-icon').then(bindHoldIcons);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindHoldIcons);
+  else bindHoldIcons();
+})();
+</script>` : '';
 
     const sticky = gatewayConfig.stickyLabel
       ? `\n  <a class="ng-sticky" href="${gatewayConfig.stickyLink || '#'}">${gatewayConfig.stickyLabel}</a>`
