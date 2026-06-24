@@ -3028,13 +3028,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <TabsTrigger value="preview" className="gap-2">
                       <Eye className="h-4 w-4" /> Preview
                     </TabsTrigger>
+                    <TabsTrigger value="site" className="gap-2">
+                      <Monitor className="h-4 w-4" /> Site
+                    </TabsTrigger>
                     <TabsTrigger value="code" className="gap-2">
                       <Code className="h-4 w-4" /> Código
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
 
-                {viewMode === 'preview' && (
+                {(viewMode === 'preview' || viewMode === 'site') && (
                   <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
                     <Button 
                       variant={deviceView === 'desktop' ? 'secondary' : 'ghost'} 
@@ -3099,7 +3102,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                   </div>
                 )}
-                {viewMode === 'preview' ? (
+                {viewMode === 'site' && (
                   <div
                     ref={frameRef}
                     className={cn(
@@ -3268,7 +3271,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                     </div>
                   </div>
-                ) : (
+                )}
+                {viewMode === 'code' && (
                   <div className="w-full max-w-4xl bg-[#1e1e1e] rounded-xl shadow-2xl overflow-hidden flex flex-col font-mono">
                     <div className="flex justify-between items-center px-4 py-3 bg-[#252526] border-b border-white/5">
                       <div className="flex space-x-2">
