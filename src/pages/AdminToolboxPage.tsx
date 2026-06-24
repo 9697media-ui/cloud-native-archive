@@ -1977,10 +1977,16 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       return targetPath === currentPath || (targetPath !== '/' && currentPath.startsWith(targetPath + '/'));
     };
     const activateLink = (link) => {
-      // Apenas adiciona a classe; a transição CSS (color/background/opacity)
-      // anima suavemente do estado anterior para o estado ativo, sem reflow,
-      // sem flash de hover e sem deslocamento de layout.
-      link.classList.add('active');
+      // Se já está ativo, nada a fazer (evita re-disparar a transição nas
+      // chamadas repetidas de highlightActiveLink via setTimeout).
+      if (link.classList.contains('active')) return;
+      // Adia a adição da classe para DEPOIS do primeiro paint do estado base.
+      // Assim o navegador anima a transição CSS (color/background/opacity) do
+      // estado anterior para o ativo no código final — e não apenas na demo,
+      // onde a classe é adicionada por clique (já após o paint inicial).
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        link.classList.add('active');
+      }));
     };
 
     const currentPath = normalizePath(window.location.pathname);
