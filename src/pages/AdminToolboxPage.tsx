@@ -1941,13 +1941,27 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       catch (e) { return; }
 
       // Comparação exata de caminho.
+      let isActive = false;
       if (linkPath === currentPath) {
-        link.classList.add('active');
+        isActive = true;
       } else if (linkPath !== '/' && currentPath.startsWith(linkPath + '/')) {
         // Sub-página destaca o item pai (ex.: /blog/post -> /blog). Nunca a home.
-        link.classList.add('active');
+        isActive = true;
+      }
+      if (!isActive) return;
+      link.classList.add('active');
+
+      // Se o link ativo está dentro de um submenu, propaga o destaque para o(s)
+      // item(ns) pai fixo(s) no cabeçalho (suporta submenus aninhados).
+      let parentLi = link.closest('.submenu') ? link.closest('.submenu').closest('.has-submenu') : null;
+      while (parentLi) {
+        const parentLink = parentLi.querySelector(':scope > a');
+        if (parentLink) parentLink.classList.add('active');
+        const outer = parentLi.parentElement ? parentLi.parentElement.closest('.has-submenu') : null;
+        parentLi = outer;
       }
     });
+
   }
 
   function checkMenuFit() {
