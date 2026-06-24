@@ -2468,7 +2468,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                <Label className="text-xs">Espaçamento submenu {active.label} (px): {menuConfig[sg]}px {menuConfig[sg] === 0 ? '(colado)' : ''}</Label>
                                <Slider min={0} max={40} step={1}
                                  value={[menuConfig[sg]]}
-                                 onValueChange={(v) => setMenuConfig({...menuConfig, [sg]: v[0]})} />
+                                 onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [sg]: v[0]}); }} />
                              </div>
                            </div>
                          );
