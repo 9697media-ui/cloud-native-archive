@@ -2664,6 +2664,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               </div>
                             </div>
                             <div className="space-y-1">
+                              <Label className="text-xs">Lordicon (URL do JSON animado)</Label>
+                              <Input value={opt.lordIcon || ''} onChange={(e) => update({ lordIcon: e.target.value })} placeholder="https://cdn.lordicon.com/....json (opcional, substitui o emoji)" />
+                            </div>
+                            <div className="space-y-1">
                               <Label className="text-xs">Pílula (texto de apoio)</Label>
                               <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
                             </div>
