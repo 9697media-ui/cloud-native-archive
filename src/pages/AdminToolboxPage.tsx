@@ -1355,14 +1355,24 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     opacity: 1;
       border-radius: ${itemRadiusDesktop}em;
   }
-  .custom-nav-992 .menu-items > a.active,
-  .custom-nav-992 .menu-items > .has-submenu > a.active {
-    color: ${menuConfig.activeTextColor};
-    opacity: 1;
-    background-color: ${menuConfig.activeBgColor};
-    border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
-     border-radius: ${activeRadiusDesktop}em;
-  }
+   .custom-nav-992 .menu-items > a.active,
+   .custom-nav-992 .menu-items > .has-submenu > a.active {
+     color: ${menuConfig.activeTextColor};
+     opacity: 1;
+     background-color: ${menuConfig.activeBgColor};
+     border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
+      border-radius: ${activeRadiusDesktop}em;
+   }
+   .custom-nav-992 .menu-items > a.active:hover,
+   .custom-nav-992 .menu-items > .has-submenu > a.active:hover,
+   .custom-nav-992 .menu-items > a:hover,
+   .custom-nav-992 .menu-items > .has-submenu > a:hover {
+     color: ${menuConfig.hoverTextColor} !important;
+     background-color: ${menuConfig.hoverBgColor} !important;
+     border: ${menuConfig.hoverBorderWidth}px solid ${menuConfig.hoverBorderColor} !important;
+     opacity: 1 !important;
+   }
+
   .custom-nav-992 .menu-items a:focus,
   .custom-nav-992 .menu-items a:focus-visible {
     outline: none;
