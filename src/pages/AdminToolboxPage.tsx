@@ -1983,12 +1983,11 @@ export default function AdminToolboxPage() {
         return;
       }
 
-      if (link) {
-        document.querySelectorAll('.custom-nav-992 .has-submenu.open').forEach(function(item) {
-          item.classList.remove('open');
-        });
-      }
+      // Itens-folha (links reais do submenu) apenas navegam normalmente.
+      // Não fechamos o submenu aqui para evitar o "colapso" visual antes da
+      // navegação acontecer.
     }
+
   });
 
   function highlightActiveLink() {
