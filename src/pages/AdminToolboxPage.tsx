@@ -2564,6 +2564,99 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                   </>
                 ) : null}
 
+                {/* CONFIG: GATEWAY */}
+                {activeWidgetType === 'gateway' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Título</Label>
+                      <Input value={gatewayConfig.title} onChange={(e) => setGatewayConfig({...gatewayConfig, title: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Subtítulo</Label>
+                      <Input value={gatewayConfig.subtitle} onChange={(e) => setGatewayConfig({...gatewayConfig, subtitle: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Imagem de Fundo (URL)</Label>
+                      <Input value={gatewayConfig.backgroundImage} onChange={(e) => setGatewayConfig({...gatewayConfig, backgroundImage: e.target.value})} placeholder="https://... (opcional)" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Cor de Fundo</Label>
+                        <ColorField value={gatewayConfig.bgColor} onChange={(v) => setGatewayConfig({...gatewayConfig, bgColor: v})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Cor do Texto</Label>
+                        <ColorField value={gatewayConfig.titleColor} onChange={(v) => setGatewayConfig({...gatewayConfig, titleColor: v})} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Botão Lateral (texto)</Label>
+                        <Input value={gatewayConfig.stickyLabel} onChange={(e) => setGatewayConfig({...gatewayConfig, stickyLabel: e.target.value})} placeholder="Vazio = oculto" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Botão Lateral (link)</Label>
+                        <Input value={gatewayConfig.stickyLink} onChange={(e) => setGatewayConfig({...gatewayConfig, stickyLink: e.target.value})} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-2 border-t">
+                      <div className="flex items-center justify-between">
+                        <Label className="font-semibold">Cartões de Opção</Label>
+                        <Button
+                          type="button" variant="outline" size="sm" className="gap-1"
+                          onClick={() => setGatewayConfig({...gatewayConfig, options: [...gatewayConfig.options, { id: Math.random().toString(36).slice(2, 8), icon: '⭐', iconColor: '#4f46e5', cardLabel: 'Nova Opção', pillText: '', link: '#' }]})}
+                        >
+                          <Plus className="h-3 w-3" /> Adicionar
+                        </Button>
+                      </div>
+                      {gatewayConfig.options.map((opt: any, idx: number) => {
+                        const update = (patch: any) => {
+                          const next = [...gatewayConfig.options];
+                          next[idx] = { ...next[idx], ...patch };
+                          setGatewayConfig({...gatewayConfig, options: next});
+                        };
+                        return (
+                          <div key={opt.id ?? idx} className="space-y-2 rounded-lg border p-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-medium text-muted-foreground">Cartão {idx + 1}</span>
+                              <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setGatewayConfig({...gatewayConfig, options: gatewayConfig.options.filter((_: any, i: number) => i !== idx)})}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="space-y-1">
+                                <Label className="text-xs">Título</Label>
+                                <Input value={opt.cardLabel} onChange={(e) => update({ cardLabel: e.target.value })} />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Ícone (emoji)</Label>
+                                <Input value={opt.icon} onChange={(e) => update({ icon: e.target.value })} />
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Pílula (texto de apoio)</Label>
+                              <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="space-y-1">
+                                <Label className="text-xs">Link</Label>
+                                <Input value={opt.link} onChange={(e) => update({ link: e.target.value })} />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Cor do Ícone</Label>
+                                <ColorField value={opt.iconColor} onChange={(v) => update({ iconColor: v })} />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+
+
                 {/* CONFIG: MENU */}
                 {activeWidgetType === 'menu' && (
                   <div className="space-y-4">
