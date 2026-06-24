@@ -509,7 +509,7 @@ ${selector} .has-submenu.demo-open > a{color:${menuConfig.activeTextColor} !impo
 ${selector} .menu-items a.active,
 ${selector} .menu-items > a.active,
 ${selector} .menu-items > .has-submenu > a.active{border-radius:${metric.active}em !important;}
-${selector} .menu-items a:hover{border:${menuConfig.hoverBorderWidth}px solid ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
+${selector} .menu-items a:hover{box-shadow:inset 0 0 0 ${menuConfig.hoverBorderWidth}px ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
 ${metric.stacked
   ? `${selector} .has-submenu.open > .submenu,
@@ -1122,16 +1122,17 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       padding: 14px 22px;
       border-radius: ${metric.itemRadius}em;
       font-size: 15.5px;
-      border-left: 3px solid transparent;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-      justify-content: space-between;
-      white-space: nowrap !important;
-      word-break: keep-all !important;
-      overflow-wrap: normal !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      opacity: 0.8;
-      transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
+       border-left: 3px solid transparent;
+       border-bottom: 1px solid rgba(0,0,0,0.04);
+       box-shadow: inset 0 0 0 0 transparent;
+       justify-content: space-between;
+       white-space: nowrap !important;
+       word-break: keep-all !important;
+       overflow-wrap: normal !important;
+       overflow: hidden !important;
+       text-overflow: ellipsis !important;
+       opacity: 0.8;
+       transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, box-shadow ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
     }
     ${p} .menu-items > .has-submenu:last-child > a,
     ${p} .menu-items > a:last-child { border-bottom: none; }
@@ -1336,8 +1337,9 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
      border-radius: ${itemRadiusDesktop}em;
-     border: ${menuConfig.activeBorderWidth}px solid transparent;
-     transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
+     border: none;
+     box-shadow: inset 0 0 0 0 transparent;
+     transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, box-shadow ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
      opacity: 0.8;
      white-space: nowrap !important;
      word-break: keep-all !important;
@@ -1368,7 +1370,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      color: ${menuConfig.activeTextColor};
      opacity: 1;
      background-color: ${menuConfig.activeBgColor};
-      border-color: ${menuConfig.activeBorderColor};
+      box-shadow: inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor};
       border-radius: ${activeRadiusDesktop}em;
    }
    .custom-nav-992 .menu-items > a.active:hover,
@@ -1377,7 +1379,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
    .custom-nav-992 .menu-items > .has-submenu > a:hover {
      color: ${menuConfig.hoverTextColor} !important;
      background-color: ${menuConfig.hoverBgColor} !important;
-     border: ${menuConfig.hoverBorderWidth}px solid ${menuConfig.hoverBorderColor} !important;
+     box-shadow: inset 0 0 0 ${menuConfig.hoverBorderWidth}px ${menuConfig.hoverBorderColor} !important;
      opacity: 1 !important;
    }
 
