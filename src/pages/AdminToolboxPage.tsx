@@ -2464,11 +2464,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <div className="space-y-2">
                         <Label>Cor do Logo (SVG)</Label>
                         <div className="flex items-center gap-2">
-                          <Input
-                            type="color"
-                            className="h-9 w-14 p-1"
+                          <ColorField
                             value={menuConfig.logoColor || '#000000'}
-                            onChange={(e) => setMenuConfig({...menuConfig, logoColor: e.target.value})}
+                            onChange={(v) => setMenuConfig({...menuConfig, logoColor: v})}
                           />
                           <Input
                             value={menuConfig.logoColor}
