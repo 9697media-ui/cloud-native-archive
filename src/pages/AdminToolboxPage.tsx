@@ -3090,6 +3090,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                   setMenuConfig({...menuConfig, items: newItems});
                                 }}
                               />
+                              <Input 
+                                placeholder="Links de ativação (ex.: /promo, /campanha)" 
+                                value={item.activePaths || ''}
+                                onChange={(e) => {
+                                  const newItems = [...menuConfig.items];
+                                  newItems[idx].activePaths = e.target.value;
+                                  setMenuConfig({...menuConfig, items: newItems});
+                                }}
+                              />
                             </div>
                             <div className="flex flex-col gap-2">
                               <Button 
