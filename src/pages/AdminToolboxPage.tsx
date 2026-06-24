@@ -3028,13 +3028,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <TabsTrigger value="preview" className="gap-2">
                       <Eye className="h-4 w-4" /> Preview
                     </TabsTrigger>
+                    <TabsTrigger value="site" className="gap-2">
+                      <Monitor className="h-4 w-4" /> Site
+                    </TabsTrigger>
                     <TabsTrigger value="code" className="gap-2">
                       <Code className="h-4 w-4" /> Código
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
 
-                {viewMode === 'preview' && (
+                {(viewMode === 'preview' || viewMode === 'site') && (
                   <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
                     <Button 
                       variant={deviceView === 'desktop' ? 'secondary' : 'ghost'} 
