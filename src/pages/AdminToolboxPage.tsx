@@ -26,6 +26,10 @@ export default function AdminToolboxPage() {
   const [viewMode, setViewMode] = useState('preview'); // 'preview' ou 'code'
   const [deviceView, setDeviceView] = useState<DeviceView>('desktop');
   const [panelDevice, setPanelDevice] = useState<DeviceView>('desktop'); // aba de dispositivo no painel
+  // Foco de edição: revela elementos ocultos na demo enquanto o usuário ajusta.
+  const [editingFocus, setEditingFocus] = useState<'submenu' | null>(null);
+  const editingFocusRef = React.useRef<'submenu' | null>(null);
+  editingFocusRef.current = editingFocus;
   const [copied, setCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -531,6 +535,26 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
         nav.classList.toggle('force-tablet', deviceView === 'tablet');
         nav.classList.toggle('force-mobile', deviceView === 'mobile');
       });
+
+      // Auto-revelar elemento oculto enquanto o usuário ajusta controles relacionados.
+      // Ex.: ao mexer no espaçamento/raio do submenu, abrimos o 1º submenu para
+      // mostrar a alteração ao vivo. Permanece aberto até o usuário clicar na demo.
+      if (editingFocus === 'submenu') {
+        const firstSub = doc.querySelector('.custom-nav-992 .has-submenu');
+        if (firstSub) firstSub.classList.add('demo-open');
+      }
+
+      // Quando o usuário clica dentro da demo, ele assume o controle: limpamos o
+      // foco automático para não forçar reabertura nos próximos ajustes.
+      if (!doc.getElementById('__focusClearAttached')) {
+        const marker = doc.createElement('span');
+        marker.id = '__focusClearAttached';
+        marker.style.display = 'none';
+        target.appendChild(marker);
+        doc.addEventListener('click', () => {
+          if (editingFocusRef.current) setEditingFocus(null);
+        }, true);
+      }
 
     } catch {
       /* iframe ainda em origem opaca / não acessível; ignora */
@@ -2432,19 +2456,19 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                <Label className="text-xs">Raio ativo {active.label} (%): {menuConfig[ar]}%</Label>
                                <Slider min={0} max={100} step={1}
                                  value={[menuConfig[ar]]}
-                                 onValueChange={(v) => setMenuConfig({...menuConfig, [ar]: v[0]})} />
+                                 onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [ar]: v[0]}); }} />
                              </div>
                              <div className="space-y-2">
                                <Label className="text-xs">Arred. Itens {active.label} (%): {menuConfig[ir]}%</Label>
                                <Slider min={0} max={100} step={1}
                                  value={[menuConfig[ir]]}
-                                 onValueChange={(v) => setMenuConfig({...menuConfig, [ir]: v[0]})} />
+                                 onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [ir]: v[0]}); }} />
                              </div>
                              <div className="space-y-2">
                                <Label className="text-xs">Espaçamento submenu {active.label} (px): {menuConfig[sg]}px {menuConfig[sg] === 0 ? '(colado)' : ''}</Label>
                                <Slider min={0} max={40} step={1}
                                  value={[menuConfig[sg]]}
-                                 onValueChange={(v) => setMenuConfig({...menuConfig, [sg]: v[0]})} />
+                                 onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [sg]: v[0]}); }} />
                              </div>
                            </div>
                          );
