@@ -2669,6 +2669,19 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               <Label className="text-xs">Lordicon (URL do JSON animado)</Label>
                               <Input value={opt.lordIcon || ''} onChange={(e) => update({ lordIcon: e.target.value })} placeholder="https://cdn.lordicon.com/....json (opcional, substitui o emoji)" />
                             </div>
+                            {opt.lordIcon && (
+                              <div className="space-y-1">
+                                <Label className="text-xs">Animação</Label>
+                                <select
+                                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                                  value={opt.lordTrigger || 'boomerang'}
+                                  onChange={(e) => update({ lordTrigger: e.target.value })}
+                                >
+                                  <option value="boomerang">Bumerangue (vai no hover, volta ao sair)</option>
+                                  <option value="loop">Loop (repete enquanto o mouse está em cima)</option>
+                                </select>
+                              </div>
+                            )}
                             <div className="space-y-1">
                               <Label className="text-xs">Pílula (texto de apoio)</Label>
                               <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
