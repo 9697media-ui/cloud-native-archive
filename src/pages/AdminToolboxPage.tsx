@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { navItems } from '@/config/navigation';
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ColorField } from "@/components/ColorField";
 
 type DeviceView = 'desktop' | 'tablet' | 'mobile';
 
@@ -2339,27 +2340,17 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Cor de Fundo</Label>
-                        <div className="flex gap-2 items-center">
-                          <Input 
-                            type="color" 
-                            className="w-10 h-10 p-1 cursor-pointer"
-                            value={whatsappConfig.bgColor}
-                            onChange={(e) => setWhatsappConfig({...whatsappConfig, bgColor: e.target.value})}
-                          />
-                          <span className="text-xs font-mono uppercase">{whatsappConfig.bgColor}</span>
-                        </div>
+                        <ColorField
+                          value={whatsappConfig.bgColor}
+                          onChange={(v) => setWhatsappConfig({...whatsappConfig, bgColor: v})}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>Cor do Texto</Label>
-                        <div className="flex gap-2 items-center">
-                          <Input 
-                            type="color" 
-                            className="w-10 h-10 p-1 cursor-pointer"
-                            value={whatsappConfig.textColor}
-                            onChange={(e) => setWhatsappConfig({...whatsappConfig, textColor: e.target.value})}
-                          />
-                          <span className="text-xs font-mono uppercase">{whatsappConfig.textColor}</span>
-                        </div>
+                        <ColorField
+                          value={whatsappConfig.textColor}
+                          onChange={(v) => setWhatsappConfig({...whatsappConfig, textColor: v})}
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -2411,20 +2402,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Cor de Fundo</Label>
-                        <Input 
-                          type="color" 
-                          className="w-full h-10 p-1 cursor-pointer"
+                        <ColorField
                           value={bannerConfig.bgColor}
-                          onChange={(e) => setBannerConfig({...bannerConfig, bgColor: e.target.value})}
+                          onChange={(v) => setBannerConfig({...bannerConfig, bgColor: v})}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label>Cor do Texto</Label>
-                        <Input 
-                          type="color" 
-                          className="w-full h-10 p-1 cursor-pointer"
+                        <ColorField
                           value={bannerConfig.textColor}
-                          onChange={(e) => setBannerConfig({...bannerConfig, textColor: e.target.value})}
+                          onChange={(v) => setBannerConfig({...bannerConfig, textColor: v})}
                         />
                       </div>
                     </div>
@@ -2463,11 +2450,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <div className="space-y-2">
                         <Label>Cor do Logo (SVG)</Label>
                         <div className="flex items-center gap-2">
-                          <Input
-                            type="color"
-                            className="h-9 w-14 p-1"
+                          <ColorField
                             value={menuConfig.logoColor || '#000000'}
-                            onChange={(e) => setMenuConfig({...menuConfig, logoColor: e.target.value})}
+                            onChange={(v) => setMenuConfig({...menuConfig, logoColor: v})}
                           />
                           <Input
                             value={menuConfig.logoColor}
@@ -2484,29 +2469,23 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
                         <Label className="text-xs">Fundo</Label>
-                        <Input 
-                          type="color" 
-                          className="w-full h-10 p-1 cursor-pointer"
+                        <ColorField
                           value={menuConfig.bgColor}
-                          onChange={(e) => setMenuConfig({...menuConfig, bgColor: e.target.value})}
+                          onChange={(v) => setMenuConfig({...menuConfig, bgColor: v})}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-xs">Texto</Label>
-                        <Input 
-                          type="color" 
-                          className="w-full h-10 p-1 cursor-pointer"
+                        <ColorField
                           value={menuConfig.textColor}
-                          onChange={(e) => setMenuConfig({...menuConfig, textColor: e.target.value})}
+                          onChange={(v) => setMenuConfig({...menuConfig, textColor: v})}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-xs">Destaque</Label>
-                        <Input 
-                          type="color" 
-                          className="w-full h-10 p-1 cursor-pointer"
+                        <ColorField
                           value={menuConfig.accentColor}
-                          onChange={(e) => setMenuConfig({...menuConfig, accentColor: e.target.value})}
+                          onChange={(v) => setMenuConfig({...menuConfig, accentColor: v})}
                         />
                       </div>
                     </div>
@@ -2558,21 +2537,21 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                        <div className="grid grid-cols-2 gap-3">
                          <div className="space-y-2">
                            <Label className="text-xs">Fundo hover</Label>
-                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                           <ColorField
                              value={menuConfig.hoverBgColor}
-                             onChange={(e) => setMenuConfig({...menuConfig, hoverBgColor: e.target.value})} />
+                             onChange={(v) => setMenuConfig({...menuConfig, hoverBgColor: v})} />
                          </div>
                          <div className="space-y-2">
                            <Label className="text-xs">Texto hover</Label>
-                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                           <ColorField
                              value={menuConfig.hoverTextColor}
-                             onChange={(e) => setMenuConfig({...menuConfig, hoverTextColor: e.target.value})} />
+                             onChange={(v) => setMenuConfig({...menuConfig, hoverTextColor: v})} />
                          </div>
                          <div className="space-y-2">
                            <Label className="text-xs">Cor borda hover</Label>
-                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                           <ColorField
                              value={menuConfig.hoverBorderColor}
-                             onChange={(e) => setMenuConfig({...menuConfig, hoverBorderColor: e.target.value})} />
+                             onChange={(v) => setMenuConfig({...menuConfig, hoverBorderColor: v})} />
                          </div>
                          <div className="space-y-2">
                            <Label className="text-xs">Espessura borda hover</Label>
@@ -2588,9 +2567,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                        <div className="grid grid-cols-3 gap-3">
                          <div className="space-y-2">
                            <Label className="text-xs">Cor</Label>
-                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                           <ColorField
                              value={menuConfig.activeBorderColor}
-                             onChange={(e) => setMenuConfig({...menuConfig, activeBorderColor: e.target.value})} />
+                             onChange={(v) => setMenuConfig({...menuConfig, activeBorderColor: v})} />
                          </div>
                          <div className="space-y-2">
                            <Label className="text-xs">Espessura</Label>
@@ -2686,15 +2665,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <Label className="text-xs">Fundo (ativo)</Label>
-                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                          <ColorField
                             value={menuConfig.activeBgColor === 'transparent' ? '#ffffff' : menuConfig.activeBgColor}
-                            onChange={(e) => setMenuConfig({...menuConfig, activeBgColor: e.target.value})} />
+                            onChange={(v) => setMenuConfig({...menuConfig, activeBgColor: v})} />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs">Texto (ativo)</Label>
-                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                          <ColorField
                             value={menuConfig.activeTextColor}
-                            onChange={(e) => setMenuConfig({...menuConfig, activeTextColor: e.target.value})} />
+                            onChange={(v) => setMenuConfig({...menuConfig, activeTextColor: v})} />
                         </div>
                       </div>
                       <Button variant="ghost" size="sm" className="h-7 text-[10px]"
@@ -2751,11 +2730,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           <div className="grid grid-cols-2 gap-3 text-left">
                             <div className="space-y-1">
                               <Label className="text-xs">Cor de Fundo</Label>
-                              <Input type="color" value={(menuConfig.searchBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, searchBgColor: e.target.value})} className="h-9 p-1" />
+                              <ColorField value={menuConfig.searchBgColor || "#ffffff"} onChange={(v) => setMenuConfig({...menuConfig, searchBgColor: v})} />
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Cor do Ícone/Texto</Label>
-                              <Input type="color" value={menuConfig.searchIconColor} onChange={(e) => setMenuConfig({...menuConfig, searchIconColor: e.target.value})} className="h-9 p-1" />
+                              <ColorField value={menuConfig.searchIconColor} onChange={(v) => setMenuConfig({...menuConfig, searchIconColor: v})} />
                             </div>
                           </div>
                           <div className="space-y-2 text-left">
@@ -2774,11 +2753,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           <div className="grid grid-cols-2 gap-3 text-left">
                             <div className="space-y-1">
                               <Label className="text-xs">Cor do Ícone</Label>
-                              <Input type="color" value={menuConfig.hamburgerColor} onChange={(e) => setMenuConfig({...menuConfig, hamburgerColor: e.target.value})} className="h-9 p-1" />
+                              <ColorField value={menuConfig.hamburgerColor} onChange={(v) => setMenuConfig({...menuConfig, hamburgerColor: v})} />
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Cor de Fundo</Label>
-                              <Input type="color" value={(menuConfig.hamburgerBgColor || "#ffffff").slice(0,7)} onChange={(e) => setMenuConfig({...menuConfig, hamburgerBgColor: e.target.value})} className="h-9 p-1" />
+                              <ColorField value={menuConfig.hamburgerBgColor || "#ffffff"} onChange={(v) => setMenuConfig({...menuConfig, hamburgerBgColor: v})} />
                             </div>
                           </div>
                           <div className="space-y-2 text-left">
