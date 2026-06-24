@@ -23,6 +23,7 @@ export default function AdminToolboxPage() {
   const [activeWidgetType, setActiveWidgetType] = useState('whatsapp');
   const [viewMode, setViewMode] = useState('preview'); // 'preview' ou 'code'
   const [deviceView, setDeviceView] = useState('desktop'); // 'desktop' ou 'mobile'
+  const [panelDevice, setPanelDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop'); // aba de dispositivo no painel
   const [copied, setCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -2352,60 +2353,49 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
                        </div>
                        </div>
-                       <div className="space-y-2">
-                         <Label className="text-xs">Raio ativo PC (%): {menuConfig.activeRadius}%</Label>
-                         <Slider min={0} max={100} step={1}
-                           value={[menuConfig.activeRadius]}
-                           onValueChange={(v) => setMenuConfig({...menuConfig, activeRadius: v[0]})} />
-                       </div>
-                       <div className="space-y-2">
-                         <Label className="text-xs">Raio ativo Tablet (%): {menuConfig.activeRadiusTablet}%</Label>
-                         <Slider min={0} max={100} step={1}
-                           value={[menuConfig.activeRadiusTablet]}
-                           onValueChange={(v) => setMenuConfig({...menuConfig, activeRadiusTablet: v[0]})} />
-                       </div>
-                       <div className="space-y-2">
-                         <Label className="text-xs">Raio ativo Mobile (%): {menuConfig.activeRadiusMobile}%</Label>
-                         <Slider min={0} max={100} step={1}
-                           value={[menuConfig.activeRadiusMobile]}
-                           onValueChange={(v) => setMenuConfig({...menuConfig, activeRadiusMobile: v[0]})} />
-                       </div>
-                       <div className="space-y-2">
-                         <Label className="text-xs">Arred. Itens PC (%): {menuConfig.itemRadius}%</Label>
-                         <Slider min={0} max={100} step={1}
-                           value={[menuConfig.itemRadius]}
-                           onValueChange={(v) => setMenuConfig({...menuConfig, itemRadius: v[0]})} />
-                       </div>
-                       <div className="space-y-2">
-                         <Label className="text-xs">Arred. Itens Tablet (%): {menuConfig.itemRadiusTablet}%</Label>
-                         <Slider min={0} max={100} step={1}
-                           value={[menuConfig.itemRadiusTablet]}
-                           onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusTablet: v[0]})} />
-                       </div>
-                       <div className="space-y-2">
-                         <Label className="text-xs">Arred. Itens Mobile (%): {menuConfig.itemRadiusMobile}%</Label>
-                         <Slider min={0} max={100} step={1}
-                           value={[menuConfig.itemRadiusMobile]}
-                           onValueChange={(v) => setMenuConfig({...menuConfig, itemRadiusMobile: v[0]})} />
-                       </div>
-                       <div className="space-y-2">
-                         <Label className="text-xs">Espaçamento submenu PC (px): {menuConfig.submenuGap}px {menuConfig.submenuGap === 0 ? '(colado)' : ''}</Label>
-                         <Slider min={0} max={40} step={1}
-                           value={[menuConfig.submenuGap]}
-                           onValueChange={(v) => setMenuConfig({...menuConfig, submenuGap: v[0]})} />
-                       </div>
-                       <div className="space-y-2">
-                         <Label className="text-xs">Espaçamento submenu Tablet (px): {menuConfig.submenuGapTablet}px {menuConfig.submenuGapTablet === 0 ? '(colado)' : ''}</Label>
-                         <Slider min={0} max={40} step={1}
-                           value={[menuConfig.submenuGapTablet]}
-                           onValueChange={(v) => setMenuConfig({...menuConfig, submenuGapTablet: v[0]})} />
-                       </div>
-                       <div className="space-y-2">
-                         <Label className="text-xs">Espaçamento submenu Mobile (px): {menuConfig.submenuGapMobile}px {menuConfig.submenuGapMobile === 0 ? '(colado)' : ''}</Label>
-                         <Slider min={0} max={40} step={1}
-                           value={[menuConfig.submenuGapMobile]}
-                           onValueChange={(v) => setMenuConfig({...menuConfig, submenuGapMobile: v[0]})} />
-                       </div>
+                       {(() => {
+                         const devs = [
+                           { id: 'desktop' as const, label: 'PC', Icon: Monitor, ring: 'border-blue-500 bg-blue-500/10 text-blue-600', dot: 'bg-blue-500' },
+                           { id: 'tablet' as const, label: 'Tablet', Icon: Tablet, ring: 'border-amber-500 bg-amber-500/10 text-amber-600', dot: 'bg-amber-500' },
+                           { id: 'mobile' as const, label: 'Mobile', Icon: Smartphone, ring: 'border-emerald-500 bg-emerald-500/10 text-emerald-600', dot: 'bg-emerald-500' },
+                         ];
+                         const active = devs.find(d => d.id === panelDevice)!;
+                         const ar = panelDevice === 'desktop' ? 'activeRadius' : panelDevice === 'tablet' ? 'activeRadiusTablet' : 'activeRadiusMobile';
+                         const ir = panelDevice === 'desktop' ? 'itemRadius' : panelDevice === 'tablet' ? 'itemRadiusTablet' : 'itemRadiusMobile';
+                         const sg = panelDevice === 'desktop' ? 'submenuGap' : panelDevice === 'tablet' ? 'submenuGapTablet' : 'submenuGapMobile';
+                         return (
+                           <div className={cn('rounded-lg border-2 p-3 space-y-3 transition-colors', active.ring)}>
+                             <div className="grid grid-cols-3 gap-2">
+                               {devs.map(d => (
+                                 <button key={d.id} type="button" onClick={() => setPanelDevice(d.id)}
+                                   className={cn('flex items-center justify-center gap-1.5 rounded-md border-2 py-1.5 text-xs font-semibold transition-colors',
+                                     panelDevice === d.id ? d.ring : 'border-transparent bg-muted/40 text-muted-foreground hover:bg-muted')}>
+                                   <span className={cn('h-2 w-2 rounded-full', d.dot)} />
+                                   <d.Icon className="h-3.5 w-3.5" />{d.label}
+                                 </button>
+                               ))}
+                             </div>
+                             <div className="space-y-2">
+                               <Label className="text-xs">Raio ativo {active.label} (%): {menuConfig[ar]}%</Label>
+                               <Slider min={0} max={100} step={1}
+                                 value={[menuConfig[ar]]}
+                                 onValueChange={(v) => setMenuConfig({...menuConfig, [ar]: v[0]})} />
+                             </div>
+                             <div className="space-y-2">
+                               <Label className="text-xs">Arred. Itens {active.label} (%): {menuConfig[ir]}%</Label>
+                               <Slider min={0} max={100} step={1}
+                                 value={[menuConfig[ir]]}
+                                 onValueChange={(v) => setMenuConfig({...menuConfig, [ir]: v[0]})} />
+                             </div>
+                             <div className="space-y-2">
+                               <Label className="text-xs">Espaçamento submenu {active.label} (px): {menuConfig[sg]}px {menuConfig[sg] === 0 ? '(colado)' : ''}</Label>
+                               <Slider min={0} max={40} step={1}
+                                 value={[menuConfig[sg]]}
+                                 onValueChange={(v) => setMenuConfig({...menuConfig, [sg]: v[0]})} />
+                             </div>
+                           </div>
+                         );
+                       })()}
                        <div className="space-y-2">
                          <Label className="text-xs">Tamanho da sombra (px): {menuConfig.shadowSize}px {menuConfig.shadowSize === 0 ? '(sem sombra)' : ''}</Label>
                          <Slider min={0} max={80} step={1}
