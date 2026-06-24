@@ -2421,11 +2421,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                       <div className="space-y-2">
                         <Label>Cor do Texto</Label>
-                        <Input 
-                          type="color" 
-                          className="w-full h-10 p-1 cursor-pointer"
+                        <ColorField
                           value={bannerConfig.textColor}
-                          onChange={(e) => setBannerConfig({...bannerConfig, textColor: e.target.value})}
+                          onChange={(v) => setBannerConfig({...bannerConfig, textColor: v})}
                         />
                       </div>
                     </div>
