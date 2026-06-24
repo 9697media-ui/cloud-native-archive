@@ -145,6 +145,8 @@ export default function AdminToolboxPage() {
       activeRadiusMobile: config.activeRadiusMobile ?? config.activeRadius ?? prev.activeRadiusMobile,
       itemRadiusTablet: config.itemRadiusTablet ?? config.itemRadius ?? prev.itemRadiusTablet,
       itemRadiusMobile: config.itemRadiusMobile ?? config.itemRadius ?? prev.itemRadiusMobile,
+      submenuItemSpacingTablet: config.submenuItemSpacingTablet ?? config.submenuItemSpacing ?? prev.submenuItemSpacingTablet,
+      submenuItemSpacingMobile: config.submenuItemSpacingMobile ?? config.submenuItemSpacing ?? prev.submenuItemSpacingMobile,
     }));
   };
 
@@ -312,6 +314,9 @@ export default function AdminToolboxPage() {
       submenuGap: 0,
       submenuGapTablet: 0,
       submenuGapMobile: 0,
+      submenuItemSpacing: 4,
+      submenuItemSpacingTablet: 4,
+      submenuItemSpacingMobile: 4,
       shadowSize: 28,
       shadowIntensity: 22,
       tabletMenuMode: 'header',
@@ -414,6 +419,9 @@ export default function AdminToolboxPage() {
     submenuGap: 0,
     submenuGapTablet: 0,
     submenuGapMobile: 0,
+    submenuItemSpacing: 4,
+    submenuItemSpacingTablet: 4,
+    submenuItemSpacingMobile: 4,
     shadowSize: 28,
     shadowIntensity: 22,
     tabletMenuMode: 'header',
@@ -466,18 +474,21 @@ export default function AdminToolboxPage() {
         active: toEm(desktopActive),
         item: toEm(desktopItem),
         gap: Math.max(0, toNumber(menuConfig.submenuGap, 0)),
+        itemGap: Math.max(0, toNumber(menuConfig.submenuItemSpacing, 4)),
         stacked: false,
       },
       tablet: {
         active: toEm(toNumber(menuConfig.activeRadiusTablet, desktopActive)),
         item: toEm(toNumber(menuConfig.itemRadiusTablet, desktopItem)),
         gap: Math.max(0, toNumber(menuConfig.submenuGapTablet, toNumber(menuConfig.submenuGap, 0))),
+        itemGap: Math.max(0, toNumber(menuConfig.submenuItemSpacingTablet, toNumber(menuConfig.submenuItemSpacing, 4))),
         stacked: (menuConfig.tabletMenuMode ?? 'header') === 'hamburger',
       },
       mobile: {
         active: toEm(toNumber(menuConfig.activeRadiusMobile, desktopActive)),
         item: toEm(toNumber(menuConfig.itemRadiusMobile, desktopItem)),
         gap: Math.max(0, toNumber(menuConfig.submenuGapMobile, toNumber(menuConfig.submenuGap, 0))),
+        itemGap: Math.max(0, toNumber(menuConfig.submenuItemSpacingMobile, toNumber(menuConfig.submenuItemSpacing, 4))),
         stacked: true,
       },
     };
@@ -492,7 +503,7 @@ ${selector} .has-submenu:hover > a,
 ${selector} .has-submenu:focus-within > a,
 ${selector} .has-submenu.open > a,
 ${selector} .has-submenu.demo-open > a{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${metric.active}em !important;opacity:1 !important;}
-${selector} .submenu{${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
+${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
 ${metric.stacked
   ? `${selector} .has-submenu.open > .submenu,
 ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:visible !important;max-height:80vh !important;margin:${metric.gap}px 24px 18px !important;padding:8px !important;clip-path:inset(0 -32px -32px -32px) !important;transform:none !important;pointer-events:auto !important;}`
@@ -502,7 +513,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       + deviceCss('.custom-nav-992.force-tablet', metrics.tablet)
       + deviceCss('.custom-nav-992.force-mobile', metrics.mobile);
   }, [deviceView, menuConfig]);
-  const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a)return;e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;if(hs){hs.classList.toggle('demo-open');}var sub=a.closest('.submenu');var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
+  const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a){document.querySelectorAll('.has-submenu.demo-open,.has-submenu.open').forEach(function(x){x.classList.remove('demo-open');x.classList.remove('open');});return;}e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;var sub=a.closest('.submenu');var keep=hs||(sub?sub.closest('.has-submenu'):null);document.querySelectorAll('.has-submenu.demo-open,.has-submenu.open').forEach(function(x){if(!(keep&&(x===keep||x.contains(keep)))){x.classList.remove('demo-open');x.classList.remove('open');}});if(hs){hs.classList.toggle('demo-open');}var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
   // Reconstrói o documento apenas em mudanças estruturais.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -541,6 +552,12 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       // mostrar a alteração ao vivo. Permanece aberto até o usuário clicar na demo.
       if (editingFocus === 'submenu') {
         const firstSub = doc.querySelector('.custom-nav-992 .has-submenu');
+        doc.querySelectorAll('.custom-nav-992 .has-submenu.demo-open, .custom-nav-992 .has-submenu.open').forEach((sub) => {
+          if (sub !== firstSub) {
+            sub.classList.remove('demo-open');
+            sub.classList.remove('open');
+          }
+        });
         if (firstSub) firstSub.classList.add('demo-open');
       }
 
@@ -1004,13 +1021,38 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     const submenuGapDesktop = Math.max(0, Number(menuConfig.submenuGap ?? 0));
     const submenuGapTablet = Math.max(0, Number(menuConfig.submenuGapTablet ?? menuConfig.submenuGap ?? 0));
     const submenuGapMobile = Math.max(0, Number(menuConfig.submenuGapMobile ?? menuConfig.submenuGap ?? 0));
+    const submenuItemSpacingDesktop = Math.max(0, Number(menuConfig.submenuItemSpacing ?? 4));
+    const submenuItemSpacingTablet = Math.max(0, Number(menuConfig.submenuItemSpacingTablet ?? menuConfig.submenuItemSpacing ?? 4));
+    const submenuItemSpacingMobile = Math.max(0, Number(menuConfig.submenuItemSpacingMobile ?? menuConfig.submenuItemSpacing ?? 4));
     const shadowSize = Math.max(0, Number(menuConfig.shadowSize ?? 28));
     const shadowIntensity = Math.min(100, Math.max(0, Number(menuConfig.shadowIntensity ?? 22)));
     const menuShadow = (shadowSize === 0 || shadowIntensity === 0)
       ? 'none'
       : `0 ${Math.round(shadowSize * 0.5)}px ${shadowSize}px rgba(0,0,0,${(shadowIntensity / 100).toFixed(3)})`;
     const tabletHamburger = (menuConfig.tabletMenuMode ?? 'header') === 'hamburger';
-    const mobileRules = (p: string) => `
+    const tabletStackMetrics = {
+      activeRadius: activeRadiusTablet,
+      itemRadius: itemRadiusTablet,
+      submenuPanelRadius: submenuPanelRadiusTablet,
+      submenuGap: submenuGapTablet,
+      submenuItemSpacing: submenuItemSpacingTablet,
+    };
+    const mobileRules = (
+      p: string,
+      metric: {
+        activeRadius: string;
+        itemRadius: string;
+        submenuPanelRadius: string;
+        submenuGap: number;
+        submenuItemSpacing: number;
+      } = {
+        activeRadius: activeRadiusMobile,
+        itemRadius: itemRadiusMobile,
+        submenuPanelRadius: submenuPanelRadiusMobile,
+        submenuGap: submenuGapMobile,
+        submenuItemSpacing: submenuItemSpacingMobile,
+      }
+    ) => `
     ${p} {
       padding: 0 14px;
       min-height: 60px;
@@ -1046,7 +1088,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       gap: 0;
       box-shadow: none;
       border: 1px solid transparent;
-      border-radius: ${activeRadiusMobile}em;
+      border-radius: ${metric.activeRadius}em;
       max-height: 0;
       overflow: hidden;
       opacity: 0;
@@ -1070,7 +1112,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       align-items: center;
       width: 100%;
       padding: 14px 22px;
-      border-radius: ${itemRadiusMobile}em;
+      border-radius: ${metric.itemRadius}em;
       font-size: 15.5px;
       border-left: 3px solid transparent;
       border-bottom: 1px solid rgba(0,0,0,0.04);
@@ -1096,13 +1138,13 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       width: calc(100% - 48px) !important;
       margin: 0 24px !important;
       box-shadow: none !important;
-      border-radius: ${submenuPanelRadiusMobile}em !important;
+      border-radius: ${metric.submenuPanelRadius}em !important;
       padding: 0 8px !important;
       background-color: ${menuConfig.bgColor} !important;
       border: 1px solid transparent !important;
       display: flex !important;
       flex-direction: column !important;
-      gap: 2px !important;
+      gap: ${metric.submenuItemSpacing}px !important;
       opacity: 0 !important;
       visibility: hidden !important;
       max-height: 0 !important;
@@ -1115,7 +1157,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       opacity: 1 !important;
       visibility: visible !important;
       max-height: 80vh !important;
-      margin: ${submenuGapMobile}px 24px 18px !important;
+      margin: ${metric.submenuGap}px 24px 18px !important;
       padding: 8px !important;
       box-shadow: ${menuShadow} !important;
       border-color: rgba(0,0,0,0.08) !important;
@@ -1127,12 +1169,12 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     ${p} .has-submenu.open > a {
       color: ${menuConfig.activeTextColor} !important;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
-      border-radius: ${activeRadiusMobile}em !important;
+      border-radius: ${metric.activeRadius}em !important;
     }
     ${p} .submenu a {
       padding: 10px 40px !important;
       font-size: 15px !important;
-      border-radius: ${itemRadiusMobile}em !important;
+      border-radius: ${metric.itemRadius}em !important;
       white-space: nowrap !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
@@ -1359,7 +1401,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     padding: 8px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 2px !important;
+    gap: ${submenuItemSpacingDesktop}px !important;
     min-width: 230px !important;
      max-width: min(92vw, 420px) !important;
     z-index: 2147483647 !important;
@@ -1472,7 +1514,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       max-width: 150px;
     }
     ${menuConfig.logoUrlMobile ? `.custom-nav-992 .logo .logo-desktop { display: none; } .custom-nav-992 .logo .logo-mobile { display: block; }` : ''}
-    ${tabletHamburger ? mobileRules('.custom-nav-992') : `
+    ${tabletHamburger ? mobileRules('.custom-nav-992', tabletStackMetrics) : `
     .custom-nav-992 .menu-items {
       gap: 2px;
     }
@@ -1491,6 +1533,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       min-width: 200px !important;
       top: calc(100% + ${submenuGapTablet}px) !important;
       border-radius: ${submenuPanelRadiusTablet}em !important;
+      gap: ${submenuItemSpacingTablet}px !important;
     }
     .custom-nav-992 .submenu a {
       border-radius: ${itemRadiusTablet}em !important;
@@ -1509,7 +1552,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
 
   /* ===== AUTO-BREAK: quando itens não cabem (padding < 10px) ===== */
   ${mobileRules('.custom-nav-992.force-mobile')}
-  ${tabletHamburger ? mobileRules('.custom-nav-992.force-tablet') : ''}
+  ${tabletHamburger ? mobileRules('.custom-nav-992.force-tablet', tabletStackMetrics) : ''}
   @media (min-width: 851px) {
     .custom-nav-992.force-tablet .menu-items a {
       border-radius: ${itemRadiusTablet}em !important;
@@ -1520,6 +1563,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     .custom-nav-992.force-tablet .submenu {
       top: calc(100% + ${submenuGapTablet}px) !important;
       border-radius: ${submenuPanelRadiusTablet}em !important;
+      gap: ${submenuItemSpacingTablet}px !important;
     }
     .custom-nav-992.force-tablet .submenu a {
       border-radius: ${itemRadiusTablet}em !important;
@@ -1856,12 +1900,21 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     const hasSubmenu = e.target.closest('.custom-nav-992 .has-submenu');
     const navEl = document.querySelector('.custom-nav-992');
     const isMobileMode = window.innerWidth <= 850 || (navEl && navEl.classList.contains('force-mobile')) || (${tabletHamburger} && ((window.innerWidth <= 1024 && window.innerWidth >= 851) || (navEl && navEl.classList.contains('force-tablet'))));
-    if (hasSubmenu && isMobileMode) {
-      const link = e.target.closest('a');
+    if (isMobileMode) {
+      const link = e.target.closest('.custom-nav-992 .menu-items a');
       // Se clicou na seta ou no item pai e ele tem submenu, toggle
       if (link && link.parentElement === hasSubmenu) {
         e.preventDefault();
+        document.querySelectorAll('.custom-nav-992 .has-submenu.open').forEach(function(item) {
+          if (item !== hasSubmenu) item.classList.remove('open');
+        });
         hasSubmenu.classList.toggle('open');
+        return;
+      }
+      if (link) {
+        document.querySelectorAll('.custom-nav-992 .has-submenu.open').forEach(function(item) {
+          item.classList.remove('open');
+        });
       }
     }
   });
@@ -1913,6 +1966,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       const items = document.querySelector('.custom-nav-992 .menu-items');
       if (nav && !nav.contains(e.target) && items.classList.contains('active')) {
         items.classList.remove('active');
+        nav.querySelectorAll('.has-submenu.open').forEach((item) => item.classList.remove('open'));
         const toggle = nav.querySelector('.mobile-toggle');
         if (toggle) toggle.classList.remove('open');
       }
@@ -2441,6 +2495,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                          const ar = panelDevice === 'desktop' ? 'activeRadius' : panelDevice === 'tablet' ? 'activeRadiusTablet' : 'activeRadiusMobile';
                          const ir = panelDevice === 'desktop' ? 'itemRadius' : panelDevice === 'tablet' ? 'itemRadiusTablet' : 'itemRadiusMobile';
                          const sg = panelDevice === 'desktop' ? 'submenuGap' : panelDevice === 'tablet' ? 'submenuGapTablet' : 'submenuGapMobile';
+                          const sis = panelDevice === 'desktop' ? 'submenuItemSpacing' : panelDevice === 'tablet' ? 'submenuItemSpacingTablet' : 'submenuItemSpacingMobile';
                          return (
                            <div className={cn('rounded-lg border-2 bg-transparent p-3 space-y-3 transition-colors', active.border)}>
                              <div className="grid grid-cols-3 gap-2">
@@ -2465,11 +2520,17 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                  onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [ir]: v[0]}); }} />
                              </div>
                              <div className="space-y-2">
-                               <Label className="text-xs">Espaçamento submenu {active.label} (px): {menuConfig[sg]}px {menuConfig[sg] === 0 ? '(colado)' : ''}</Label>
+                                <Label className="text-xs">Espaçamento janela submenu {active.label} (px): {menuConfig[sg]}px {menuConfig[sg] === 0 ? '(colado)' : ''}</Label>
                                <Slider min={0} max={40} step={1}
                                  value={[menuConfig[sg]]}
                                  onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [sg]: v[0]}); }} />
                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-xs">Espaçamento itens internos {active.label} (px): {menuConfig[sis]}px</Label>
+                                <Slider min={0} max={32} step={1}
+                                  value={[menuConfig[sis]]}
+                                  onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [sis]: v[0]}); }} />
+                              </div>
                            </div>
                          );
                        })()}
