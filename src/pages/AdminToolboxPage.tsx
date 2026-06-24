@@ -2687,9 +2687,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <Label className="text-xs">Fundo (ativo)</Label>
-                          <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                          <ColorField
                             value={menuConfig.activeBgColor === 'transparent' ? '#ffffff' : menuConfig.activeBgColor}
-                            onChange={(e) => setMenuConfig({...menuConfig, activeBgColor: e.target.value})} />
+                            onChange={(v) => setMenuConfig({...menuConfig, activeBgColor: v})} />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs">Texto (ativo)</Label>
