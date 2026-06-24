@@ -479,84 +479,12 @@ export default function AdminToolboxPage() {
   };
 
   // Estados de configuração dos widgets
-  const [whatsappConfig, setWhatsappConfig] = useState({
-    phone: '5511999999999',
-    text: 'Fale com nosso time',
-    bgColor: '#25D366',
-    textColor: '#ffffff',
-    position: 'right', // 'left' ou 'right'
-    borderRadius: '50'
-  });
+  const [whatsappConfig, setWhatsappConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_WHATSAPP_CONFIG)));
 
-  const [bannerConfig, setBannerConfig] = useState({
-    message: '🎉 Aproveite 20% de desconto usando o cupom PROMO20!',
-    bgColor: '#111827',
-    textColor: '#ffffff',
-    link: 'https://seusite.com/promo',
-    isDismissible: true
-  });
+  const [bannerConfig, setBannerConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_BANNER_CONFIG)));
 
-  const [menuConfig, setMenuConfig] = useState({
-    logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
-    logoUrlMobile: '',
-    logoColor: '',
-    bgColor: '#ffffff',
-    textColor: '#1f2937',
-    accentColor: '#4f46e5',
-    fontFamily: 'system-ui, -apple-system, sans-serif',
-    fontSize: 15,
-    itemSpacing: 5,
-    itemPadding: 15,
-    hoverBgColor: '#f1f0fb',
-    hoverTextColor: '#4f46e5',
-    activeBorderColor: '#4f46e5',
-    activeBorderWidth: 2,
-    activeAnimDuration: 3,
-    hoverBorderColor: '#4f46e5',
-    hoverBorderWidth: 2,
-    activeRadius: 30,
-    activeRadiusTablet: 30,
-    activeRadiusMobile: 30,
-    itemRadius: 10,
-    itemRadiusTablet: 10,
-    itemRadiusMobile: 0,
-    submenuGap: 0,
-    submenuGapTablet: 0,
-    submenuGapMobile: 0,
-    submenuItemSpacing: 4,
-    submenuItemSpacingTablet: 4,
-    submenuItemSpacingMobile: 4,
-    shadowSize: 28,
-    shadowIntensity: 22,
-    tabletMenuMode: 'header',
-    activeBgColor: 'transparent',
-    activeTextColor: '#4f46e5',
-    items: [
-      { label: 'Início', link: '#', children: [] as any[] },
-      { label: 'Sobre', link: '#', children: [] as any[] },
-      { label: 'Serviços', link: '#', children: [] as any[] },
-      { label: 'Contato', link: '#', children: [] as any[] }
-    ] as any[],
-    sticky: true,
-    searchEnabled: true,
-    searchRadius: 100,
-    searchBgColor: '#00000010',
-    searchIconColor: '#1f2937',
-    hamburgerColor: '#1f2937',
-    hamburgerBgColor: '#00000000',
-    hamburgerRadius: 32,
-    spotlightRadius: 24,
-    searchIconSize: 16,
-    hamburgerSize: 24,
-    toggleSize: 38,
-    spotlightPaddingX: 20,
-    spotlightAlign: 'top',
-    searchUrl: 'https://anabrasil.org/',
-    enableAutoDetect: false,
-    enableWpApi: true,
-    wpApiUrl: '',
-    testUrl: 'https://anabrasil.org/ana/'
-  });
+  const [menuConfig, setMenuConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_MENU_CONFIG)));
+
 
   // ===== Preview "demo" orientado pelo código final =====
   // Regra de paridade: o iframe recebe SEMPRE o HTML/CSS gerado por
