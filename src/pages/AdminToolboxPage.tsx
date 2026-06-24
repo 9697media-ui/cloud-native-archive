@@ -2239,14 +2239,43 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }
 </style>`;
 
-    const cards = (gatewayConfig.options || []).map((o: any) => `
+    const hasLord = (gatewayConfig.options || []).some((o: any) => o.lordIcon);
+
+    const cards = (gatewayConfig.options || []).map((o: any) => {
+      const iconHtml = o.lordIcon
+        ? `<lord-icon class="ng-lord" src="${o.lordIcon}" trigger="manual" colors="primary:${o.iconColor}" style="width:56px;height:56px"></lord-icon>`
+        : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
+      return `
     <div class="ng-col">
-      <a class="ng-card" href="${o.link || '#'}">
-        <span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>
+      <a class="ng-card${o.lordIcon ? ' ng-card-lord' : ''}" href="${o.link || '#'}">
+        ${iconHtml}
         <span class="ng-label">${o.cardLabel || ''}</span>
       </a>
       ${o.pillText ? `<span class="ng-pill">${o.pillText}</span>` : ''}
-    </div>`).join('');
+    </div>`;
+    }).join('');
+
+    const lordScript = hasLord ? `
+<script src="https://cdn.lordicon.com/lordicon.js"></script>
+<script>
+(function(){
+  function init(){
+    document.querySelectorAll('.nav-gateway-441 .ng-card-lord').forEach(function(card){
+      var icon = card.querySelector('lord-icon');
+      if(!icon || icon.dataset.bound) return;
+      function setup(){
+        var p = icon.playerInstance; if(!p) return;
+        icon.dataset.bound = '1';
+        p.goToFirstFrame();
+        card.addEventListener('mouseenter', function(){ p.direction = 1; p.playFromBeginning(); });
+        card.addEventListener('mouseleave', function(){ p.direction = -1; p.play(); });
+      }
+      if(icon.playerInstance) setup(); else icon.addEventListener('ready', setup);
+    });
+  }
+  if(document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>` : '';
 
     const sticky = gatewayConfig.stickyLabel
       ? `\n  <a class="ng-sticky" href="${gatewayConfig.stickyLink || '#'}">${gatewayConfig.stickyLabel}</a>`
@@ -2262,7 +2291,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     </div>
   </div>${sticky}
 </div>
-<!-- Fim: Gateway de Navegação -->`;
+<!-- Fim: Gateway de Navegação -->${lordScript}`;
 
     return css + "\n" + html;
   };
@@ -2633,6 +2662,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 <Label className="text-xs">Ícone (emoji)</Label>
                                 <Input value={opt.icon} onChange={(e) => update({ icon: e.target.value })} />
                               </div>
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Lordicon (URL do JSON animado)</Label>
+                              <Input value={opt.lordIcon || ''} onChange={(e) => update({ lordIcon: e.target.value })} placeholder="https://cdn.lordicon.com/....json (opcional, substitui o emoji)" />
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Pílula (texto de apoio)</Label>
