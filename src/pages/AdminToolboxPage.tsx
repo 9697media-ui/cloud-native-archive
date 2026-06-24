@@ -463,7 +463,7 @@ export default function AdminToolboxPage() {
     try {
       const ifr = demoIframeRef.current;
       const doc = ifr && ifr.contentDocument;
-      const target = doc.body || doc.head;
+      const target = doc && (doc.body || doc.head);
       if (!target) return;
       const full = getGeneratedCode();
       const m = full.match(/<style[\s\S]*?<\/style>/i);
