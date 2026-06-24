@@ -305,6 +305,8 @@ export default function AdminToolboxPage() {
       hoverTextColor: '#4f46e5',
       activeBorderColor: '#4f46e5',
       activeBorderWidth: 2,
+      hoverBorderColor: '#4f46e5',
+      hoverBorderWidth: 2,
       activeRadius: 30,
       activeRadiusTablet: 30,
       activeRadiusMobile: 30,
