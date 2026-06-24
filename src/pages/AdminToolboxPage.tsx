@@ -3276,7 +3276,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                           </Button>
                                         </div>
                                       );
-                                    })()}
+                                     })()}
+                                  </div>
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
