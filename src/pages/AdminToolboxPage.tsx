@@ -305,6 +305,8 @@ export default function AdminToolboxPage() {
       hoverTextColor: '#4f46e5',
       activeBorderColor: '#4f46e5',
       activeBorderWidth: 2,
+      hoverBorderColor: '#4f46e5',
+      hoverBorderWidth: 2,
       activeRadius: 30,
       activeRadiusTablet: 30,
       activeRadiusMobile: 30,
@@ -410,6 +412,8 @@ export default function AdminToolboxPage() {
     hoverTextColor: '#4f46e5',
     activeBorderColor: '#4f46e5',
     activeBorderWidth: 2,
+    hoverBorderColor: '#4f46e5',
+    hoverBorderWidth: 2,
     activeRadius: 30,
     activeRadiusTablet: 30,
     activeRadiusMobile: 30,
@@ -503,7 +507,7 @@ ${selector} .has-submenu:hover > a,
 ${selector} .has-submenu:focus-within > a,
 ${selector} .has-submenu.open > a,
 ${selector} .has-submenu.demo-open > a{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${metric.active}em !important;opacity:1 !important;}
-${selector} .menu-items a:hover{border:${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor} !important;border-radius:${metric.active}em !important;}
+${selector} .menu-items a:hover{border:${menuConfig.hoverBorderWidth}px solid ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
 ${metric.stacked
   ? `${selector} .has-submenu.open > .submenu,
@@ -2513,6 +2517,25 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
                        </div>
                        </div>
+                     </div>
+
+                     <div className="border-t pt-3 space-y-3">
+                       <Label className="text-xs font-bold uppercase text-muted-foreground">Hover (borda)</Label>
+                       <div className="grid grid-cols-3 gap-3">
+                         <div className="space-y-2">
+                           <Label className="text-xs">Cor</Label>
+                           <Input type="color" className="w-full h-10 p-1 cursor-pointer"
+                             value={menuConfig.hoverBorderColor}
+                             onChange={(e) => setMenuConfig({...menuConfig, hoverBorderColor: e.target.value})} />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-xs">Espessura</Label>
+                           <Input type="number" min={0} max={6}
+                             value={menuConfig.hoverBorderWidth}
+                             onChange={(e) => setMenuConfig({...menuConfig, hoverBorderWidth: Number(e.target.value) || 0})} />
+                        </div>
+                       </div>
+
                        {(() => {
                          const devs = [
                            { id: 'desktop' as const, label: 'PC', Icon: Monitor, border: 'border-blue-500', solid: 'bg-blue-500 border-blue-500 text-white' },
