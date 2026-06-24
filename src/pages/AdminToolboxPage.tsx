@@ -1013,6 +1013,9 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     const submenuGapDesktop = Math.max(0, Number(menuConfig.submenuGap ?? 0));
     const submenuGapTablet = Math.max(0, Number(menuConfig.submenuGapTablet ?? menuConfig.submenuGap ?? 0));
     const submenuGapMobile = Math.max(0, Number(menuConfig.submenuGapMobile ?? menuConfig.submenuGap ?? 0));
+    const submenuItemSpacingDesktop = Math.max(0, Number(menuConfig.submenuItemSpacing ?? 4));
+    const submenuItemSpacingTablet = Math.max(0, Number(menuConfig.submenuItemSpacingTablet ?? menuConfig.submenuItemSpacing ?? 4));
+    const submenuItemSpacingMobile = Math.max(0, Number(menuConfig.submenuItemSpacingMobile ?? menuConfig.submenuItemSpacing ?? 4));
     const shadowSize = Math.max(0, Number(menuConfig.shadowSize ?? 28));
     const shadowIntensity = Math.min(100, Math.max(0, Number(menuConfig.shadowIntensity ?? 22)));
     const menuShadow = (shadowSize === 0 || shadowIntensity === 0)
@@ -1111,7 +1114,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       border: 1px solid transparent !important;
       display: flex !important;
       flex-direction: column !important;
-      gap: 2px !important;
+      gap: ${submenuItemSpacingMobile}px !important;
       opacity: 0 !important;
       visibility: hidden !important;
       max-height: 0 !important;
@@ -1368,7 +1371,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     padding: 8px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 2px !important;
+    gap: ${submenuItemSpacingDesktop}px !important;
     min-width: 230px !important;
      max-width: min(92vw, 420px) !important;
     z-index: 2147483647 !important;
@@ -1500,6 +1503,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       min-width: 200px !important;
       top: calc(100% + ${submenuGapTablet}px) !important;
       border-radius: ${submenuPanelRadiusTablet}em !important;
+      gap: ${submenuItemSpacingTablet}px !important;
     }
     .custom-nav-992 .submenu a {
       border-radius: ${itemRadiusTablet}em !important;
@@ -1529,6 +1533,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     .custom-nav-992.force-tablet .submenu {
       top: calc(100% + ${submenuGapTablet}px) !important;
       border-radius: ${submenuPanelRadiusTablet}em !important;
+      gap: ${submenuItemSpacingTablet}px !important;
     }
     .custom-nav-992.force-tablet .submenu a {
       border-radius: ${itemRadiusTablet}em !important;
