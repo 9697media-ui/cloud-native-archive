@@ -1939,8 +1939,11 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       try { linkPath = normalizePath(new URL(href, window.location.origin).pathname); }
       catch (e) { return; }
 
-      // Sempre comparação exata de caminho — evita que a home ("/") case com tudo.
+      // Comparação exata de caminho.
       if (linkPath === currentPath) {
+        link.classList.add('active');
+      } else if (linkPath !== '/' && currentPath.startsWith(linkPath + '/')) {
+        // Sub-página destaca o item pai (ex.: /blog/post -> /blog). Nunca a home.
         link.classList.add('active');
       }
     });
