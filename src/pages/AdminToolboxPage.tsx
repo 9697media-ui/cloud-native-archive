@@ -2217,11 +2217,63 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
 
   // Função utilitária para obter o código gerado
+  const generateGatewayCode = () => {
+    const opacity = (Number(gatewayConfig.overlayOpacity ?? 60) / 100).toFixed(2);
+    const bg = gatewayConfig.backgroundImage
+      ? `background-image: linear-gradient(rgba(0,0,0,${opacity}), rgba(0,0,0,${opacity})), url('${gatewayConfig.backgroundImage}'); background-size: cover; background-position: center;`
+      : `background-color: ${gatewayConfig.bgColor};`;
+
+    const css = `<style>
+  .nav-gateway-441 { position: relative; width: 100%; min-height: 600px; display: flex; align-items: center; justify-content: center; padding: 64px 24px; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; ${bg} }
+  .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
+  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px; }
+  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px; }
+  .nav-gateway-441 .ng-grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
+  .nav-gateway-441 .ng-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 176px; height: 176px; background: #fff; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
+  .nav-gateway-441 .ng-card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
+  .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
+  .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .nav-gateway-441 .ng-pill { background: rgba(255,255,255,.2); color: #fff; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
+  .nav-gateway-441 .ng-sticky { position: fixed; bottom: 96px; right: 0; transform-origin: bottom right; transform: rotate(-90deg); background: #4f46e5; color: #fff; font-size: 14px; font-weight: 600; padding: 8px 20px; border-radius: 8px 8px 0 0; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,.2); z-index: 999998; }
+  @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }
+</style>`;
+
+    const cards = (gatewayConfig.options || []).map((o: any) => `
+    <div class="ng-col">
+      <a class="ng-card" href="${o.link || '#'}">
+        <span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>
+        <span class="ng-label">${o.cardLabel || ''}</span>
+      </a>
+      ${o.pillText ? `<span class="ng-pill">${o.pillText}</span>` : ''}
+    </div>`).join('');
+
+    const sticky = gatewayConfig.stickyLabel
+      ? `\n  <a class="ng-sticky" href="${gatewayConfig.stickyLink || '#'}">${gatewayConfig.stickyLabel}</a>`
+      : '';
+
+    const html = `
+<!-- Início: Gateway de Navegação -->
+<div class="nav-gateway-441">
+  <div class="ng-inner">
+    <h1>${gatewayConfig.title || ''}</h1>
+    ${gatewayConfig.subtitle ? `<p class="ng-sub">${gatewayConfig.subtitle}</p>` : ''}
+    <div class="ng-grid">${cards}
+    </div>
+  </div>${sticky}
+</div>
+<!-- Fim: Gateway de Navegação -->`;
+
+    return css + "\n" + html;
+  };
+
   const getGeneratedCode = () => {
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
     if (activeWidgetType === 'banner') return generateBannerCode();
+    if (activeWidgetType === 'gateway') return generateGatewayCode();
     return generateMenuCode();
   };
+
 
   return (
     <div className="container mx-auto py-10 px-4 animate-in fade-in duration-500">
