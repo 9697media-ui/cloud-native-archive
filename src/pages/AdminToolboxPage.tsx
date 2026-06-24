@@ -1130,7 +1130,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       overflow-wrap: normal !important;
       overflow: hidden !important;
       text-overflow: ellipsis !important;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      opacity: 0.8;
+      transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
     }
     ${p} .menu-items > .has-submenu:last-child > a,
     ${p} .menu-items > a:last-child { border-bottom: none; }
@@ -1192,6 +1193,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     ${p} .menu-items a.active {
       border-left-color: ${menuConfig.activeBorderColor};
       color: ${menuConfig.activeTextColor};
+      opacity: 1;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
       border-radius: ${activeRadiusMobile}em !important;
     }`;
@@ -1334,7 +1336,8 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
      border-radius: ${itemRadiusDesktop}em;
-     transition: color ${menuConfig.activeAnimDuration ?? 3}s ease, background-color ${menuConfig.activeAnimDuration ?? 3}s ease, border-color ${menuConfig.activeAnimDuration ?? 3}s ease, opacity ${menuConfig.activeAnimDuration ?? 3}s ease;
+     border: ${menuConfig.activeBorderWidth}px solid transparent;
+     transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
      opacity: 0.8;
      white-space: nowrap !important;
      word-break: keep-all !important;
@@ -1359,17 +1362,20 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       border-radius: ${itemRadiusDesktop}em;
   }
    @keyframes navActiveFade-992 {
-     from { opacity: 0.55; }
+     from { opacity: var(--nav-active-from-opacity, 0.8); }
      to { opacity: 1; }
    }
+    .custom-nav-992 .menu-items > a.active-transitioning,
+    .custom-nav-992 .menu-items > .has-submenu > a.active-transitioning {
+      animation: navActiveFade-992 ${activeAnimSeconds}s ease;
+    }
    .custom-nav-992 .menu-items > a.active,
    .custom-nav-992 .menu-items > .has-submenu > a.active {
      color: ${menuConfig.activeTextColor};
      opacity: 1;
      background-color: ${menuConfig.activeBgColor};
-     border: ${menuConfig.activeBorderWidth}px solid ${menuConfig.activeBorderColor};
+      border-color: ${menuConfig.activeBorderColor};
       border-radius: ${activeRadiusDesktop}em;
-     animation: navActiveFade-992 ${menuConfig.activeAnimDuration ?? 3}s ease;
    }
    .custom-nav-992 .menu-items > a.active:hover,
    .custom-nav-992 .menu-items > .has-submenu > a.active:hover,
