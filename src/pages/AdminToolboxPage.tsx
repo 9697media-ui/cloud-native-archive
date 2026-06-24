@@ -2402,6 +2402,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                   <MenuIcon className="h-5 w-5" />
                   <span>Menu Responsivo</span>
                 </Button>
+                <Button 
+                  variant={activeWidgetType === 'gateway' ? 'default' : 'outline'} 
+                  className="w-full justify-start gap-3 h-12"
+                  onClick={() => setActiveWidgetType('gateway')}
+                >
+                  <LayoutGrid className="h-5 w-5" />
+                  <span>Gateway de Navegação</span>
+                </Button>
               </CardContent>
             </Card>
 
