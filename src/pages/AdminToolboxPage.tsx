@@ -2465,6 +2465,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                          const ar = panelDevice === 'desktop' ? 'activeRadius' : panelDevice === 'tablet' ? 'activeRadiusTablet' : 'activeRadiusMobile';
                          const ir = panelDevice === 'desktop' ? 'itemRadius' : panelDevice === 'tablet' ? 'itemRadiusTablet' : 'itemRadiusMobile';
                          const sg = panelDevice === 'desktop' ? 'submenuGap' : panelDevice === 'tablet' ? 'submenuGapTablet' : 'submenuGapMobile';
+                          const sis = panelDevice === 'desktop' ? 'submenuItemSpacing' : panelDevice === 'tablet' ? 'submenuItemSpacingTablet' : 'submenuItemSpacingMobile';
                          return (
                            <div className={cn('rounded-lg border-2 bg-transparent p-3 space-y-3 transition-colors', active.border)}>
                              <div className="grid grid-cols-3 gap-2">
@@ -2489,11 +2490,17 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                  onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [ir]: v[0]}); }} />
                              </div>
                              <div className="space-y-2">
-                               <Label className="text-xs">Espaçamento submenu {active.label} (px): {menuConfig[sg]}px {menuConfig[sg] === 0 ? '(colado)' : ''}</Label>
+                                <Label className="text-xs">Espaçamento janela submenu {active.label} (px): {menuConfig[sg]}px {menuConfig[sg] === 0 ? '(colado)' : ''}</Label>
                                <Slider min={0} max={40} step={1}
                                  value={[menuConfig[sg]]}
                                  onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [sg]: v[0]}); }} />
                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-xs">Espaçamento itens internos {active.label} (px): {menuConfig[sis]}px</Label>
+                                <Slider min={0} max={32} step={1}
+                                  value={[menuConfig[sis]]}
+                                  onValueChange={(v) => { setEditingFocus('submenu'); setMenuConfig({...menuConfig, [sis]: v[0]}); }} />
+                              </div>
                            </div>
                          );
                        })()}
