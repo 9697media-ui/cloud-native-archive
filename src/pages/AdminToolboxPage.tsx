@@ -508,7 +508,7 @@ ${selector} .has-submenu.open > a,
 ${selector} .has-submenu.demo-open > a{color:${menuConfig.activeTextColor} !important;background-color:${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .menu-items a.active,
 ${selector} .menu-items > a.active,
-${selector} .menu-items > .has-submenu > a.active{border-radius:${metric.active}em !important;}
+${selector} .menu-items > .has-submenu > a.active{box-shadow:inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .menu-items a:hover{box-shadow:inset 0 0 0 ${menuConfig.hoverBorderWidth}px ${menuConfig.hoverBorderColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .submenu{gap:${metric.itemGap}px !important;${metric.stacked ? `border-radius:${metric.active}em !important;` : `top:calc(100% + ${metric.gap}px) !important;border-radius:${metric.active}em !important;`}}
 ${metric.stacked
