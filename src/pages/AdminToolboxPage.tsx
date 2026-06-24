@@ -1989,6 +1989,10 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       }
 
       if (!isActive) return;
+      // Força reflow para que a animação de transição seja reexecutada a cada ativação.
+      link.style.animation = 'none';
+      void link.offsetWidth;
+      link.style.animation = '';
       link.classList.add('active');
 
 
