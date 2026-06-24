@@ -2563,8 +2563,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                            <Input type="number" min={0} max={6}
                              value={menuConfig.activeBorderWidth}
                              onChange={(e) => setMenuConfig({...menuConfig, activeBorderWidth: Number(e.target.value) || 0})} />
+                         </div>
+                         <div className="space-y-2">
+                           <Label className="text-xs">Transição (s)</Label>
+                           <Input type="number" min={0} step={0.1}
+                             value={menuConfig.activeAnimDuration ?? 3}
+                             onChange={(e) => setMenuConfig({...menuConfig, activeAnimDuration: Number(e.target.value) || 0})} />
+                         </div>
                         </div>
-                       </div>
 
 
 
