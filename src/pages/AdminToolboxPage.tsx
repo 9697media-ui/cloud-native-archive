@@ -1030,7 +1030,16 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       ? 'none'
       : `0 ${Math.round(shadowSize * 0.5)}px ${shadowSize}px rgba(0,0,0,${(shadowIntensity / 100).toFixed(3)})`;
     const tabletHamburger = (menuConfig.tabletMenuMode ?? 'header') === 'hamburger';
-    const mobileRules = (p: string) => `
+    const mobileRules = (
+      p: string,
+      metric = {
+        activeRadius: activeRadiusMobile,
+        itemRadius: itemRadiusMobile,
+        submenuPanelRadius: submenuPanelRadiusMobile,
+        submenuGap: submenuGapMobile,
+        submenuItemSpacing: submenuItemSpacingMobile,
+      }
+    ) => `
     ${p} {
       padding: 0 14px;
       min-height: 60px;
@@ -1066,7 +1075,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       gap: 0;
       box-shadow: none;
       border: 1px solid transparent;
-      border-radius: ${activeRadiusMobile}em;
+      border-radius: ${metric.activeRadius}em;
       max-height: 0;
       overflow: hidden;
       opacity: 0;
@@ -1090,7 +1099,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       align-items: center;
       width: 100%;
       padding: 14px 22px;
-      border-radius: ${itemRadiusMobile}em;
+      border-radius: ${metric.itemRadius}em;
       font-size: 15.5px;
       border-left: 3px solid transparent;
       border-bottom: 1px solid rgba(0,0,0,0.04);
@@ -1116,13 +1125,13 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       width: calc(100% - 48px) !important;
       margin: 0 24px !important;
       box-shadow: none !important;
-      border-radius: ${submenuPanelRadiusMobile}em !important;
+      border-radius: ${metric.submenuPanelRadius}em !important;
       padding: 0 8px !important;
       background-color: ${menuConfig.bgColor} !important;
       border: 1px solid transparent !important;
       display: flex !important;
       flex-direction: column !important;
-      gap: ${submenuItemSpacingMobile}px !important;
+      gap: ${metric.submenuItemSpacing}px !important;
       opacity: 0 !important;
       visibility: hidden !important;
       max-height: 0 !important;
@@ -1135,7 +1144,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       opacity: 1 !important;
       visibility: visible !important;
       max-height: 80vh !important;
-      margin: ${submenuGapMobile}px 24px 18px !important;
+      margin: ${metric.submenuGap}px 24px 18px !important;
       padding: 8px !important;
       box-shadow: ${menuShadow} !important;
       border-color: rgba(0,0,0,0.08) !important;
@@ -1147,12 +1156,12 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     ${p} .has-submenu.open > a {
       color: ${menuConfig.activeTextColor} !important;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;
-      border-radius: ${activeRadiusMobile}em !important;
+      border-radius: ${metric.activeRadius}em !important;
     }
     ${p} .submenu a {
       padding: 10px 40px !important;
       font-size: 15px !important;
-      border-radius: ${itemRadiusMobile}em !important;
+      border-radius: ${metric.itemRadius}em !important;
       white-space: nowrap !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
