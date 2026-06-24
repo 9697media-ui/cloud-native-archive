@@ -2756,7 +2756,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Cor do Ícone/Texto</Label>
-                              <Input type="color" value={menuConfig.searchIconColor} onChange={(e) => setMenuConfig({...menuConfig, searchIconColor: e.target.value})} className="h-9 p-1" />
+                              <ColorField value={menuConfig.searchIconColor} onChange={(v) => setMenuConfig({...menuConfig, searchIconColor: v})} />
                             </div>
                           </div>
                           <div className="space-y-2 text-left">
