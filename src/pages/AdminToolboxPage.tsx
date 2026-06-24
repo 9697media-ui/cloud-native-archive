@@ -1504,7 +1504,8 @@ export default function AdminToolboxPage() {
       border-radius: ${itemRadiusTablet}em !important;
     }
     .custom-nav-992 .has-submenu:hover > a,
-    .custom-nav-992 .has-submenu:focus-within > a {
+    .custom-nav-992 .has-submenu:focus-within > a,
+    .custom-nav-992 .has-submenu.open > a {
       border-radius: ${activeRadiusTablet}em !important;
     }
     `}
@@ -1534,7 +1535,8 @@ export default function AdminToolboxPage() {
       border-radius: ${itemRadiusTablet}em !important;
     }
     .custom-nav-992.force-tablet .has-submenu:hover > a,
-    .custom-nav-992.force-tablet .has-submenu:focus-within > a {
+    .custom-nav-992.force-tablet .has-submenu:focus-within > a,
+    .custom-nav-992.force-tablet .has-submenu.open > a {
       border-radius: ${activeRadiusTablet}em !important;
     }
     .custom-nav-992.force-mobile .menu-items a {
@@ -3298,7 +3300,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       {(() => {
                         const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
                         const scale = demoScale;
-                        // Os raios de preview agora são aplicados via getDemoExtraCss em tempo real.
+                        // A demo renderiza o mesmo código final; só o script de clique é extra.
                         return (
                           <iframe
                             title="Demo isolado do widget"
