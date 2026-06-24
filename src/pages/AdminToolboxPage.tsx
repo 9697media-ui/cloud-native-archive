@@ -1060,9 +1060,8 @@ export default function AdminToolboxPage() {
       padding: 14px 22px;
       border-radius: ${metric.itemRadius}em;
       font-size: 15.5px;
-       border-left: 3px solid transparent;
-       border-bottom: 1px solid rgba(0,0,0,0.04);
-       box-shadow: inset 0 0 0 0 transparent;
+       border: ${menuConfig.activeBorderWidth}px solid transparent;
+       box-shadow: none !important;
        justify-content: space-between;
        white-space: nowrap !important;
        word-break: keep-all !important;
@@ -1070,10 +1069,10 @@ export default function AdminToolboxPage() {
        overflow: hidden !important;
        text-overflow: ellipsis !important;
        opacity: 0.8;
-       transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, box-shadow ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
+       transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
     }
     ${p} .menu-items > .has-submenu:last-child > a,
-    ${p} .menu-items > a:last-child { border-bottom: none; }
+     ${p} .menu-items > a:last-child { border-bottom-color: transparent; }
     ${p} .menu-items .has-submenu {
       flex-direction: column;
       align-items: stretch !important;
@@ -1130,12 +1129,11 @@ export default function AdminToolboxPage() {
       text-overflow: ellipsis !important;
     }
     ${p} .menu-items a.active {
-      border-left-color: ${menuConfig.activeBorderColor};
-      border-bottom-color: transparent !important;
+      border-color: ${menuConfig.activeBorderColor} !important;
       color: ${menuConfig.activeTextColor};
       opacity: 1;
       background-color: ${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor};
-      box-shadow: inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor};
+      box-shadow: none !important;
       border-radius: ${metric.activeRadius}em !important;
     }`;
 
@@ -1277,9 +1275,9 @@ export default function AdminToolboxPage() {
      font-weight: 500;
      padding: 10px ${menuConfig.itemPadding}px;
      border-radius: ${itemRadiusDesktop}em;
-     border: none;
-     box-shadow: inset 0 0 0 0 transparent;
-     transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, box-shadow ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
+      border: ${menuConfig.activeBorderWidth}px solid transparent;
+      box-shadow: none !important;
+      transition: color ${activeAnimSeconds}s ease, background-color ${activeAnimSeconds}s ease, border-color ${activeAnimSeconds}s ease, opacity ${activeAnimSeconds}s ease;
      opacity: 0.8;
      white-space: nowrap !important;
      word-break: keep-all !important;
@@ -1310,14 +1308,17 @@ export default function AdminToolboxPage() {
      color: ${menuConfig.activeTextColor};
      opacity: 1;
      background-color: ${menuConfig.activeBgColor};
-      box-shadow: inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor};
+      border-color: ${menuConfig.activeBorderColor};
+      box-shadow: none !important;
       border-radius: ${activeRadiusDesktop}em;
    }
    .custom-nav-992 .menu-items > a:not(.active):hover,
    .custom-nav-992 .menu-items > .has-submenu > a:not(.active):hover {
      color: ${menuConfig.hoverTextColor} !important;
      background-color: ${menuConfig.hoverBgColor} !important;
-     box-shadow: inset 0 0 0 ${menuConfig.hoverBorderWidth}px ${menuConfig.hoverBorderColor} !important;
+     border-color: ${menuConfig.hoverBorderColor} !important;
+     border-width: ${menuConfig.hoverBorderWidth}px !important;
+     box-shadow: none !important;
      opacity: 1 !important;
    }
 
