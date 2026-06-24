@@ -1369,7 +1369,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
      color: ${menuConfig.activeTextColor};
      opacity: 1;
      background-color: ${menuConfig.activeBgColor};
-      border-color: ${menuConfig.activeBorderColor};
+      box-shadow: inset 0 0 0 ${menuConfig.activeBorderWidth}px ${menuConfig.activeBorderColor};
       border-radius: ${activeRadiusDesktop}em;
    }
    .custom-nav-992 .menu-items > a.active:hover,
