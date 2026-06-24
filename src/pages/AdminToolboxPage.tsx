@@ -3090,15 +3090,43 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                   setMenuConfig({...menuConfig, items: newItems});
                                 }}
                               />
-                              <Input 
-                                placeholder="Links de ativação (ex.: /promo, /campanha)" 
-                                value={item.activePaths || ''}
-                                onChange={(e) => {
+                              {(() => {
+                                const paths = Array.isArray(item.activePaths)
+                                  ? item.activePaths
+                                  : (item.activePaths ? String(item.activePaths).split(',').map((s: string) => s.trim()) : []);
+                                const setPaths = (next: string[]) => {
                                   const newItems = [...menuConfig.items];
-                                  newItems[idx].activePaths = e.target.value;
+                                  newItems[idx].activePaths = next;
                                   setMenuConfig({...menuConfig, items: newItems});
-                                }}
-                              />
+                                };
+                                return (
+                                  <div className="space-y-1.5">
+                                    <span className="text-[10px] text-muted-foreground">Links de ativação</span>
+                                    {paths.map((p: string, pi: number) => (
+                                      <div key={pi} className="flex gap-1.5">
+                                        <Input 
+                                          placeholder="/promo" 
+                                          value={p}
+                                          onChange={(e) => {
+                                            const next = [...paths];
+                                            next[pi] = e.target.value;
+                                            setPaths(next);
+                                          }}
+                                        />
+                                        <Button variant="ghost" size="icon" className="shrink-0 text-destructive"
+                                          title="Remover link de ativação"
+                                          onClick={() => setPaths(paths.filter((_: string, i: number) => i !== pi))}>
+                                          <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
+                                      </div>
+                                    ))}
+                                    <Button variant="outline" size="sm" className="w-full"
+                                      onClick={() => setPaths([...paths, ''])}>
+                                      + Adicionar link de ativação
+                                    </Button>
+                                  </div>
+                                );
+                              })()}
                             </div>
                             <div className="flex flex-col gap-2">
                               <Button 
