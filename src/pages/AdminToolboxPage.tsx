@@ -2348,9 +2348,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <span className="text-[10px] text-muted-foreground uppercase">{template.type}</span>
                       </div>
                       <div className="flex gap-1 shrink-0">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => loadTemplate(template)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar" onClick={() => loadTemplate(template)}>
                           <Edit className="h-3 w-3" />
                         </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Atualizar modelo (cria cópia com novas propriedades)" disabled={isSaving} onClick={() => upgradeTemplate(template)}>
+                          <RefreshCw className="h-3 w-3" />
+                        </Button>
+
                         <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTemplate(template.id)}>
                           <Trash2 className="h-3 w-3" />
                         </Button>
