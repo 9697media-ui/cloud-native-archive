@@ -3480,13 +3480,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </>
                     )}
 
-                    {/* Widget Injection */}
+                    {/* Widget Injection: também executa o código final em iframe isolado. */}
                     <div className="absolute inset-0 pointer-events-none z-[1000000]">
-                       <div 
-                         className="relative w-full h-full pointer-events-auto" 
-                          key={activeWidgetType}
-                         dangerouslySetInnerHTML={{ __html: getGeneratedCode() }} 
-                       />
+                      <iframe
+                        title="Widget gerado pelo código final"
+                        className="relative w-full h-full border-none bg-transparent pointer-events-auto"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                        srcDoc={getGeneratedCode()}
+                        key={`site-widget-${activeWidgetType}-${deviceView}-${JSON.stringify(currentConfig())}`}
+                      />
                     </div>
                     </div>
                   </div>
