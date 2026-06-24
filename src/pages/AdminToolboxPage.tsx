@@ -1078,7 +1078,7 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
     ${p} .search-toggle { display: flex !important; order: 2; margin-right: 8px; }
     ${p} .menu-items {
       position: absolute;
-      top: 100%;
+      top: calc(100% + ${metric.submenuGap}px);
       left: 14px;
       width: calc(100% - 28px);
       background-color: ${menuConfig.bgColor};
