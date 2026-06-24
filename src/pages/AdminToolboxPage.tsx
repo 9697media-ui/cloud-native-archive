@@ -504,10 +504,8 @@ export default function AdminToolboxPage() {
     const deviceCss = (selector: string, metric: typeof selected) => `
 ${selector} .menu-items a,
 ${selector} .submenu a{border-radius:${metric.item}em !important;}
-${selector} .has-submenu:hover > a,
-${selector} .has-submenu:focus-within > a,
 ${selector} .has-submenu.open > a,
-${selector} .has-submenu.demo-open > a{outline:2px solid ${menuConfig.activeBorderColor};outline-offset:-2px;border-radius:${metric.active}em !important;}
+${selector} .has-submenu.demo-open > a{color:${menuConfig.activeTextColor} !important;background-color:${menuConfig.activeBgColor === 'transparent' ? 'rgba(0,0,0,0.05)' : menuConfig.activeBgColor} !important;border-radius:${metric.active}em !important;}
 ${selector} .menu-items a.active,
 ${selector} .menu-items > a.active,
 ${selector} .menu-items > .has-submenu > a.active{border-radius:${metric.active}em !important;}
