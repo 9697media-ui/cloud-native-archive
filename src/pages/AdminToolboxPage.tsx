@@ -164,8 +164,10 @@ export default function AdminToolboxPage() {
         return;
       }
 
-      const config = activeWidgetType === 'whatsapp' ? whatsappConfig : 
+      const rawConfig = activeWidgetType === 'whatsapp' ? whatsappConfig : 
                      activeWidgetType === 'banner' ? bannerConfig : menuConfig;
+      // Deep clone para evitar referências compartilhadas/mutações em items.activePaths
+      const config = JSON.parse(JSON.stringify(rawConfig));
 
       const templateData = {
         name: templateName,
@@ -3147,11 +3149,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 const paths = Array.isArray(item.activePaths)
                                   ? item.activePaths
                                   : (item.activePaths ? String(item.activePaths).split(',').map((s: string) => s.trim()) : []);
-                                const setPaths = (next: string[]) => {
-                                  const newItems = [...menuConfig.items];
-                                  newItems[idx].activePaths = next;
-                                  setMenuConfig({...menuConfig, items: newItems});
-                                };
+                                 const setPaths = (next: string[]) => {
+                                   const newItems = menuConfig.items.map((it: any, i: number) =>
+                                     i === idx ? { ...it, activePaths: next } : it
+                                   );
+                                   setMenuConfig({...menuConfig, items: newItems});
+                                 };
+
                                 return (
                                   <div className="space-y-1.5">
                                     <span className="text-[10px] text-muted-foreground">Links de ativação</span>
