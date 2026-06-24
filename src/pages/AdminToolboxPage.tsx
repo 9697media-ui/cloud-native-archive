@@ -1937,12 +1937,26 @@ ${selector} .has-submenu.demo-open > .submenu{opacity:1 !important;visibility:vi
       // Se clicou na seta ou no item pai e ele tem submenu, toggle
       if (link && link.parentElement === hasSubmenu) {
         e.preventDefault();
-        document.querySelectorAll('.custom-nav-992 .has-submenu.open').forEach(function(item) {
-          if (item !== hasSubmenu) item.classList.remove('open');
+        // Se já está aberto, apenas fecha
+        if (hasSubmenu.classList.contains('open')) {
+          hasSubmenu.classList.remove('open');
+          return;
+        }
+        // Verifica se há outro submenu aberto para sequenciar a animação
+        var openItems = document.querySelectorAll('.custom-nav-992 .has-submenu.open');
+        var hadOpen = false;
+        openItems.forEach(function(item) {
+          if (item !== hasSubmenu) { item.classList.remove('open'); hadOpen = true; }
         });
-        hasSubmenu.classList.toggle('open');
+        if (hadOpen) {
+          // Fecha o anterior primeiro, depois abre o novo após a transição
+          setTimeout(function() { hasSubmenu.classList.add('open'); }, 320);
+        } else {
+          hasSubmenu.classList.add('open');
+        }
         return;
       }
+
       if (link) {
         document.querySelectorAll('.custom-nav-992 .has-submenu.open').forEach(function(item) {
           item.classList.remove('open');
