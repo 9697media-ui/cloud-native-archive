@@ -19,6 +19,25 @@ import { ColorField } from "@/components/ColorField";
 
 type DeviceView = 'desktop' | 'tablet' | 'mobile';
 
+// Lê um JSON de Lordicon (Lottie) e extrai todas as cores sólidas únicas
+// presentes nas camadas, retornando-as como hex para personalização.
+const toHex = (n: number) => Math.max(0, Math.min(255, Math.round(n * 255))).toString(16).padStart(2, '0');
+function extractLordColors(data: any): string[] {
+  const found = new Set<string>();
+  const walk = (node: any) => {
+    if (!node || typeof node !== 'object') return;
+    // Cor sólida: objeto com propriedade "c" do tipo { k: [r,g,b,a] } (valores 0-1)
+    if (node.c && node.c.k && Array.isArray(node.c.k) && typeof node.c.k[0] === 'number') {
+      const [r, g, b] = node.c.k;
+      found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
+    }
+    if (Array.isArray(node)) node.forEach(walk);
+    else Object.values(node).forEach(walk);
+  };
+  walk(data);
+  return Array.from(found);
+}
+
 // Configurações padrão (fonte da verdade das propriedades de edição atuais).
 // Usadas para inicializar os estados e para "atualizar" modelos antigos,
 // preenchendo propriedades novas que ainda não existiam quando foram salvos.
