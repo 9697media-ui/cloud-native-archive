@@ -27,8 +27,12 @@ const toHex = (n: number) => {
 };
 function extractLordColors(data: any): string[] {
   const found = new Set<string>();
+  const isSimpleColor = (value: any) =>
+    Array.isArray(value) &&
+    (value.length === 3 || value.length === 4) &&
+    value.slice(0, 3).every((v) => typeof v === 'number');
   const addColor = (value: any) => {
-    if (Array.isArray(value) && value.length >= 3 && value.slice(0, 3).every((v) => typeof v === 'number')) {
+    if (isSimpleColor(value)) {
       const [r, g, b] = value;
       found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
       return;
@@ -42,10 +46,36 @@ function extractLordColors(data: any): string[] {
       });
     }
   };
+  const addGradientColors = (value: any, points: number) => {
+    if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
+      for (let i = 0; i < points; i += 1) {
+        const base = i * 4;
+        const r = value[base + 1];
+        const g = value[base + 2];
+        const b = value[base + 3];
+        found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
+      }
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((frame) => {
+        if (frame && typeof frame === 'object') {
+          addGradientColors(frame.s, points);
+          addGradientColors(frame.e, points);
+        }
+      });
+    }
+  };
   const walk = (node: any) => {
     if (!node || typeof node !== 'object') return;
     // Cor sólida/animada: propriedade "c" do tipo { k: [r,g,b,a] } ou keyframes.
     if (node.c && node.c.k) addColor(node.c.k);
+    // Gradientes Lottie/Flaticon: g.p = quantidade de pontos; g.k.k = [offset,r,g,b,...]
+    if (node.g && node.g.k) {
+      const points = Number(node.g.p || node.p || 0);
+      const gradientValue = node.g.k.k ?? node.g.k;
+      if (points > 0) addGradientColors(gradientValue, points);
+    }
     if (Array.isArray(node)) node.forEach(walk);
     else Object.values(node).forEach(walk);
   };
@@ -2253,6 +2283,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
 
   // Função utilitária para obter o código gerado
+  const escapeHtmlJson = (value: any) =>
+    JSON.stringify(value)
+      .replace(/</g, '\\u003c')
+      .replace(/>/g, '\\u003e')
+      .replace(/&/g, '\\u0026')
+      .replace(/\u2028/g, '\\u2028')
+      .replace(/\u2029/g, '\\u2029');
+
   const generateGatewayCode = () => {
     const opacity = (Number(gatewayConfig.overlayOpacity ?? 60) / 100).toFixed(2);
     const bg = gatewayConfig.backgroundImage
@@ -2298,9 +2336,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         palette: o.lordColors || null,
         primary: o.lordPrimary || o.iconColor,
         secondary: o.lordSecondary || o.lordPrimary || o.iconColor,
+        dataVersion: o.lordDataVersion || null,
       }).replace(/'/g, '&#39;');
+      const embeddedData = o.lordData
+        ? `<script type="application/json" class="ng-lottie-json">${escapeHtmlJson(o.lordData)}</script>`
+        : '';
       const iconHtml = o.lordIcon
-        ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}" data-ng-key='${renderKey}'${fallbackColors}${recolorAttr} aria-hidden="true"></span>`
+        ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}" data-ng-key='${renderKey}'${fallbackColors}${recolorAttr} aria-hidden="true">${embeddedData}</span>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
@@ -2327,10 +2369,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     return ('#'+c(arr[0])+c(arr[1])+c(arr[2])).toLowerCase();
   }
   function normalizeRgbArray(arr){
-    if(!Array.isArray(arr) || arr.length < 3) return null;
+    if(!Array.isArray(arr) || (arr.length !== 3 && arr.length !== 4)) return null;
     if(typeof arr[0] !== 'number' || typeof arr[1] !== 'number' || typeof arr[2] !== 'number') return null;
     var max = Math.max(Number(arr[0]) || 0, Number(arr[1]) || 0, Number(arr[2]) || 0);
     return max > 1 ? [arr[0]/255, arr[1]/255, arr[2]/255] : [arr[0], arr[1], arr[2]];
+  }
+  function writeRgbArray(target, rgb){
+    var max = Math.max(Number(target[0]) || 0, Number(target[1]) || 0, Number(target[2]) || 0);
+    if(max > 1){ target[0]=rgb[0]*255; target[1]=rgb[1]*255; target[2]=rgb[2]*255; }
+    else { target[0]=rgb[0]; target[1]=rgb[1]; target[2]=rgb[2]; }
   }
   function collectValueColors(value, found){
     var normalized = normalizeRgbArray(value);
@@ -2344,11 +2391,33 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       });
     }
   }
+  function collectGradientColors(value, points, found){
+    if(Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every(function(v){ return typeof v === 'number'; })){
+      for(var i=0;i<points;i++){
+        var base = i * 4;
+        collectValueColors([value[base+1], value[base+2], value[base+3]], found);
+      }
+      return;
+    }
+    if(Array.isArray(value)){
+      value.forEach(function(frame){
+        if(frame && typeof frame === 'object'){
+          if(Array.isArray(frame.s)) collectGradientColors(frame.s, points, found);
+          if(Array.isArray(frame.e)) collectGradientColors(frame.e, points, found);
+        }
+      });
+    }
+  }
   function collectColors(data){
     var found = {};
     function walk(node){
       if(!node || typeof node !== 'object') return;
       if(node.c && node.c.k) collectValueColors(node.c.k, found);
+      if(node.g && node.g.k){
+        var points = Number(node.g.p || node.p || 0);
+        var gradientValue = node.g.k.k || node.g.k;
+        if(points > 0) collectGradientColors(gradientValue, points, found);
+      }
       if(Array.isArray(node)) node.forEach(walk);
       else Object.keys(node).forEach(function(k){ walk(node[k]); });
     }
@@ -2361,7 +2430,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       var current = rgb01ToHex(normalized);
       if(map[current]){
         var rgb = hexToRgb01(map[current]);
-        value[0]=rgb[0]; value[1]=rgb[1]; value[2]=rgb[2];
+        writeRgbArray(value, rgb);
       }
       return;
     }
@@ -2374,6 +2443,29 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       });
     }
   }
+  function recolorGradientValue(value, points, map){
+    if(Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every(function(v){ return typeof v === 'number'; })){
+      for(var i=0;i<points;i++){
+        var base = i * 4;
+        var rgbTriplet = [value[base+1], value[base+2], value[base+3]];
+        var current = rgb01ToHex(normalizeRgbArray(rgbTriplet) || rgbTriplet);
+        if(map[current]){
+          var rgb = hexToRgb01(map[current]);
+          writeRgbArray(rgbTriplet, rgb);
+          value[base+1]=rgbTriplet[0]; value[base+2]=rgbTriplet[1]; value[base+3]=rgbTriplet[2];
+        }
+      }
+      return;
+    }
+    if(Array.isArray(value)){
+      value.forEach(function(frame){
+        if(frame && typeof frame === 'object'){
+          if(Array.isArray(frame.s)) recolorGradientValue(frame.s, points, map);
+          if(Array.isArray(frame.e)) recolorGradientValue(frame.e, points, map);
+        }
+      });
+    }
+  }
   function recolor(data, map){
     var copy = clone(data);
     var normalizedMap = {};
@@ -2381,6 +2473,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     function walk(node){
       if(!node || typeof node !== 'object') return;
       if(node.c && node.c.k) recolorValue(node.c.k, normalizedMap);
+      if(node.g && node.g.k){
+        var points = Number(node.g.p || node.p || 0);
+        var gradientValue = node.g.k.k || node.g.k;
+        if(points > 0) recolorGradientValue(gradientValue, points, normalizedMap);
+      }
       if(Array.isArray(node)) node.forEach(walk);
       else Object.keys(node).forEach(function(k){ walk(node[k]); });
     }
@@ -2399,12 +2496,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if(colors[1]) map[colors[1]] = secondary;
     return map;
   }
+  function readEmbeddedData(icon){
+    var script = icon.querySelector('.ng-lottie-json');
+    if(!script) return null;
+    try { return JSON.parse(script.textContent || ''); } catch(e){ return null; }
+  }
   function initLottieIcons(){
     if(!window.lottie){ setTimeout(initLottieIcons, 80); return; }
     document.querySelectorAll('.nav-gateway-441 .ng-lottie').forEach(function(icon){
       var currentKey = icon.getAttribute('data-ng-key') || '';
       if(icon.dataset.bound === '1' && icon.dataset.renderKey === currentKey) return;
       if(icon.__ngAnim && typeof icon.__ngAnim.destroy === 'function') icon.__ngAnim.destroy();
+      var embeddedData = readEmbeddedData(icon);
       icon.innerHTML = '';
       icon.dataset.bound = '1';
       icon.dataset.renderKey = currentKey;
@@ -2412,8 +2515,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       icon.style.width = '56px';
       icon.style.height = '56px';
 
-      fetch(icon.getAttribute('data-ng-original-src') || icon.getAttribute('data-src'))
-        .then(function(r){ if(!r.ok) throw new Error('JSON não carregado'); return r.json(); })
+      (embeddedData ? Promise.resolve(embeddedData) : fetch(icon.getAttribute('data-ng-original-src') || icon.getAttribute('data-src'))
+        .then(function(r){ if(!r.ok) throw new Error('JSON não carregado'); return r.json(); }))
         .then(function(originalData){
           var map = buildColorMap(icon, originalData);
           var data = Object.keys(map).length ? recolor(originalData, map) : originalData;
@@ -2857,7 +2960,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Ícone animado Lottie (Lordicon/Flaticon JSON)</Label>
-                              <Input value={opt.lordIcon || ''} onChange={(e) => update({ lordIcon: e.target.value })} placeholder="https://.../icone.json (opcional, substitui o emoji)" />
+                              <Input
+                                value={opt.lordIcon || ''}
+                                onChange={(e) => update({
+                                  lordIcon: e.target.value,
+                                  lordData: null,
+                                  lordDataVersion: Date.now(),
+                                  lordColors: [],
+                                })}
+                                placeholder="https://.../icone.json (opcional, substitui o emoji)"
+                              />
                             </div>
                             {opt.lordIcon && (
                               <div className="space-y-1">
@@ -2895,7 +3007,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                             toast({ title: 'Nenhuma cor encontrada', description: 'Não foi possível ler cores sólidas deste ícone.' });
                                             return;
                                           }
-                                          update({ lordColors: palette.map((original) => ({ original, value: original })) });
+                                          update({
+                                            lordData: data,
+                                            lordDataVersion: Date.now(),
+                                            lordColors: palette.map((original) => ({ original, value: original })),
+                                          });
                                           toast({ title: 'Cores detectadas', description: `${palette.length} cor(es) encontrada(s).` });
                                         } catch {
                                           toast({ title: 'Erro ao ler o ícone', description: 'Verifique a URL do JSON.', variant: 'destructive' });
