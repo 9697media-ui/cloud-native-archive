@@ -27,8 +27,12 @@ const toHex = (n: number) => {
 };
 function extractLordColors(data: any): string[] {
   const found = new Set<string>();
+  const isSimpleColor = (value: any) =>
+    Array.isArray(value) &&
+    (value.length === 3 || value.length === 4) &&
+    value.slice(0, 3).every((v) => typeof v === 'number');
   const addColor = (value: any) => {
-    if (Array.isArray(value) && value.length >= 3 && value.slice(0, 3).every((v) => typeof v === 'number')) {
+    if (isSimpleColor(value)) {
       const [r, g, b] = value;
       found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
       return;
@@ -42,10 +46,36 @@ function extractLordColors(data: any): string[] {
       });
     }
   };
+  const addGradientColors = (value: any, points: number) => {
+    if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
+      for (let i = 0; i < points; i += 1) {
+        const base = i * 4;
+        const r = value[base + 1];
+        const g = value[base + 2];
+        const b = value[base + 3];
+        found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
+      }
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((frame) => {
+        if (frame && typeof frame === 'object') {
+          addGradientColors(frame.s, points);
+          addGradientColors(frame.e, points);
+        }
+      });
+    }
+  };
   const walk = (node: any) => {
     if (!node || typeof node !== 'object') return;
     // Cor sólida/animada: propriedade "c" do tipo { k: [r,g,b,a] } ou keyframes.
     if (node.c && node.c.k) addColor(node.c.k);
+    // Gradientes Lottie/Flaticon: g.p = quantidade de pontos; g.k.k = [offset,r,g,b,...]
+    if (node.g && node.g.k) {
+      const points = Number(node.g.p || node.p || 0);
+      const gradientValue = node.g.k.k ?? node.g.k;
+      if (points > 0) addGradientColors(gradientValue, points);
+    }
     if (Array.isArray(node)) node.forEach(walk);
     else Object.values(node).forEach(walk);
   };
