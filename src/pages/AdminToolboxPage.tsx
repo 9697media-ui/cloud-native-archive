@@ -2369,10 +2369,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     return ('#'+c(arr[0])+c(arr[1])+c(arr[2])).toLowerCase();
   }
   function normalizeRgbArray(arr){
-    if(!Array.isArray(arr) || arr.length < 3) return null;
+    if(!Array.isArray(arr) || (arr.length !== 3 && arr.length !== 4)) return null;
     if(typeof arr[0] !== 'number' || typeof arr[1] !== 'number' || typeof arr[2] !== 'number') return null;
     var max = Math.max(Number(arr[0]) || 0, Number(arr[1]) || 0, Number(arr[2]) || 0);
     return max > 1 ? [arr[0]/255, arr[1]/255, arr[2]/255] : [arr[0], arr[1], arr[2]];
+  }
+  function writeRgbArray(target, rgb){
+    var max = Math.max(Number(target[0]) || 0, Number(target[1]) || 0, Number(target[2]) || 0);
+    if(max > 1){ target[0]=rgb[0]*255; target[1]=rgb[1]*255; target[2]=rgb[2]*255; }
+    else { target[0]=rgb[0]; target[1]=rgb[1]; target[2]=rgb[2]; }
   }
   function collectValueColors(value, found){
     var normalized = normalizeRgbArray(value);
@@ -2386,11 +2391,33 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       });
     }
   }
+  function collectGradientColors(value, points, found){
+    if(Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every(function(v){ return typeof v === 'number'; })){
+      for(var i=0;i<points;i++){
+        var base = i * 4;
+        collectValueColors([value[base+1], value[base+2], value[base+3]], found);
+      }
+      return;
+    }
+    if(Array.isArray(value)){
+      value.forEach(function(frame){
+        if(frame && typeof frame === 'object'){
+          if(Array.isArray(frame.s)) collectGradientColors(frame.s, points, found);
+          if(Array.isArray(frame.e)) collectGradientColors(frame.e, points, found);
+        }
+      });
+    }
+  }
   function collectColors(data){
     var found = {};
     function walk(node){
       if(!node || typeof node !== 'object') return;
       if(node.c && node.c.k) collectValueColors(node.c.k, found);
+      if(node.g && node.g.k){
+        var points = Number(node.g.p || node.p || 0);
+        var gradientValue = node.g.k.k || node.g.k;
+        if(points > 0) collectGradientColors(gradientValue, points, found);
+      }
       if(Array.isArray(node)) node.forEach(walk);
       else Object.keys(node).forEach(function(k){ walk(node[k]); });
     }
@@ -2403,7 +2430,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       var current = rgb01ToHex(normalized);
       if(map[current]){
         var rgb = hexToRgb01(map[current]);
-        value[0]=rgb[0]; value[1]=rgb[1]; value[2]=rgb[2];
+        writeRgbArray(value, rgb);
       }
       return;
     }
@@ -2416,6 +2443,29 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       });
     }
   }
+  function recolorGradientValue(value, points, map){
+    if(Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every(function(v){ return typeof v === 'number'; })){
+      for(var i=0;i<points;i++){
+        var base = i * 4;
+        var rgbTriplet = [value[base+1], value[base+2], value[base+3]];
+        var current = rgb01ToHex(normalizeRgbArray(rgbTriplet) || rgbTriplet);
+        if(map[current]){
+          var rgb = hexToRgb01(map[current]);
+          writeRgbArray(rgbTriplet, rgb);
+          value[base+1]=rgbTriplet[0]; value[base+2]=rgbTriplet[1]; value[base+3]=rgbTriplet[2];
+        }
+      }
+      return;
+    }
+    if(Array.isArray(value)){
+      value.forEach(function(frame){
+        if(frame && typeof frame === 'object'){
+          if(Array.isArray(frame.s)) recolorGradientValue(frame.s, points, map);
+          if(Array.isArray(frame.e)) recolorGradientValue(frame.e, points, map);
+        }
+      });
+    }
+  }
   function recolor(data, map){
     var copy = clone(data);
     var normalizedMap = {};
@@ -2423,6 +2473,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     function walk(node){
       if(!node || typeof node !== 'object') return;
       if(node.c && node.c.k) recolorValue(node.c.k, normalizedMap);
+      if(node.g && node.g.k){
+        var points = Number(node.g.p || node.p || 0);
+        var gradientValue = node.g.k.k || node.g.k;
+        if(points > 0) recolorGradientValue(gradientValue, points, normalizedMap);
+      }
       if(Array.isArray(node)) node.forEach(walk);
       else Object.keys(node).forEach(function(k){ walk(node[k]); });
     }
@@ -2441,12 +2496,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if(colors[1]) map[colors[1]] = secondary;
     return map;
   }
+  function readEmbeddedData(icon){
+    var script = icon.querySelector('.ng-lottie-json');
+    if(!script) return null;
+    try { return JSON.parse(script.textContent || ''); } catch(e){ return null; }
+  }
   function initLottieIcons(){
     if(!window.lottie){ setTimeout(initLottieIcons, 80); return; }
     document.querySelectorAll('.nav-gateway-441 .ng-lottie').forEach(function(icon){
       var currentKey = icon.getAttribute('data-ng-key') || '';
       if(icon.dataset.bound === '1' && icon.dataset.renderKey === currentKey) return;
       if(icon.__ngAnim && typeof icon.__ngAnim.destroy === 'function') icon.__ngAnim.destroy();
+      var embeddedData = readEmbeddedData(icon);
       icon.innerHTML = '';
       icon.dataset.bound = '1';
       icon.dataset.renderKey = currentKey;
@@ -2454,8 +2515,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       icon.style.width = '56px';
       icon.style.height = '56px';
 
-      fetch(icon.getAttribute('data-ng-original-src') || icon.getAttribute('data-src'))
-        .then(function(r){ if(!r.ok) throw new Error('JSON não carregado'); return r.json(); })
+      (embeddedData ? Promise.resolve(embeddedData) : fetch(icon.getAttribute('data-ng-original-src') || icon.getAttribute('data-src'))
+        .then(function(r){ if(!r.ok) throw new Error('JSON não carregado'); return r.json(); }))
         .then(function(originalData){
           var map = buildColorMap(icon, originalData);
           var data = Object.keys(map).length ? recolor(originalData, map) : originalData;
