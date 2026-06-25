@@ -2279,21 +2279,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const safeId = String(o.id || `card-${index}`).replace(/[^a-zA-Z0-9_-]/g, '-');
       const cardClass = `ng-card-${safeId}`;
       const isLoop = o.lordTrigger === 'loop';
-      const lordAttrs = isLoop
-        ? `trigger="loop-on-hover" target=".nav-gateway-441 .${cardClass}"`
-        : `class="ng-lord ng-lord-hold"`;
       const hasPalette = !o.lordKeepColors && Array.isArray(o.lordColors) && o.lordColors.length > 0;
       const recolorMap = hasPalette
         ? o.lordColors.reduce((acc: any, c: any) => { if (c.value && c.value.toLowerCase() !== c.original.toLowerCase()) acc[c.original.toLowerCase()] = c.value; return acc; }, {})
         : null;
       const recolorAttr = recolorMap && Object.keys(recolorMap).length
-        ? ` data-ng-recolor='${JSON.stringify(recolorMap)}'`
+        ? ` data-ng-recolor='${JSON.stringify(recolorMap)}' data-ng-original-src="${o.lordIcon}"`
         : '';
       const lordColors = (o.lordKeepColors || hasPalette)
         ? ''
         : ` colors="primary:${o.lordPrimary || o.iconColor},secondary:${o.lordSecondary || o.lordPrimary || o.iconColor}"`;
       const iconHtml = o.lordIcon
-        ? `<lord-icon ${isLoop ? 'class="ng-lord"' : lordAttrs} src="${o.lordIcon}" ${isLoop ? lordAttrs : ''}${lordColors}${recolorAttr} style="width:56px;height:56px"></lord-icon>`
+        ? `<lord-icon class="ng-lord ${isLoop ? 'ng-lord-loop' : 'ng-lord-hold'}" src="${o.lordIcon}"${lordColors}${recolorAttr} style="width:56px;height:56px"></lord-icon>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
@@ -2310,26 +2307,54 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 <script>
 (function(){
   function hexToRgb01(hex){
-    var h = hex.replace('#','');
+    var h = String(hex || '').replace('#','');
     if(h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
     return [parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255, parseInt(h.slice(4,6),16)/255];
   }
+  function clone(value){ return JSON.parse(JSON.stringify(value)); }
   function rgb01ToHex(arr){
     function c(n){ return ('0'+Math.round(Math.max(0,Math.min(1,n))*255).toString(16)).slice(-2); }
     return ('#'+c(arr[0])+c(arr[1])+c(arr[2])).toLowerCase();
   }
+  function normalizeRgbArray(arr){
+    if(!Array.isArray(arr) || arr.length < 3) return null;
+    var max = Math.max(Number(arr[0]) || 0, Number(arr[1]) || 0, Number(arr[2]) || 0);
+    return max > 1 ? [arr[0]/255, arr[1]/255, arr[2]/255] : [arr[0], arr[1], arr[2]];
+  }
+  function recolorValue(value, map){
+    var normalized = normalizeRgbArray(value);
+    if(normalized){
+      var current = rgb01ToHex(normalized);
+      if(map[current]){
+        var rgb = hexToRgb01(map[current]);
+        value[0]=rgb[0]; value[1]=rgb[1]; value[2]=rgb[2];
+      }
+      return;
+    }
+    if(Array.isArray(value)){
+      value.forEach(function(frame){
+        if(frame && typeof frame === 'object'){
+          if(Array.isArray(frame.s)) recolorValue(frame.s, map);
+          if(Array.isArray(frame.e)) recolorValue(frame.e, map);
+        }
+      });
+    }
+  }
   function recolor(data, map){
+    var copy = clone(data);
     function walk(node){
       if(!node || typeof node !== 'object') return;
-      if(node.c && node.c.k && Array.isArray(node.c.k) && typeof node.c.k[0] === 'number'){
-        var current = rgb01ToHex(node.c.k);
-        if(map[current]){ var rgb = hexToRgb01(map[current]); node.c.k[0]=rgb[0]; node.c.k[1]=rgb[1]; node.c.k[2]=rgb[2]; }
-      }
+      if(node.c && node.c.k) recolorValue(node.c.k, map);
       if(Array.isArray(node)) node.forEach(walk);
       else Object.keys(node).forEach(function(k){ walk(node[k]); });
     }
-    walk(data);
-    return data;
+    walk(copy);
+    return copy;
+  }
+  function applyIconData(icon, data){
+    icon.icon = data;
+    icon.removeAttribute('src');
+    try { if(typeof icon.requestUpdate === 'function') icon.requestUpdate(); } catch(e){}
   }
   function applyRecolors(){
     document.querySelectorAll('.nav-gateway-441 lord-icon[data-ng-recolor]').forEach(function(icon){
@@ -2337,43 +2362,94 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       var map;
       try { map = JSON.parse(icon.getAttribute('data-ng-recolor')); } catch(e){ return; }
       icon.dataset.recolored = '1';
-      fetch(icon.getAttribute('src')).then(function(r){ return r.json(); }).then(function(data){
-        icon.icon = recolor(data, map);
+      fetch(icon.getAttribute('data-ng-original-src') || icon.getAttribute('src')).then(function(r){ return r.json(); }).then(function(data){
+        applyIconData(icon, recolor(data, map));
       }).catch(function(){});
     });
   }
-  function bindHoldIcons(){
+  function getPlayer(icon){ return icon.playerInstance || icon._player || icon.player || null; }
+  function stopPlayer(player){ if(player && typeof player.stop === 'function') player.stop(); }
+  function goToStart(player){
+    if(!player) return;
+    if(typeof player.seekToStart === 'function') player.seekToStart();
+    else if(typeof player.goToAndStop === 'function') player.goToAndStop(0, true);
+    else if(typeof player.setDirection === 'function'){ player.setDirection(-1); }
+  }
+  function goToEnd(player){
+    if(!player) return;
+    var total = player.totalFrames || (player.animationItem && player.animationItem.totalFrames) || 120;
+    if(typeof player.goToAndStop === 'function') player.goToAndStop(Math.max(0, total - 1), true);
+    else stopPlayer(player);
+  }
+  function setDirection(player, direction){
+    if(!player) return;
+    if(typeof player.setDirection === 'function') player.setDirection(direction);
+    else player.direction = direction;
+  }
+  function playForward(player){
+    if(!player) return;
+    player.loop = false;
+    setDirection(player, 1);
+    if(typeof player.setLooping === 'function') player.setLooping(false);
+    if(typeof player.playFromStart === 'function') player.playFromStart();
+    else { goToStart(player); if(typeof player.play === 'function') player.play(); }
+  }
+  function playBackward(player){
+    if(!player) return;
+    player.loop = false;
+    setDirection(player, -1);
+    if(typeof player.setLooping === 'function') player.setLooping(false);
+    if(typeof player.play === 'function') player.play();
+  }
+  function bindAnimatedIcons(){
     document.querySelectorAll('.nav-gateway-441 .ng-card').forEach(function(card){
-      var icon = card.querySelector('lord-icon.ng-lord-hold');
+      var icon = card.querySelector('lord-icon.ng-lord');
       if(!icon || icon.dataset.bound === '1') return;
 
       function setup(){
-        var player = icon.playerInstance;
+        var player = getPlayer(icon);
         if(!player) return;
 
         icon.dataset.bound = '1';
-        if(typeof player.seekToStart === 'function') player.seekToStart();
+        goToStart(player);
 
         card.addEventListener('mouseenter', function(){
-          player.loop = false;
-          player.direction = 1;
-          if(typeof player.playFromStart === 'function') player.playFromStart();
-          else { if(typeof player.seekToStart === 'function') player.seekToStart(); player.play(); }
+          player = getPlayer(icon) || player;
+          if(icon.classList.contains('ng-lord-loop')){
+            player.loop = true;
+            if(typeof player.setLooping === 'function') player.setLooping(true);
+            setDirection(player, 1);
+            if(typeof player.playFromStart === 'function') player.playFromStart();
+            else { goToStart(player); if(typeof player.play === 'function') player.play(); }
+          } else {
+            playForward(player);
+          }
         });
 
         card.addEventListener('mouseleave', function(){
-          player.loop = false;
-          player.direction = -1;
-          player.play();
+          player = getPlayer(icon) || player;
+          if(icon.classList.contains('ng-lord-loop')){
+            player.loop = false;
+            if(typeof player.setLooping === 'function') player.setLooping(false);
+            stopPlayer(player);
+            goToStart(player);
+          } else {
+            playBackward(player);
+          }
+        });
+
+        icon.addEventListener('complete', function(){
+          player = getPlayer(icon) || player;
+          if(icon.classList.contains('ng-lord-hold')) goToEnd(player);
         });
       }
 
-      if(icon.playerInstance) setup();
+      if(getPlayer(icon)) setup();
       else icon.addEventListener('ready', setup, { once: true });
     });
   }
 
-  function init(){ bindHoldIcons(); applyRecolors(); }
+  function init(){ applyRecolors(); setTimeout(bindAnimatedIcons, 80); setTimeout(bindAnimatedIcons, 400); }
   if(window.customElements && customElements.whenDefined){
     customElements.whenDefined('lord-icon').then(init);
   }
