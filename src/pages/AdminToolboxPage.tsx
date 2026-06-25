@@ -2248,8 +2248,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const lordAttrs = isLoop
         ? `trigger="loop-on-hover" target=".nav-gateway-441 .${cardClass}"`
         : `class="ng-lord ng-lord-hold"`;
+      const lordColors = o.lordKeepColors
+        ? ''
+        : ` colors="primary:${o.lordPrimary || o.iconColor},secondary:${o.lordSecondary || o.lordPrimary || o.iconColor}"`;
       const iconHtml = o.lordIcon
-        ? `<lord-icon ${isLoop ? 'class="ng-lord"' : lordAttrs} src="${o.lordIcon}" ${isLoop ? lordAttrs : ''} colors="primary:${o.iconColor},secondary:${o.iconColor}" style="width:56px;height:56px"></lord-icon>`
+        ? `<lord-icon ${isLoop ? 'class="ng-lord"' : lordAttrs} src="${o.lordIcon}" ${isLoop ? lordAttrs : ''}${lordColors} style="width:56px;height:56px"></lord-icon>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
