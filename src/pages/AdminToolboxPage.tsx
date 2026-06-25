@@ -2283,6 +2283,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
 
   // Função utilitária para obter o código gerado
+  const escapeHtmlJson = (value: any) =>
+    JSON.stringify(value)
+      .replace(/</g, '\\u003c')
+      .replace(/>/g, '\\u003e')
+      .replace(/&/g, '\\u0026')
+      .replace(/\u2028/g, '\\u2028')
+      .replace(/\u2029/g, '\\u2029');
+
   const generateGatewayCode = () => {
     const opacity = (Number(gatewayConfig.overlayOpacity ?? 60) / 100).toFixed(2);
     const bg = gatewayConfig.backgroundImage
@@ -2328,9 +2336,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         palette: o.lordColors || null,
         primary: o.lordPrimary || o.iconColor,
         secondary: o.lordSecondary || o.lordPrimary || o.iconColor,
+        dataVersion: o.lordDataVersion || null,
       }).replace(/'/g, '&#39;');
+      const embeddedData = o.lordData
+        ? `<script type="application/json" class="ng-lottie-json">${escapeHtmlJson(o.lordData)}</script>`
+        : '';
       const iconHtml = o.lordIcon
-        ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}" data-ng-key='${renderKey}'${fallbackColors}${recolorAttr} aria-hidden="true"></span>`
+        ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}" data-ng-key='${renderKey}'${fallbackColors}${recolorAttr} aria-hidden="true">${embeddedData}</span>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
