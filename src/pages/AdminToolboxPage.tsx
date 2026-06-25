@@ -2838,8 +2838,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               </div>
                             </div>
                             <div className="space-y-1">
-                              <Label className="text-xs">Lordicon (URL do JSON animado)</Label>
-                              <Input value={opt.lordIcon || ''} onChange={(e) => update({ lordIcon: e.target.value })} placeholder="https://cdn.lordicon.com/....json (opcional, substitui o emoji)" />
+                              <Label className="text-xs">Ícone animado Lottie (Lordicon/Flaticon JSON)</Label>
+                              <Input value={opt.lordIcon || ''} onChange={(e) => update({ lordIcon: e.target.value })} placeholder="https://.../icone.json (opcional, substitui o emoji)" />
                             </div>
                             {opt.lordIcon && (
                               <div className="space-y-1">
