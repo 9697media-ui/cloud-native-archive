@@ -2960,7 +2960,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Ícone animado Lottie (Lordicon/Flaticon JSON)</Label>
-                              <Input value={opt.lordIcon || ''} onChange={(e) => update({ lordIcon: e.target.value })} placeholder="https://.../icone.json (opcional, substitui o emoji)" />
+                              <Input
+                                value={opt.lordIcon || ''}
+                                onChange={(e) => update({
+                                  lordIcon: e.target.value,
+                                  lordData: null,
+                                  lordDataVersion: Date.now(),
+                                  lordColors: [],
+                                })}
+                                placeholder="https://.../icone.json (opcional, substitui o emoji)"
+                              />
                             </div>
                             {opt.lordIcon && (
                               <div className="space-y-1">
@@ -2998,7 +3007,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                             toast({ title: 'Nenhuma cor encontrada', description: 'Não foi possível ler cores sólidas deste ícone.' });
                                             return;
                                           }
-                                          update({ lordColors: palette.map((original) => ({ original, value: original })) });
+                                          update({
+                                            lordData: data,
+                                            lordDataVersion: Date.now(),
+                                            lordColors: palette.map((original) => ({ original, value: original })),
+                                          });
                                           toast({ title: 'Cores detectadas', description: `${palette.length} cor(es) encontrada(s).` });
                                         } catch {
                                           toast({ title: 'Erro ao ler o ícone', description: 'Verifique a URL do JSON.', variant: 'destructive' });
