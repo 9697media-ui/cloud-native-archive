@@ -19,6 +19,25 @@ import { ColorField } from "@/components/ColorField";
 
 type DeviceView = 'desktop' | 'tablet' | 'mobile';
 
+// Lê um JSON de Lordicon (Lottie) e extrai todas as cores sólidas únicas
+// presentes nas camadas, retornando-as como hex para personalização.
+const toHex = (n: number) => Math.max(0, Math.min(255, Math.round(n * 255))).toString(16).padStart(2, '0');
+function extractLordColors(data: any): string[] {
+  const found = new Set<string>();
+  const walk = (node: any) => {
+    if (!node || typeof node !== 'object') return;
+    // Cor sólida: objeto com propriedade "c" do tipo { k: [r,g,b,a] } (valores 0-1)
+    if (node.c && node.c.k && Array.isArray(node.c.k) && typeof node.c.k[0] === 'number') {
+      const [r, g, b] = node.c.k;
+      found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
+    }
+    if (Array.isArray(node)) node.forEach(walk);
+    else Object.values(node).forEach(walk);
+  };
+  walk(data);
+  return Array.from(found);
+}
+
 // Configurações padrão (fonte da verdade das propriedades de edição atuais).
 // Usadas para inicializar os estados e para "atualizar" modelos antigos,
 // preenchendo propriedades novas que ainda não existiam quando foram salvos.
@@ -2248,11 +2267,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const lordAttrs = isLoop
         ? `trigger="loop-on-hover" target=".nav-gateway-441 .${cardClass}"`
         : `class="ng-lord ng-lord-hold"`;
-      const lordColors = o.lordKeepColors
+      const hasPalette = !o.lordKeepColors && Array.isArray(o.lordColors) && o.lordColors.length > 0;
+      const recolorMap = hasPalette
+        ? o.lordColors.reduce((acc: any, c: any) => { if (c.value && c.value.toLowerCase() !== c.original.toLowerCase()) acc[c.original.toLowerCase()] = c.value; return acc; }, {})
+        : null;
+      const recolorAttr = recolorMap && Object.keys(recolorMap).length
+        ? ` data-ng-recolor='${JSON.stringify(recolorMap)}'`
+        : '';
+      const lordColors = (o.lordKeepColors || hasPalette)
         ? ''
         : ` colors="primary:${o.lordPrimary || o.iconColor},secondary:${o.lordSecondary || o.lordPrimary || o.iconColor}"`;
       const iconHtml = o.lordIcon
-        ? `<lord-icon ${isLoop ? 'class="ng-lord"' : lordAttrs} src="${o.lordIcon}" ${isLoop ? lordAttrs : ''}${lordColors} style="width:56px;height:56px"></lord-icon>`
+        ? `<lord-icon ${isLoop ? 'class="ng-lord"' : lordAttrs} src="${o.lordIcon}" ${isLoop ? lordAttrs : ''}${lordColors}${recolorAttr} style="width:56px;height:56px"></lord-icon>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
@@ -2268,6 +2294,39 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
 <script>
 (function(){
+  function hexToRgb01(hex){
+    var h = hex.replace('#','');
+    if(h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    return [parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255, parseInt(h.slice(4,6),16)/255];
+  }
+  function rgb01ToHex(arr){
+    function c(n){ return ('0'+Math.round(Math.max(0,Math.min(1,n))*255).toString(16)).slice(-2); }
+    return ('#'+c(arr[0])+c(arr[1])+c(arr[2])).toLowerCase();
+  }
+  function recolor(data, map){
+    function walk(node){
+      if(!node || typeof node !== 'object') return;
+      if(node.c && node.c.k && Array.isArray(node.c.k) && typeof node.c.k[0] === 'number'){
+        var current = rgb01ToHex(node.c.k);
+        if(map[current]){ var rgb = hexToRgb01(map[current]); node.c.k[0]=rgb[0]; node.c.k[1]=rgb[1]; node.c.k[2]=rgb[2]; }
+      }
+      if(Array.isArray(node)) node.forEach(walk);
+      else Object.keys(node).forEach(function(k){ walk(node[k]); });
+    }
+    walk(data);
+    return data;
+  }
+  function applyRecolors(){
+    document.querySelectorAll('.nav-gateway-441 lord-icon[data-ng-recolor]').forEach(function(icon){
+      if(icon.dataset.recolored === '1') return;
+      var map;
+      try { map = JSON.parse(icon.getAttribute('data-ng-recolor')); } catch(e){ return; }
+      icon.dataset.recolored = '1';
+      fetch(icon.getAttribute('src')).then(function(r){ return r.json(); }).then(function(data){
+        icon.icon = recolor(data, map);
+      }).catch(function(){});
+    });
+  }
   function bindHoldIcons(){
     document.querySelectorAll('.nav-gateway-441 .ng-card').forEach(function(card){
       var icon = card.querySelector('lord-icon.ng-lord-hold');
@@ -2299,11 +2358,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     });
   }
 
+  function init(){ bindHoldIcons(); applyRecolors(); }
   if(window.customElements && customElements.whenDefined){
-    customElements.whenDefined('lord-icon').then(bindHoldIcons);
+    customElements.whenDefined('lord-icon').then(init);
   }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindHoldIcons);
-  else bindHoldIcons();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>` : '';
 
@@ -2712,15 +2772,55 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             )}
                             {opt.lordIcon && (
                               <div className="space-y-2 rounded-md border border-input p-2">
-                                <label className="flex items-center gap-2 text-xs">
-                                  <input
-                                    type="checkbox"
-                                    checked={!!opt.lordKeepColors}
-                                    onChange={(e) => update({ lordKeepColors: e.target.checked })}
-                                  />
-                                  Manter cores originais do ícone
-                                </label>
-                                {!opt.lordKeepColors && (
+                                <div className="flex items-center justify-between gap-2">
+                                  <label className="flex items-center gap-2 text-xs">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!opt.lordKeepColors}
+                                      onChange={(e) => update({ lordKeepColors: e.target.checked })}
+                                    />
+                                    Manter cores originais do ícone
+                                  </label>
+                                  {!opt.lordKeepColors && (
+                                    <Button
+                                      type="button" variant="outline" size="sm" className="h-7 text-xs"
+                                      onClick={async () => {
+                                        try {
+                                          const res = await fetch(opt.lordIcon);
+                                          const data = await res.json();
+                                          const palette = extractLordColors(data);
+                                          if (!palette.length) {
+                                            toast({ title: 'Nenhuma cor encontrada', description: 'Não foi possível ler cores sólidas deste ícone.' });
+                                            return;
+                                          }
+                                          update({ lordColors: palette.map((original) => ({ original, value: original })) });
+                                          toast({ title: 'Cores detectadas', description: `${palette.length} cor(es) encontrada(s).` });
+                                        } catch {
+                                          toast({ title: 'Erro ao ler o ícone', description: 'Verifique a URL do JSON.', variant: 'destructive' });
+                                        }
+                                      }}
+                                    >
+                                      Detectar cores
+                                    </Button>
+                                  )}
+                                </div>
+                                {!opt.lordKeepColors && Array.isArray(opt.lordColors) && opt.lordColors.length > 0 ? (
+                                  <div className="grid grid-cols-2 gap-2">
+                                    {opt.lordColors.map((c: any, ci: number) => (
+                                      <div key={ci} className="space-y-1">
+                                        <Label className="text-xs">Cor {ci + 1}</Label>
+                                        <ColorField
+                                          value={c.value}
+                                          onChange={(v) => {
+                                            const next = [...opt.lordColors];
+                                            next[ci] = { ...next[ci], value: v };
+                                            update({ lordColors: next });
+                                          }}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : !opt.lordKeepColors && (
                                   <div className="grid grid-cols-2 gap-2">
                                     <div className="space-y-1">
                                       <Label className="text-xs">Cor primária</Label>
