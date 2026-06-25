@@ -2286,11 +2286,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const recolorAttr = recolorMap && Object.keys(recolorMap).length
         ? ` data-ng-recolor='${JSON.stringify(recolorMap)}' data-ng-original-src="${o.lordIcon}"`
         : '';
-      const lordColors = (o.lordKeepColors || hasPalette)
-        ? ''
-        : ` colors="primary:${o.lordPrimary || o.iconColor},secondary:${o.lordSecondary || o.lordPrimary || o.iconColor}"`;
+      const fallbackColors = (!o.lordKeepColors && !hasPalette)
+        ? ` data-ng-primary="${o.lordPrimary || o.iconColor}" data-ng-secondary="${o.lordSecondary || o.lordPrimary || o.iconColor}"`
+        : '';
       const iconHtml = o.lordIcon
-        ? `<lord-icon class="ng-lord ${isLoop ? 'ng-lord-loop' : 'ng-lord-hold'}" src="${o.lordIcon}"${lordColors}${recolorAttr} style="width:56px;height:56px"></lord-icon>`
+        ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}"${fallbackColors}${recolorAttr} aria-hidden="true"></span>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
@@ -2303,7 +2303,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     }).join('');
 
     const lordScript = hasLord ? `
-<script src="https://cdn.lordicon.com/lordicon.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 <script>
 (function(){
   function hexToRgb01(hex){
@@ -2320,6 +2320,29 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if(!Array.isArray(arr) || arr.length < 3) return null;
     var max = Math.max(Number(arr[0]) || 0, Number(arr[1]) || 0, Number(arr[2]) || 0);
     return max > 1 ? [arr[0]/255, arr[1]/255, arr[2]/255] : [arr[0], arr[1], arr[2]];
+  }
+  function collectValueColors(value, found){
+    var normalized = normalizeRgbArray(value);
+    if(normalized){ found[rgb01ToHex(normalized)] = true; return; }
+    if(Array.isArray(value)){
+      value.forEach(function(frame){
+        if(frame && typeof frame === 'object'){
+          if(Array.isArray(frame.s)) collectValueColors(frame.s, found);
+          if(Array.isArray(frame.e)) collectValueColors(frame.e, found);
+        }
+      });
+    }
+  }
+  function collectColors(data){
+    var found = {};
+    function walk(node){
+      if(!node || typeof node !== 'object') return;
+      if(node.c && node.c.k) collectValueColors(node.c.k, found);
+      if(Array.isArray(node)) node.forEach(walk);
+      else Object.keys(node).forEach(function(k){ walk(node[k]); });
+    }
+    walk(data);
+    return Object.keys(found);
   }
   function recolorValue(value, map){
     var normalized = normalizeRgbArray(value);
@@ -2351,110 +2374,80 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     walk(copy);
     return copy;
   }
-  function applyIconData(icon, data){
-    icon.icon = data;
-    icon.removeAttribute('src');
-    try { if(typeof icon.requestUpdate === 'function') icon.requestUpdate(); } catch(e){}
+  function buildColorMap(icon, data){
+    var map = {};
+    try { map = icon.getAttribute('data-ng-recolor') ? JSON.parse(icon.getAttribute('data-ng-recolor')) : {}; } catch(e){ map = {}; }
+    if(Object.keys(map).length) return map;
+    var primary = icon.getAttribute('data-ng-primary');
+    var secondary = icon.getAttribute('data-ng-secondary') || primary;
+    if(!primary) return map;
+    var colors = collectColors(data);
+    if(colors[0]) map[colors[0]] = primary;
+    if(colors[1]) map[colors[1]] = secondary;
+    return map;
   }
-  function applyRecolors(){
-    document.querySelectorAll('.nav-gateway-441 lord-icon[data-ng-recolor]').forEach(function(icon){
-      if(icon.dataset.recolored === '1') return;
-      var map;
-      try { map = JSON.parse(icon.getAttribute('data-ng-recolor')); } catch(e){ return; }
-      icon.dataset.recolored = '1';
-      fetch(icon.getAttribute('data-ng-original-src') || icon.getAttribute('src')).then(function(r){ return r.json(); }).then(function(data){
-        applyIconData(icon, recolor(data, map));
-      }).catch(function(){});
-    });
-  }
-  function getPlayer(icon){ return icon.playerInstance || icon._player || icon.player || null; }
-  function stopPlayer(player){ if(player && typeof player.stop === 'function') player.stop(); }
-  function goToStart(player){
-    if(!player) return;
-    if(typeof player.seekToStart === 'function') player.seekToStart();
-    else if(typeof player.goToAndStop === 'function') player.goToAndStop(0, true);
-    else if(typeof player.setDirection === 'function'){ player.setDirection(-1); }
-  }
-  function goToEnd(player){
-    if(!player) return;
-    var total = player.totalFrames || (player.animationItem && player.animationItem.totalFrames) || 120;
-    if(typeof player.goToAndStop === 'function') player.goToAndStop(Math.max(0, total - 1), true);
-    else stopPlayer(player);
-  }
-  function setDirection(player, direction){
-    if(!player) return;
-    if(typeof player.setDirection === 'function') player.setDirection(direction);
-    else player.direction = direction;
-  }
-  function playForward(player){
-    if(!player) return;
-    player.loop = false;
-    setDirection(player, 1);
-    if(typeof player.setLooping === 'function') player.setLooping(false);
-    if(typeof player.playFromStart === 'function') player.playFromStart();
-    else { goToStart(player); if(typeof player.play === 'function') player.play(); }
-  }
-  function playBackward(player){
-    if(!player) return;
-    player.loop = false;
-    setDirection(player, -1);
-    if(typeof player.setLooping === 'function') player.setLooping(false);
-    if(typeof player.play === 'function') player.play();
-  }
-  function bindAnimatedIcons(){
-    document.querySelectorAll('.nav-gateway-441 .ng-card').forEach(function(card){
-      var icon = card.querySelector('lord-icon.ng-lord');
-      if(!icon || icon.dataset.bound === '1') return;
+  function initLottieIcons(){
+    if(!window.lottie){ setTimeout(initLottieIcons, 80); return; }
+    document.querySelectorAll('.nav-gateway-441 .ng-lottie').forEach(function(icon){
+      if(icon.dataset.bound === '1') return;
+      icon.dataset.bound = '1';
+      icon.style.display = 'block';
+      icon.style.width = '56px';
+      icon.style.height = '56px';
 
-      function setup(){
-        var player = getPlayer(icon);
-        if(!player) return;
+      fetch(icon.getAttribute('data-ng-original-src') || icon.getAttribute('data-src'))
+        .then(function(r){ if(!r.ok) throw new Error('JSON não carregado'); return r.json(); })
+        .then(function(originalData){
+          var map = buildColorMap(icon, originalData);
+          var data = Object.keys(map).length ? recolor(originalData, map) : originalData;
+          var anim = window.lottie.loadAnimation({
+            container: icon,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            animationData: data,
+            rendererSettings: { preserveAspectRatio: 'xMidYMid meet' }
+          });
+          var card = icon.closest('.ng-card');
+          if(!card) return;
+          anim.goToAndStop(0, true);
 
-        icon.dataset.bound = '1';
-        goToStart(player);
+          card.addEventListener('mouseenter', function(){
+            if(icon.classList.contains('ng-lottie-loop')){
+              anim.loop = true;
+              anim.setDirection(1);
+              anim.goToAndPlay(0, true);
+            } else {
+              anim.loop = false;
+              anim.setDirection(1);
+              anim.goToAndPlay(0, true);
+            }
+          });
 
-        card.addEventListener('mouseenter', function(){
-          player = getPlayer(icon) || player;
-          if(icon.classList.contains('ng-lord-loop')){
-            player.loop = true;
-            if(typeof player.setLooping === 'function') player.setLooping(true);
-            setDirection(player, 1);
-            if(typeof player.playFromStart === 'function') player.playFromStart();
-            else { goToStart(player); if(typeof player.play === 'function') player.play(); }
-          } else {
-            playForward(player);
-          }
-        });
+          card.addEventListener('mouseleave', function(){
+            anim.loop = false;
+            if(icon.classList.contains('ng-lottie-loop')){
+              anim.stop();
+              anim.goToAndStop(0, true);
+            } else {
+              anim.setDirection(-1);
+              anim.play();
+            }
+          });
 
-        card.addEventListener('mouseleave', function(){
-          player = getPlayer(icon) || player;
-          if(icon.classList.contains('ng-lord-loop')){
-            player.loop = false;
-            if(typeof player.setLooping === 'function') player.setLooping(false);
-            stopPlayer(player);
-            goToStart(player);
-          } else {
-            playBackward(player);
-          }
-        });
-
-        icon.addEventListener('complete', function(){
-          player = getPlayer(icon) || player;
-          if(icon.classList.contains('ng-lord-hold')) goToEnd(player);
-        });
-      }
-
-      if(getPlayer(icon)) setup();
-      else icon.addEventListener('ready', setup, { once: true });
+          anim.addEventListener('complete', function(){
+            if(icon.matches(':hover') || (card && card.matches(':hover'))){
+              if(icon.classList.contains('ng-lottie-hold')) anim.goToAndStop(Math.max(0, anim.totalFrames - 1), true);
+            } else {
+              anim.goToAndStop(0, true);
+            }
+          });
+        }).catch(function(){ icon.textContent = ''; });
     });
   }
 
-  function init(){ applyRecolors(); setTimeout(bindAnimatedIcons, 80); setTimeout(bindAnimatedIcons, 400); }
-  if(window.customElements && customElements.whenDefined){
-    customElements.whenDefined('lord-icon').then(init);
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initLottieIcons);
+  else initLottieIcons();
 })();
 </script>` : '';
 
