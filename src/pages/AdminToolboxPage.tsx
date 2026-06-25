@@ -2289,8 +2289,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const fallbackColors = (!o.lordKeepColors && !hasPalette)
         ? ` data-ng-primary="${o.lordPrimary || o.iconColor}" data-ng-secondary="${o.lordSecondary || o.lordPrimary || o.iconColor}"`
         : '';
+      const renderKey = JSON.stringify({
+        src: o.lordIcon,
+        trigger: o.lordTrigger || 'boomerang',
+        keep: !!o.lordKeepColors,
+        palette: o.lordColors || null,
+        primary: o.lordPrimary || o.iconColor,
+        secondary: o.lordSecondary || o.lordPrimary || o.iconColor,
+      }).replace(/'/g, '&#39;');
       const iconHtml = o.lordIcon
-        ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}"${fallbackColors}${recolorAttr} aria-hidden="true"></span>`
+        ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}" data-ng-key='${renderKey}'${fallbackColors}${recolorAttr} aria-hidden="true"></span>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
@@ -2365,9 +2373,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   }
   function recolor(data, map){
     var copy = clone(data);
+    var normalizedMap = {};
+    Object.keys(map || {}).forEach(function(key){ normalizedMap[String(key).toLowerCase()] = map[key]; });
     function walk(node){
       if(!node || typeof node !== 'object') return;
-      if(node.c && node.c.k) recolorValue(node.c.k, map);
+      if(node.c && node.c.k) recolorValue(node.c.k, normalizedMap);
       if(Array.isArray(node)) node.forEach(walk);
       else Object.keys(node).forEach(function(k){ walk(node[k]); });
     }
@@ -2389,8 +2399,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   function initLottieIcons(){
     if(!window.lottie){ setTimeout(initLottieIcons, 80); return; }
     document.querySelectorAll('.nav-gateway-441 .ng-lottie').forEach(function(icon){
-      if(icon.dataset.bound === '1') return;
+      var currentKey = icon.getAttribute('data-ng-key') || '';
+      if(icon.dataset.bound === '1' && icon.dataset.renderKey === currentKey) return;
+      if(icon.__ngAnim && typeof icon.__ngAnim.destroy === 'function') icon.__ngAnim.destroy();
+      icon.innerHTML = '';
       icon.dataset.bound = '1';
+      icon.dataset.renderKey = currentKey;
       icon.style.display = 'block';
       icon.style.width = '56px';
       icon.style.height = '56px';
@@ -2408,6 +2422,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
             animationData: data,
             rendererSettings: { preserveAspectRatio: 'xMidYMid meet' }
           });
+          icon.__ngAnim = anim;
           var card = icon.closest('.ng-card');
           if(!card) return;
           anim.goToAndStop(0, true);
@@ -3884,7 +3899,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             sandbox="allow-scripts allow-same-origin"
                             ref={demoIframeRef}
                             srcDoc={demoDoc || (getGeneratedCode() + demoScript)}
-                            key={'demo' + deviceView + activeWidgetType}
+                            key={`demo-${deviceView}-${activeWidgetType}-${JSON.stringify(currentConfig())}`}
                           />
                         );
                       })()}
