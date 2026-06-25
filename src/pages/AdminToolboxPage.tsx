@@ -2294,6 +2294,39 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
 <script>
 (function(){
+  function hexToRgb01(hex){
+    var h = hex.replace('#','');
+    if(h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    return [parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255, parseInt(h.slice(4,6),16)/255];
+  }
+  function rgb01ToHex(arr){
+    function c(n){ return ('0'+Math.round(Math.max(0,Math.min(1,n))*255).toString(16)).slice(-2); }
+    return ('#'+c(arr[0])+c(arr[1])+c(arr[2])).toLowerCase();
+  }
+  function recolor(data, map){
+    function walk(node){
+      if(!node || typeof node !== 'object') return;
+      if(node.c && node.c.k && Array.isArray(node.c.k) && typeof node.c.k[0] === 'number'){
+        var current = rgb01ToHex(node.c.k);
+        if(map[current]){ var rgb = hexToRgb01(map[current]); node.c.k[0]=rgb[0]; node.c.k[1]=rgb[1]; node.c.k[2]=rgb[2]; }
+      }
+      if(Array.isArray(node)) node.forEach(walk);
+      else Object.keys(node).forEach(function(k){ walk(node[k]); });
+    }
+    walk(data);
+    return data;
+  }
+  function applyRecolors(){
+    document.querySelectorAll('.nav-gateway-441 lord-icon[data-ng-recolor]').forEach(function(icon){
+      if(icon.dataset.recolored === '1') return;
+      var map;
+      try { map = JSON.parse(icon.getAttribute('data-ng-recolor')); } catch(e){ return; }
+      icon.dataset.recolored = '1';
+      fetch(icon.getAttribute('src')).then(function(r){ return r.json(); }).then(function(data){
+        icon.icon = recolor(data, map);
+      }).catch(function(){});
+    });
+  }
   function bindHoldIcons(){
     document.querySelectorAll('.nav-gateway-441 .ng-card').forEach(function(card){
       var icon = card.querySelector('lord-icon.ng-lord-hold');
