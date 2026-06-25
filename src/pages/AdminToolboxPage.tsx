@@ -2358,11 +2358,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     });
   }
 
+  function init(){ bindHoldIcons(); applyRecolors(); }
   if(window.customElements && customElements.whenDefined){
-    customElements.whenDefined('lord-icon').then(bindHoldIcons);
+    customElements.whenDefined('lord-icon').then(init);
   }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindHoldIcons);
-  else bindHoldIcons();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>` : '';
 
