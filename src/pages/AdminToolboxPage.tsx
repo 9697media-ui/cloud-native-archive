@@ -19,18 +19,33 @@ import { ColorField } from "@/components/ColorField";
 
 type DeviceView = 'desktop' | 'tablet' | 'mobile';
 
-// Lê um JSON de Lordicon (Lottie) e extrai todas as cores sólidas únicas
+// Lê um JSON Lottie (Lordicon/Flaticon) e extrai todas as cores sólidas únicas
 // presentes nas camadas, retornando-as como hex para personalização.
-const toHex = (n: number) => Math.max(0, Math.min(255, Math.round(n * 255))).toString(16).padStart(2, '0');
+const toHex = (n: number) => {
+  const normalized = n > 1 ? n : n * 255;
+  return Math.max(0, Math.min(255, Math.round(normalized))).toString(16).padStart(2, '0');
+};
 function extractLordColors(data: any): string[] {
   const found = new Set<string>();
+  const addColor = (value: any) => {
+    if (Array.isArray(value) && value.length >= 3 && value.slice(0, 3).every((v) => typeof v === 'number')) {
+      const [r, g, b] = value;
+      found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((frame) => {
+        if (frame && typeof frame === 'object') {
+          addColor(frame.s);
+          addColor(frame.e);
+        }
+      });
+    }
+  };
   const walk = (node: any) => {
     if (!node || typeof node !== 'object') return;
-    // Cor sólida: objeto com propriedade "c" do tipo { k: [r,g,b,a] } (valores 0-1)
-    if (node.c && node.c.k && Array.isArray(node.c.k) && typeof node.c.k[0] === 'number') {
-      const [r, g, b] = node.c.k;
-      found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
-    }
+    // Cor sólida/animada: propriedade "c" do tipo { k: [r,g,b,a] } ou keyframes.
+    if (node.c && node.c.k) addColor(node.c.k);
     if (Array.isArray(node)) node.forEach(walk);
     else Object.values(node).forEach(walk);
   };
@@ -2264,21 +2279,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const safeId = String(o.id || `card-${index}`).replace(/[^a-zA-Z0-9_-]/g, '-');
       const cardClass = `ng-card-${safeId}`;
       const isLoop = o.lordTrigger === 'loop';
-      const lordAttrs = isLoop
-        ? `trigger="loop-on-hover" target=".nav-gateway-441 .${cardClass}"`
-        : `class="ng-lord ng-lord-hold"`;
       const hasPalette = !o.lordKeepColors && Array.isArray(o.lordColors) && o.lordColors.length > 0;
       const recolorMap = hasPalette
         ? o.lordColors.reduce((acc: any, c: any) => { if (c.value && c.value.toLowerCase() !== c.original.toLowerCase()) acc[c.original.toLowerCase()] = c.value; return acc; }, {})
         : null;
       const recolorAttr = recolorMap && Object.keys(recolorMap).length
-        ? ` data-ng-recolor='${JSON.stringify(recolorMap)}'`
+        ? ` data-ng-recolor='${JSON.stringify(recolorMap)}' data-ng-original-src="${o.lordIcon}"`
         : '';
-      const lordColors = (o.lordKeepColors || hasPalette)
-        ? ''
-        : ` colors="primary:${o.lordPrimary || o.iconColor},secondary:${o.lordSecondary || o.lordPrimary || o.iconColor}"`;
+      const fallbackColors = (!o.lordKeepColors && !hasPalette)
+        ? ` data-ng-primary="${o.lordPrimary || o.iconColor}" data-ng-secondary="${o.lordSecondary || o.lordPrimary || o.iconColor}"`
+        : '';
       const iconHtml = o.lordIcon
-        ? `<lord-icon ${isLoop ? 'class="ng-lord"' : lordAttrs} src="${o.lordIcon}" ${isLoop ? lordAttrs : ''}${lordColors}${recolorAttr} style="width:56px;height:56px"></lord-icon>`
+        ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}"${fallbackColors}${recolorAttr} aria-hidden="true"></span>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
@@ -2291,79 +2303,151 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     }).join('');
 
     const lordScript = hasLord ? `
-<script src="https://cdn.lordicon.com/lordicon.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 <script>
 (function(){
   function hexToRgb01(hex){
-    var h = hex.replace('#','');
+    var h = String(hex || '').replace('#','');
     if(h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
     return [parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255, parseInt(h.slice(4,6),16)/255];
   }
+  function clone(value){ return JSON.parse(JSON.stringify(value)); }
   function rgb01ToHex(arr){
     function c(n){ return ('0'+Math.round(Math.max(0,Math.min(1,n))*255).toString(16)).slice(-2); }
     return ('#'+c(arr[0])+c(arr[1])+c(arr[2])).toLowerCase();
   }
-  function recolor(data, map){
+  function normalizeRgbArray(arr){
+    if(!Array.isArray(arr) || arr.length < 3) return null;
+    var max = Math.max(Number(arr[0]) || 0, Number(arr[1]) || 0, Number(arr[2]) || 0);
+    return max > 1 ? [arr[0]/255, arr[1]/255, arr[2]/255] : [arr[0], arr[1], arr[2]];
+  }
+  function collectValueColors(value, found){
+    var normalized = normalizeRgbArray(value);
+    if(normalized){ found[rgb01ToHex(normalized)] = true; return; }
+    if(Array.isArray(value)){
+      value.forEach(function(frame){
+        if(frame && typeof frame === 'object'){
+          if(Array.isArray(frame.s)) collectValueColors(frame.s, found);
+          if(Array.isArray(frame.e)) collectValueColors(frame.e, found);
+        }
+      });
+    }
+  }
+  function collectColors(data){
+    var found = {};
     function walk(node){
       if(!node || typeof node !== 'object') return;
-      if(node.c && node.c.k && Array.isArray(node.c.k) && typeof node.c.k[0] === 'number'){
-        var current = rgb01ToHex(node.c.k);
-        if(map[current]){ var rgb = hexToRgb01(map[current]); node.c.k[0]=rgb[0]; node.c.k[1]=rgb[1]; node.c.k[2]=rgb[2]; }
-      }
+      if(node.c && node.c.k) collectValueColors(node.c.k, found);
       if(Array.isArray(node)) node.forEach(walk);
       else Object.keys(node).forEach(function(k){ walk(node[k]); });
     }
     walk(data);
-    return data;
+    return Object.keys(found);
   }
-  function applyRecolors(){
-    document.querySelectorAll('.nav-gateway-441 lord-icon[data-ng-recolor]').forEach(function(icon){
-      if(icon.dataset.recolored === '1') return;
-      var map;
-      try { map = JSON.parse(icon.getAttribute('data-ng-recolor')); } catch(e){ return; }
-      icon.dataset.recolored = '1';
-      fetch(icon.getAttribute('src')).then(function(r){ return r.json(); }).then(function(data){
-        icon.icon = recolor(data, map);
-      }).catch(function(){});
-    });
-  }
-  function bindHoldIcons(){
-    document.querySelectorAll('.nav-gateway-441 .ng-card').forEach(function(card){
-      var icon = card.querySelector('lord-icon.ng-lord-hold');
-      if(!icon || icon.dataset.bound === '1') return;
-
-      function setup(){
-        var player = icon.playerInstance;
-        if(!player) return;
-
-        icon.dataset.bound = '1';
-        if(typeof player.seekToStart === 'function') player.seekToStart();
-
-        card.addEventListener('mouseenter', function(){
-          player.loop = false;
-          player.direction = 1;
-          if(typeof player.playFromStart === 'function') player.playFromStart();
-          else { if(typeof player.seekToStart === 'function') player.seekToStart(); player.play(); }
-        });
-
-        card.addEventListener('mouseleave', function(){
-          player.loop = false;
-          player.direction = -1;
-          player.play();
-        });
+  function recolorValue(value, map){
+    var normalized = normalizeRgbArray(value);
+    if(normalized){
+      var current = rgb01ToHex(normalized);
+      if(map[current]){
+        var rgb = hexToRgb01(map[current]);
+        value[0]=rgb[0]; value[1]=rgb[1]; value[2]=rgb[2];
       }
+      return;
+    }
+    if(Array.isArray(value)){
+      value.forEach(function(frame){
+        if(frame && typeof frame === 'object'){
+          if(Array.isArray(frame.s)) recolorValue(frame.s, map);
+          if(Array.isArray(frame.e)) recolorValue(frame.e, map);
+        }
+      });
+    }
+  }
+  function recolor(data, map){
+    var copy = clone(data);
+    function walk(node){
+      if(!node || typeof node !== 'object') return;
+      if(node.c && node.c.k) recolorValue(node.c.k, map);
+      if(Array.isArray(node)) node.forEach(walk);
+      else Object.keys(node).forEach(function(k){ walk(node[k]); });
+    }
+    walk(copy);
+    return copy;
+  }
+  function buildColorMap(icon, data){
+    var map = {};
+    try { map = icon.getAttribute('data-ng-recolor') ? JSON.parse(icon.getAttribute('data-ng-recolor')) : {}; } catch(e){ map = {}; }
+    if(Object.keys(map).length) return map;
+    var primary = icon.getAttribute('data-ng-primary');
+    var secondary = icon.getAttribute('data-ng-secondary') || primary;
+    if(!primary) return map;
+    var colors = collectColors(data);
+    if(colors[0]) map[colors[0]] = primary;
+    if(colors[1]) map[colors[1]] = secondary;
+    return map;
+  }
+  function initLottieIcons(){
+    if(!window.lottie){ setTimeout(initLottieIcons, 80); return; }
+    document.querySelectorAll('.nav-gateway-441 .ng-lottie').forEach(function(icon){
+      if(icon.dataset.bound === '1') return;
+      icon.dataset.bound = '1';
+      icon.style.display = 'block';
+      icon.style.width = '56px';
+      icon.style.height = '56px';
 
-      if(icon.playerInstance) setup();
-      else icon.addEventListener('ready', setup, { once: true });
+      fetch(icon.getAttribute('data-ng-original-src') || icon.getAttribute('data-src'))
+        .then(function(r){ if(!r.ok) throw new Error('JSON não carregado'); return r.json(); })
+        .then(function(originalData){
+          var map = buildColorMap(icon, originalData);
+          var data = Object.keys(map).length ? recolor(originalData, map) : originalData;
+          var anim = window.lottie.loadAnimation({
+            container: icon,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            animationData: data,
+            rendererSettings: { preserveAspectRatio: 'xMidYMid meet' }
+          });
+          var card = icon.closest('.ng-card');
+          if(!card) return;
+          anim.goToAndStop(0, true);
+
+          card.addEventListener('mouseenter', function(){
+            if(icon.classList.contains('ng-lottie-loop')){
+              anim.loop = true;
+              anim.setDirection(1);
+              anim.goToAndPlay(0, true);
+            } else {
+              anim.loop = false;
+              anim.setDirection(1);
+              anim.goToAndPlay(0, true);
+            }
+          });
+
+          card.addEventListener('mouseleave', function(){
+            anim.loop = false;
+            if(icon.classList.contains('ng-lottie-loop')){
+              anim.stop();
+              anim.goToAndStop(0, true);
+            } else {
+              anim.setDirection(-1);
+              anim.play();
+            }
+          });
+
+          anim.addEventListener('complete', function(){
+            if(icon.matches(':hover') || (card && card.matches(':hover'))){
+              if(icon.classList.contains('ng-lottie-hold')) anim.goToAndStop(Math.max(0, anim.totalFrames - 1), true);
+            } else {
+              anim.goToAndStop(0, true);
+            }
+          });
+        }).catch(function(){ icon.textContent = ''; });
     });
   }
 
-  function init(){ bindHoldIcons(); applyRecolors(); }
-  if(window.customElements && customElements.whenDefined){
-    customElements.whenDefined('lord-icon').then(init);
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initLottieIcons);
+  else initLottieIcons();
 })();
 </script>` : '';
 
@@ -2754,8 +2838,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               </div>
                             </div>
                             <div className="space-y-1">
-                              <Label className="text-xs">Lordicon (URL do JSON animado)</Label>
-                              <Input value={opt.lordIcon || ''} onChange={(e) => update({ lordIcon: e.target.value })} placeholder="https://cdn.lordicon.com/....json (opcional, substitui o emoji)" />
+                              <Label className="text-xs">Ícone animado Lottie (Lordicon/Flaticon JSON)</Label>
+                              <Input value={opt.lordIcon || ''} onChange={(e) => update({ lordIcon: e.target.value })} placeholder="https://.../icone.json (opcional, substitui o emoji)" />
                             </div>
                             {opt.lordIcon && (
                               <div className="space-y-1">
