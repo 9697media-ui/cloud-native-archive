@@ -581,10 +581,12 @@ export default function AdminToolboxPage() {
   // interação; nenhum CSS visual extra é permitido aqui.
   const demoIframeRef = React.useRef<HTMLIFrameElement | null>(null);
   const [demoDoc, setDemoDoc] = useState('');
+  const [demoVersion, setDemoVersion] = useState(0);
   const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a){document.querySelectorAll('.has-submenu.open').forEach(function(x){x.classList.remove('open');});return;}e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;var sub=a.closest('.submenu');var keep=hs||(sub?sub.closest('.has-submenu'):null);document.querySelectorAll('.has-submenu.open').forEach(function(x){if(!(keep&&(x===keep||x.contains(keep)))){x.classList.remove('open');}});if(hs){hs.classList.toggle('open');}var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
 
   useEffect(() => {
     setDemoDoc(getGeneratedCode() + demoScript);
+    setDemoVersion((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig]);
 
@@ -2326,6 +2328,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   }
   function normalizeRgbArray(arr){
     if(!Array.isArray(arr) || arr.length < 3) return null;
+    if(typeof arr[0] !== 'number' || typeof arr[1] !== 'number' || typeof arr[2] !== 'number') return null;
     var max = Math.max(Number(arr[0]) || 0, Number(arr[1]) || 0, Number(arr[2]) || 0);
     return max > 1 ? [arr[0]/255, arr[1]/255, arr[2]/255] : [arr[0], arr[1], arr[2]];
   }
@@ -3899,7 +3902,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             sandbox="allow-scripts allow-same-origin"
                             ref={demoIframeRef}
                             srcDoc={demoDoc || (getGeneratedCode() + demoScript)}
-                            key={`demo-${deviceView}-${activeWidgetType}-${JSON.stringify(currentConfig())}`}
+                            key={`demo-${deviceView}-${activeWidgetType}-${demoVersion}`}
                           />
                         );
                       })()}
