@@ -2248,8 +2248,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const lordAttrs = isLoop
         ? `trigger="loop-on-hover" target=".nav-gateway-441 .${cardClass}"`
         : `class="ng-lord ng-lord-hold"`;
+      const lordColors = o.lordKeepColors
+        ? ''
+        : ` colors="primary:${o.lordPrimary || o.iconColor},secondary:${o.lordSecondary || o.lordPrimary || o.iconColor}"`;
       const iconHtml = o.lordIcon
-        ? `<lord-icon ${isLoop ? 'class="ng-lord"' : lordAttrs} src="${o.lordIcon}" ${isLoop ? lordAttrs : ''} colors="primary:${o.iconColor},secondary:${o.iconColor}" style="width:56px;height:56px"></lord-icon>`
+        ? `<lord-icon ${isLoop ? 'class="ng-lord"' : lordAttrs} src="${o.lordIcon}" ${isLoop ? lordAttrs : ''}${lordColors} style="width:56px;height:56px"></lord-icon>`
         : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       return `
     <div class="ng-col">
@@ -2705,6 +2708,30 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                   <option value="boomerang">Bumerangue (vai no hover, volta ao sair)</option>
                                   <option value="loop">Loop (repete enquanto o mouse está em cima)</option>
                                 </select>
+                              </div>
+                            )}
+                            {opt.lordIcon && (
+                              <div className="space-y-2 rounded-md border border-input p-2">
+                                <label className="flex items-center gap-2 text-xs">
+                                  <input
+                                    type="checkbox"
+                                    checked={!!opt.lordKeepColors}
+                                    onChange={(e) => update({ lordKeepColors: e.target.checked })}
+                                  />
+                                  Manter cores originais do ícone
+                                </label>
+                                {!opt.lordKeepColors && (
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div className="space-y-1">
+                                      <Label className="text-xs">Cor primária</Label>
+                                      <ColorField value={opt.lordPrimary || opt.iconColor} onChange={(v) => update({ lordPrimary: v })} />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <Label className="text-xs">Cor secundária</Label>
+                                      <ColorField value={opt.lordSecondary || opt.lordPrimary || opt.iconColor} onChange={(v) => update({ lordSecondary: v })} />
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             )}
                             <div className="space-y-1">
