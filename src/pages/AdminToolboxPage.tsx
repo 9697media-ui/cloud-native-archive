@@ -2731,15 +2731,55 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             )}
                             {opt.lordIcon && (
                               <div className="space-y-2 rounded-md border border-input p-2">
-                                <label className="flex items-center gap-2 text-xs">
-                                  <input
-                                    type="checkbox"
-                                    checked={!!opt.lordKeepColors}
-                                    onChange={(e) => update({ lordKeepColors: e.target.checked })}
-                                  />
-                                  Manter cores originais do ícone
-                                </label>
-                                {!opt.lordKeepColors && (
+                                <div className="flex items-center justify-between gap-2">
+                                  <label className="flex items-center gap-2 text-xs">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!opt.lordKeepColors}
+                                      onChange={(e) => update({ lordKeepColors: e.target.checked })}
+                                    />
+                                    Manter cores originais do ícone
+                                  </label>
+                                  {!opt.lordKeepColors && (
+                                    <Button
+                                      type="button" variant="outline" size="sm" className="h-7 text-xs"
+                                      onClick={async () => {
+                                        try {
+                                          const res = await fetch(opt.lordIcon);
+                                          const data = await res.json();
+                                          const palette = extractLordColors(data);
+                                          if (!palette.length) {
+                                            toast({ title: 'Nenhuma cor encontrada', description: 'Não foi possível ler cores sólidas deste ícone.' });
+                                            return;
+                                          }
+                                          update({ lordColors: palette.map((original) => ({ original, value: original })) });
+                                          toast({ title: 'Cores detectadas', description: `${palette.length} cor(es) encontrada(s).` });
+                                        } catch {
+                                          toast({ title: 'Erro ao ler o ícone', description: 'Verifique a URL do JSON.', variant: 'destructive' });
+                                        }
+                                      }}
+                                    >
+                                      Detectar cores
+                                    </Button>
+                                  )}
+                                </div>
+                                {!opt.lordKeepColors && Array.isArray(opt.lordColors) && opt.lordColors.length > 0 ? (
+                                  <div className="grid grid-cols-2 gap-2">
+                                    {opt.lordColors.map((c: any, ci: number) => (
+                                      <div key={ci} className="space-y-1">
+                                        <Label className="text-xs">Cor {ci + 1}</Label>
+                                        <ColorField
+                                          value={c.value}
+                                          onChange={(v) => {
+                                            const next = [...opt.lordColors];
+                                            next[ci] = { ...next[ci], value: v };
+                                            update({ lordColors: next });
+                                          }}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : !opt.lordKeepColors && (
                                   <div className="grid grid-cols-2 gap-2">
                                     <div className="space-y-1">
                                       <Label className="text-xs">Cor primária</Label>
