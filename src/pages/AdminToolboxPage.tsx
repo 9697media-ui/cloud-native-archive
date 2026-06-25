@@ -19,18 +19,33 @@ import { ColorField } from "@/components/ColorField";
 
 type DeviceView = 'desktop' | 'tablet' | 'mobile';
 
-// Lê um JSON de Lordicon (Lottie) e extrai todas as cores sólidas únicas
+// Lê um JSON Lottie (Lordicon/Flaticon) e extrai todas as cores sólidas únicas
 // presentes nas camadas, retornando-as como hex para personalização.
-const toHex = (n: number) => Math.max(0, Math.min(255, Math.round(n * 255))).toString(16).padStart(2, '0');
+const toHex = (n: number) => {
+  const normalized = n > 1 ? n : n * 255;
+  return Math.max(0, Math.min(255, Math.round(normalized))).toString(16).padStart(2, '0');
+};
 function extractLordColors(data: any): string[] {
   const found = new Set<string>();
+  const addColor = (value: any) => {
+    if (Array.isArray(value) && value.length >= 3 && value.slice(0, 3).every((v) => typeof v === 'number')) {
+      const [r, g, b] = value;
+      found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((frame) => {
+        if (frame && typeof frame === 'object') {
+          addColor(frame.s);
+          addColor(frame.e);
+        }
+      });
+    }
+  };
   const walk = (node: any) => {
     if (!node || typeof node !== 'object') return;
-    // Cor sólida: objeto com propriedade "c" do tipo { k: [r,g,b,a] } (valores 0-1)
-    if (node.c && node.c.k && Array.isArray(node.c.k) && typeof node.c.k[0] === 'number') {
-      const [r, g, b] = node.c.k;
-      found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
-    }
+    // Cor sólida/animada: propriedade "c" do tipo { k: [r,g,b,a] } ou keyframes.
+    if (node.c && node.c.k) addColor(node.c.k);
     if (Array.isArray(node)) node.forEach(walk);
     else Object.values(node).forEach(walk);
   };
