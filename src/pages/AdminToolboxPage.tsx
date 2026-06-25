@@ -2710,6 +2710,30 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 </select>
                               </div>
                             )}
+                            {opt.lordIcon && (
+                              <div className="space-y-2 rounded-md border border-input p-2">
+                                <label className="flex items-center gap-2 text-xs">
+                                  <input
+                                    type="checkbox"
+                                    checked={!!opt.lordKeepColors}
+                                    onChange={(e) => update({ lordKeepColors: e.target.checked })}
+                                  />
+                                  Manter cores originais do ícone
+                                </label>
+                                {!opt.lordKeepColors && (
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div className="space-y-1">
+                                      <Label className="text-xs">Cor primária</Label>
+                                      <ColorField value={opt.lordPrimary || opt.iconColor} onChange={(v) => update({ lordPrimary: v })} />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <Label className="text-xs">Cor secundária</Label>
+                                      <ColorField value={opt.lordSecondary || opt.lordPrimary || opt.iconColor} onChange={(v) => update({ lordSecondary: v })} />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                             <div className="space-y-1">
                               <Label className="text-xs">Pílula (texto de apoio)</Label>
                               <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
