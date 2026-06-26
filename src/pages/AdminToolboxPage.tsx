@@ -3324,7 +3324,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                           update({
                                             lordData: data,
                                             lordDataVersion: Date.now(),
-                                            lordColors: palette.map((original) => ({ original, value: original })),
+                                            lordColors: palette.map((slot) => ({ index: slot.index, original: slot.original, value: slot.original })),
                                           });
                                           toast({ title: 'Cores detectadas', description: `${palette.length} cor(es) encontrada(s).` });
                                         } catch {
