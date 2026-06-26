@@ -2523,7 +2523,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     var normalizedMap = {};
     Object.keys(map || {}).forEach(function(key){
       var from = normalizeHex(key);
-      var to = normalizeHex(map[key]);
+      var to = parseColorWithAlpha(map[key]);
       if(from && to) normalizedMap[from] = to;
     });
     if(!Object.keys(normalizedMap).length) return;
@@ -2531,12 +2531,19 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       ['fill','stroke'].forEach(function(prop){
         var attr = el.getAttribute(prop);
         var attrHex = colorStringToHex(attr);
-        if(attrHex && normalizedMap[attrHex]) el.setAttribute(prop, normalizedMap[attrHex]);
+        var target = null;
+        if(attrHex && normalizedMap[attrHex]) target = normalizedMap[attrHex];
         var inline = el.style && el.style[prop];
         var inlineHex = colorStringToHex(inline);
-        if(inlineHex && normalizedMap[inlineHex]) el.style[prop] = normalizedMap[inlineHex];
+        if(!target && inlineHex && normalizedMap[inlineHex]) target = normalizedMap[inlineHex];
         var computed = colorStringToHex(window.getComputedStyle(el)[prop]);
-        if(computed && normalizedMap[computed] && !attrHex && !inlineHex) el.setAttribute(prop, normalizedMap[computed]);
+        if(!target && computed && normalizedMap[computed] && !attrHex && !inlineHex) target = normalizedMap[computed];
+        if(target){
+          el.setAttribute(prop, target.hex);
+          el.style[prop] = target.hex;
+          el.setAttribute(prop + '-opacity', String(target.a));
+          el.style[prop + 'Opacity'] = String(target.a);
+        }
       });
     });
   }
