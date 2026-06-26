@@ -2387,6 +2387,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if(/^#[0-9a-f]{8}$/.test(h)) h = h.slice(0, 7);
     return /^#[0-9a-f]{6}$/.test(h) ? h : '';
   }
+  // Mantém o canal alpha do alvo: retorna { hex:'#rrggbb', rgb:[0-1], a:0-1 }.
+  function parseColorWithAlpha(value){
+    var raw = String(value || '').trim().toLowerCase();
+    if(!raw) return null;
+    if(raw === 'transparent' || raw === 'none') return { hex:'#000000', rgb:[0,0,0], a:0 };
+    if(raw[0] !== '#') raw = '#'+raw;
+    if(/^#[0-9a-f]{3}$/.test(raw)) raw = '#'+raw[1]+raw[1]+raw[2]+raw[2]+raw[3]+raw[3];
+    var a = 1;
+    if(/^#[0-9a-f]{8}$/.test(raw)){ a = parseInt(raw.slice(7,9),16)/255; raw = raw.slice(0,7); }
+    if(!/^#[0-9a-f]{6}$/.test(raw)) return null;
+    return { hex: raw, rgb: hexToRgb01(raw), a: a };
+  }
   function colorStringToHex(value){
     var raw = String(value || '').trim().toLowerCase();
     if(!raw || raw === 'none' || raw === 'transparent') return '';
@@ -2448,8 +2460,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if(normalized){
       var current = rgb01ToHex(normalized);
       if(map[current]){
-        var rgb = hexToRgb01(map[current]);
-        writeRgbArray(value, rgb);
+        writeRgbArray(value, map[current].rgb);
+        if(value.length >= 4) value[3] = map[current].a;
       }
       return;
     }
@@ -2469,8 +2481,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         var rgbTriplet = [value[base+1], value[base+2], value[base+3]];
         var current = rgb01ToHex(normalizeRgbArray(rgbTriplet) || rgbTriplet);
         if(map[current]){
-          var rgb = hexToRgb01(map[current]);
-          writeRgbArray(rgbTriplet, rgb);
+          writeRgbArray(rgbTriplet, map[current].rgb);
           value[base+1]=rgbTriplet[0]; value[base+2]=rgbTriplet[1]; value[base+3]=rgbTriplet[2];
         }
       }
@@ -2490,7 +2501,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     var normalizedMap = {};
     Object.keys(map || {}).forEach(function(key){
       var from = normalizeHex(key);
-      var to = normalizeHex(map[key]);
+      var to = parseColorWithAlpha(map[key]);
       if(from && to) normalizedMap[from] = to;
     });
     function walk(node){
@@ -2511,7 +2522,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     var normalizedMap = {};
     Object.keys(map || {}).forEach(function(key){
       var from = normalizeHex(key);
-      var to = normalizeHex(map[key]);
+      var to = parseColorWithAlpha(map[key]);
       if(from && to) normalizedMap[from] = to;
     });
     if(!Object.keys(normalizedMap).length) return;
@@ -2519,12 +2530,19 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       ['fill','stroke'].forEach(function(prop){
         var attr = el.getAttribute(prop);
         var attrHex = colorStringToHex(attr);
-        if(attrHex && normalizedMap[attrHex]) el.setAttribute(prop, normalizedMap[attrHex]);
+        var target = null;
+        if(attrHex && normalizedMap[attrHex]) target = normalizedMap[attrHex];
         var inline = el.style && el.style[prop];
         var inlineHex = colorStringToHex(inline);
-        if(inlineHex && normalizedMap[inlineHex]) el.style[prop] = normalizedMap[inlineHex];
+        if(!target && inlineHex && normalizedMap[inlineHex]) target = normalizedMap[inlineHex];
         var computed = colorStringToHex(window.getComputedStyle(el)[prop]);
-        if(computed && normalizedMap[computed] && !attrHex && !inlineHex) el.setAttribute(prop, normalizedMap[computed]);
+        if(!target && computed && normalizedMap[computed] && !attrHex && !inlineHex) target = normalizedMap[computed];
+        if(target){
+          el.setAttribute(prop, target.hex);
+          el.style[prop] = target.hex;
+          el.setAttribute(prop + '-opacity', String(target.a));
+          el.style[prop + 'Opacity'] = String(target.a);
+        }
       });
     });
   }
