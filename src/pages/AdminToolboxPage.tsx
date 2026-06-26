@@ -25,70 +25,71 @@ const toHex = (n: number) => {
   const normalized = n > 1 ? n : n * 255;
   return Math.max(0, Math.min(255, Math.round(normalized))).toString(16).padStart(2, '0');
 };
+// Helpers compartilhados para ler cores de um Lottie. Detecção e recoloração
+// DEVEM usar exatamente a mesma lógica para que o índice de cada "slot" (swatch)
+// corresponda 1:1 ao elemento correto do ícone.
+const isSimpleLottieColor = (value: any) =>
+  Array.isArray(value) &&
+  (value.length === 3 || value.length === 4) &&
+  value.slice(0, 3).every((v) => typeof v === 'number');
+
+const lottieFirstColorHex = (value: any): string | null => {
+  if (isSimpleLottieColor(value)) {
+    const [r, g, b] = value;
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase();
+  }
+  if (Array.isArray(value)) {
+    for (const frame of value) {
+      if (frame && typeof frame === 'object') {
+        const fromS = lottieFirstColorHex(frame.s);
+        if (fromS) return fromS;
+        const fromE = lottieFirstColorHex(frame.e);
+        if (fromE) return fromE;
+      }
+    }
+  }
+  return null;
+};
+
+const lottieGradientStopHexes = (value: any, points: number): (string | null)[] => {
+  if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
+    const out: (string | null)[] = [];
+    for (let i = 0; i < points; i += 1) {
+      const base = i * 4;
+      out.push(`#${toHex(value[base + 1])}${toHex(value[base + 2])}${toHex(value[base + 3])}`.toLowerCase());
+    }
+    return out;
+  }
+  if (Array.isArray(value)) {
+    for (const frame of value) {
+      if (frame && typeof frame === 'object') {
+        const fromS = lottieGradientStopHexes(frame.s, points);
+        if (fromS.length) return fromS;
+        const fromE = lottieGradientStopHexes(frame.e, points);
+        if (fromE.length) return fromE;
+      }
+    }
+  }
+  return [];
+};
+
 function extractLordColors(data: any): Array<{ index: number; original: string }> {
   const slots: Array<{ index: number; original: string }> = [];
-  let counter = 0;
-  const isSimpleColor = (value: any) =>
-    Array.isArray(value) &&
-    (value.length === 3 || value.length === 4) &&
-    value.slice(0, 3).every((v) => typeof v === 'number');
-  // Retorna o primeiro hex representativo de uma propriedade de cor (sólida ou keyframes).
-  const firstColorHex = (value: any): string | null => {
-    if (isSimpleColor(value)) {
-      const [r, g, b] = value;
-      return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase();
-    }
-    if (Array.isArray(value)) {
-      for (const frame of value) {
-        if (frame && typeof frame === 'object') {
-          const fromS = firstColorHex(frame.s);
-          if (fromS) return fromS;
-          const fromE = firstColorHex(frame.e);
-          if (fromE) return fromE;
-        }
-      }
-    }
-    return null;
-  };
-  // Hex de cada parada de gradiente (uma slot por parada).
-  const gradientStopHexes = (value: any, points: number): string[] => {
-    if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
-      const out: string[] = [];
-      for (let i = 0; i < points; i += 1) {
-        const base = i * 4;
-        out.push(`#${toHex(value[base + 1])}${toHex(value[base + 2])}${toHex(value[base + 3])}`.toLowerCase());
-      }
-      return out;
-    }
-    if (Array.isArray(value)) {
-      for (const frame of value) {
-        if (frame && typeof frame === 'object') {
-          const fromS = gradientStopHexes(frame.s, points);
-          if (fromS.length) return fromS;
-          const fromE = gradientStopHexes(frame.e, points);
-          if (fromE.length) return fromE;
-        }
-      }
-    }
-    return [];
-  };
   const walk = (node: any) => {
     if (!node || typeof node !== 'object') return;
-    // Cor sólida/animada: uma slot por nó "c" (independente de quantos keyframes).
+    // Cor sólida/animada: uma slot por nó "c" com cor representável.
     if (node.c && node.c.k) {
-      const hex = firstColorHex(node.c.k);
-      if (hex) slots.push({ index: counter, original: hex });
-      counter += 1;
+      const hex = lottieFirstColorHex(node.c.k);
+      if (hex) slots.push({ index: slots.length, original: hex });
     }
-    // Gradientes: uma slot por parada do gradiente.
+    // Gradientes: uma slot por parada representável do gradiente.
     if (node.g && node.g.k) {
       const points = Number(node.g.p || node.p || 0);
       const gradientValue = node.g.k.k ?? node.g.k;
       if (points > 0) {
-        const hexes = gradientStopHexes(gradientValue, points);
+        const hexes = lottieGradientStopHexes(gradientValue, points);
         for (let i = 0; i < points; i += 1) {
-          if (hexes[i]) slots.push({ index: counter, original: hexes[i] });
-          counter += 1;
+          if (hexes[i]) slots.push({ index: slots.length, original: hexes[i] as string });
         }
       }
     }
@@ -98,6 +99,7 @@ function extractLordColors(data: any): Array<{ index: number; original: string }
   walk(data);
   return slots;
 }
+
 
 const normalizeLottieHex = (value?: string): string => {
   let h = String(value || '').trim().toLowerCase();
