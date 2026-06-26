@@ -2505,12 +2505,19 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const cardClass = `ng-card-${safeId}`;
       const isLoop = o.lordTrigger === 'loop';
       const hasPalette = !o.lordKeepColors && Array.isArray(o.lordColors) && o.lordColors.length > 0;
+      // Mapa por índice de slot (posição) — cada ocorrência de cor é independente,
+      // mesmo que duas slots tenham o mesmo valor original.
       const recolorMap = hasPalette
-        ? o.lordColors.reduce((acc: any, c: any) => { if (c.value && c.value.toLowerCase() !== c.original.toLowerCase()) acc[c.original.toLowerCase()] = c.value; return acc; }, {})
+        ? o.lordColors.reduce((acc: any, c: any, ci: number) => {
+            const slot = Number.isFinite(c?.index) ? c.index : ci;
+            if (c && c.value && c.original && c.value.toLowerCase() !== c.original.toLowerCase()) acc[slot] = c.value;
+            return acc;
+          }, {})
         : null;
-      const recolorAttr = recolorMap && Object.keys(recolorMap).length
-        ? ` data-ng-recolor='${JSON.stringify(recolorMap)}' data-ng-original-src="${o.lordIcon}"`
-        : '';
+      // Em modo paleta, recolorimos o JSON embutido no build (fonte da verdade).
+      // Não emitimos data-ng-recolor para evitar recoloração global por valor em runtime.
+      const recolorAttr = '';
+
       const fallbackColors = (!o.lordKeepColors && !hasPalette)
         ? ` data-ng-primary="${o.lordPrimary || o.iconColor}" data-ng-secondary="${o.lordSecondary || o.lordPrimary || o.iconColor}"`
         : '';
