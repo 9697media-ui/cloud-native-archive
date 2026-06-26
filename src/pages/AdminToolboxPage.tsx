@@ -2546,7 +2546,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     });
     function walk(node){
       if(!node || typeof node !== 'object') return;
-      if(node.c && node.c.k) recolorValue(node.c.k, normalizedMap);
+      if(node.c && node.c.k) applyNodeOpacity(node, recolorValue(node.c.k, normalizedMap));
       if(node.g && node.g.k){
         var points = Number(node.g.p || node.p || 0);
         var gradientValue = node.g.k.k || node.g.k;
@@ -2566,8 +2566,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       if(from && to) normalizedMap[from] = to;
     });
     if(!Object.keys(normalizedMap).length) return;
-    icon.querySelectorAll('path, circle, ellipse, rect, polygon, polyline, line, g').forEach(function(el){
-      ['fill','stroke'].forEach(function(prop){
+    icon.querySelectorAll('path, circle, ellipse, rect, polygon, polyline, line, g, stop').forEach(function(el){
+      var tag = (el.tagName || '').toLowerCase();
+      var props = tag === 'stop' ? ['stop-color'] : ['fill','stroke'];
+      props.forEach(function(prop){
         var attr = el.getAttribute(prop);
         var attrHex = colorStringToHex(attr);
         var target = null;
@@ -2579,9 +2581,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         if(!target && computed && normalizedMap[computed] && !attrHex && !inlineHex) target = normalizedMap[computed];
         if(target){
           el.setAttribute(prop, target.hex);
-          el.style[prop] = target.hex;
-          el.setAttribute(prop + '-opacity', String(target.a));
-          el.style[prop + 'Opacity'] = String(target.a);
+          if(el.style && el.style.setProperty) el.style.setProperty(prop, target.hex, 'important');
+          if(target.hasAlpha){
+            var opacityProp = prop === 'stop-color' ? 'stop-opacity' : prop + '-opacity';
+            el.setAttribute(opacityProp, String(target.a));
+            if(el.style && el.style.setProperty) el.style.setProperty(opacityProp, String(target.a), 'important');
+          }
         }
       });
     });
