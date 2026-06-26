@@ -202,12 +202,12 @@ const recolorLottieDataForGateway = (data: any, map: Record<string, string>) => 
     if (typeof node.o.k === 'number') node.o.k = Math.max(0, Math.min(1, target.a)) * 100;
     else applyLottieOpacityValue(node.o.k, target.a);
   };
-  // Aplica cores alvo nas paradas do gradiente por índice (slotBase + i).
-  const applyGradientTargets = (value: any, points: number, slotBase: number) => {
+  // Aplica cores alvo nas paradas do gradiente, com alvos por índice de parada (i).
+  const applyGradientTargets = (value: any, points: number, stopTargets: Record<number, NonNullable<ReturnType<typeof parseLottieColorTarget>>>) => {
     if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
       const matches: Array<{ offset: number; target: NonNullable<ReturnType<typeof parseLottieColorTarget>> }> = [];
       for (let i = 0; i < points; i += 1) {
-        const target = targets[slotBase + i];
+        const target = stopTargets[i];
         if (!target) continue;
         const base = i * 4;
         const triplet = [value[base + 1], value[base + 2], value[base + 3]];
@@ -237,29 +237,40 @@ const recolorLottieDataForGateway = (data: any, map: Record<string, string>) => 
     if (Array.isArray(value)) {
       for (const frame of value) {
         if (!frame || typeof frame !== 'object') continue;
-        if (Array.isArray(frame.s) && applyGradientTargets(frame.s, points, slotBase)) return true;
-        if (Array.isArray(frame.e) && applyGradientTargets(frame.e, points, slotBase)) return true;
+        if (Array.isArray(frame.s) && applyGradientTargets(frame.s, points, stopTargets)) return true;
+        if (Array.isArray(frame.e) && applyGradientTargets(frame.e, points, stopTargets)) return true;
       }
     }
     return false;
   };
-  let counter = 0;
+  // slot = posição sequencial entre as cores representáveis (idêntico a extractLordColors).
+  let slot = 0;
   const walk = (node: any) => {
     if (!node || typeof node !== 'object') return;
     if (node.c && node.c.k) {
-      const target = targets[counter];
-      if (target) {
-        applyColorTarget(node.c.k, target);
-        applyNodeOpacity(node, target);
+      const hex = lottieFirstColorHex(node.c.k);
+      if (hex) {
+        const target = targets[slot];
+        if (target) {
+          applyColorTarget(node.c.k, target);
+          applyNodeOpacity(node, target);
+        }
+        slot += 1;
       }
-      counter += 1;
     }
     if (node.g && node.g.k) {
       const points = Number(node.g.p || node.p || 0);
       const gradientValue = node.g.k.k ?? node.g.k;
       if (points > 0) {
-        applyGradientTargets(gradientValue, points, counter);
-        counter += points;
+        const hexes = lottieGradientStopHexes(gradientValue, points);
+        const stopTargets: Record<number, NonNullable<ReturnType<typeof parseLottieColorTarget>>> = {};
+        for (let i = 0; i < points; i += 1) {
+          if (!hexes[i]) continue;
+          const target = targets[slot];
+          if (target) stopTargets[i] = target;
+          slot += 1;
+        }
+        if (Object.keys(stopTargets).length) applyGradientTargets(gradientValue, points, stopTargets);
       }
     }
     if (Array.isArray(node)) node.forEach(walk);
@@ -268,6 +279,7 @@ const recolorLottieDataForGateway = (data: any, map: Record<string, string>) => 
   walk(copy);
   return copy;
 };
+
 
 // Configurações padrão (fonte da verdade das propriedades de edição atuais).
 // Usadas para inicializar os estados e para "atualizar" modelos antigos,
