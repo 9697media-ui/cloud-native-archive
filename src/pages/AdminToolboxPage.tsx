@@ -83,6 +83,168 @@ function extractLordColors(data: any): string[] {
   return Array.from(found);
 }
 
+const normalizeLottieHex = (value?: string): string => {
+  let h = String(value || '').trim().toLowerCase();
+  if (!h || h === 'none' || h === 'transparent') return '';
+  if (!h.startsWith('#')) h = `#${h}`;
+  if (/^#[0-9a-f]{3}$/.test(h)) h = `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}`;
+  if (/^#[0-9a-f]{8}$/.test(h)) h = h.slice(0, 7);
+  return /^#[0-9a-f]{6}$/.test(h) ? h : '';
+};
+
+const parseLottieColorTarget = (value?: string) => {
+  let raw = String(value || '').trim().toLowerCase();
+  if (!raw) return null;
+  if (raw === 'transparent' || raw === 'none') {
+    return { hex: '#000000', rgb: [0, 0, 0], a: 0, hasAlpha: true };
+  }
+  if (!raw.startsWith('#')) raw = `#${raw}`;
+  if (/^#[0-9a-f]{3}$/.test(raw)) raw = `#${raw[1]}${raw[1]}${raw[2]}${raw[2]}${raw[3]}${raw[3]}`;
+  const hasAlpha = /^#[0-9a-f]{8}$/.test(raw);
+  const a = hasAlpha ? parseInt(raw.slice(7, 9), 16) / 255 : 1;
+  if (hasAlpha) raw = raw.slice(0, 7);
+  if (!/^#[0-9a-f]{6}$/.test(raw)) return null;
+  const r = parseInt(raw.slice(1, 3), 16) / 255;
+  const g = parseInt(raw.slice(3, 5), 16) / 255;
+  const b = parseInt(raw.slice(5, 7), 16) / 255;
+  return { hex: raw, rgb: [r, g, b], a, hasAlpha };
+};
+
+const rgb01ToLottieHex = (arr: number[]) => {
+  const c = (n: number) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+  return `#${c(arr[0])}${c(arr[1])}${c(arr[2])}`.toLowerCase();
+};
+
+const normalizeLottieRgbArray = (arr: any): number[] | null => {
+  if (!Array.isArray(arr) || (arr.length !== 3 && arr.length !== 4)) return null;
+  if (typeof arr[0] !== 'number' || typeof arr[1] !== 'number' || typeof arr[2] !== 'number') return null;
+  const max = Math.max(Number(arr[0]) || 0, Number(arr[1]) || 0, Number(arr[2]) || 0);
+  return max > 1 ? [arr[0] / 255, arr[1] / 255, arr[2] / 255] : [arr[0], arr[1], arr[2]];
+};
+
+const writeLottieRgbArray = (target: any[], rgb: number[]) => {
+  const max = Math.max(Number(target[0]) || 0, Number(target[1]) || 0, Number(target[2]) || 0);
+  if (max > 1) {
+    target[0] = rgb[0] * 255;
+    target[1] = rgb[1] * 255;
+    target[2] = rgb[2] * 255;
+  } else {
+    target[0] = rgb[0];
+    target[1] = rgb[1];
+    target[2] = rgb[2];
+  }
+};
+
+const applyLottieOpacityValue = (value: any, alpha: number) => {
+  const next = Math.max(0, Math.min(1, Number(alpha))) * 100;
+  if (!Array.isArray(value)) return;
+  if (value.length && value.every((v) => typeof v === 'number')) {
+    value[0] = next;
+    return;
+  }
+  value.forEach((frame) => {
+    if (!frame || typeof frame !== 'object') return;
+    if (Array.isArray(frame.s)) frame.s[0] = next;
+    else if (typeof frame.s === 'number') frame.s = next;
+    if (Array.isArray(frame.e)) frame.e[0] = next;
+    else if (typeof frame.e === 'number') frame.e = next;
+  });
+};
+
+const recolorLottieDataForGateway = (data: any, map: Record<string, string>) => {
+  if (!data || !map || !Object.keys(map).length) return data;
+  const normalizedMap: Record<string, ReturnType<typeof parseLottieColorTarget>> = {};
+  Object.keys(map).forEach((key) => {
+    const from = normalizeLottieHex(key);
+    const to = parseLottieColorTarget(map[key]);
+    if (from && to) normalizedMap[from] = to;
+  });
+  if (!Object.keys(normalizedMap).length) return data;
+
+  const copy = JSON.parse(JSON.stringify(data));
+  const recolorValue = (value: any) => {
+    const normalized = normalizeLottieRgbArray(value);
+    if (normalized) {
+      const current = rgb01ToLottieHex(normalized);
+      const target = normalizedMap[current];
+      if (target) {
+        writeLottieRgbArray(value, target.rgb);
+        if (value.length >= 4 && target.hasAlpha) value[3] = target.a;
+        return target;
+      }
+      return null;
+    }
+    let matched: ReturnType<typeof parseLottieColorTarget> = null;
+    if (Array.isArray(value)) {
+      value.forEach((frame) => {
+        if (!frame || typeof frame !== 'object') return;
+        if (Array.isArray(frame.s)) matched = recolorValue(frame.s) || matched;
+        if (Array.isArray(frame.e)) matched = recolorValue(frame.e) || matched;
+      });
+    }
+    return matched;
+  };
+  const applyNodeOpacity = (node: any, target: ReturnType<typeof parseLottieColorTarget>) => {
+    if (!target?.hasAlpha || !node?.o || node.o.k == null) return;
+    if (typeof node.o.k === 'number') node.o.k = Math.max(0, Math.min(1, target.a)) * 100;
+    else applyLottieOpacityValue(node.o.k, target.a);
+  };
+  const recolorGradientValue = (value: any, points: number) => {
+    if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
+      const matches: Array<{ offset: number; target: NonNullable<ReturnType<typeof parseLottieColorTarget>> }> = [];
+      for (let i = 0; i < points; i += 1) {
+        const base = i * 4;
+        const triplet = [value[base + 1], value[base + 2], value[base + 3]];
+        const current = rgb01ToLottieHex(normalizeLottieRgbArray(triplet) || triplet);
+        const target = normalizedMap[current];
+        if (target) {
+          writeLottieRgbArray(triplet, target.rgb);
+          value[base + 1] = triplet[0];
+          value[base + 2] = triplet[1];
+          value[base + 3] = triplet[2];
+          if (target.hasAlpha) matches.push({ offset: value[base], target });
+        }
+      }
+      if (matches.length) {
+        const opacityStart = points * 4;
+        let scale = 1;
+        for (let oi = opacityStart + 1; oi < value.length; oi += 2) if (Number(value[oi]) > 1) scale = 100;
+        matches.forEach((match) => {
+          let wrote = false;
+          for (let oi = opacityStart; oi + 1 < value.length; oi += 2) {
+            if (Math.abs(Number(value[oi]) - Number(match.offset)) < 0.001) {
+              value[oi + 1] = match.target.a * scale;
+              wrote = true;
+            }
+          }
+          if (!wrote) value.push(match.offset, match.target.a * scale);
+        });
+      }
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((frame) => {
+        if (!frame || typeof frame !== 'object') return;
+        if (Array.isArray(frame.s)) recolorGradientValue(frame.s, points);
+        if (Array.isArray(frame.e)) recolorGradientValue(frame.e, points);
+      });
+    }
+  };
+  const walk = (node: any) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.c && node.c.k) applyNodeOpacity(node, recolorValue(node.c.k));
+    if (node.g && node.g.k) {
+      const points = Number(node.g.p || node.p || 0);
+      const gradientValue = node.g.k.k ?? node.g.k;
+      if (points > 0) recolorGradientValue(gradientValue, points);
+    }
+    if (Array.isArray(node)) node.forEach(walk);
+    else Object.values(node).forEach(walk);
+  };
+  walk(copy);
+  return copy;
+};
+
 // Configurações padrão (fonte da verdade das propriedades de edição atuais).
 // Usadas para inicializar os estados e para "atualizar" modelos antigos,
 // preenchendo propriedades novas que ainda não existiam quando foram salvos.
