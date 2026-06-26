@@ -2463,21 +2463,46 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       var current = rgb01ToHex(normalized);
       if(map[current]){
         writeRgbArray(value, map[current].rgb);
-        if(value.length >= 4) value[3] = map[current].a;
+        if(value.length >= 4 && map[current].hasAlpha) value[3] = map[current].a;
+        return map[current];
       }
-      return;
+      return null;
     }
+    var matched = null;
     if(Array.isArray(value)){
       value.forEach(function(frame){
         if(frame && typeof frame === 'object'){
-          if(Array.isArray(frame.s)) recolorValue(frame.s, map);
-          if(Array.isArray(frame.e)) recolorValue(frame.e, map);
+          if(Array.isArray(frame.s)) matched = recolorValue(frame.s, map) || matched;
+          if(Array.isArray(frame.e)) matched = recolorValue(frame.e, map) || matched;
         }
       });
     }
+    return matched;
+  }
+  function applyOpacityValue(value, alpha){
+    var next = Math.max(0, Math.min(1, Number(alpha))) * 100;
+    if(Array.isArray(value)){
+      if(value.length && value.every(function(v){ return typeof v === 'number'; })){
+        value[0] = next;
+        return;
+      }
+      value.forEach(function(frame){
+        if(!frame || typeof frame !== 'object') return;
+        if(Array.isArray(frame.s)) frame.s[0] = next;
+        else if(typeof frame.s === 'number') frame.s = next;
+        if(Array.isArray(frame.e)) frame.e[0] = next;
+        else if(typeof frame.e === 'number') frame.e = next;
+      });
+    }
+  }
+  function applyNodeOpacity(node, target){
+    if(!target || !target.hasAlpha || !node || !node.o || node.o.k == null) return;
+    if(typeof node.o.k === 'number') node.o.k = Math.max(0, Math.min(1, target.a)) * 100;
+    else applyOpacityValue(node.o.k, target.a);
   }
   function recolorGradientValue(value, points, map){
     if(Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every(function(v){ return typeof v === 'number'; })){
+      var matches = [];
       for(var i=0;i<points;i++){
         var base = i * 4;
         var rgbTriplet = [value[base+1], value[base+2], value[base+3]];
@@ -2485,7 +2510,20 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         if(map[current]){
           writeRgbArray(rgbTriplet, map[current].rgb);
           value[base+1]=rgbTriplet[0]; value[base+2]=rgbTriplet[1]; value[base+3]=rgbTriplet[2];
+          if(map[current].hasAlpha) matches.push({ offset: value[base], target: map[current] });
         }
+      }
+      if(matches.length){
+        var opacityStart = points * 4;
+        var scale = 1;
+        for(var oi = opacityStart + 1; oi < value.length; oi += 2){ if(Number(value[oi]) > 1) scale = 100; }
+        matches.forEach(function(match){
+          var wrote = false;
+          for(var oi = opacityStart; oi + 1 < value.length; oi += 2){
+            if(Math.abs(Number(value[oi]) - Number(match.offset)) < 0.001){ value[oi + 1] = match.target.a * scale; wrote = true; }
+          }
+          if(!wrote) value.push(match.offset, match.target.a * scale);
+        });
       }
       return;
     }
