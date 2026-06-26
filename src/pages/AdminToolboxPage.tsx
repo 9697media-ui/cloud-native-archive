@@ -2481,8 +2481,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         var rgbTriplet = [value[base+1], value[base+2], value[base+3]];
         var current = rgb01ToHex(normalizeRgbArray(rgbTriplet) || rgbTriplet);
         if(map[current]){
-          var rgb = hexToRgb01(map[current]);
-          writeRgbArray(rgbTriplet, rgb);
+          writeRgbArray(rgbTriplet, map[current].rgb);
           value[base+1]=rgbTriplet[0]; value[base+2]=rgbTriplet[1]; value[base+3]=rgbTriplet[2];
         }
       }
