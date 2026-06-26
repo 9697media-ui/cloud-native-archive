@@ -25,62 +25,78 @@ const toHex = (n: number) => {
   const normalized = n > 1 ? n : n * 255;
   return Math.max(0, Math.min(255, Math.round(normalized))).toString(16).padStart(2, '0');
 };
-function extractLordColors(data: any): string[] {
-  const found = new Set<string>();
+function extractLordColors(data: any): Array<{ index: number; original: string }> {
+  const slots: Array<{ index: number; original: string }> = [];
+  let counter = 0;
   const isSimpleColor = (value: any) =>
     Array.isArray(value) &&
     (value.length === 3 || value.length === 4) &&
     value.slice(0, 3).every((v) => typeof v === 'number');
-  const addColor = (value: any) => {
+  // Retorna o primeiro hex representativo de uma propriedade de cor (sólida ou keyframes).
+  const firstColorHex = (value: any): string | null => {
     if (isSimpleColor(value)) {
       const [r, g, b] = value;
-      found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
-      return;
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase();
     }
     if (Array.isArray(value)) {
-      value.forEach((frame) => {
+      for (const frame of value) {
         if (frame && typeof frame === 'object') {
-          addColor(frame.s);
-          addColor(frame.e);
+          const fromS = firstColorHex(frame.s);
+          if (fromS) return fromS;
+          const fromE = firstColorHex(frame.e);
+          if (fromE) return fromE;
         }
-      });
+      }
     }
+    return null;
   };
-  const addGradientColors = (value: any, points: number) => {
+  // Hex de cada parada de gradiente (uma slot por parada).
+  const gradientStopHexes = (value: any, points: number): string[] => {
     if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
+      const out: string[] = [];
       for (let i = 0; i < points; i += 1) {
         const base = i * 4;
-        const r = value[base + 1];
-        const g = value[base + 2];
-        const b = value[base + 3];
-        found.add(`#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase());
+        out.push(`#${toHex(value[base + 1])}${toHex(value[base + 2])}${toHex(value[base + 3])}`.toLowerCase());
       }
-      return;
+      return out;
     }
     if (Array.isArray(value)) {
-      value.forEach((frame) => {
+      for (const frame of value) {
         if (frame && typeof frame === 'object') {
-          addGradientColors(frame.s, points);
-          addGradientColors(frame.e, points);
+          const fromS = gradientStopHexes(frame.s, points);
+          if (fromS.length) return fromS;
+          const fromE = gradientStopHexes(frame.e, points);
+          if (fromE.length) return fromE;
         }
-      });
+      }
     }
+    return [];
   };
   const walk = (node: any) => {
     if (!node || typeof node !== 'object') return;
-    // Cor sólida/animada: propriedade "c" do tipo { k: [r,g,b,a] } ou keyframes.
-    if (node.c && node.c.k) addColor(node.c.k);
-    // Gradientes Lottie/Flaticon: g.p = quantidade de pontos; g.k.k = [offset,r,g,b,...]
+    // Cor sólida/animada: uma slot por nó "c" (independente de quantos keyframes).
+    if (node.c && node.c.k) {
+      const hex = firstColorHex(node.c.k);
+      if (hex) slots.push({ index: counter, original: hex });
+      counter += 1;
+    }
+    // Gradientes: uma slot por parada do gradiente.
     if (node.g && node.g.k) {
       const points = Number(node.g.p || node.p || 0);
       const gradientValue = node.g.k.k ?? node.g.k;
-      if (points > 0) addGradientColors(gradientValue, points);
+      if (points > 0) {
+        const hexes = gradientStopHexes(gradientValue, points);
+        for (let i = 0; i < points; i += 1) {
+          if (hexes[i]) slots.push({ index: counter, original: hexes[i] });
+          counter += 1;
+        }
+      }
     }
     if (Array.isArray(node)) node.forEach(walk);
     else Object.values(node).forEach(walk);
   };
   walk(data);
-  return Array.from(found);
+  return slots;
 }
 
 const normalizeLottieHex = (value?: string): string => {
@@ -153,57 +169,51 @@ const applyLottieOpacityValue = (value: any, alpha: number) => {
 
 const recolorLottieDataForGateway = (data: any, map: Record<string, string>) => {
   if (!data || !map || !Object.keys(map).length) return data;
-  const normalizedMap: Record<string, ReturnType<typeof parseLottieColorTarget>> = {};
+  // Mapa por índice de ocorrência (slot), não por valor de cor.
+  const targets: Record<number, ReturnType<typeof parseLottieColorTarget>> = {};
   Object.keys(map).forEach((key) => {
-    const from = normalizeLottieHex(key);
+    const idx = Number(key);
     const to = parseLottieColorTarget(map[key]);
-    if (from && to) normalizedMap[from] = to;
+    if (Number.isFinite(idx) && to) targets[idx] = to;
   });
-  if (!Object.keys(normalizedMap).length) return data;
+  if (!Object.keys(targets).length) return data;
 
   const copy = JSON.parse(JSON.stringify(data));
-  const recolorValue = (value: any) => {
+  // Aplica a cor alvo em todos os keyframes de um nó "c" (sólido/animado).
+  const applyColorTarget = (value: any, target: NonNullable<ReturnType<typeof parseLottieColorTarget>>) => {
     const normalized = normalizeLottieRgbArray(value);
     if (normalized) {
-      const current = rgb01ToLottieHex(normalized);
-      const target = normalizedMap[current];
-      if (target) {
-        writeLottieRgbArray(value, target.rgb);
-        if (value.length >= 4 && target.hasAlpha) value[3] = target.a;
-        return target;
-      }
-      return null;
+      writeLottieRgbArray(value, target.rgb);
+      if (value.length >= 4 && target.hasAlpha) value[3] = target.a;
+      return;
     }
-    let matched: ReturnType<typeof parseLottieColorTarget> = null;
     if (Array.isArray(value)) {
       value.forEach((frame) => {
         if (!frame || typeof frame !== 'object') return;
-        if (Array.isArray(frame.s)) matched = recolorValue(frame.s) || matched;
-        if (Array.isArray(frame.e)) matched = recolorValue(frame.e) || matched;
+        if (Array.isArray(frame.s)) applyColorTarget(frame.s, target);
+        if (Array.isArray(frame.e)) applyColorTarget(frame.e, target);
       });
     }
-    return matched;
   };
   const applyNodeOpacity = (node: any, target: ReturnType<typeof parseLottieColorTarget>) => {
     if (!target?.hasAlpha || !node?.o || node.o.k == null) return;
     if (typeof node.o.k === 'number') node.o.k = Math.max(0, Math.min(1, target.a)) * 100;
     else applyLottieOpacityValue(node.o.k, target.a);
   };
-  const recolorGradientValue = (value: any, points: number) => {
+  // Aplica cores alvo nas paradas do gradiente por índice (slotBase + i).
+  const applyGradientTargets = (value: any, points: number, slotBase: number) => {
     if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
       const matches: Array<{ offset: number; target: NonNullable<ReturnType<typeof parseLottieColorTarget>> }> = [];
       for (let i = 0; i < points; i += 1) {
+        const target = targets[slotBase + i];
+        if (!target) continue;
         const base = i * 4;
         const triplet = [value[base + 1], value[base + 2], value[base + 3]];
-        const current = rgb01ToLottieHex(normalizeLottieRgbArray(triplet) || triplet);
-        const target = normalizedMap[current];
-        if (target) {
-          writeLottieRgbArray(triplet, target.rgb);
-          value[base + 1] = triplet[0];
-          value[base + 2] = triplet[1];
-          value[base + 3] = triplet[2];
-          if (target.hasAlpha) matches.push({ offset: value[base], target });
-        }
+        writeLottieRgbArray(triplet, target.rgb);
+        value[base + 1] = triplet[0];
+        value[base + 2] = triplet[1];
+        value[base + 3] = triplet[2];
+        if (target.hasAlpha) matches.push({ offset: value[base], target });
       }
       if (matches.length) {
         const opacityStart = points * 4;
@@ -220,23 +230,35 @@ const recolorLottieDataForGateway = (data: any, map: Record<string, string>) => 
           if (!wrote) value.push(match.offset, match.target.a * scale);
         });
       }
-      return;
+      return true;
     }
     if (Array.isArray(value)) {
-      value.forEach((frame) => {
-        if (!frame || typeof frame !== 'object') return;
-        if (Array.isArray(frame.s)) recolorGradientValue(frame.s, points);
-        if (Array.isArray(frame.e)) recolorGradientValue(frame.e, points);
-      });
+      for (const frame of value) {
+        if (!frame || typeof frame !== 'object') continue;
+        if (Array.isArray(frame.s) && applyGradientTargets(frame.s, points, slotBase)) return true;
+        if (Array.isArray(frame.e) && applyGradientTargets(frame.e, points, slotBase)) return true;
+      }
     }
+    return false;
   };
+  let counter = 0;
   const walk = (node: any) => {
     if (!node || typeof node !== 'object') return;
-    if (node.c && node.c.k) applyNodeOpacity(node, recolorValue(node.c.k));
+    if (node.c && node.c.k) {
+      const target = targets[counter];
+      if (target) {
+        applyColorTarget(node.c.k, target);
+        applyNodeOpacity(node, target);
+      }
+      counter += 1;
+    }
     if (node.g && node.g.k) {
       const points = Number(node.g.p || node.p || 0);
       const gradientValue = node.g.k.k ?? node.g.k;
-      if (points > 0) recolorGradientValue(gradientValue, points);
+      if (points > 0) {
+        applyGradientTargets(gradientValue, points, counter);
+        counter += points;
+      }
     }
     if (Array.isArray(node)) node.forEach(walk);
     else Object.values(node).forEach(walk);
@@ -2483,12 +2505,19 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const cardClass = `ng-card-${safeId}`;
       const isLoop = o.lordTrigger === 'loop';
       const hasPalette = !o.lordKeepColors && Array.isArray(o.lordColors) && o.lordColors.length > 0;
+      // Mapa por índice de slot (posição) — cada ocorrência de cor é independente,
+      // mesmo que duas slots tenham o mesmo valor original.
       const recolorMap = hasPalette
-        ? o.lordColors.reduce((acc: any, c: any) => { if (c.value && c.value.toLowerCase() !== c.original.toLowerCase()) acc[c.original.toLowerCase()] = c.value; return acc; }, {})
+        ? o.lordColors.reduce((acc: any, c: any, ci: number) => {
+            const slot = Number.isFinite(c?.index) ? c.index : ci;
+            if (c && c.value && c.original && c.value.toLowerCase() !== c.original.toLowerCase()) acc[slot] = c.value;
+            return acc;
+          }, {})
         : null;
-      const recolorAttr = recolorMap && Object.keys(recolorMap).length
-        ? ` data-ng-recolor='${JSON.stringify(recolorMap)}' data-ng-original-src="${o.lordIcon}"`
-        : '';
+      // Em modo paleta, recolorimos o JSON embutido no build (fonte da verdade).
+      // Não emitimos data-ng-recolor para evitar recoloração global por valor em runtime.
+      const recolorAttr = '';
+
       const fallbackColors = (!o.lordKeepColors && !hasPalette)
         ? ` data-ng-primary="${o.lordPrimary || o.iconColor}" data-ng-secondary="${o.lordSecondary || o.lordPrimary || o.iconColor}"`
         : '';
@@ -3295,7 +3324,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                           update({
                                             lordData: data,
                                             lordDataVersion: Date.now(),
-                                            lordColors: palette.map((original) => ({ original, value: original })),
+                                            lordColors: palette.map((slot) => ({ index: slot.index, original: slot.original, value: slot.original })),
                                           });
                                           toast({ title: 'Cores detectadas', description: `${palette.length} cor(es) encontrada(s).` });
                                         } catch {
