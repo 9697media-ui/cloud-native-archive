@@ -2501,8 +2501,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         secondary: o.lordSecondary || o.lordPrimary || o.iconColor,
         dataVersion: o.lordDataVersion || null,
       }).replace(/'/g, '&#39;');
-      const embeddedData = o.lordData
-        ? `<script type="application/json" class="ng-lottie-json">${escapeHtmlJson(o.lordData)}</script>`
+      const finalLordData = o.lordData && recolorMap && Object.keys(recolorMap).length
+        ? recolorLottieDataForGateway(o.lordData, recolorMap)
+        : o.lordData;
+      const embeddedData = finalLordData
+        ? `<script type="application/json" class="ng-lottie-json">${escapeHtmlJson(finalLordData)}</script>`
         : '';
       const iconHtml = o.lordIcon
         ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}" data-ng-key='${renderKey}'${fallbackColors}${recolorAttr} aria-hidden="true">${embeddedData}</span>`
