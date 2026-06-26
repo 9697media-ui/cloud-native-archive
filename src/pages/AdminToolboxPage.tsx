@@ -2379,6 +2379,25 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if(max > 1){ target[0]=rgb[0]*255; target[1]=rgb[1]*255; target[2]=rgb[2]*255; }
     else { target[0]=rgb[0]; target[1]=rgb[1]; target[2]=rgb[2]; }
   }
+  function normalizeHex(hex){
+    var h = String(hex || '').trim().toLowerCase();
+    if(!h) return '';
+    if(h[0] !== '#') h = '#'+h;
+    if(/^#[0-9a-f]{3}$/.test(h)) h = '#'+h[1]+h[1]+h[2]+h[2]+h[3]+h[3];
+    if(/^#[0-9a-f]{8}$/.test(h)) h = h.slice(0, 7);
+    return /^#[0-9a-f]{6}$/.test(h) ? h : '';
+  }
+  function colorStringToHex(value){
+    var raw = String(value || '').trim().toLowerCase();
+    if(!raw || raw === 'none' || raw === 'transparent') return '';
+    var hex = normalizeHex(raw);
+    if(hex) return hex;
+    var match = raw.match(/rgba?\(([^)]+)\)/);
+    if(!match) return '';
+    var parts = match[1].split(',').map(function(part){ return parseFloat(part.trim()); });
+    if(parts.length < 3 || parts.slice(0,3).some(function(n){ return !isFinite(n); })) return '';
+    return rgb01ToHex([parts[0]/255, parts[1]/255, parts[2]/255]);
+  }
   function collectValueColors(value, found){
     var normalized = normalizeRgbArray(value);
     if(normalized){ found[rgb01ToHex(normalized)] = true; return; }
@@ -2469,7 +2488,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   function recolor(data, map){
     var copy = clone(data);
     var normalizedMap = {};
-    Object.keys(map || {}).forEach(function(key){ normalizedMap[String(key).toLowerCase()] = map[key]; });
+    Object.keys(map || {}).forEach(function(key){
+      var from = normalizeHex(key);
+      var to = normalizeHex(map[key]);
+      if(from && to) normalizedMap[from] = to;
+    });
     function walk(node){
       if(!node || typeof node !== 'object') return;
       if(node.c && node.c.k) recolorValue(node.c.k, normalizedMap);
@@ -2483,6 +2506,27 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     }
     walk(copy);
     return copy;
+  }
+  function applySvgColorFallback(icon, map){
+    var normalizedMap = {};
+    Object.keys(map || {}).forEach(function(key){
+      var from = normalizeHex(key);
+      var to = normalizeHex(map[key]);
+      if(from && to) normalizedMap[from] = to;
+    });
+    if(!Object.keys(normalizedMap).length) return;
+    icon.querySelectorAll('path, circle, ellipse, rect, polygon, polyline, line, g').forEach(function(el){
+      ['fill','stroke'].forEach(function(prop){
+        var attr = el.getAttribute(prop);
+        var attrHex = colorStringToHex(attr);
+        if(attrHex && normalizedMap[attrHex]) el.setAttribute(prop, normalizedMap[attrHex]);
+        var inline = el.style && el.style[prop];
+        var inlineHex = colorStringToHex(inline);
+        if(inlineHex && normalizedMap[inlineHex]) el.style[prop] = normalizedMap[inlineHex];
+        var computed = colorStringToHex(window.getComputedStyle(el)[prop]);
+        if(computed && normalizedMap[computed] && !attrHex && !inlineHex) el.setAttribute(prop, normalizedMap[computed]);
+      });
+    });
   }
   function buildColorMap(icon, data){
     var map = {};
@@ -2531,9 +2575,21 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
           icon.__ngAnim = anim;
           var card = icon.closest('.ng-card');
           if(!card) return;
-          anim.goToAndStop(0, true);
+          var renderStart = function(){
+            anim.goToAndStop(1, true);
+            if(Object.keys(map).length) applySvgColorFallback(icon, map);
+            requestAnimationFrame(function(){
+              anim.goToAndStop(0, true);
+              if(Object.keys(map).length) applySvgColorFallback(icon, map);
+            });
+          };
+          anim.addEventListener('DOMLoaded', renderStart);
+          anim.addEventListener('data_ready', renderStart);
+          anim.addEventListener('enterFrame', function(){ if(Object.keys(map).length) applySvgColorFallback(icon, map); });
+          setTimeout(renderStart, 120);
 
           card.addEventListener('mouseenter', function(){
+            if(Object.keys(map).length) applySvgColorFallback(icon, map);
             if(icon.classList.contains('ng-lottie-loop')){
               anim.loop = true;
               anim.setDirection(1);
@@ -2547,6 +2603,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
           card.addEventListener('mouseleave', function(){
             anim.loop = false;
+            if(Object.keys(map).length) applySvgColorFallback(icon, map);
             if(icon.classList.contains('ng-lottie-loop')){
               anim.stop();
               anim.goToAndStop(0, true);
