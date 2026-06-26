@@ -2387,6 +2387,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if(/^#[0-9a-f]{8}$/.test(h)) h = h.slice(0, 7);
     return /^#[0-9a-f]{6}$/.test(h) ? h : '';
   }
+  // Mantém o canal alpha do alvo: retorna { hex:'#rrggbb', rgb:[0-1], a:0-1 }.
+  function parseColorWithAlpha(value){
+    var raw = String(value || '').trim().toLowerCase();
+    if(!raw) return null;
+    if(raw === 'transparent' || raw === 'none') return { hex:'#000000', rgb:[0,0,0], a:0 };
+    if(raw[0] !== '#') raw = '#'+raw;
+    if(/^#[0-9a-f]{3}$/.test(raw)) raw = '#'+raw[1]+raw[1]+raw[2]+raw[2]+raw[3]+raw[3];
+    var a = 1;
+    if(/^#[0-9a-f]{8}$/.test(raw)){ a = parseInt(raw.slice(7,9),16)/255; raw = raw.slice(0,7); }
+    if(!/^#[0-9a-f]{6}$/.test(raw)) return null;
+    return { hex: raw, rgb: hexToRgb01(raw), a: a };
+  }
   function colorStringToHex(value){
     var raw = String(value || '').trim().toLowerCase();
     if(!raw || raw === 'none' || raw === 'transparent') return '';
