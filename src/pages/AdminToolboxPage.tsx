@@ -2460,8 +2460,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if(normalized){
       var current = rgb01ToHex(normalized);
       if(map[current]){
-        var rgb = hexToRgb01(map[current]);
-        writeRgbArray(value, rgb);
+        writeRgbArray(value, map[current].rgb);
+        if(value.length >= 4) value[3] = map[current].a;
       }
       return;
     }
