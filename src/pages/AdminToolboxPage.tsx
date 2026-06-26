@@ -2501,7 +2501,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     var normalizedMap = {};
     Object.keys(map || {}).forEach(function(key){
       var from = normalizeHex(key);
-      var to = normalizeHex(map[key]);
+      var to = parseColorWithAlpha(map[key]);
       if(from && to) normalizedMap[from] = to;
     });
     function walk(node){
