@@ -2307,6 +2307,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 176px; height: 176px; background: #fff; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
   .nav-gateway-441 .ng-card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
   .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
+  .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
   .nav-gateway-441 .ng-pill { background: rgba(255,255,255,.2); color: #fff; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
   .nav-gateway-441 .ng-sticky { position: fixed; bottom: 96px; right: 0; transform-origin: bottom right; transform: rotate(-90deg); background: #4f46e5; color: #fff; font-size: 14px; font-weight: 600; padding: 8px 20px; border-radius: 8px 8px 0 0; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,.2); z-index: 999998; }
@@ -2391,13 +2392,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   function parseColorWithAlpha(value){
     var raw = String(value || '').trim().toLowerCase();
     if(!raw) return null;
-    if(raw === 'transparent' || raw === 'none') return { hex:'#000000', rgb:[0,0,0], a:0 };
+    if(raw === 'transparent' || raw === 'none') return { hex:'#000000', rgb:[0,0,0], a:0, hasAlpha:true };
     if(raw[0] !== '#') raw = '#'+raw;
     if(/^#[0-9a-f]{3}$/.test(raw)) raw = '#'+raw[1]+raw[1]+raw[2]+raw[2]+raw[3]+raw[3];
     var a = 1;
-    if(/^#[0-9a-f]{8}$/.test(raw)){ a = parseInt(raw.slice(7,9),16)/255; raw = raw.slice(0,7); }
+    var hasAlpha = /^#[0-9a-f]{8}$/.test(raw);
+    if(hasAlpha){ a = parseInt(raw.slice(7,9),16)/255; raw = raw.slice(0,7); }
     if(!/^#[0-9a-f]{6}$/.test(raw)) return null;
-    return { hex: raw, rgb: hexToRgb01(raw), a: a };
+    return { hex: raw, rgb: hexToRgb01(raw), a: a, hasAlpha: hasAlpha };
   }
   function colorStringToHex(value){
     var raw = String(value || '').trim().toLowerCase();
