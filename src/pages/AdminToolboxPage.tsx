@@ -83,6 +83,168 @@ function extractLordColors(data: any): string[] {
   return Array.from(found);
 }
 
+const normalizeLottieHex = (value?: string): string => {
+  let h = String(value || '').trim().toLowerCase();
+  if (!h || h === 'none' || h === 'transparent') return '';
+  if (!h.startsWith('#')) h = `#${h}`;
+  if (/^#[0-9a-f]{3}$/.test(h)) h = `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}`;
+  if (/^#[0-9a-f]{8}$/.test(h)) h = h.slice(0, 7);
+  return /^#[0-9a-f]{6}$/.test(h) ? h : '';
+};
+
+const parseLottieColorTarget = (value?: string) => {
+  let raw = String(value || '').trim().toLowerCase();
+  if (!raw) return null;
+  if (raw === 'transparent' || raw === 'none') {
+    return { hex: '#000000', rgb: [0, 0, 0], a: 0, hasAlpha: true };
+  }
+  if (!raw.startsWith('#')) raw = `#${raw}`;
+  if (/^#[0-9a-f]{3}$/.test(raw)) raw = `#${raw[1]}${raw[1]}${raw[2]}${raw[2]}${raw[3]}${raw[3]}`;
+  const hasAlpha = /^#[0-9a-f]{8}$/.test(raw);
+  const a = hasAlpha ? parseInt(raw.slice(7, 9), 16) / 255 : 1;
+  if (hasAlpha) raw = raw.slice(0, 7);
+  if (!/^#[0-9a-f]{6}$/.test(raw)) return null;
+  const r = parseInt(raw.slice(1, 3), 16) / 255;
+  const g = parseInt(raw.slice(3, 5), 16) / 255;
+  const b = parseInt(raw.slice(5, 7), 16) / 255;
+  return { hex: raw, rgb: [r, g, b], a, hasAlpha };
+};
+
+const rgb01ToLottieHex = (arr: number[]) => {
+  const c = (n: number) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+  return `#${c(arr[0])}${c(arr[1])}${c(arr[2])}`.toLowerCase();
+};
+
+const normalizeLottieRgbArray = (arr: any): number[] | null => {
+  if (!Array.isArray(arr) || (arr.length !== 3 && arr.length !== 4)) return null;
+  if (typeof arr[0] !== 'number' || typeof arr[1] !== 'number' || typeof arr[2] !== 'number') return null;
+  const max = Math.max(Number(arr[0]) || 0, Number(arr[1]) || 0, Number(arr[2]) || 0);
+  return max > 1 ? [arr[0] / 255, arr[1] / 255, arr[2] / 255] : [arr[0], arr[1], arr[2]];
+};
+
+const writeLottieRgbArray = (target: any[], rgb: number[]) => {
+  const max = Math.max(Number(target[0]) || 0, Number(target[1]) || 0, Number(target[2]) || 0);
+  if (max > 1) {
+    target[0] = rgb[0] * 255;
+    target[1] = rgb[1] * 255;
+    target[2] = rgb[2] * 255;
+  } else {
+    target[0] = rgb[0];
+    target[1] = rgb[1];
+    target[2] = rgb[2];
+  }
+};
+
+const applyLottieOpacityValue = (value: any, alpha: number) => {
+  const next = Math.max(0, Math.min(1, Number(alpha))) * 100;
+  if (!Array.isArray(value)) return;
+  if (value.length && value.every((v) => typeof v === 'number')) {
+    value[0] = next;
+    return;
+  }
+  value.forEach((frame) => {
+    if (!frame || typeof frame !== 'object') return;
+    if (Array.isArray(frame.s)) frame.s[0] = next;
+    else if (typeof frame.s === 'number') frame.s = next;
+    if (Array.isArray(frame.e)) frame.e[0] = next;
+    else if (typeof frame.e === 'number') frame.e = next;
+  });
+};
+
+const recolorLottieDataForGateway = (data: any, map: Record<string, string>) => {
+  if (!data || !map || !Object.keys(map).length) return data;
+  const normalizedMap: Record<string, ReturnType<typeof parseLottieColorTarget>> = {};
+  Object.keys(map).forEach((key) => {
+    const from = normalizeLottieHex(key);
+    const to = parseLottieColorTarget(map[key]);
+    if (from && to) normalizedMap[from] = to;
+  });
+  if (!Object.keys(normalizedMap).length) return data;
+
+  const copy = JSON.parse(JSON.stringify(data));
+  const recolorValue = (value: any) => {
+    const normalized = normalizeLottieRgbArray(value);
+    if (normalized) {
+      const current = rgb01ToLottieHex(normalized);
+      const target = normalizedMap[current];
+      if (target) {
+        writeLottieRgbArray(value, target.rgb);
+        if (value.length >= 4 && target.hasAlpha) value[3] = target.a;
+        return target;
+      }
+      return null;
+    }
+    let matched: ReturnType<typeof parseLottieColorTarget> = null;
+    if (Array.isArray(value)) {
+      value.forEach((frame) => {
+        if (!frame || typeof frame !== 'object') return;
+        if (Array.isArray(frame.s)) matched = recolorValue(frame.s) || matched;
+        if (Array.isArray(frame.e)) matched = recolorValue(frame.e) || matched;
+      });
+    }
+    return matched;
+  };
+  const applyNodeOpacity = (node: any, target: ReturnType<typeof parseLottieColorTarget>) => {
+    if (!target?.hasAlpha || !node?.o || node.o.k == null) return;
+    if (typeof node.o.k === 'number') node.o.k = Math.max(0, Math.min(1, target.a)) * 100;
+    else applyLottieOpacityValue(node.o.k, target.a);
+  };
+  const recolorGradientValue = (value: any, points: number) => {
+    if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
+      const matches: Array<{ offset: number; target: NonNullable<ReturnType<typeof parseLottieColorTarget>> }> = [];
+      for (let i = 0; i < points; i += 1) {
+        const base = i * 4;
+        const triplet = [value[base + 1], value[base + 2], value[base + 3]];
+        const current = rgb01ToLottieHex(normalizeLottieRgbArray(triplet) || triplet);
+        const target = normalizedMap[current];
+        if (target) {
+          writeLottieRgbArray(triplet, target.rgb);
+          value[base + 1] = triplet[0];
+          value[base + 2] = triplet[1];
+          value[base + 3] = triplet[2];
+          if (target.hasAlpha) matches.push({ offset: value[base], target });
+        }
+      }
+      if (matches.length) {
+        const opacityStart = points * 4;
+        let scale = 1;
+        for (let oi = opacityStart + 1; oi < value.length; oi += 2) if (Number(value[oi]) > 1) scale = 100;
+        matches.forEach((match) => {
+          let wrote = false;
+          for (let oi = opacityStart; oi + 1 < value.length; oi += 2) {
+            if (Math.abs(Number(value[oi]) - Number(match.offset)) < 0.001) {
+              value[oi + 1] = match.target.a * scale;
+              wrote = true;
+            }
+          }
+          if (!wrote) value.push(match.offset, match.target.a * scale);
+        });
+      }
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((frame) => {
+        if (!frame || typeof frame !== 'object') return;
+        if (Array.isArray(frame.s)) recolorGradientValue(frame.s, points);
+        if (Array.isArray(frame.e)) recolorGradientValue(frame.e, points);
+      });
+    }
+  };
+  const walk = (node: any) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.c && node.c.k) applyNodeOpacity(node, recolorValue(node.c.k));
+    if (node.g && node.g.k) {
+      const points = Number(node.g.p || node.p || 0);
+      const gradientValue = node.g.k.k ?? node.g.k;
+      if (points > 0) recolorGradientValue(gradientValue, points);
+    }
+    if (Array.isArray(node)) node.forEach(walk);
+    else Object.values(node).forEach(walk);
+  };
+  walk(copy);
+  return copy;
+};
+
 // Configurações padrão (fonte da verdade das propriedades de edição atuais).
 // Usadas para inicializar os estados e para "atualizar" modelos antigos,
 // preenchendo propriedades novas que ainda não existiam quando foram salvos.
@@ -2307,6 +2469,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 176px; height: 176px; background: #fff; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
   .nav-gateway-441 .ng-card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
   .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
+  .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
   .nav-gateway-441 .ng-pill { background: rgba(255,255,255,.2); color: #fff; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
   .nav-gateway-441 .ng-sticky { position: fixed; bottom: 96px; right: 0; transform-origin: bottom right; transform: rotate(-90deg); background: #4f46e5; color: #fff; font-size: 14px; font-weight: 600; padding: 8px 20px; border-radius: 8px 8px 0 0; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,.2); z-index: 999998; }
@@ -2338,8 +2501,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         secondary: o.lordSecondary || o.lordPrimary || o.iconColor,
         dataVersion: o.lordDataVersion || null,
       }).replace(/'/g, '&#39;');
-      const embeddedData = o.lordData
-        ? `<script type="application/json" class="ng-lottie-json">${escapeHtmlJson(o.lordData)}</script>`
+      const finalLordData = o.lordData && recolorMap && Object.keys(recolorMap).length
+        ? recolorLottieDataForGateway(o.lordData, recolorMap)
+        : o.lordData;
+      const embeddedData = finalLordData
+        ? `<script type="application/json" class="ng-lottie-json">${escapeHtmlJson(finalLordData)}</script>`
         : '';
       const iconHtml = o.lordIcon
         ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}" data-ng-key='${renderKey}'${fallbackColors}${recolorAttr} aria-hidden="true">${embeddedData}</span>`
@@ -2391,13 +2557,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   function parseColorWithAlpha(value){
     var raw = String(value || '').trim().toLowerCase();
     if(!raw) return null;
-    if(raw === 'transparent' || raw === 'none') return { hex:'#000000', rgb:[0,0,0], a:0 };
+    if(raw === 'transparent' || raw === 'none') return { hex:'#000000', rgb:[0,0,0], a:0, hasAlpha:true };
     if(raw[0] !== '#') raw = '#'+raw;
     if(/^#[0-9a-f]{3}$/.test(raw)) raw = '#'+raw[1]+raw[1]+raw[2]+raw[2]+raw[3]+raw[3];
     var a = 1;
-    if(/^#[0-9a-f]{8}$/.test(raw)){ a = parseInt(raw.slice(7,9),16)/255; raw = raw.slice(0,7); }
+    var hasAlpha = /^#[0-9a-f]{8}$/.test(raw);
+    if(hasAlpha){ a = parseInt(raw.slice(7,9),16)/255; raw = raw.slice(0,7); }
     if(!/^#[0-9a-f]{6}$/.test(raw)) return null;
-    return { hex: raw, rgb: hexToRgb01(raw), a: a };
+    return { hex: raw, rgb: hexToRgb01(raw), a: a, hasAlpha: hasAlpha };
   }
   function colorStringToHex(value){
     var raw = String(value || '').trim().toLowerCase();
@@ -2461,21 +2628,46 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       var current = rgb01ToHex(normalized);
       if(map[current]){
         writeRgbArray(value, map[current].rgb);
-        if(value.length >= 4) value[3] = map[current].a;
+        if(value.length >= 4 && map[current].hasAlpha) value[3] = map[current].a;
+        return map[current];
       }
-      return;
+      return null;
     }
+    var matched = null;
     if(Array.isArray(value)){
       value.forEach(function(frame){
         if(frame && typeof frame === 'object'){
-          if(Array.isArray(frame.s)) recolorValue(frame.s, map);
-          if(Array.isArray(frame.e)) recolorValue(frame.e, map);
+          if(Array.isArray(frame.s)) matched = recolorValue(frame.s, map) || matched;
+          if(Array.isArray(frame.e)) matched = recolorValue(frame.e, map) || matched;
         }
       });
     }
+    return matched;
+  }
+  function applyOpacityValue(value, alpha){
+    var next = Math.max(0, Math.min(1, Number(alpha))) * 100;
+    if(Array.isArray(value)){
+      if(value.length && value.every(function(v){ return typeof v === 'number'; })){
+        value[0] = next;
+        return;
+      }
+      value.forEach(function(frame){
+        if(!frame || typeof frame !== 'object') return;
+        if(Array.isArray(frame.s)) frame.s[0] = next;
+        else if(typeof frame.s === 'number') frame.s = next;
+        if(Array.isArray(frame.e)) frame.e[0] = next;
+        else if(typeof frame.e === 'number') frame.e = next;
+      });
+    }
+  }
+  function applyNodeOpacity(node, target){
+    if(!target || !target.hasAlpha || !node || !node.o || node.o.k == null) return;
+    if(typeof node.o.k === 'number') node.o.k = Math.max(0, Math.min(1, target.a)) * 100;
+    else applyOpacityValue(node.o.k, target.a);
   }
   function recolorGradientValue(value, points, map){
     if(Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every(function(v){ return typeof v === 'number'; })){
+      var matches = [];
       for(var i=0;i<points;i++){
         var base = i * 4;
         var rgbTriplet = [value[base+1], value[base+2], value[base+3]];
@@ -2483,7 +2675,20 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         if(map[current]){
           writeRgbArray(rgbTriplet, map[current].rgb);
           value[base+1]=rgbTriplet[0]; value[base+2]=rgbTriplet[1]; value[base+3]=rgbTriplet[2];
+          if(map[current].hasAlpha) matches.push({ offset: value[base], target: map[current] });
         }
+      }
+      if(matches.length){
+        var opacityStart = points * 4;
+        var scale = 1;
+        for(var oi = opacityStart + 1; oi < value.length; oi += 2){ if(Number(value[oi]) > 1) scale = 100; }
+        matches.forEach(function(match){
+          var wrote = false;
+          for(var oi = opacityStart; oi + 1 < value.length; oi += 2){
+            if(Math.abs(Number(value[oi]) - Number(match.offset)) < 0.001){ value[oi + 1] = match.target.a * scale; wrote = true; }
+          }
+          if(!wrote) value.push(match.offset, match.target.a * scale);
+        });
       }
       return;
     }
@@ -2506,7 +2711,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     });
     function walk(node){
       if(!node || typeof node !== 'object') return;
-      if(node.c && node.c.k) recolorValue(node.c.k, normalizedMap);
+      if(node.c && node.c.k) applyNodeOpacity(node, recolorValue(node.c.k, normalizedMap));
       if(node.g && node.g.k){
         var points = Number(node.g.p || node.p || 0);
         var gradientValue = node.g.k.k || node.g.k;
@@ -2526,8 +2731,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       if(from && to) normalizedMap[from] = to;
     });
     if(!Object.keys(normalizedMap).length) return;
-    icon.querySelectorAll('path, circle, ellipse, rect, polygon, polyline, line, g').forEach(function(el){
-      ['fill','stroke'].forEach(function(prop){
+    icon.querySelectorAll('path, circle, ellipse, rect, polygon, polyline, line, g, stop').forEach(function(el){
+      var tag = (el.tagName || '').toLowerCase();
+      var props = tag === 'stop' ? ['stop-color'] : ['fill','stroke'];
+      props.forEach(function(prop){
         var attr = el.getAttribute(prop);
         var attrHex = colorStringToHex(attr);
         var target = null;
@@ -2539,9 +2746,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         if(!target && computed && normalizedMap[computed] && !attrHex && !inlineHex) target = normalizedMap[computed];
         if(target){
           el.setAttribute(prop, target.hex);
-          el.style[prop] = target.hex;
-          el.setAttribute(prop + '-opacity', String(target.a));
-          el.style[prop + 'Opacity'] = String(target.a);
+          if(el.style && el.style.setProperty) el.style.setProperty(prop, target.hex, 'important');
+          if(target.hasAlpha){
+            var opacityProp = prop === 'stop-color' ? 'stop-opacity' : prop + '-opacity';
+            el.setAttribute(opacityProp, String(target.a));
+            if(el.style && el.style.setProperty) el.style.setProperty(opacityProp, String(target.a), 'important');
+          }
         }
       });
     });
