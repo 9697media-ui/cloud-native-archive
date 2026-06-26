@@ -169,57 +169,51 @@ const applyLottieOpacityValue = (value: any, alpha: number) => {
 
 const recolorLottieDataForGateway = (data: any, map: Record<string, string>) => {
   if (!data || !map || !Object.keys(map).length) return data;
-  const normalizedMap: Record<string, ReturnType<typeof parseLottieColorTarget>> = {};
+  // Mapa por índice de ocorrência (slot), não por valor de cor.
+  const targets: Record<number, ReturnType<typeof parseLottieColorTarget>> = {};
   Object.keys(map).forEach((key) => {
-    const from = normalizeLottieHex(key);
+    const idx = Number(key);
     const to = parseLottieColorTarget(map[key]);
-    if (from && to) normalizedMap[from] = to;
+    if (Number.isFinite(idx) && to) targets[idx] = to;
   });
-  if (!Object.keys(normalizedMap).length) return data;
+  if (!Object.keys(targets).length) return data;
 
   const copy = JSON.parse(JSON.stringify(data));
-  const recolorValue = (value: any) => {
+  // Aplica a cor alvo em todos os keyframes de um nó "c" (sólido/animado).
+  const applyColorTarget = (value: any, target: NonNullable<ReturnType<typeof parseLottieColorTarget>>) => {
     const normalized = normalizeLottieRgbArray(value);
     if (normalized) {
-      const current = rgb01ToLottieHex(normalized);
-      const target = normalizedMap[current];
-      if (target) {
-        writeLottieRgbArray(value, target.rgb);
-        if (value.length >= 4 && target.hasAlpha) value[3] = target.a;
-        return target;
-      }
-      return null;
+      writeLottieRgbArray(value, target.rgb);
+      if (value.length >= 4 && target.hasAlpha) value[3] = target.a;
+      return;
     }
-    let matched: ReturnType<typeof parseLottieColorTarget> = null;
     if (Array.isArray(value)) {
       value.forEach((frame) => {
         if (!frame || typeof frame !== 'object') return;
-        if (Array.isArray(frame.s)) matched = recolorValue(frame.s) || matched;
-        if (Array.isArray(frame.e)) matched = recolorValue(frame.e) || matched;
+        if (Array.isArray(frame.s)) applyColorTarget(frame.s, target);
+        if (Array.isArray(frame.e)) applyColorTarget(frame.e, target);
       });
     }
-    return matched;
   };
   const applyNodeOpacity = (node: any, target: ReturnType<typeof parseLottieColorTarget>) => {
     if (!target?.hasAlpha || !node?.o || node.o.k == null) return;
     if (typeof node.o.k === 'number') node.o.k = Math.max(0, Math.min(1, target.a)) * 100;
     else applyLottieOpacityValue(node.o.k, target.a);
   };
-  const recolorGradientValue = (value: any, points: number) => {
+  // Aplica cores alvo nas paradas do gradiente por índice (slotBase + i).
+  const applyGradientTargets = (value: any, points: number, slotBase: number) => {
     if (Array.isArray(value) && value.length >= points * 4 && value.slice(0, points * 4).every((v) => typeof v === 'number')) {
       const matches: Array<{ offset: number; target: NonNullable<ReturnType<typeof parseLottieColorTarget>> }> = [];
       for (let i = 0; i < points; i += 1) {
+        const target = targets[slotBase + i];
+        if (!target) continue;
         const base = i * 4;
         const triplet = [value[base + 1], value[base + 2], value[base + 3]];
-        const current = rgb01ToLottieHex(normalizeLottieRgbArray(triplet) || triplet);
-        const target = normalizedMap[current];
-        if (target) {
-          writeLottieRgbArray(triplet, target.rgb);
-          value[base + 1] = triplet[0];
-          value[base + 2] = triplet[1];
-          value[base + 3] = triplet[2];
-          if (target.hasAlpha) matches.push({ offset: value[base], target });
-        }
+        writeLottieRgbArray(triplet, target.rgb);
+        value[base + 1] = triplet[0];
+        value[base + 2] = triplet[1];
+        value[base + 3] = triplet[2];
+        if (target.hasAlpha) matches.push({ offset: value[base], target });
       }
       if (matches.length) {
         const opacityStart = points * 4;
@@ -236,23 +230,35 @@ const recolorLottieDataForGateway = (data: any, map: Record<string, string>) => 
           if (!wrote) value.push(match.offset, match.target.a * scale);
         });
       }
-      return;
+      return true;
     }
     if (Array.isArray(value)) {
-      value.forEach((frame) => {
-        if (!frame || typeof frame !== 'object') return;
-        if (Array.isArray(frame.s)) recolorGradientValue(frame.s, points);
-        if (Array.isArray(frame.e)) recolorGradientValue(frame.e, points);
-      });
+      for (const frame of value) {
+        if (!frame || typeof frame !== 'object') continue;
+        if (Array.isArray(frame.s) && applyGradientTargets(frame.s, points, slotBase)) return true;
+        if (Array.isArray(frame.e) && applyGradientTargets(frame.e, points, slotBase)) return true;
+      }
     }
+    return false;
   };
+  let counter = 0;
   const walk = (node: any) => {
     if (!node || typeof node !== 'object') return;
-    if (node.c && node.c.k) applyNodeOpacity(node, recolorValue(node.c.k));
+    if (node.c && node.c.k) {
+      const target = targets[counter];
+      if (target) {
+        applyColorTarget(node.c.k, target);
+        applyNodeOpacity(node, target);
+      }
+      counter += 1;
+    }
     if (node.g && node.g.k) {
       const points = Number(node.g.p || node.p || 0);
       const gradientValue = node.g.k.k ?? node.g.k;
-      if (points > 0) recolorGradientValue(gradientValue, points);
+      if (points > 0) {
+        applyGradientTargets(gradientValue, points, counter);
+        counter += points;
+      }
     }
     if (Array.isArray(node)) node.forEach(walk);
     else Object.values(node).forEach(walk);
