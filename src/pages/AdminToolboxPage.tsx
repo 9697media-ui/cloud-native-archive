@@ -3449,7 +3449,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               ))}
 
                               <div className="space-y-1">
-                                <Label className="text-xs">Tamanho do ícone ({opt.svgSize ?? 56}px)</Label>
+                                <div className="flex items-center justify-between">
+                                  <Label className="text-xs">Tamanho do ícone</Label>
+                                  <div className="flex items-center gap-1">
+                                    <Input
+                                      type="number"
+                                      className="h-7 w-16 text-xs"
+                                      value={opt.svgSize ?? 56}
+                                      onChange={(e) => update({ svgSize: Number(e.target.value) || 0 })}
+                                    />
+                                    <span className="text-xs text-muted-foreground">px</span>
+                                  </div>
+                                </div>
                                 <Slider
                                   min={16}
                                   max={160}
