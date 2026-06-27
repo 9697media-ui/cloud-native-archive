@@ -2941,6 +2941,28 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 })();
 </script>` : '';
 
+    const hasSvg = (gatewayConfig.options || []).some((o: any) => o.iconMode === 'svg' && o.svgStatic);
+    const svgScript = hasSvg ? `
+<script>
+(function(){
+  function bind(){
+    document.querySelectorAll('.nav-gateway-441 .ng-card').forEach(function(card){
+      var icon = card.querySelector('.ng-svg-icon.has-active');
+      if(!icon || card.__ngSvgBound) return;
+      card.__ngSvgBound = true;
+      var hold = icon.getAttribute('data-click-hold') === '1';
+      card.addEventListener('click', function(){
+        if(hold){ icon.classList.toggle('is-clicked'); }
+        else { icon.classList.add('is-clicked'); }
+      });
+      card.addEventListener('mouseleave', function(){ if(!hold) icon.classList.remove('is-clicked'); });
+    });
+  }
+  if(document.readyState !== 'loading') bind();
+  else document.addEventListener('DOMContentLoaded', bind);
+})();
+</script>` : '';
+
     const sticky = gatewayConfig.stickyLabel
       ? `\n  <a class="ng-sticky" href="${gatewayConfig.stickyLink || '#'}">${gatewayConfig.stickyLabel}</a>`
       : '';
