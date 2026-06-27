@@ -368,6 +368,7 @@ const DEFAULT_GATEWAY_CONFIG = {
   bgColor: '#0f172a',
   overlayOpacity: 60,
   cardHeight: 176,
+  cardWidth: 176,
   pillBgColor: '#ffffff33',
   pillTextColor: '#ffffff',
   title: 'Bem-vindo',
@@ -2525,7 +2526,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px; }
   .nav-gateway-441 .ng-grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
   .nav-gateway-441 .ng-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-  .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 176px; height: ${gatewayConfig.cardHeight ?? 176}px; background: #fff; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
+  .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: ${gatewayConfig.cardWidth ?? 176}px; height: ${gatewayConfig.cardHeight ?? 176}px; background: #fff; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
   .nav-gateway-441 .ng-card:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
   .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
   .nav-gateway-441 .ng-svg-icon { position: relative; display: inline-block; width: 56px; height: 56px; }
@@ -3344,15 +3345,37 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Altura do Cartão: {gatewayConfig.cardHeight ?? 176}px</Label>
-                      <Slider
-                        min={120}
-                        max={320}
-                        step={4}
-                        value={[gatewayConfig.cardHeight ?? 176]}
-                        onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardHeight: v})}
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Largura do Cartão</Label>
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              className="h-7 w-16 text-xs"
+                              value={gatewayConfig.cardWidth ?? 176}
+                              onChange={(e) => setGatewayConfig({...gatewayConfig, cardWidth: Number(e.target.value) || 0})}
+                            />
+                            <span className="text-xs text-muted-foreground">px</span>
+                          </div>
+                        </div>
+                        <Slider min={120} max={320} step={4} value={[gatewayConfig.cardWidth ?? 176]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardWidth: v})} />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Altura do Cartão</Label>
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              className="h-7 w-16 text-xs"
+                              value={gatewayConfig.cardHeight ?? 176}
+                              onChange={(e) => setGatewayConfig({...gatewayConfig, cardHeight: Number(e.target.value) || 0})}
+                            />
+                            <span className="text-xs text-muted-foreground">px</span>
+                          </div>
+                        </div>
+                        <Slider min={120} max={320} step={4} value={[gatewayConfig.cardHeight ?? 176]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardHeight: v})} />
+                      </div>
                     </div>
 
                     <div className="space-y-3 pt-2 border-t">
@@ -3426,7 +3449,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               ))}
 
                               <div className="space-y-1">
-                                <Label className="text-xs">Tamanho do ícone ({opt.svgSize ?? 56}px)</Label>
+                                <div className="flex items-center justify-between">
+                                  <Label className="text-xs">Tamanho do ícone</Label>
+                                  <div className="flex items-center gap-1">
+                                    <Input
+                                      type="number"
+                                      className="h-7 w-16 text-xs"
+                                      value={opt.svgSize ?? 56}
+                                      onChange={(e) => update({ svgSize: Number(e.target.value) || 0 })}
+                                    />
+                                    <span className="text-xs text-muted-foreground">px</span>
+                                  </div>
+                                </div>
                                 <Slider
                                   min={16}
                                   max={160}
