@@ -4263,19 +4263,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                     <div className="space-y-2">
                       <Label>Fonte</Label>
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                      <FontSelect
                         value={menuConfig.fontFamily}
-                        onChange={(e) => setMenuConfig({...menuConfig, fontFamily: e.target.value})}
-                      >
-                        <option value="system-ui, -apple-system, sans-serif">Sistema (padrão)</option>
-                        <option value="'Inter', sans-serif">Inter</option>
-                        <option value="'Poppins', sans-serif">Poppins</option>
-                        <option value="'Roboto', sans-serif">Roboto</option>
-                        <option value="'Montserrat', sans-serif">Montserrat</option>
-                        <option value="Georgia, serif">Georgia (serifada)</option>
-                        <option value="'Courier New', monospace">Monoespaçada</option>
-                      </select>
+                        weight={menuConfig.fontWeight}
+                        style={menuConfig.fontStyle}
+                        onChange={(v) => setMenuConfig({...menuConfig, fontFamily: v || 'system-ui, -apple-system, sans-serif'})}
+                        onWeightChange={(v) => setMenuConfig({...menuConfig, fontWeight: v})}
+                        onStyleChange={(v) => setMenuConfig({...menuConfig, fontStyle: v})}
+                      />
                     </div>
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
