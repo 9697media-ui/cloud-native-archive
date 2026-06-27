@@ -2579,12 +2579,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const svgStatic = sanitizeSvg(o.svgStatic);
       const svgHover = sanitizeSvg(o.svgHover);
       const svgActive = sanitizeSvg(o.svgActive);
-      const useSvg = o.iconMode === 'svg' && svgStatic;
+      const useSvg = !!svgStatic;
       const svgDur = `${(Number(o.svgTransition ?? 300) || 300)}ms`;
+      const svgEase = o.svgEasing || 'ease';
       let iconHtml: string;
       if (useSvg) {
         const wrapClasses = ['ng-svg-icon', svgHover ? 'has-hover' : '', svgActive ? 'has-active' : ''].filter(Boolean).join(' ');
-        iconHtml = `<span class="${wrapClasses}" style="--ng-svg-dur:${svgDur};color:${o.iconColor};" data-click-hold="${o.svgClickHold ? '1' : '0'}" aria-hidden="true">`
+        iconHtml = `<span class="${wrapClasses}" style="--ng-svg-dur:${svgDur};--ng-svg-ease:${svgEase};color:${o.iconColor};" data-click-hold="${o.svgClickHold ? '1' : '0'}" aria-hidden="true">`
           + `<span class="ng-svg-layer is-static">${svgStatic}</span>`
           + (svgHover ? `<span class="ng-svg-layer is-hover">${svgHover}</span>` : '')
           + (svgActive ? `<span class="ng-svg-layer is-active">${svgActive}</span>` : '')
@@ -2941,7 +2942,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 })();
 </script>` : '';
 
-    const hasSvg = (gatewayConfig.options || []).some((o: any) => o.iconMode === 'svg' && o.svgStatic);
+    const hasSvg = (gatewayConfig.options || []).some((o: any) => sanitizeSvg(o.svgStatic));
     const svgScript = hasSvg ? `
 <script>
 (function(){
