@@ -376,6 +376,7 @@ const DEFAULT_GATEWAY_CONFIG = {
   pillHeight: 24,
   pillWidth: 0,
   fontFamily: 'system-ui, -apple-system, sans-serif',
+  layout: 'top-center',
   entranceAnim: 'none',
   entranceDuration: 600,
   title: 'Bem-vindo',
