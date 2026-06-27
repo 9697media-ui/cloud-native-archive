@@ -3357,16 +3357,6 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <ColorField value={gatewayConfig.titleColor} onChange={(v) => setGatewayConfig({...gatewayConfig, titleColor: v})} />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Botão Lateral (texto)</Label>
-                        <Input value={gatewayConfig.stickyLabel} onChange={(e) => setGatewayConfig({...gatewayConfig, stickyLabel: e.target.value})} placeholder="Vazio = oculto" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Botão Lateral (link)</Label>
-                        <Input value={gatewayConfig.stickyLink} onChange={(e) => setGatewayConfig({...gatewayConfig, stickyLink: e.target.value})} />
-                      </div>
-                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
