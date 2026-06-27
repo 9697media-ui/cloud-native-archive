@@ -309,6 +309,8 @@ const DEFAULT_MENU_CONFIG = {
   textColor: '#1f2937',
   accentColor: '#4f46e5',
   fontFamily: 'system-ui, -apple-system, sans-serif',
+  fontWeight: '400',
+  fontStyle: 'normal',
   fontSize: 15,
   itemSpacing: 5,
   itemPadding: 15,
@@ -387,8 +389,14 @@ const DEFAULT_GATEWAY_CONFIG = {
   pillWidthTablet: undefined as number | undefined,
   pillWidthMobile: undefined as number | undefined,
   fontFamily: 'system-ui, -apple-system, sans-serif',
+  fontWeight: '400',
+  fontStyle: 'normal',
   titleFont: '',
+  titleFontWeight: '800',
+  titleFontStyle: 'normal',
   subtitleFont: '',
+  subtitleFontWeight: '400',
+  subtitleFontStyle: 'normal',
   labelHoverFromIcon: false,
   layout: 'top-center',
   entranceAnim: 'none',
@@ -398,8 +406,8 @@ const DEFAULT_GATEWAY_CONFIG = {
   subtitle: 'Escolha por onde deseja começar',
   titleColor: '#ffffff',
   options: [
-    { id: 'social', icon: '👥', iconColor: '#14b8a6', cardLabel: 'Social', pillText: 'Associação Nazarena', link: '#' },
-    { id: 'educacao', icon: '🎓', iconColor: '#eab308', cardLabel: 'Educação', pillText: 'Grupo de Oração', link: '#' },
+    { id: 'social', icon: '👥', iconColor: '#14b8a6', cardLabel: 'Social', labelFont: '', labelFontWeight: '700', labelFontStyle: 'normal', pillText: 'Associação Nazarena', pillFont: '', pillFontWeight: '500', pillFontStyle: 'normal', link: '#' },
+    { id: 'educacao', icon: '🎓', iconColor: '#eab308', cardLabel: 'Educação', labelFont: '', labelFontWeight: '700', labelFontStyle: 'normal', pillText: 'Grupo de Oração', pillFont: '', pillFontWeight: '500', pillFontStyle: 'normal', link: '#' },
   ] as any[],
 };
 
@@ -588,7 +596,7 @@ const upgradeConfig = (type: string, saved: any) => {
   return merged;
 };
 
-// Lista única de fontes para todos os campos de texto personalizável.
+// Lista única de famílias, pesos e estilos para todos os campos de texto personalizável.
 const FONT_OPTIONS: { value: string; label: string }[] = [
   { value: '', label: 'Padrão do widget' },
   { value: "system-ui, -apple-system, sans-serif", label: 'Sistema' },
@@ -600,17 +608,75 @@ const FONT_OPTIONS: { value: string; label: string }[] = [
   { value: "'Courier New', monospace", label: 'Monoespaçada' },
 ];
 
-// Seletor de fonte reutilizável para qualquer campo de texto editável.
-const FontSelect: React.FC<{ value?: string; onChange: (v: string) => void; className?: string }> = ({ value, onChange, className }) => (
-  <select
-    className={className ?? 'w-full h-9 rounded-md border border-input bg-background px-3 text-sm'}
-    value={value ?? ''}
-    onChange={(e) => onChange(e.target.value)}
-  >
-    {FONT_OPTIONS.map((f) => (
-      <option key={f.label} value={f.value}>{f.label}</option>
-    ))}
-  </select>
+const FONT_WEIGHT_OPTIONS: { value: string; label: string }[] = [
+  { value: '', label: 'Peso padrão' },
+  { value: '100', label: '100 — Thin' },
+  { value: '200', label: '200 — ExtraLight' },
+  { value: '300', label: '300 — Light' },
+  { value: '400', label: '400 — Regular' },
+  { value: '500', label: '500 — Medium' },
+  { value: '600', label: '600 — SemiBold' },
+  { value: '700', label: '700 — Bold' },
+  { value: '800', label: '800 — ExtraBold' },
+  { value: '900', label: '900 — Black' },
+];
+
+const FONT_STYLE_OPTIONS: { value: string; label: string }[] = [
+  { value: '', label: 'Estilo padrão' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'italic', label: 'Itálico' },
+];
+
+const fontRules = (family?: string, weight?: string | number, style?: string) => {
+  const rules: string[] = [];
+  if (family) rules.push(`font-family:${family};`);
+  if (weight) rules.push(`font-weight:${weight};`);
+  if (style) rules.push(`font-style:${style};`);
+  return rules.length ? ` ${rules.join(' ')}` : '';
+};
+
+// Seletor reutilizável de família + peso + variação para qualquer texto editável.
+const FontSelect: React.FC<{
+  value?: string;
+  weight?: string | number;
+  style?: string;
+  onChange: (v: string) => void;
+  onWeightChange?: (v: string) => void;
+  onStyleChange?: (v: string) => void;
+  className?: string;
+}> = ({ value, weight, style, onChange, onWeightChange, onStyleChange, className }) => (
+  <div className={cn('grid grid-cols-1 gap-2 sm:grid-cols-3', className)}>
+    <select
+      className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+      value={value ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label="Família da fonte"
+    >
+      {FONT_OPTIONS.map((f) => (
+        <option key={f.label} value={f.value}>{f.label}</option>
+      ))}
+    </select>
+    <select
+      className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+      value={String(weight ?? '')}
+      onChange={(e) => onWeightChange?.(e.target.value)}
+      aria-label="Peso da fonte"
+    >
+      {FONT_WEIGHT_OPTIONS.map((f) => (
+        <option key={f.value || f.label} value={f.value}>{f.label}</option>
+      ))}
+    </select>
+    <select
+      className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+      value={style ?? ''}
+      onChange={(e) => onStyleChange?.(e.target.value)}
+      aria-label="Estilo da fonte"
+    >
+      {FONT_STYLE_OPTIONS.map((f) => (
+        <option key={f.value || f.label} value={f.value}>{f.label}</option>
+      ))}
+    </select>
+  </div>
 );
 
 
@@ -1740,6 +1806,8 @@ export default function AdminToolboxPage() {
     align-items: center;
     justify-content: space-between;
     font-family: ${menuConfig.fontFamily};
+    font-weight: ${menuConfig.fontWeight ?? '400'};
+    font-style: ${menuConfig.fontStyle ?? 'normal'};
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: ${menuConfig.sticky ? 'sticky' : 'relative'};
     top: 0;
@@ -2799,10 +2867,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     const css = `<style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
   ${layoutCss}
-  .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; }
+  .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; font-weight: ${gatewayConfig.fontWeight ?? '400'}; font-style: ${gatewayConfig.fontStyle ?? 'normal'}; }
   .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
-  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px;${gatewayConfig.titleFont ? ` font-family: ${gatewayConfig.titleFont};` : ''} }
-  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px;${gatewayConfig.subtitleFont ? ` font-family: ${gatewayConfig.subtitleFont};` : ''} }
+  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: ${gatewayConfig.titleFontWeight ?? '800'}; margin: 0 0 12px;${fontRules(gatewayConfig.titleFont, gatewayConfig.titleFontWeight, gatewayConfig.titleFontStyle)} }
+  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px;${fontRules(gatewayConfig.subtitleFont, gatewayConfig.subtitleFontWeight, gatewayConfig.subtitleFontStyle)} }
   .nav-gateway-441 .ng-grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
   .nav-gateway-441 .ng-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
   .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: ${gatewayConfig.cardWidth ?? 176}px; height: ${gatewayConfig.cardHeight ?? 176}px; background: ${gatewayConfig.cardBgColor ?? '#fff'}; border-radius: ${gatewayConfig.cardRadius ?? 24}px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
@@ -2904,9 +2972,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     <div class="ng-col"${animDelay}>
       <a class="ng-card ${cardClass}" href="${o.link || '#'}" style="--ng-lbl:${o.iconColor}">
         ${iconHtml}
-        <span class="ng-label"${o.labelFont ? ` style="font-family:${o.labelFont}"` : ''}>${o.cardLabel || ''}</span>
+        <span class="ng-label"${fontRules(o.labelFont, o.labelFontWeight, o.labelFontStyle) ? ` style="${fontRules(o.labelFont, o.labelFontWeight, o.labelFontStyle).trim()}"` : ''}>${o.cardLabel || ''}</span>
       </a>
-      ${o.pillText ? `<span class="ng-pill"${o.pillFont ? ` style="font-family:${o.pillFont}"` : ''}>${o.pillText}</span>` : ''}
+      ${o.pillText ? `<span class="ng-pill"${fontRules(o.pillFont, o.pillFontWeight, o.pillFontStyle) ? ` style="${fontRules(o.pillFont, o.pillFontWeight, o.pillFontStyle).trim()}"` : ''}>${o.pillText}</span>` : ''}
     </div>`;
     }).join('');
 
@@ -3645,12 +3713,26 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="space-y-2">
                       <Label>Título</Label>
                       <Input value={gatewayConfig.title} onChange={(e) => setGatewayConfig({...gatewayConfig, title: e.target.value})} />
-                      <FontSelect value={gatewayConfig.titleFont} onChange={(v) => setGatewayConfig({...gatewayConfig, titleFont: v})} />
+                      <FontSelect
+                        value={gatewayConfig.titleFont}
+                        weight={gatewayConfig.titleFontWeight}
+                        style={gatewayConfig.titleFontStyle}
+                        onChange={(v) => setGatewayConfig({...gatewayConfig, titleFont: v})}
+                        onWeightChange={(v) => setGatewayConfig({...gatewayConfig, titleFontWeight: v})}
+                        onStyleChange={(v) => setGatewayConfig({...gatewayConfig, titleFontStyle: v})}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Subtítulo</Label>
                       <Input value={gatewayConfig.subtitle} onChange={(e) => setGatewayConfig({...gatewayConfig, subtitle: e.target.value})} />
-                      <FontSelect value={gatewayConfig.subtitleFont} onChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFont: v})} />
+                      <FontSelect
+                        value={gatewayConfig.subtitleFont}
+                        weight={gatewayConfig.subtitleFontWeight}
+                        style={gatewayConfig.subtitleFontStyle}
+                        onChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFont: v})}
+                        onWeightChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFontWeight: v})}
+                        onStyleChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFontStyle: v})}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Cor do Texto</Label>
@@ -3684,20 +3766,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Fonte do Widget</Label>
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                      <Label>Fonte global do widget</Label>
+                      <FontSelect
                         value={gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}
-                        onChange={(e) => setGatewayConfig({...gatewayConfig, fontFamily: e.target.value})}
-                      >
-                        <option value="system-ui, -apple-system, sans-serif">Sistema (padrão)</option>
-                        <option value="'Inter', sans-serif">Inter</option>
-                        <option value="'Poppins', sans-serif">Poppins</option>
-                        <option value="'Roboto', sans-serif">Roboto</option>
-                        <option value="'Montserrat', sans-serif">Montserrat</option>
-                        <option value="Georgia, serif">Georgia (serifada)</option>
-                        <option value="'Courier New', monospace">Monoespaçada</option>
-                      </select>
+                        weight={gatewayConfig.fontWeight}
+                        style={gatewayConfig.fontStyle}
+                        onChange={(v) => setGatewayConfig({...gatewayConfig, fontFamily: v || 'system-ui, -apple-system, sans-serif'})}
+                        onWeightChange={(v) => setGatewayConfig({...gatewayConfig, fontWeight: v})}
+                        onStyleChange={(v) => setGatewayConfig({...gatewayConfig, fontStyle: v})}
+                      />
                     </div>
 
                     <div className="space-y-2">
@@ -3835,7 +3912,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <Label className="font-semibold">Cartões de Opção</Label>
                         <Button
                           type="button" variant="outline" size="sm" className="gap-1"
-                          onClick={() => setGatewayConfig({...gatewayConfig, options: [...(gatewayConfig.options || []), { id: Math.random().toString(36).slice(2, 8), icon: '⭐', iconColor: '#4f46e5', cardLabel: 'Nova Opção', pillText: '', link: '#' }]})}
+                          onClick={() => setGatewayConfig({...gatewayConfig, options: [...(gatewayConfig.options || []), { id: Math.random().toString(36).slice(2, 8), icon: '⭐', iconColor: '#4f46e5', cardLabel: 'Nova Opção', labelFont: '', labelFontWeight: '700', labelFontStyle: 'normal', pillText: '', pillFont: '', pillFontWeight: '500', pillFontStyle: 'normal', link: '#' }]})}
                         >
                           <Plus className="h-3 w-3" /> Adicionar
                         </Button>
@@ -3858,7 +3935,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               <div className="space-y-1">
                                 <Label className="text-xs">Título</Label>
                                 <Input value={opt.cardLabel} onChange={(e) => update({ cardLabel: e.target.value })} />
-                                <FontSelect value={opt.labelFont} onChange={(v) => update({ labelFont: v })} />
+                                <FontSelect
+                                  value={opt.labelFont}
+                                  weight={opt.labelFontWeight}
+                                  style={opt.labelFontStyle}
+                                  onChange={(v) => update({ labelFont: v })}
+                                  onWeightChange={(v) => update({ labelFontWeight: v })}
+                                  onStyleChange={(v) => update({ labelFontStyle: v })}
+                                />
                               </div>
                               <div className="space-y-1">
                                 <Label className="text-xs">Cor do ícone</Label>
@@ -4039,7 +4123,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             <div className="space-y-1">
                               <Label className="text-xs">Pílula (texto de apoio)</Label>
                               <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
-                              <FontSelect value={opt.pillFont} onChange={(v) => update({ pillFont: v })} />
+                              <FontSelect
+                                value={opt.pillFont}
+                                weight={opt.pillFontWeight}
+                                style={opt.pillFontStyle}
+                                onChange={(v) => update({ pillFont: v })}
+                                onWeightChange={(v) => update({ pillFontWeight: v })}
+                                onStyleChange={(v) => update({ pillFontStyle: v })}
+                              />
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Link</Label>
@@ -4172,19 +4263,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                     <div className="space-y-2">
                       <Label>Fonte</Label>
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                      <FontSelect
                         value={menuConfig.fontFamily}
-                        onChange={(e) => setMenuConfig({...menuConfig, fontFamily: e.target.value})}
-                      >
-                        <option value="system-ui, -apple-system, sans-serif">Sistema (padrão)</option>
-                        <option value="'Inter', sans-serif">Inter</option>
-                        <option value="'Poppins', sans-serif">Poppins</option>
-                        <option value="'Roboto', sans-serif">Roboto</option>
-                        <option value="'Montserrat', sans-serif">Montserrat</option>
-                        <option value="Georgia, serif">Georgia (serifada)</option>
-                        <option value="'Courier New', monospace">Monoespaçada</option>
-                      </select>
+                        weight={menuConfig.fontWeight}
+                        style={menuConfig.fontStyle}
+                        onChange={(v) => setMenuConfig({...menuConfig, fontFamily: v || 'system-ui, -apple-system, sans-serif'})}
+                        onWeightChange={(v) => setMenuConfig({...menuConfig, fontWeight: v})}
+                        onStyleChange={(v) => setMenuConfig({...menuConfig, fontStyle: v})}
+                      />
                     </div>
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
