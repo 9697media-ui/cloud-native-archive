@@ -379,6 +379,7 @@ const DEFAULT_GATEWAY_CONFIG = {
   layout: 'top-center',
   entranceAnim: 'none',
   entranceDuration: 600,
+  entranceSync: false,
   title: 'Bem-vindo',
   subtitle: 'Escolha por onde deseja começar',
   titleColor: '#ffffff',
