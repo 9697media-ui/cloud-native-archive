@@ -3411,6 +3411,38 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
 
                     <div className="space-y-2">
+                      <Label>Animação de Entrada</Label>
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        value={gatewayConfig.entranceAnim ?? 'none'}
+                        onChange={(e) => setGatewayConfig({...gatewayConfig, entranceAnim: e.target.value})}
+                      >
+                        <option value="none">Nenhuma</option>
+                        <option value="fade">Fade (aparecer)</option>
+                        <option value="up">Subir</option>
+                        <option value="zoom">Zoom</option>
+                        <option value="slide">Deslizar</option>
+                      </select>
+                      {gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' && (
+                        <div className="space-y-2 pt-1">
+                          <div className="flex items-center justify-between">
+                            <Label>Duração</Label>
+                            <div className="flex items-center gap-1">
+                              <Input
+                                type="number"
+                                className="h-7 w-16 text-xs"
+                                value={gatewayConfig.entranceDuration ?? 600}
+                                onChange={(e) => setGatewayConfig({...gatewayConfig, entranceDuration: Number(e.target.value) || 0})}
+                              />
+                              <span className="text-xs text-muted-foreground">ms</span>
+                            </div>
+                          </div>
+                          <Slider min={100} max={2000} step={50} value={[gatewayConfig.entranceDuration ?? 600]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, entranceDuration: v})} />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label>Altura da Pílula</Label>
                         <div className="flex items-center gap-1">
