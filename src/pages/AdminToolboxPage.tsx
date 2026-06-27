@@ -3612,9 +3612,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
               </section>
 
               <section className="p-4">
-                <div className="mb-3 flex items-center gap-2">
-                  <Settings className="h-4 w-4" /> Configurações
-                  <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold capitalize text-primary tracking-normal">{activeWidgetType}</span>
+                <div className="sticky top-0 z-10 -mx-4 -mt-4 mb-4 flex items-center gap-2 border-b bg-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <Settings className="h-4 w-4" />
+                  </span>
+                  <div className="leading-tight">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Configurações</p>
+                    <p className="text-sm font-semibold capitalize">{activeWidgetType}</p>
+                  </div>
                 </div>
               <div className="space-y-4">
 
