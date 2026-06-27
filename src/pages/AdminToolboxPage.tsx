@@ -3338,6 +3338,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
+                        <Label>Cor do Cartão</Label>
+                        <ColorField value={gatewayConfig.cardBgColor} onChange={(v) => setGatewayConfig({...gatewayConfig, cardBgColor: v})} />
+                      </div>
+                      <div className="space-y-2">
                         <Label>Cor da Pílula</Label>
                         <ColorField value={gatewayConfig.pillBgColor} onChange={(v) => setGatewayConfig({...gatewayConfig, pillBgColor: v})} />
                       </div>
@@ -3348,6 +3352,22 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
 
                     <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Cantos Arredondados</Label>
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              className="h-7 w-16 text-xs"
+                              value={gatewayConfig.cardRadius ?? 24}
+                              onChange={(e) => setGatewayConfig({...gatewayConfig, cardRadius: Number(e.target.value) || 0})}
+                            />
+                            <span className="text-xs text-muted-foreground">px</span>
+                          </div>
+                        </div>
+                        <Slider min={0} max={80} step={1} value={[gatewayConfig.cardRadius ?? 24]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardRadius: v})} />
+                      </div>
+
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
