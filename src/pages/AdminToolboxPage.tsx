@@ -2526,14 +2526,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-card:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
   .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
   .nav-gateway-441 .ng-svg-icon { position: relative; display: inline-block; width: 56px; height: 56px; }
-  .nav-gateway-441 .ng-svg-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(.82); transition: opacity var(--ng-svg-dur, 300ms) var(--ng-svg-ease, ease), transform var(--ng-svg-dur, 300ms) var(--ng-svg-ease, ease); }
+  .nav-gateway-441 .ng-svg-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--ng-svg-dur, 300ms) var(--ng-svg-ease, ease); }
    .nav-gateway-441 .ng-svg-layer svg { width: 100%; height: 100%; display: block; }
-   .nav-gateway-441 .ng-svg-icon .is-static { opacity: 1; transform: scale(1); }
-   .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-static { opacity: 0; transform: scale(.82); }
-   .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-hover { opacity: 1; transform: scale(1); }
+   .nav-gateway-441 .ng-svg-icon .is-static { opacity: 1; }
+   .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-static { opacity: 0; }
+   .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-hover { opacity: 1; }
    .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-static,
-   .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-hover { opacity: 0 !important; transform: scale(.82) !important; }
-   .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-active { opacity: 1 !important; transform: scale(1) !important; }
+   .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-hover { opacity: 0 !important; }
+   .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-active { opacity: 1 !important; }
   .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
   .nav-gateway-441 .ng-pill { background: rgba(255,255,255,.2); color: #fff; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
