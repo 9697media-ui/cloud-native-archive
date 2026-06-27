@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
@@ -636,6 +636,27 @@ const fontRules = (family?: string, weight?: string | number, style?: string) =>
 };
 
 // Seletor reutilizável de família + peso + variação para qualquer texto editável.
+const CollapsibleSection: React.FC<{
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}> = ({ title, defaultOpen = false, children }) => {
+  const [open, setOpen] = React.useState(defaultOpen);
+  return (
+    <div className="border-t pt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between gap-2 rounded-md px-1 py-1.5 text-left transition-colors hover:bg-muted/50"
+      >
+        <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{title}</span>
+        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")} />
+      </button>
+      {open && <div className="space-y-3 pt-3">{children}</div>}
+    </div>
+  );
+};
+
 const FontSelect: React.FC<{
   value?: string;
   weight?: string | number;
@@ -4313,8 +4334,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                     </div>
 
-                     <div className="border-t pt-3 space-y-3">
-                       <Label className="text-xs font-bold uppercase text-muted-foreground">Mouse sobre o item (hover)</Label>
+                     <CollapsibleSection title="Mouse sobre o item (hover)">
                        <div className="grid grid-cols-2 gap-3">
                          <div className="space-y-2">
                            <Label className="text-xs">Fundo hover</Label>
@@ -4341,10 +4361,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                              onChange={(e) => setMenuConfig({...menuConfig, hoverBorderWidth: Number(e.target.value) || 0})} />
                          </div>
                        </div>
-                     </div>
+                     </CollapsibleSection>
 
-                     <div className="border-t pt-3 space-y-3">
-                       <Label className="text-xs font-bold uppercase text-muted-foreground">Página ativa (borda)</Label>
+                     <CollapsibleSection title="Página ativa (borda)">
                        <div className="grid grid-cols-3 gap-3">
                          <div className="space-y-2">
                            <Label className="text-xs">Cor</Label>
@@ -4461,7 +4480,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         onClick={() => setMenuConfig({...menuConfig, activeBgColor: 'transparent'})}>
                         Fundo transparente
                       </Button>
-                    </div>
+                     </CollapsibleSection>
                     <div className="flex gap-2">
                       <Button 
                         variant="secondary" 
