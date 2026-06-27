@@ -679,13 +679,16 @@ export default function AdminToolboxPage() {
     const native = DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop;
     const update = () => {
       const w = el.clientWidth;
-      if (w > 0) setDemoScale(Math.min(w / native.width, 1));
+      const h = el.clientHeight;
+      // Encaixa nas duas dimensões para respeitar a proporção final do dispositivo.
+      if (w > 0 && h > 0) setDemoScale(Math.min(w / native.width, h / native.height));
     };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();
   }, [deviceView]);
+
 
 
 
