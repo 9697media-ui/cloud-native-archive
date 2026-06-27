@@ -368,6 +368,7 @@ const DEFAULT_GATEWAY_CONFIG = {
   bgColor: '#0f172a',
   overlayOpacity: 60,
   cardHeight: 176,
+  cardWidth: 176,
   pillBgColor: '#ffffff33',
   pillTextColor: '#ffffff',
   title: 'Bem-vindo',
