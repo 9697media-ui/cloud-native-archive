@@ -3649,6 +3649,59 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                   </div>
                 )}
 
+                {/* CONFIG: ABA LATERAL */}
+                {activeWidgetType === 'sidetab' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Texto</Label>
+                      <Input value={sidetabConfig.label} onChange={(e) => setSidetabConfig({...sidetabConfig, label: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Link</Label>
+                      <Input value={sidetabConfig.link} onChange={(e) => setSidetabConfig({...sidetabConfig, link: e.target.value})} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Cor de Fundo</Label>
+                        <ColorField value={sidetabConfig.bgColor} onChange={(v) => setSidetabConfig({...sidetabConfig, bgColor: v})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Cor do Texto</Label>
+                        <ColorField value={sidetabConfig.textColor} onChange={(v) => setSidetabConfig({...sidetabConfig, textColor: v})} />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Lado</Label>
+                      <div className="flex gap-2">
+                        <Button type="button" variant={sidetabConfig.side === 'left' ? 'default' : 'outline'} className="flex-1" onClick={() => setSidetabConfig({...sidetabConfig, side: 'left'})}>Esquerda</Button>
+                        <Button type="button" variant={sidetabConfig.side === 'right' ? 'default' : 'outline'} className="flex-1" onClick={() => setSidetabConfig({...sidetabConfig, side: 'right'})}>Direita</Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Distância da base (px)</Label>
+                        <Input type="number" className="w-20 h-7" value={sidetabConfig.position} onChange={(e) => setSidetabConfig({...sidetabConfig, position: Number(e.target.value) || 0})} />
+                      </div>
+                      <Slider min={0} max={400} step={4} value={[sidetabConfig.position]} onValueChange={([v]) => setSidetabConfig({...sidetabConfig, position: v})} />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Tamanho da Fonte (px)</Label>
+                        <Input type="number" className="w-20 h-7" value={sidetabConfig.fontSize} onChange={(e) => setSidetabConfig({...sidetabConfig, fontSize: Number(e.target.value) || 0})} />
+                      </div>
+                      <Slider min={10} max={28} step={1} value={[sidetabConfig.fontSize]} onValueChange={([v]) => setSidetabConfig({...sidetabConfig, fontSize: v})} />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Cantos Arredondados (px)</Label>
+                        <Input type="number" className="w-20 h-7" value={sidetabConfig.radius} onChange={(e) => setSidetabConfig({...sidetabConfig, radius: Number(e.target.value) || 0})} />
+                      </div>
+                      <Slider min={0} max={40} step={1} value={[sidetabConfig.radius]} onValueChange={([v]) => setSidetabConfig({...sidetabConfig, radius: v})} />
+                    </div>
+                  </div>
+                )}
+
+
 
 
                 {/* CONFIG: MENU */}
