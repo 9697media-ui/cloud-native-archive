@@ -563,7 +563,8 @@ export default function AdminToolboxPage() {
 
       const rawConfig = activeWidgetType === 'whatsapp' ? whatsappConfig : 
                      activeWidgetType === 'banner' ? bannerConfig :
-                     activeWidgetType === 'gateway' ? gatewayConfig : menuConfig;
+                     activeWidgetType === 'gateway' ? gatewayConfig :
+                     activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
       // Deep clone para evitar referências compartilhadas/mutações em items.activePaths
       const config = JSON.parse(JSON.stringify(rawConfig));
 
