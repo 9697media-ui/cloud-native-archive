@@ -643,16 +643,25 @@ const CollapsibleSection: React.FC<{
 }> = ({ title, defaultOpen = false, children }) => {
   const [open, setOpen] = React.useState(defaultOpen);
   return (
-    <div className="border-t pt-3">
+    <div className={cn(
+      "overflow-hidden rounded-lg border bg-card transition-all",
+      open ? "border-primary/30 shadow-sm" : "border-border"
+    )}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-2 rounded-md px-1 py-1.5 text-left transition-colors hover:bg-muted/50"
+        className={cn(
+          "flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition-colors hover:bg-muted/60",
+          open && "bg-primary/5"
+        )}
       >
-        <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{title}</span>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")} />
+        <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-foreground">
+          <span className={cn("h-2 w-2 rounded-full", open ? "bg-primary" : "bg-muted-foreground/40")} />
+          {title}
+        </span>
+        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180 text-primary")} />
       </button>
-      {open && <div className="space-y-3 pt-3">{children}</div>}
+      {open && <div className="space-y-3 border-t bg-background/60 p-3">{children}</div>}
     </div>
   );
 };
