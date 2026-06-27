@@ -3987,6 +3987,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             <div className="space-y-1">
                               <Label className="text-xs">Pílula (texto de apoio)</Label>
                               <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
+                              <FontSelect value={opt.pillFont} onChange={(v) => update({ pillFont: v })} />
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Link</Label>
