@@ -376,6 +376,7 @@ const DEFAULT_GATEWAY_CONFIG = {
   pillHeight: 24,
   pillWidth: 0,
   fontFamily: 'system-ui, -apple-system, sans-serif',
+  layout: 'top-center',
   entranceAnim: 'none',
   entranceDuration: 600,
   title: 'Bem-vindo',
@@ -392,8 +393,9 @@ const DEFAULT_GATEWAY_CONFIG = {
 const GATEWAY_PRESETS: { id: string; name: string; style: Record<string, any> }[] = [
   {
     id: 'classic',
-    name: 'Clássico',
+    name: 'Clássico (título topo)',
     style: {
+      layout: 'top-center',
       cardWidth: 176, cardHeight: 176, cardBgColor: '#ffffff', cardRadius: 24,
       pillBgColor: '#ffffff', pillTextColor: '#0f172a', pillHeight: 24, pillWidth: 0,
       titleColor: '#ffffff', fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -401,19 +403,76 @@ const GATEWAY_PRESETS: { id: string; name: string; style: Record<string, any> }[
     },
   },
   {
-    id: 'minimal',
-    name: 'Minimalista',
+    id: 'split',
+    name: 'Dividido (título lateral)',
     style: {
-      cardWidth: 160, cardHeight: 160, cardBgColor: '#f8fafc', cardRadius: 12,
+      layout: 'split',
+      cardWidth: 170, cardHeight: 170, cardBgColor: '#ffffff', cardRadius: 20,
+      pillBgColor: '#6366f1', pillTextColor: '#ffffff', pillHeight: 26, pillWidth: 0,
+      titleColor: '#0f172a', fontFamily: 'Poppins, system-ui, sans-serif',
+      entranceAnim: 'slide', entranceDuration: 550,
+    },
+  },
+  {
+    id: 'list',
+    name: 'Lista (linhas)',
+    style: {
+      layout: 'list',
+      cardWidth: 176, cardHeight: 88, cardBgColor: '#ffffff', cardRadius: 16,
+      pillBgColor: '#0ea5e9', pillTextColor: '#ffffff', pillHeight: 24, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'Inter, system-ui, sans-serif',
+      entranceAnim: 'up', entranceDuration: 500,
+    },
+  },
+  {
+    id: 'grid2',
+    name: 'Grade 2 colunas',
+    style: {
+      layout: 'grid2',
+      cardWidth: 176, cardHeight: 176, cardBgColor: '#ffffff', cardRadius: 24,
+      pillBgColor: '#f43f5e', pillTextColor: '#ffffff', pillHeight: 26, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'Poppins, system-ui, sans-serif',
+      entranceAnim: 'zoom', entranceDuration: 600,
+    },
+  },
+  {
+    id: 'grid3',
+    name: 'Grade 3 colunas',
+    style: {
+      layout: 'grid3',
+      cardWidth: 160, cardHeight: 160, cardBgColor: '#ffffff', cardRadius: 18,
+      pillBgColor: '#6366f1', pillTextColor: '#ffffff', pillHeight: 24, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'Inter, system-ui, sans-serif',
+      entranceAnim: 'fade', entranceDuration: 550,
+    },
+  },
+  {
+    id: 'left',
+    name: 'Alinhado à esquerda',
+    style: {
+      layout: 'top-left',
+      cardWidth: 176, cardHeight: 176, cardBgColor: '#f8fafc', cardRadius: 14,
       pillBgColor: '#e2e8f0', pillTextColor: '#0f172a', pillHeight: 22, pillWidth: 0,
       titleColor: '#0f172a', fontFamily: 'Inter, system-ui, sans-serif',
       entranceAnim: 'fade', entranceDuration: 500,
     },
   },
   {
+    id: 'no-title',
+    name: 'Só cards (sem título)',
+    style: {
+      layout: 'no-title',
+      cardWidth: 184, cardHeight: 184, cardBgColor: '#ffffff', cardRadius: 28,
+      pillBgColor: '#6366f1', pillTextColor: '#ffffff', pillHeight: 26, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'Poppins, system-ui, sans-serif',
+      entranceAnim: 'zoom', entranceDuration: 600,
+    },
+  },
+  {
     id: 'rounded',
     name: 'Arredondado',
     style: {
+      layout: 'top-center',
       cardWidth: 184, cardHeight: 184, cardBgColor: '#ffffff', cardRadius: 48,
       pillBgColor: '#6366f1', pillTextColor: '#ffffff', pillHeight: 28, pillWidth: 0,
       titleColor: '#ffffff', fontFamily: 'Poppins, system-ui, sans-serif',
@@ -424,6 +483,7 @@ const GATEWAY_PRESETS: { id: string; name: string; style: Record<string, any> }[
     id: 'dark',
     name: 'Escuro',
     style: {
+      layout: 'top-center',
       cardWidth: 176, cardHeight: 176, cardBgColor: '#1e293b', cardRadius: 20,
       pillBgColor: '#334155', pillTextColor: '#f8fafc', pillHeight: 26, pillWidth: 0,
       titleColor: '#f8fafc', fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -431,29 +491,21 @@ const GATEWAY_PRESETS: { id: string; name: string; style: Record<string, any> }[
     },
   },
   {
-    id: 'compact-wide',
-    name: 'Largo Compacto',
+    id: 'list-dark',
+    name: 'Lista escura',
     style: {
-      cardWidth: 240, cardHeight: 132, cardBgColor: '#ffffff', cardRadius: 16,
-      pillBgColor: '#0ea5e9', pillTextColor: '#ffffff', pillHeight: 24, pillWidth: 140,
-      titleColor: '#ffffff', fontFamily: 'Inter, system-ui, sans-serif',
-      entranceAnim: 'slide', entranceDuration: 550,
-    },
-  },
-  {
-    id: 'pill-card',
-    name: 'Cápsula',
-    style: {
-      cardWidth: 200, cardHeight: 200, cardBgColor: '#ffffff', cardRadius: 80,
-      pillBgColor: '#f43f5e', pillTextColor: '#ffffff', pillHeight: 30, pillWidth: 0,
-      titleColor: '#ffffff', fontFamily: 'Poppins, system-ui, sans-serif',
-      entranceAnim: 'zoom', entranceDuration: 650,
+      layout: 'list',
+      cardWidth: 176, cardHeight: 88, cardBgColor: '#1e293b', cardRadius: 14,
+      pillBgColor: '#0ea5e9', pillTextColor: '#ffffff', pillHeight: 24, pillWidth: 0,
+      titleColor: '#f8fafc', fontFamily: 'Inter, system-ui, sans-serif',
+      entranceAnim: 'slide', entranceDuration: 500,
     },
   },
   {
     id: 'glass',
     name: 'Vidro',
     style: {
+      layout: 'top-center',
       cardWidth: 180, cardHeight: 180, cardBgColor: '#ffffff26', cardRadius: 28,
       pillBgColor: '#ffffff33', pillTextColor: '#ffffff', pillHeight: 26, pillWidth: 0,
       titleColor: '#ffffff', fontFamily: 'Inter, system-ui, sans-serif',
@@ -464,6 +516,7 @@ const GATEWAY_PRESETS: { id: string; name: string; style: Record<string, any> }[
     id: 'neon',
     name: 'Neon',
     style: {
+      layout: 'grid2',
       cardWidth: 176, cardHeight: 176, cardBgColor: '#0d1b2a', cardRadius: 18,
       pillBgColor: '#2dd4a8', pillTextColor: '#0d1b2a', pillHeight: 26, pillWidth: 0,
       titleColor: '#73ffb8', fontFamily: 'Poppins, system-ui, sans-serif',
@@ -471,49 +524,10 @@ const GATEWAY_PRESETS: { id: string; name: string; style: Record<string, any> }[
     },
   },
   {
-    id: 'warm',
-    name: 'Aconchegante',
-    style: {
-      cardWidth: 184, cardHeight: 184, cardBgColor: '#faf8f5', cardRadius: 32,
-      pillBgColor: '#c9b99a', pillTextColor: '#3d2b1f', pillHeight: 26, pillWidth: 0,
-      titleColor: '#faf8f5', fontFamily: 'Poppins, system-ui, sans-serif',
-      entranceAnim: 'slide', entranceDuration: 550,
-    },
-  },
-  {
-    id: 'sharp',
-    name: 'Geométrico',
-    style: {
-      cardWidth: 172, cardHeight: 172, cardBgColor: '#ffffff', cardRadius: 4,
-      pillBgColor: '#0f172a', pillTextColor: '#ffffff', pillHeight: 24, pillWidth: 0,
-      titleColor: '#ffffff', fontFamily: 'Inter, system-ui, sans-serif',
-      entranceAnim: 'fade', entranceDuration: 400,
-    },
-  },
-  {
-    id: 'tall',
-    name: 'Vertical Alto',
-    style: {
-      cardWidth: 150, cardHeight: 240, cardBgColor: '#ffffff', cardRadius: 20,
-      pillBgColor: '#6366f1', pillTextColor: '#ffffff', pillHeight: 26, pillWidth: 0,
-      titleColor: '#ffffff', fontFamily: 'Poppins, system-ui, sans-serif',
-      entranceAnim: 'up', entranceDuration: 650,
-    },
-  },
-  {
-    id: 'banner-wide',
-    name: 'Faixa Larga',
-    style: {
-      cardWidth: 300, cardHeight: 120, cardBgColor: '#1e293b', cardRadius: 14,
-      pillBgColor: '#0ea5e9', pillTextColor: '#ffffff', pillHeight: 24, pillWidth: 160,
-      titleColor: '#f8fafc', fontFamily: 'Inter, system-ui, sans-serif',
-      entranceAnim: 'slide', entranceDuration: 500,
-    },
-  },
-  {
     id: 'gold',
     name: 'Dourado',
     style: {
+      layout: 'split',
       cardWidth: 180, cardHeight: 180, cardBgColor: '#1a1a1a', cardRadius: 22,
       pillBgColor: '#c9a84c', pillTextColor: '#1a1a1a', pillHeight: 26, pillWidth: 0,
       titleColor: '#f0d78c', fontFamily: 'Poppins, system-ui, sans-serif',
@@ -2691,7 +2705,26 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       .replace(/\u2029/g, '\\u2029');
 
   const generateGatewayCode = () => {
+    const lay = gatewayConfig.layout || 'top-center';
+    const layoutCss = `
+  .nav-gateway-441[data-layout="top-left"] .ng-inner { text-align: left; }
+  .nav-gateway-441[data-layout="top-left"] .ng-grid { justify-content: flex-start; }
+  .nav-gateway-441[data-layout="grid2"] .ng-grid { display: grid; grid-template-columns: repeat(2, max-content); justify-content: center; }
+  .nav-gateway-441[data-layout="grid3"] .ng-grid { display: grid; grid-template-columns: repeat(3, max-content); justify-content: center; }
+  .nav-gateway-441[data-layout="list"] .ng-grid { flex-direction: column; align-items: stretch; }
+  .nav-gateway-441[data-layout="list"] .ng-col { width: 100%; }
+  .nav-gateway-441[data-layout="list"] .ng-card { flex-direction: row; justify-content: flex-start; gap: 20px; width: 100%; height: auto; min-height: 88px; padding: 16px 24px; }
+  .nav-gateway-441[data-layout="split"] { justify-content: flex-start; }
+  .nav-gateway-441[data-layout="split"] .ng-inner { display: grid; grid-template-columns: 1fr 1.4fr; align-items: center; gap: 48px; text-align: left; max-width: 1100px; }
+  .nav-gateway-441[data-layout="split"] .ng-sub { margin-bottom: 0; }
+  .nav-gateway-441[data-layout="split"] .ng-grid { justify-content: flex-start; }
+  .nav-gateway-441[data-layout="no-title"] h1, .nav-gateway-441[data-layout="no-title"] .ng-sub { display: none; }
+  @media (max-width: 640px) {
+    .nav-gateway-441[data-layout="grid2"] .ng-grid, .nav-gateway-441[data-layout="grid3"] .ng-grid { grid-template-columns: 1fr; }
+    .nav-gateway-441[data-layout="split"] .ng-inner { grid-template-columns: 1fr; }
+  }`;
     const css = `<style>
+  ${layoutCss}
   .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; }
   .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
   .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px; }
@@ -3162,7 +3195,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
     const html = `
 <!-- Início: Gateway de Navegação -->
-<div class="nav-gateway-441">
+<div class="nav-gateway-441" data-layout="${lay}">
   <div class="ng-inner">
     <h1>${gatewayConfig.title || ''}</h1>
     ${gatewayConfig.subtitle ? `<p class="ng-sub">${gatewayConfig.subtitle}</p>` : ''}
@@ -3515,7 +3548,23 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             {preset.name}
                           </Button>
                         ))}
-                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Organização (estrutura)</Label>
+                      <select
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        value={gatewayConfig.layout ?? 'top-center'}
+                        onChange={(e) => setGatewayConfig({ ...gatewayConfig, layout: e.target.value })}
+                      >
+                        <option value="top-center">Título no topo, cards centralizados</option>
+                        <option value="top-left">Título no topo, alinhado à esquerda</option>
+                        <option value="split">Dividido (título ao lado dos cards)</option>
+                        <option value="grid2">Grade de 2 colunas</option>
+                        <option value="grid3">Grade de 3 colunas</option>
+                        <option value="list">Lista em linhas (ícone à esquerda)</option>
+                        <option value="no-title">Somente cards (sem título)</option>
+                      </select>
+                    </div>
                     </div>
                     <div className="space-y-2">
                       <Label>Título</Label>
