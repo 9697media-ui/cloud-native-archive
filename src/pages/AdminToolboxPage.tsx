@@ -2541,7 +2541,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
    .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-active { opacity: 1 !important; transform: var(--ng-svg-in-transform, none) !important; filter: var(--ng-svg-in-filter, none) !important; }
   .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
-  .nav-gateway-441 .ng-pill { background: rgba(255,255,255,.2); color: #fff; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
+  .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
   .nav-gateway-441 .ng-sticky { position: fixed; bottom: 96px; right: 0; transform-origin: bottom right; transform: rotate(-90deg); background: #4f46e5; color: #fff; font-size: 14px; font-weight: 600; padding: 8px 20px; border-radius: 8px 8px 0 0; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,.2); z-index: 999998; }
   @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }
 </style>`;
