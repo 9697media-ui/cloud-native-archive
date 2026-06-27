@@ -3350,6 +3350,66 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               </div>
                             </div>
                             <div className="space-y-1">
+                              <Label className="text-xs">Tipo de ícone</Label>
+                              <select
+                                className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                                value={opt.iconMode || 'default'}
+                                onChange={(e) => update({ iconMode: e.target.value })}
+                              >
+                                <option value="default">Emoji / Lottie (URL)</option>
+                                <option value="svg">SVG animado (3 estados)</option>
+                              </select>
+                            </div>
+                            {opt.iconMode === 'svg' ? (
+                              <div className="space-y-2 rounded-md border border-input p-2">
+                                <div className="space-y-1">
+                                  <Label className="text-xs">SVG estático (obrigatório)</Label>
+                                  <textarea
+                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+                                    value={opt.svgStatic || ''}
+                                    onChange={(e) => update({ svgStatic: e.target.value })}
+                                    placeholder="<svg ...>...</svg>"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <Label className="text-xs">SVG hover (ao passar o mouse)</Label>
+                                  <textarea
+                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+                                    value={opt.svgHover || ''}
+                                    onChange={(e) => update({ svgHover: e.target.value })}
+                                    placeholder="<svg ...>...</svg> (opcional)"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <Label className="text-xs">SVG clique</Label>
+                                  <textarea
+                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+                                    value={opt.svgActive || ''}
+                                    onChange={(e) => update({ svgActive: e.target.value })}
+                                    placeholder="<svg ...>...</svg> (opcional)"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="space-y-1">
+                                    <Label className="text-xs">Transição (ms)</Label>
+                                    <Input
+                                      type="number"
+                                      value={opt.svgTransition ?? 300}
+                                      onChange={(e) => update({ svgTransition: Number(e.target.value) })}
+                                    />
+                                  </div>
+                                  <label className="flex items-end gap-2 text-xs pb-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!opt.svgClickHold}
+                                      onChange={(e) => update({ svgClickHold: e.target.checked })}
+                                    />
+                                    Manter estado de clique
+                                  </label>
+                                </div>
+                              </div>
+                            ) : (
+                            <div className="space-y-1">
                               <Label className="text-xs">Ícone animado Lottie (Lordicon/Flaticon JSON)</Label>
                               <Input
                                 value={opt.lordIcon || ''}
