@@ -376,6 +376,9 @@ const DEFAULT_GATEWAY_CONFIG = {
   pillHeight: 24,
   pillWidth: 0,
   fontFamily: 'system-ui, -apple-system, sans-serif',
+  titleFont: '',
+  subtitleFont: '',
+  labelHoverFromIcon: false,
   layout: 'top-center',
   entranceAnim: 'none',
   entranceDuration: 600,
@@ -573,6 +576,34 @@ const upgradeConfig = (type: string, saved: any) => {
   }
   return merged;
 };
+
+// Lista única de fontes para todos os campos de texto personalizável.
+const FONT_OPTIONS: { value: string; label: string }[] = [
+  { value: '', label: 'Padrão do widget' },
+  { value: "system-ui, -apple-system, sans-serif", label: 'Sistema' },
+  { value: "'Inter', sans-serif", label: 'Inter' },
+  { value: "'Poppins', sans-serif", label: 'Poppins' },
+  { value: "'Roboto', sans-serif", label: 'Roboto' },
+  { value: "'Montserrat', sans-serif", label: 'Montserrat' },
+  { value: 'Georgia, serif', label: 'Georgia (serifada)' },
+  { value: "'Courier New', monospace", label: 'Monoespaçada' },
+];
+
+// Seletor de fonte reutilizável para qualquer campo de texto editável.
+const FontSelect: React.FC<{ value?: string; onChange: (v: string) => void; className?: string }> = ({ value, onChange, className }) => (
+  <select
+    className={className ?? 'w-full h-9 rounded-md border border-input bg-background px-3 text-sm'}
+    value={value ?? ''}
+    onChange={(e) => onChange(e.target.value)}
+  >
+    {FONT_OPTIONS.map((f) => (
+      <option key={f.label} value={f.value}>{f.label}</option>
+    ))}
+  </select>
+);
+
+
+
 
 
 
@@ -2728,8 +2759,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   ${layoutCss}
   .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; }
   .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
-  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px; }
-  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px; }
+  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px;${gatewayConfig.titleFont ? ` font-family: ${gatewayConfig.titleFont};` : ''} }
+  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px;${gatewayConfig.subtitleFont ? ` font-family: ${gatewayConfig.subtitleFont};` : ''} }
   .nav-gateway-441 .ng-grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
   .nav-gateway-441 .ng-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
   .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: ${gatewayConfig.cardWidth ?? 176}px; height: ${gatewayConfig.cardHeight ?? 176}px; background: ${gatewayConfig.cardBgColor ?? '#fff'}; border-radius: ${gatewayConfig.cardRadius ?? 24}px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
@@ -2747,8 +2778,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
    .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-hover { opacity: 0 !important; }
    .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-active { opacity: 1 !important; transform: var(--ng-svg-in-transform, none) !important; filter: var(--ng-svg-in-filter, none) !important; }
   .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
-  .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
-  .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 0 16px; height: ${gatewayConfig.pillHeight ?? 24}px; ${gatewayConfig.pillWidth ? `width: ${gatewayConfig.pillWidth}px;` : ''} display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; }
+   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; transition: color .25s ease; }
+   ${gatewayConfig.labelHoverFromIcon ? `.nav-gateway-441 .ng-card:hover .ng-label { color: var(--ng-lbl, inherit); }` : ''}
+   .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 0 16px; height: ${gatewayConfig.pillHeight ?? 24}px; ${gatewayConfig.pillWidth ? `width: ${gatewayConfig.pillWidth}px;` : ''} display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; }
   .nav-gateway-441 .ng-grid-spacer { display: none; }
   @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }${gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? `
   @keyframes ng-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -2827,11 +2859,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const animDelay = gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? ` style="animation-delay:${gatewayConfig.entranceSync ? 0 : index * 120}ms"` : '';
       return `
     <div class="ng-col"${animDelay}>
-      <a class="ng-card ${cardClass}" href="${o.link || '#'}">
+      <a class="ng-card ${cardClass}" href="${o.link || '#'}" style="--ng-lbl:${o.iconColor}">
         ${iconHtml}
-        <span class="ng-label">${o.cardLabel || ''}</span>
+        <span class="ng-label"${o.labelFont ? ` style="font-family:${o.labelFont}"` : ''}>${o.cardLabel || ''}</span>
       </a>
-      ${o.pillText ? `<span class="ng-pill">${o.pillText}</span>` : ''}
+      ${o.pillText ? `<span class="ng-pill"${o.pillFont ? ` style="font-family:${o.pillFont}"` : ''}>${o.pillText}</span>` : ''}
     </div>`;
     }).join('');
 
@@ -3570,15 +3602,27 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="space-y-2">
                       <Label>Título</Label>
                       <Input value={gatewayConfig.title} onChange={(e) => setGatewayConfig({...gatewayConfig, title: e.target.value})} />
+                      <FontSelect value={gatewayConfig.titleFont} onChange={(v) => setGatewayConfig({...gatewayConfig, titleFont: v})} />
                     </div>
                     <div className="space-y-2">
                       <Label>Subtítulo</Label>
                       <Input value={gatewayConfig.subtitle} onChange={(e) => setGatewayConfig({...gatewayConfig, subtitle: e.target.value})} />
+                      <FontSelect value={gatewayConfig.subtitleFont} onChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFont: v})} />
                     </div>
                     <div className="space-y-2">
                       <Label>Cor do Texto</Label>
                       <ColorField value={gatewayConfig.titleColor} onChange={(v) => setGatewayConfig({...gatewayConfig, titleColor: v})} />
                     </div>
+
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={!!gatewayConfig.labelHoverFromIcon}
+                        onChange={(e) => setGatewayConfig({...gatewayConfig, labelHoverFromIcon: e.target.checked})}
+                      />
+                      Título do cartão muda para a cor do ícone no hover
+                    </label>
+
 
 
                     <div className="grid grid-cols-2 gap-4">
@@ -3762,6 +3806,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               <div className="space-y-1">
                                 <Label className="text-xs">Título</Label>
                                 <Input value={opt.cardLabel} onChange={(e) => update({ cardLabel: e.target.value })} />
+                                <FontSelect value={opt.labelFont} onChange={(v) => update({ labelFont: v })} />
                               </div>
                               <div className="space-y-1">
                                 <Label className="text-xs">Cor do ícone</Label>
@@ -3942,6 +3987,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             <div className="space-y-1">
                               <Label className="text-xs">Pílula (texto de apoio)</Label>
                               <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
+                              <FontSelect value={opt.pillFont} onChange={(v) => update({ pillFont: v })} />
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Link</Label>
