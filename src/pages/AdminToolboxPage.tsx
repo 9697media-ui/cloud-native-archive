@@ -630,7 +630,7 @@ export default function AdminToolboxPage() {
     setActiveWidgetType(template.type);
     setCurrentTemplateId(template.id);
     setTemplateName(template.name);
-    applyConfig(template.type, cfg);
+    applyConfig(template.type, upgradeConfig(template.type, cfg));
     setDraftSavedAt(savedAt);
 
     toast(savedAt
