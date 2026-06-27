@@ -379,6 +379,7 @@ const DEFAULT_GATEWAY_CONFIG = {
   layout: 'top-center',
   entranceAnim: 'none',
   entranceDuration: 600,
+  entranceSync: false,
   title: 'Bem-vindo',
   subtitle: 'Escolha por onde deseja começar',
   titleColor: '#ffffff',
@@ -2823,7 +2824,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       } else {
         iconHtml = `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       }
-      const animDelay = gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? ` style="animation-delay:${index * 120}ms"` : '';
+      const animDelay = gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? ` style="animation-delay:${gatewayConfig.entranceSync ? 0 : index * 120}ms"` : '';
       return `
     <div class="ng-col"${animDelay}>
       <a class="ng-card ${cardClass}" href="${o.link || '#'}">
@@ -3640,6 +3641,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             </div>
                           </div>
                           <Slider min={100} max={2000} step={50} value={[gatewayConfig.entranceDuration ?? 600]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, entranceDuration: v})} />
+                          <div className="flex items-center justify-between pt-1">
+                            <div>
+                              <Label>Animação sincronizada</Label>
+                              <p className="text-xs text-muted-foreground">{gatewayConfig.entranceSync ? 'Dupla: todos os cards entram juntos' : 'Individual: entrada escalonada'}</p>
+                            </div>
+                            <Switch checked={!!gatewayConfig.entranceSync} onCheckedChange={(v) => setGatewayConfig({...gatewayConfig, entranceSync: v})} />
+                          </div>
                         </div>
                       )}
                     </div>
