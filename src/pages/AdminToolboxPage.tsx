@@ -373,6 +373,8 @@ const DEFAULT_GATEWAY_CONFIG = {
   cardRadius: 24,
   pillBgColor: '#ffffff',
   pillTextColor: '#ffffff',
+  pillHeight: 24,
+  fontFamily: 'system-ui, -apple-system, sans-serif',
   title: 'Bem-vindo',
   subtitle: 'Escolha por onde deseja começar',
   titleColor: '#ffffff',
