@@ -374,6 +374,7 @@ const DEFAULT_GATEWAY_CONFIG = {
   pillBgColor: '#ffffff',
   pillTextColor: '#ffffff',
   pillHeight: 24,
+  pillWidth: 0,
   fontFamily: 'system-ui, -apple-system, sans-serif',
   title: 'Bem-vindo',
   subtitle: 'Escolha por onde deseja começar',
