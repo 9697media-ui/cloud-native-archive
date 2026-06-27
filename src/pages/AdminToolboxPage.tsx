@@ -2831,11 +2831,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const animDelay = gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? ` style="animation-delay:${gatewayConfig.entranceSync ? 0 : index * 120}ms"` : '';
       return `
     <div class="ng-col"${animDelay}>
-      <a class="ng-card ${cardClass}" href="${o.link || '#'}">
+      <a class="ng-card ${cardClass}" href="${o.link || '#'}" style="--ng-lbl:${o.iconColor}">
         ${iconHtml}
-        <span class="ng-label">${o.cardLabel || ''}</span>
+        <span class="ng-label"${o.labelFont ? ` style="font-family:${o.labelFont}"` : ''}>${o.cardLabel || ''}</span>
       </a>
-      ${o.pillText ? `<span class="ng-pill">${o.pillText}</span>` : ''}
+      ${o.pillText ? `<span class="ng-pill"${o.pillFont ? ` style="font-family:${o.pillFont}"` : ''}>${o.pillText}</span>` : ''}
     </div>`;
     }).join('');
 
