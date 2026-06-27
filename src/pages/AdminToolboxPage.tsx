@@ -2691,7 +2691,26 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       .replace(/\u2029/g, '\\u2029');
 
   const generateGatewayCode = () => {
+    const lay = gatewayConfig.layout || 'top-center';
+    const layoutCss = `
+  .nav-gateway-441[data-layout="top-left"] .ng-inner { text-align: left; }
+  .nav-gateway-441[data-layout="top-left"] .ng-grid { justify-content: flex-start; }
+  .nav-gateway-441[data-layout="grid2"] .ng-grid { display: grid; grid-template-columns: repeat(2, max-content); justify-content: center; }
+  .nav-gateway-441[data-layout="grid3"] .ng-grid { display: grid; grid-template-columns: repeat(3, max-content); justify-content: center; }
+  .nav-gateway-441[data-layout="list"] .ng-grid { flex-direction: column; align-items: stretch; }
+  .nav-gateway-441[data-layout="list"] .ng-col { width: 100%; }
+  .nav-gateway-441[data-layout="list"] .ng-card { flex-direction: row; justify-content: flex-start; gap: 20px; width: 100%; height: auto; min-height: 88px; padding: 16px 24px; }
+  .nav-gateway-441[data-layout="split"] { justify-content: flex-start; }
+  .nav-gateway-441[data-layout="split"] .ng-inner { display: grid; grid-template-columns: 1fr 1.4fr; align-items: center; gap: 48px; text-align: left; max-width: 1100px; }
+  .nav-gateway-441[data-layout="split"] .ng-sub { margin-bottom: 0; }
+  .nav-gateway-441[data-layout="split"] .ng-grid { justify-content: flex-start; }
+  .nav-gateway-441[data-layout="no-title"] h1, .nav-gateway-441[data-layout="no-title"] .ng-sub { display: none; }
+  @media (max-width: 640px) {
+    .nav-gateway-441[data-layout="grid2"] .ng-grid, .nav-gateway-441[data-layout="grid3"] .ng-grid { grid-template-columns: 1fr; }
+    .nav-gateway-441[data-layout="split"] .ng-inner { grid-template-columns: 1fr; }
+  }`;
     const css = `<style>
+  ${layoutCss}
   .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; }
   .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
   .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px; }
