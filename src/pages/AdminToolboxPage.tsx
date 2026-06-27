@@ -2494,6 +2494,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     s = s.replace(/\son\w+\s*=\s*"[^"]*"/gi, '');
     s = s.replace(/\son\w+\s*=\s*'[^']*'/gi, '');
     s = s.replace(/(href|xlink:href)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '');
+    // Force currentColor so the configured icon color applies (preserve fill/stroke="none")
+    s = s.replace(/(fill|stroke)\s*=\s*("|')(?!none)(?!url\()[^"']*\2/gi, '$1="currentColor"');
+    s = s.replace(/(fill|stroke)\s*:\s*(?!none)(?!url\()(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\)|[a-zA-Z]+)/g, '$1:currentColor');
     return s;
   };
 
