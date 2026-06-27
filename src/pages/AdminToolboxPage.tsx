@@ -3520,15 +3520,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               <Label className="text-xs">Pílula (texto de apoio)</Label>
                               <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div className="space-y-1">
-                                <Label className="text-xs">Link</Label>
-                                <Input value={opt.link} onChange={(e) => update({ link: e.target.value })} />
-                              </div>
-                              <div className="space-y-1">
-                                <Label className="text-xs">Cor do Ícone</Label>
-                                <ColorField value={opt.iconColor} onChange={(v) => update({ iconColor: v })} />
-                              </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Link</Label>
+                              <Input value={opt.link} onChange={(e) => update({ link: e.target.value })} />
                             </div>
                           </div>
                         );
