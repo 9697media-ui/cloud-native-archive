@@ -3345,7 +3345,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
+
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <Label>Largura do Cartão</Label>
