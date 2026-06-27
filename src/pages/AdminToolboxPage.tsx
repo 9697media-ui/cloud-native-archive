@@ -822,6 +822,8 @@ export default function AdminToolboxPage() {
 
   const [gatewayConfig, setGatewayConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_GATEWAY_CONFIG)));
 
+  const [sidetabConfig, setSidetabConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_SIDETAB_CONFIG)));
+
 
 
   // ===== Preview "demo" orientado pelo código final =====
