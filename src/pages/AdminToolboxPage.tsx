@@ -2731,8 +2731,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   ${layoutCss}
   .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; }
   .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
-  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px; }
-  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px; }
+  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px;${gatewayConfig.titleFont ? ` font-family: ${gatewayConfig.titleFont};` : ''} }
+  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px;${gatewayConfig.subtitleFont ? ` font-family: ${gatewayConfig.subtitleFont};` : ''} }
   .nav-gateway-441 .ng-grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
   .nav-gateway-441 .ng-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
   .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: ${gatewayConfig.cardWidth ?? 176}px; height: ${gatewayConfig.cardHeight ?? 176}px; background: ${gatewayConfig.cardBgColor ?? '#fff'}; border-radius: ${gatewayConfig.cardRadius ?? 24}px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
