@@ -3439,9 +3439,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           <Plus className="h-3 w-3" /> Adicionar
                         </Button>
                       </div>
-                      {gatewayConfig.options.map((opt: any, idx: number) => {
+                      {(gatewayConfig.options || []).map((opt: any, idx: number) => {
                         const update = (patch: any) => {
-                          const next = [...gatewayConfig.options];
+                          const next = [...(gatewayConfig.options || [])];
                           next[idx] = { ...next[idx], ...patch };
                           setGatewayConfig({...gatewayConfig, options: next});
                         };
