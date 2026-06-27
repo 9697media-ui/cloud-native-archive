@@ -373,6 +373,8 @@ const DEFAULT_GATEWAY_CONFIG = {
   cardRadius: 24,
   pillBgColor: '#ffffff',
   pillTextColor: '#ffffff',
+  pillHeight: 24,
+  fontFamily: 'system-ui, -apple-system, sans-serif',
   title: 'Bem-vindo',
   subtitle: 'Escolha por onde deseja começar',
   titleColor: '#ffffff',
@@ -2552,7 +2554,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       : `background-color: ${gatewayConfig.bgColor};`;
 
     const css = `<style>
-  .nav-gateway-441 { position: relative; width: 100%; min-height: 600px; display: flex; align-items: center; justify-content: center; padding: 64px 24px; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; ${bg} }
+  .nav-gateway-441 { position: relative; width: 100%; min-height: 600px; display: flex; align-items: center; justify-content: center; padding: 64px 24px; box-sizing: border-box; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; ${bg} }
   .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
   .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px; }
   .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px; }
@@ -2574,7 +2576,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
    .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-active { opacity: 1 !important; transform: var(--ng-svg-in-transform, none) !important; filter: var(--ng-svg-in-filter, none) !important; }
   .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
-  .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
+  .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 0 16px; height: ${gatewayConfig.pillHeight ?? 24}px; display: inline-flex; align-items: center; border-radius: 9999px; }
   .nav-gateway-441 .ng-grid-spacer { display: none; }
   @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }
 </style>`;
@@ -3389,6 +3391,39 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <Label>Cor do Texto da Pílula</Label>
                         <ColorField value={gatewayConfig.pillTextColor} onChange={(v) => setGatewayConfig({...gatewayConfig, pillTextColor: v})} />
                       </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Fonte do Widget</Label>
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        value={gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}
+                        onChange={(e) => setGatewayConfig({...gatewayConfig, fontFamily: e.target.value})}
+                      >
+                        <option value="system-ui, -apple-system, sans-serif">Sistema (padrão)</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="Georgia, serif">Georgia (serifada)</option>
+                        <option value="'Courier New', monospace">Monoespaçada</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Altura da Pílula</Label>
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="number"
+                            className="h-7 w-16 text-xs"
+                            value={gatewayConfig.pillHeight ?? 24}
+                            onChange={(e) => setGatewayConfig({...gatewayConfig, pillHeight: Number(e.target.value) || 0})}
+                          />
+                          <span className="text-xs text-muted-foreground">px</span>
+                        </div>
+                      </div>
+                      <Slider min={16} max={64} step={1} value={[gatewayConfig.pillHeight ?? 24]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, pillHeight: v})} />
                     </div>
 
                     <div className="space-y-4">
