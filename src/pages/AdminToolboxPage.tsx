@@ -2750,8 +2750,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
    .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-hover { opacity: 0 !important; }
    .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-active { opacity: 1 !important; transform: var(--ng-svg-in-transform, none) !important; filter: var(--ng-svg-in-filter, none) !important; }
   .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
-  .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
-  .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 0 16px; height: ${gatewayConfig.pillHeight ?? 24}px; ${gatewayConfig.pillWidth ? `width: ${gatewayConfig.pillWidth}px;` : ''} display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; }
+   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; transition: color .25s ease; }
+   ${gatewayConfig.labelHoverFromIcon ? `.nav-gateway-441 .ng-card:hover .ng-label { color: var(--ng-lbl, inherit); }` : ''}
+   .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 0 16px; height: ${gatewayConfig.pillHeight ?? 24}px; ${gatewayConfig.pillWidth ? `width: ${gatewayConfig.pillWidth}px;` : ''} display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; }
   .nav-gateway-441 .ng-grid-spacer { display: none; }
   @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }${gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? `
   @keyframes ng-fade { from { opacity: 0; } to { opacity: 1; } }
