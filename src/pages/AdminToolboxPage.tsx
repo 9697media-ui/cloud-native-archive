@@ -5112,6 +5112,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 )}
               </div>
               </section>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
 
