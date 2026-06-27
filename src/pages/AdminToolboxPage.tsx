@@ -3713,12 +3713,26 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="space-y-2">
                       <Label>Título</Label>
                       <Input value={gatewayConfig.title} onChange={(e) => setGatewayConfig({...gatewayConfig, title: e.target.value})} />
-                      <FontSelect value={gatewayConfig.titleFont} onChange={(v) => setGatewayConfig({...gatewayConfig, titleFont: v})} />
+                      <FontSelect
+                        value={gatewayConfig.titleFont}
+                        weight={gatewayConfig.titleFontWeight}
+                        style={gatewayConfig.titleFontStyle}
+                        onChange={(v) => setGatewayConfig({...gatewayConfig, titleFont: v})}
+                        onWeightChange={(v) => setGatewayConfig({...gatewayConfig, titleFontWeight: v})}
+                        onStyleChange={(v) => setGatewayConfig({...gatewayConfig, titleFontStyle: v})}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Subtítulo</Label>
                       <Input value={gatewayConfig.subtitle} onChange={(e) => setGatewayConfig({...gatewayConfig, subtitle: e.target.value})} />
-                      <FontSelect value={gatewayConfig.subtitleFont} onChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFont: v})} />
+                      <FontSelect
+                        value={gatewayConfig.subtitleFont}
+                        weight={gatewayConfig.subtitleFontWeight}
+                        style={gatewayConfig.subtitleFontStyle}
+                        onChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFont: v})}
+                        onWeightChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFontWeight: v})}
+                        onStyleChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFontStyle: v})}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Cor do Texto</Label>
@@ -3752,20 +3766,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Fonte do Widget</Label>
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                      <Label>Fonte global do widget</Label>
+                      <FontSelect
                         value={gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}
-                        onChange={(e) => setGatewayConfig({...gatewayConfig, fontFamily: e.target.value})}
-                      >
-                        <option value="system-ui, -apple-system, sans-serif">Sistema (padrão)</option>
-                        <option value="'Inter', sans-serif">Inter</option>
-                        <option value="'Poppins', sans-serif">Poppins</option>
-                        <option value="'Roboto', sans-serif">Roboto</option>
-                        <option value="'Montserrat', sans-serif">Montserrat</option>
-                        <option value="Georgia, serif">Georgia (serifada)</option>
-                        <option value="'Courier New', monospace">Monoespaçada</option>
-                      </select>
+                        weight={gatewayConfig.fontWeight}
+                        style={gatewayConfig.fontStyle}
+                        onChange={(v) => setGatewayConfig({...gatewayConfig, fontFamily: v || 'system-ui, -apple-system, sans-serif'})}
+                        onWeightChange={(v) => setGatewayConfig({...gatewayConfig, fontWeight: v})}
+                        onStyleChange={(v) => setGatewayConfig({...gatewayConfig, fontStyle: v})}
+                      />
                     </div>
 
                     <div className="space-y-2">
@@ -3903,7 +3912,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <Label className="font-semibold">Cartões de Opção</Label>
                         <Button
                           type="button" variant="outline" size="sm" className="gap-1"
-                          onClick={() => setGatewayConfig({...gatewayConfig, options: [...(gatewayConfig.options || []), { id: Math.random().toString(36).slice(2, 8), icon: '⭐', iconColor: '#4f46e5', cardLabel: 'Nova Opção', pillText: '', link: '#' }]})}
+                          onClick={() => setGatewayConfig({...gatewayConfig, options: [...(gatewayConfig.options || []), { id: Math.random().toString(36).slice(2, 8), icon: '⭐', iconColor: '#4f46e5', cardLabel: 'Nova Opção', labelFont: '', labelFontWeight: '700', labelFontStyle: 'normal', pillText: '', pillFont: '', pillFontWeight: '500', pillFontStyle: 'normal', link: '#' }]})}
                         >
                           <Plus className="h-3 w-3" /> Adicionar
                         </Button>
@@ -3926,7 +3935,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               <div className="space-y-1">
                                 <Label className="text-xs">Título</Label>
                                 <Input value={opt.cardLabel} onChange={(e) => update({ cardLabel: e.target.value })} />
-                                <FontSelect value={opt.labelFont} onChange={(v) => update({ labelFont: v })} />
+                                <FontSelect
+                                  value={opt.labelFont}
+                                  weight={opt.labelFontWeight}
+                                  style={opt.labelFontStyle}
+                                  onChange={(v) => update({ labelFont: v })}
+                                  onWeightChange={(v) => update({ labelFontWeight: v })}
+                                  onStyleChange={(v) => update({ labelFontStyle: v })}
+                                />
                               </div>
                               <div className="space-y-1">
                                 <Label className="text-xs">Cor do ícone</Label>
@@ -4107,7 +4123,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             <div className="space-y-1">
                               <Label className="text-xs">Pílula (texto de apoio)</Label>
                               <Input value={opt.pillText} onChange={(e) => update({ pillText: e.target.value })} />
-                              <FontSelect value={opt.pillFont} onChange={(v) => update({ pillFont: v })} />
+                              <FontSelect
+                                value={opt.pillFont}
+                                weight={opt.pillFontWeight}
+                                style={opt.pillFontStyle}
+                                onChange={(v) => update({ pillFont: v })}
+                                onWeightChange={(v) => update({ pillFontWeight: v })}
+                                onStyleChange={(v) => update({ pillFontStyle: v })}
+                              />
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Link</Label>
