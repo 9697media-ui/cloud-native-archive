@@ -5031,29 +5031,41 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo Interativo do Widget (clique e teste aqui)</span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div ref={demoRef} className="relative w-full h-[420px] rounded-lg border bg-background overflow-hidden flex justify-center">
-                      {(() => {
-                        const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
-                        const scale = demoScale;
-                        // A demo renderiza o mesmo código final; só o script de clique é extra.
-                        return (
-                          <iframe
-                            title="Demo isolado do widget"
-                            className="border-none absolute top-0 left-1/2"
-                            style={{
-                              width: demoWidth,
-                              height: 420 / scale,
-                              transform: `translateX(-50%) scale(${scale})`,
-                              transformOrigin: 'top center',
-                            }}
-                            sandbox="allow-scripts allow-same-origin"
-                            ref={demoIframeRef}
-                            srcDoc={demoDoc || (getGeneratedCode() + demoScript)}
-                            key={`demo-${deviceView}-${activeWidgetType}-${demoVersion}`}
-                          />
-                        );
-                      })()}
+                    <div className="w-full flex justify-center py-2">
+                      <div
+                        ref={demoRef}
+                        className={cn(
+                          "bg-background shadow-2xl border overflow-hidden relative shrink-0 transition-all duration-500 ease-in-out",
+                          deviceView === 'mobile' && "w-[300px] max-w-full aspect-[390/844] rounded-[2.5rem] border-[8px] border-slate-900",
+                          deviceView === 'tablet' && "w-[480px] max-w-full aspect-[900/1200] rounded-[1.5rem] border-[10px] border-slate-900",
+                          deviceView === 'desktop' && "w-full max-w-3xl aspect-video rounded-lg"
+                        )}
+                      >
+                        {(() => {
+                          const native = DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop;
+                          const scale = demoScale;
+                          // A demo renderiza o mesmo código final, em resolução nativa do
+                          // dispositivo, e é escalada para caber mantendo a proporção real.
+                          return (
+                            <iframe
+                              title="Demo isolado do widget"
+                              className="border-none absolute top-0 left-0"
+                              style={{
+                                width: native.width,
+                                height: native.height,
+                                transform: `scale(${scale})`,
+                                transformOrigin: 'top left',
+                              }}
+                              sandbox="allow-scripts allow-same-origin"
+                              ref={demoIframeRef}
+                              srcDoc={demoDoc || (getGeneratedCode() + demoScript)}
+                              key={`demo-${deviceView}-${activeWidgetType}-${demoVersion}`}
+                            />
+                          );
+                        })()}
+                      </div>
                     </div>
+
                   </div>
                 )}
                 {viewMode === 'site' && (
