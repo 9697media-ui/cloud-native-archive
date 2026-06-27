@@ -1030,6 +1030,13 @@ export default function AdminToolboxPage() {
   const [menuConfig, setMenuConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_MENU_CONFIG)));
 
   const [gatewayConfig, setGatewayConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_GATEWAY_CONFIG)));
+  // Personalização por dispositivo do Gateway (tablet/mobile herdam do desktop).
+  const gwKey = (base: string, dev: DeviceView) =>
+    dev === 'desktop' ? base : base + (dev === 'tablet' ? 'Tablet' : 'Mobile');
+  const gwGet = (base: string, dev: DeviceView): number =>
+    (gatewayConfig[gwKey(base, dev)] ?? gatewayConfig[base]) as number;
+  const gwSet = (base: string, dev: DeviceView, val: number) =>
+    setGatewayConfig({ ...gatewayConfig, [gwKey(base, dev)]: val });
 
   const [sidetabConfig, setSidetabConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_SIDETAB_CONFIG)));
 
