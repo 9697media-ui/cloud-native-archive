@@ -3602,15 +3602,27 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="space-y-2">
                       <Label>Título</Label>
                       <Input value={gatewayConfig.title} onChange={(e) => setGatewayConfig({...gatewayConfig, title: e.target.value})} />
+                      <FontSelect value={gatewayConfig.titleFont} onChange={(v) => setGatewayConfig({...gatewayConfig, titleFont: v})} />
                     </div>
                     <div className="space-y-2">
                       <Label>Subtítulo</Label>
                       <Input value={gatewayConfig.subtitle} onChange={(e) => setGatewayConfig({...gatewayConfig, subtitle: e.target.value})} />
+                      <FontSelect value={gatewayConfig.subtitleFont} onChange={(v) => setGatewayConfig({...gatewayConfig, subtitleFont: v})} />
                     </div>
                     <div className="space-y-2">
                       <Label>Cor do Texto</Label>
                       <ColorField value={gatewayConfig.titleColor} onChange={(v) => setGatewayConfig({...gatewayConfig, titleColor: v})} />
                     </div>
+
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={!!gatewayConfig.labelHoverFromIcon}
+                        onChange={(e) => setGatewayConfig({...gatewayConfig, labelHoverFromIcon: e.target.checked})}
+                      />
+                      Título do cartão muda para a cor do ícone no hover
+                    </label>
+
 
 
                     <div className="grid grid-cols-2 gap-4">
