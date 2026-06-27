@@ -376,6 +376,8 @@ const DEFAULT_GATEWAY_CONFIG = {
   pillHeight: 24,
   pillWidth: 0,
   fontFamily: 'system-ui, -apple-system, sans-serif',
+  entranceAnim: 'none',
+  entranceDuration: 600,
   title: 'Bem-vindo',
   subtitle: 'Escolha por onde deseja começar',
   titleColor: '#ffffff',
@@ -2579,7 +2581,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
   .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 0 16px; height: ${gatewayConfig.pillHeight ?? 24}px; ${gatewayConfig.pillWidth ? `width: ${gatewayConfig.pillWidth}px;` : ''} display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; }
   .nav-gateway-441 .ng-grid-spacer { display: none; }
-  @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }
+  @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }${gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? `
+  @keyframes ng-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ng-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes ng-zoom { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
+  @keyframes ng-slide { from { opacity: 0; transform: translateX(-32px); } to { opacity: 1; transform: translateX(0); } }
+  .nav-gateway-441 .ng-col { opacity: 0; animation: ng-${gatewayConfig.entranceAnim} ${Number(gatewayConfig.entranceDuration) || 600}ms ease forwards; }` : ''}
 </style>`;
 
     const hasLord = (gatewayConfig.options || []).some((o: any) => o.lordIcon);
@@ -2648,8 +2655,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       } else {
         iconHtml = `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       }
+      const animDelay = gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? ` style="animation-delay:${index * 120}ms"` : '';
       return `
-    <div class="ng-col">
+    <div class="ng-col"${animDelay}>
       <a class="ng-card ${cardClass}" href="${o.link || '#'}">
         ${iconHtml}
         <span class="ng-label">${o.cardLabel || ''}</span>
@@ -3400,6 +3408,38 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <option value="Georgia, serif">Georgia (serifada)</option>
                         <option value="'Courier New', monospace">Monoespaçada</option>
                       </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Animação de Entrada</Label>
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        value={gatewayConfig.entranceAnim ?? 'none'}
+                        onChange={(e) => setGatewayConfig({...gatewayConfig, entranceAnim: e.target.value})}
+                      >
+                        <option value="none">Nenhuma</option>
+                        <option value="fade">Fade (aparecer)</option>
+                        <option value="up">Subir</option>
+                        <option value="zoom">Zoom</option>
+                        <option value="slide">Deslizar</option>
+                      </select>
+                      {gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' && (
+                        <div className="space-y-2 pt-1">
+                          <div className="flex items-center justify-between">
+                            <Label>Duração</Label>
+                            <div className="flex items-center gap-1">
+                              <Input
+                                type="number"
+                                className="h-7 w-16 text-xs"
+                                value={gatewayConfig.entranceDuration ?? 600}
+                                onChange={(e) => setGatewayConfig({...gatewayConfig, entranceDuration: Number(e.target.value) || 0})}
+                              />
+                              <span className="text-xs text-muted-foreground">ms</span>
+                            </div>
+                          </div>
+                          <Slider min={100} max={2000} step={50} value={[gatewayConfig.entranceDuration ?? 600]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, entranceDuration: v})} />
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-2">
