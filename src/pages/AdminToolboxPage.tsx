@@ -387,6 +387,61 @@ const DEFAULT_GATEWAY_CONFIG = {
   ] as any[],
 };
 
+// Modelos de layout / variações visuais pré-definidas para o Gateway.
+// Aplicam apenas propriedades visuais; mantêm título, subtítulo e options do usuário.
+const GATEWAY_PRESETS: { id: string; name: string; style: Record<string, any> }[] = [
+  {
+    id: 'classic',
+    name: 'Clássico',
+    style: {
+      cardWidth: 176, cardHeight: 176, cardBgColor: '#ffffff', cardRadius: 24,
+      pillBgColor: '#ffffff', pillTextColor: '#0f172a', pillHeight: 24, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'system-ui, -apple-system, sans-serif',
+      entranceAnim: 'none', entranceDuration: 600,
+    },
+  },
+  {
+    id: 'minimal',
+    name: 'Minimalista',
+    style: {
+      cardWidth: 160, cardHeight: 160, cardBgColor: '#f8fafc', cardRadius: 12,
+      pillBgColor: '#e2e8f0', pillTextColor: '#0f172a', pillHeight: 22, pillWidth: 0,
+      titleColor: '#0f172a', fontFamily: 'Inter, system-ui, sans-serif',
+      entranceAnim: 'fade', entranceDuration: 500,
+    },
+  },
+  {
+    id: 'rounded',
+    name: 'Arredondado',
+    style: {
+      cardWidth: 184, cardHeight: 184, cardBgColor: '#ffffff', cardRadius: 48,
+      pillBgColor: '#6366f1', pillTextColor: '#ffffff', pillHeight: 28, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'Poppins, system-ui, sans-serif',
+      entranceAnim: 'zoom', entranceDuration: 600,
+    },
+  },
+  {
+    id: 'dark',
+    name: 'Escuro',
+    style: {
+      cardWidth: 176, cardHeight: 176, cardBgColor: '#1e293b', cardRadius: 20,
+      pillBgColor: '#334155', pillTextColor: '#f8fafc', pillHeight: 26, pillWidth: 0,
+      titleColor: '#f8fafc', fontFamily: 'system-ui, -apple-system, sans-serif',
+      entranceAnim: 'up', entranceDuration: 700,
+    },
+  },
+  {
+    id: 'compact-wide',
+    name: 'Largo Compacto',
+    style: {
+      cardWidth: 240, cardHeight: 132, cardBgColor: '#ffffff', cardRadius: 16,
+      pillBgColor: '#0ea5e9', pillTextColor: '#ffffff', pillHeight: 24, pillWidth: 140,
+      titleColor: '#ffffff', fontFamily: 'Inter, system-ui, sans-serif',
+      entranceAnim: 'slide', entranceDuration: 550,
+    },
+  },
+];
+
 const DEFAULT_SIDETAB_CONFIG = {
   label: 'Quero ajudar',
   link: '#',
@@ -3364,6 +3419,24 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 {/* CONFIG: GATEWAY */}
                 {activeWidgetType === 'gateway' && (
                   <div className="space-y-4">
+                    <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
+                      <Label>Modelo de layout</Label>
+                      <p className="text-xs text-muted-foreground">Escolha uma variação visual pré-definida. Você pode editar tudo depois.</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {GATEWAY_PRESETS.map((preset) => (
+                          <Button
+                            key={preset.id}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="justify-start"
+                            onClick={() => setGatewayConfig({ ...gatewayConfig, ...preset.style })}
+                          >
+                            {preset.name}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
                     <div className="space-y-2">
                       <Label>Título</Label>
                       <Input value={gatewayConfig.title} onChange={(e) => setGatewayConfig({...gatewayConfig, title: e.target.value})} />
