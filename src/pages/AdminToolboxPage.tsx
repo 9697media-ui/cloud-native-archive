@@ -3734,85 +3734,94 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3 rounded-lg border p-3">
                       <div className="flex items-center justify-between">
-                        <Label>Altura da Pílula</Label>
-                        <div className="flex items-center gap-1">
-                          <Input
-                            type="number"
-                            className="h-7 w-16 text-xs"
-                            value={gatewayConfig.pillHeight ?? 24}
-                            onChange={(e) => setGatewayConfig({...gatewayConfig, pillHeight: Number(e.target.value) || 0})}
-                          />
-                          <span className="text-xs text-muted-foreground">px</span>
-                        </div>
+                        <Label className="font-semibold">Dimensões por dispositivo</Label>
                       </div>
-                      <Slider min={16} max={64} step={1} value={[gatewayConfig.pillHeight ?? 24]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, pillHeight: v})} />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label>Largura da Pílula <span className="text-xs text-muted-foreground">(0 = automática)</span></Label>
-                        <div className="flex items-center gap-1">
-                          <Input
-                            type="number"
-                            className="h-7 w-16 text-xs"
-                            value={gatewayConfig.pillWidth ?? 0}
-                            onChange={(e) => setGatewayConfig({...gatewayConfig, pillWidth: Number(e.target.value) || 0})}
-                          />
-                          <span className="text-xs text-muted-foreground">px</span>
-                        </div>
+                      <p className="text-xs text-muted-foreground">Tablet e mobile herdam o desktop até serem ajustados. A cor do ícone é global.</p>
+                      <div className="flex gap-1 rounded-md bg-muted/40 p-1">
+                        {([
+                          { id: 'desktop' as DeviceView, label: 'Desktop', icon: Monitor },
+                          { id: 'tablet' as DeviceView, label: 'Tablet', icon: Tablet },
+                          { id: 'mobile' as DeviceView, label: 'Mobile', icon: Smartphone },
+                        ]).map((d) => (
+                          <button
+                            key={d.id}
+                            type="button"
+                            onClick={() => { setPanelDevice(d.id); setDeviceView(d.id); }}
+                            className={cn(
+                              'flex flex-1 items-center justify-center gap-1 rounded px-2 py-1.5 text-xs font-medium transition',
+                              panelDevice === d.id ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
+                            )}
+                          >
+                            <d.icon className="h-3.5 w-3.5" /> {d.label}
+                          </button>
+                        ))}
                       </div>
-                      <Slider min={0} max={320} step={1} value={[gatewayConfig.pillWidth ?? 0]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, pillWidth: v})} />
-                    </div>
 
-                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Altura da Pílula</Label>
+                          <div className="flex items-center gap-1">
+                            <Input type="number" className="h-7 w-16 text-xs"
+                              value={gwGet('pillHeight', panelDevice)}
+                              onChange={(e) => gwSet('pillHeight', panelDevice, Number(e.target.value) || 0)} />
+                            <span className="text-xs text-muted-foreground">px</span>
+                          </div>
+                        </div>
+                        <Slider min={16} max={64} step={1} value={[gwGet('pillHeight', panelDevice)]} onValueChange={([v]) => gwSet('pillHeight', panelDevice, v)} />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Largura da Pílula <span className="text-xs text-muted-foreground">(0 = automática)</span></Label>
+                          <div className="flex items-center gap-1">
+                            <Input type="number" className="h-7 w-16 text-xs"
+                              value={gwGet('pillWidth', panelDevice)}
+                              onChange={(e) => gwSet('pillWidth', panelDevice, Number(e.target.value) || 0)} />
+                            <span className="text-xs text-muted-foreground">px</span>
+                          </div>
+                        </div>
+                        <Slider min={0} max={320} step={1} value={[gwGet('pillWidth', panelDevice)]} onValueChange={([v]) => gwSet('pillWidth', panelDevice, v)} />
+                      </div>
+
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <Label>Cantos Arredondados</Label>
                           <div className="flex items-center gap-1">
-                            <Input
-                              type="number"
-                              className="h-7 w-16 text-xs"
-                              value={gatewayConfig.cardRadius ?? 24}
-                              onChange={(e) => setGatewayConfig({...gatewayConfig, cardRadius: Number(e.target.value) || 0})}
-                            />
+                            <Input type="number" className="h-7 w-16 text-xs"
+                              value={gwGet('cardRadius', panelDevice)}
+                              onChange={(e) => gwSet('cardRadius', panelDevice, Number(e.target.value) || 0)} />
                             <span className="text-xs text-muted-foreground">px</span>
                           </div>
                         </div>
-                        <Slider min={0} max={80} step={1} value={[gatewayConfig.cardRadius ?? 24]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardRadius: v})} />
+                        <Slider min={0} max={80} step={1} value={[gwGet('cardRadius', panelDevice)]} onValueChange={([v]) => gwSet('cardRadius', panelDevice, v)} />
                       </div>
-
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <Label>Largura do Cartão</Label>
                           <div className="flex items-center gap-1">
-                            <Input
-                              type="number"
-                              className="h-7 w-16 text-xs"
-                              value={gatewayConfig.cardWidth ?? 176}
-                              onChange={(e) => setGatewayConfig({...gatewayConfig, cardWidth: Number(e.target.value) || 0})}
-                            />
+                            <Input type="number" className="h-7 w-16 text-xs"
+                              value={gwGet('cardWidth', panelDevice)}
+                              onChange={(e) => gwSet('cardWidth', panelDevice, Number(e.target.value) || 0)} />
                             <span className="text-xs text-muted-foreground">px</span>
                           </div>
                         </div>
-                        <Slider min={120} max={320} step={4} value={[gatewayConfig.cardWidth ?? 176]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardWidth: v})} />
+                        <Slider min={120} max={320} step={4} value={[gwGet('cardWidth', panelDevice)]} onValueChange={([v]) => gwSet('cardWidth', panelDevice, v)} />
                       </div>
+
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <Label>Altura do Cartão</Label>
                           <div className="flex items-center gap-1">
-                            <Input
-                              type="number"
-                              className="h-7 w-16 text-xs"
-                              value={gatewayConfig.cardHeight ?? 176}
-                              onChange={(e) => setGatewayConfig({...gatewayConfig, cardHeight: Number(e.target.value) || 0})}
-                            />
+                            <Input type="number" className="h-7 w-16 text-xs"
+                              value={gwGet('cardHeight', panelDevice)}
+                              onChange={(e) => gwSet('cardHeight', panelDevice, Number(e.target.value) || 0)} />
                             <span className="text-xs text-muted-foreground">px</span>
                           </div>
                         </div>
-                        <Slider min={120} max={320} step={4} value={[gatewayConfig.cardHeight ?? 176]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardHeight: v})} />
+                        <Slider min={120} max={320} step={4} value={[gwGet('cardHeight', panelDevice)]} onValueChange={([v]) => gwSet('cardHeight', panelDevice, v)} />
                       </div>
                     </div>
 
