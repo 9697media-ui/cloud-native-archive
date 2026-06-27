@@ -3806,6 +3806,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               <div className="space-y-1">
                                 <Label className="text-xs">Título</Label>
                                 <Input value={opt.cardLabel} onChange={(e) => update({ cardLabel: e.target.value })} />
+                                <FontSelect value={opt.labelFont} onChange={(v) => update({ labelFont: v })} />
                               </div>
                               <div className="space-y-1">
                                 <Label className="text-xs">Cor do ícone</Label>
