@@ -679,13 +679,16 @@ export default function AdminToolboxPage() {
     const native = DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop;
     const update = () => {
       const w = el.clientWidth;
-      if (w > 0) setDemoScale(Math.min(w / native.width, 1));
+      const h = el.clientHeight;
+      // Encaixa nas duas dimensões para respeitar a proporção final do dispositivo.
+      if (w > 0 && h > 0) setDemoScale(Math.min(w / native.width, h / native.height));
     };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();
   }, [deviceView]);
+
 
 
 
@@ -1726,6 +1729,7 @@ export default function AdminToolboxPage() {
     }`;
 
     const css = `<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
   .custom-nav-992 {
     width: 100%;
     background-color: ${menuConfig.bgColor};
@@ -5028,29 +5032,41 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Demo Interativo do Widget (clique e teste aqui)</span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div ref={demoRef} className="relative w-full h-[420px] rounded-lg border bg-background overflow-hidden flex justify-center">
-                      {(() => {
-                        const demoWidth = (DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop).width;
-                        const scale = demoScale;
-                        // A demo renderiza o mesmo código final; só o script de clique é extra.
-                        return (
-                          <iframe
-                            title="Demo isolado do widget"
-                            className="border-none absolute top-0 left-1/2"
-                            style={{
-                              width: demoWidth,
-                              height: 420 / scale,
-                              transform: `translateX(-50%) scale(${scale})`,
-                              transformOrigin: 'top center',
-                            }}
-                            sandbox="allow-scripts allow-same-origin"
-                            ref={demoIframeRef}
-                            srcDoc={demoDoc || (getGeneratedCode() + demoScript)}
-                            key={`demo-${deviceView}-${activeWidgetType}-${demoVersion}`}
-                          />
-                        );
-                      })()}
+                    <div className="w-full flex justify-center py-2">
+                      <div
+                        ref={demoRef}
+                        className={cn(
+                          "bg-background shadow-2xl border overflow-hidden relative shrink-0 transition-all duration-500 ease-in-out",
+                          deviceView === 'mobile' && "w-[300px] max-w-full aspect-[390/844] rounded-[2.5rem] border-[8px] border-slate-900",
+                          deviceView === 'tablet' && "w-[480px] max-w-full aspect-[900/1200] rounded-[1.5rem] border-[10px] border-slate-900",
+                          deviceView === 'desktop' && "w-full max-w-3xl aspect-video rounded-lg"
+                        )}
+                      >
+                        {(() => {
+                          const native = DEVICE_RESOLUTIONS[deviceView] ?? DEVICE_RESOLUTIONS.desktop;
+                          const scale = demoScale;
+                          // A demo renderiza o mesmo código final, em resolução nativa do
+                          // dispositivo, e é escalada para caber mantendo a proporção real.
+                          return (
+                            <iframe
+                              title="Demo isolado do widget"
+                              className="border-none absolute top-0 left-0"
+                              style={{
+                                width: native.width,
+                                height: native.height,
+                                transform: `scale(${scale})`,
+                                transformOrigin: 'top left',
+                              }}
+                              sandbox="allow-scripts allow-same-origin"
+                              ref={demoIframeRef}
+                              srcDoc={demoDoc || (getGeneratedCode() + demoScript)}
+                              key={`demo-${deviceView}-${activeWidgetType}-${demoVersion}`}
+                            />
+                          );
+                        })()}
+                      </div>
                     </div>
+
                   </div>
                 )}
                 {viewMode === 'site' && (
