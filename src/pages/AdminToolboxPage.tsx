@@ -3176,6 +3176,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                   <LayoutGrid className="h-5 w-5" />
                   <span>Gateway de Navegação</span>
                 </Button>
+                <Button 
+                  variant={activeWidgetType === 'sidetab' ? 'default' : 'outline'} 
+                  className="w-full justify-start gap-3 h-12"
+                  onClick={() => setActiveWidgetType('sidetab')}
+                >
+                  <PanelRight className="h-5 w-5" />
+                  <span>Aba Lateral</span>
+                </Button>
               </CardContent>
             </Card>
 
