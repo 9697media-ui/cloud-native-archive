@@ -3419,6 +3419,24 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 {/* CONFIG: GATEWAY */}
                 {activeWidgetType === 'gateway' && (
                   <div className="space-y-4">
+                    <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
+                      <Label>Modelo de layout</Label>
+                      <p className="text-xs text-muted-foreground">Escolha uma variação visual pré-definida. Você pode editar tudo depois.</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {GATEWAY_PRESETS.map((preset) => (
+                          <Button
+                            key={preset.id}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="justify-start"
+                            onClick={() => setGatewayConfig({ ...gatewayConfig, ...preset.style })}
+                          >
+                            {preset.name}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
                     <div className="space-y-2">
                       <Label>Título</Label>
                       <Input value={gatewayConfig.title} onChange={(e) => setGatewayConfig({...gatewayConfig, title: e.target.value})} />
