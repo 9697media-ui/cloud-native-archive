@@ -440,6 +440,86 @@ const GATEWAY_PRESETS: { id: string; name: string; style: Record<string, any> }[
       entranceAnim: 'slide', entranceDuration: 550,
     },
   },
+  {
+    id: 'pill-card',
+    name: 'Cápsula',
+    style: {
+      cardWidth: 200, cardHeight: 200, cardBgColor: '#ffffff', cardRadius: 80,
+      pillBgColor: '#f43f5e', pillTextColor: '#ffffff', pillHeight: 30, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'Poppins, system-ui, sans-serif',
+      entranceAnim: 'zoom', entranceDuration: 650,
+    },
+  },
+  {
+    id: 'glass',
+    name: 'Vidro',
+    style: {
+      cardWidth: 180, cardHeight: 180, cardBgColor: '#ffffff26', cardRadius: 28,
+      pillBgColor: '#ffffff33', pillTextColor: '#ffffff', pillHeight: 26, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'Inter, system-ui, sans-serif',
+      entranceAnim: 'fade', entranceDuration: 700,
+    },
+  },
+  {
+    id: 'neon',
+    name: 'Neon',
+    style: {
+      cardWidth: 176, cardHeight: 176, cardBgColor: '#0d1b2a', cardRadius: 18,
+      pillBgColor: '#2dd4a8', pillTextColor: '#0d1b2a', pillHeight: 26, pillWidth: 0,
+      titleColor: '#73ffb8', fontFamily: 'Poppins, system-ui, sans-serif',
+      entranceAnim: 'up', entranceDuration: 600,
+    },
+  },
+  {
+    id: 'warm',
+    name: 'Aconchegante',
+    style: {
+      cardWidth: 184, cardHeight: 184, cardBgColor: '#faf8f5', cardRadius: 32,
+      pillBgColor: '#c9b99a', pillTextColor: '#3d2b1f', pillHeight: 26, pillWidth: 0,
+      titleColor: '#faf8f5', fontFamily: 'Poppins, system-ui, sans-serif',
+      entranceAnim: 'slide', entranceDuration: 550,
+    },
+  },
+  {
+    id: 'sharp',
+    name: 'Geométrico',
+    style: {
+      cardWidth: 172, cardHeight: 172, cardBgColor: '#ffffff', cardRadius: 4,
+      pillBgColor: '#0f172a', pillTextColor: '#ffffff', pillHeight: 24, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'Inter, system-ui, sans-serif',
+      entranceAnim: 'fade', entranceDuration: 400,
+    },
+  },
+  {
+    id: 'tall',
+    name: 'Vertical Alto',
+    style: {
+      cardWidth: 150, cardHeight: 240, cardBgColor: '#ffffff', cardRadius: 20,
+      pillBgColor: '#6366f1', pillTextColor: '#ffffff', pillHeight: 26, pillWidth: 0,
+      titleColor: '#ffffff', fontFamily: 'Poppins, system-ui, sans-serif',
+      entranceAnim: 'up', entranceDuration: 650,
+    },
+  },
+  {
+    id: 'banner-wide',
+    name: 'Faixa Larga',
+    style: {
+      cardWidth: 300, cardHeight: 120, cardBgColor: '#1e293b', cardRadius: 14,
+      pillBgColor: '#0ea5e9', pillTextColor: '#ffffff', pillHeight: 24, pillWidth: 160,
+      titleColor: '#f8fafc', fontFamily: 'Inter, system-ui, sans-serif',
+      entranceAnim: 'slide', entranceDuration: 500,
+    },
+  },
+  {
+    id: 'gold',
+    name: 'Dourado',
+    style: {
+      cardWidth: 180, cardHeight: 180, cardBgColor: '#1a1a1a', cardRadius: 22,
+      pillBgColor: '#c9a84c', pillTextColor: '#1a1a1a', pillHeight: 26, pillWidth: 0,
+      titleColor: '#f0d78c', fontFamily: 'Poppins, system-ui, sans-serif',
+      entranceAnim: 'zoom', entranceDuration: 700,
+    },
+  },
 ];
 
 const DEFAULT_SIDETAB_CONFIG = {
