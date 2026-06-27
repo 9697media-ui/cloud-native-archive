@@ -2527,7 +2527,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
   .nav-gateway-441 .ng-svg-icon { position: relative; display: inline-block; width: 56px; height: 56px; }
   .nav-gateway-441 .ng-svg-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--ng-svg-dur, 300ms) var(--ng-svg-ease, ease); }
-   .nav-gateway-441 .ng-svg-layer svg { width: 100%; height: 100%; display: block; }
+   .nav-gateway-441 .ng-svg-layer svg { width: 100%; height: 100%; display: block; fill: currentColor; }
+   .nav-gateway-441 .ng-svg-layer svg [fill]:not([fill="none"]) { fill: currentColor; }
+   .nav-gateway-441 .ng-svg-layer svg [stroke]:not([stroke="none"]) { stroke: currentColor; }
    .nav-gateway-441 .ng-svg-icon .is-static { opacity: 1; }
    .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-static { opacity: 0; }
    .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-hover { opacity: 1; }
