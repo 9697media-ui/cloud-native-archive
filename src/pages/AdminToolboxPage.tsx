@@ -369,6 +369,8 @@ const DEFAULT_GATEWAY_CONFIG = {
   overlayOpacity: 60,
   cardHeight: 176,
   cardWidth: 176,
+  cardBgColor: '#ffffff',
+  cardRadius: 24,
   pillBgColor: '#ffffff',
   pillTextColor: '#ffffff',
   title: 'Bem-vindo',
@@ -2526,7 +2528,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px; }
   .nav-gateway-441 .ng-grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
   .nav-gateway-441 .ng-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-  .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: ${gatewayConfig.cardWidth ?? 176}px; height: ${gatewayConfig.cardHeight ?? 176}px; background: #fff; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
+  .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: ${gatewayConfig.cardWidth ?? 176}px; height: ${gatewayConfig.cardHeight ?? 176}px; background: ${gatewayConfig.cardBgColor ?? '#fff'}; border-radius: ${gatewayConfig.cardRadius ?? 24}px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
   .nav-gateway-441 .ng-card:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
   .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
   .nav-gateway-441 .ng-svg-icon { position: relative; display: inline-block; width: 56px; height: 56px; }
@@ -3336,6 +3338,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
+                        <Label>Cor do Cartão</Label>
+                        <ColorField value={gatewayConfig.cardBgColor} onChange={(v) => setGatewayConfig({...gatewayConfig, cardBgColor: v})} />
+                      </div>
+                      <div className="space-y-2">
                         <Label>Cor da Pílula</Label>
                         <ColorField value={gatewayConfig.pillBgColor} onChange={(v) => setGatewayConfig({...gatewayConfig, pillBgColor: v})} />
                       </div>
@@ -3346,6 +3352,22 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
 
                     <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Cantos Arredondados</Label>
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              className="h-7 w-16 text-xs"
+                              value={gatewayConfig.cardRadius ?? 24}
+                              onChange={(e) => setGatewayConfig({...gatewayConfig, cardRadius: Number(e.target.value) || 0})}
+                            />
+                            <span className="text-xs text-muted-foreground">px</span>
+                          </div>
+                        </div>
+                        <Slider min={0} max={80} step={1} value={[gatewayConfig.cardRadius ?? 24]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardRadius: v})} />
+                      </div>
+
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
