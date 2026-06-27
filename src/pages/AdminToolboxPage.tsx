@@ -3181,7 +3181,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
     const html = `
 <!-- Início: Gateway de Navegação -->
-<div class="nav-gateway-441">
+<div class="nav-gateway-441" data-layout="${lay}">
   <div class="ng-inner">
     <h1>${gatewayConfig.title || ''}</h1>
     ${gatewayConfig.subtitle ? `<p class="ng-sub">${gatewayConfig.subtitle}</p>` : ''}
