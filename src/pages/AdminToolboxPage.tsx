@@ -3559,14 +3559,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="overflow-hidden">
 
-              <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Configurações
+              <CardHeader className="pb-3 border-b bg-muted/30">
+                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Settings className="h-4 w-4" /> Configurações
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-4">
+
                 {activeWidgetType === 'whatsapp' ? (
                   <>
                     <div className="space-y-2">
