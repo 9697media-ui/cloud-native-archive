@@ -4334,8 +4334,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                     </div>
 
-                     <div className="border-t pt-3 space-y-3">
-                       <Label className="text-xs font-bold uppercase text-muted-foreground">Mouse sobre o item (hover)</Label>
+                     <CollapsibleSection title="Mouse sobre o item (hover)">
                        <div className="grid grid-cols-2 gap-3">
                          <div className="space-y-2">
                            <Label className="text-xs">Fundo hover</Label>
