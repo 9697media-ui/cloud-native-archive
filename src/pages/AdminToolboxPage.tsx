@@ -3471,7 +3471,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* Sidebar Configurações */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:pr-1.5">
             <Card className="overflow-hidden">
               <CardHeader className="pb-3 border-b bg-muted/30">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
