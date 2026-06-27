@@ -3333,6 +3333,28 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Cor da Pílula</Label>
+                        <ColorField value={gatewayConfig.pillBgColor} onChange={(v) => setGatewayConfig({...gatewayConfig, pillBgColor: v})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Cor do Texto da Pílula</Label>
+                        <ColorField value={gatewayConfig.pillTextColor} onChange={(v) => setGatewayConfig({...gatewayConfig, pillTextColor: v})} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Altura do Cartão: {gatewayConfig.cardHeight ?? 176}px</Label>
+                      <Slider
+                        min={120}
+                        max={320}
+                        step={4}
+                        value={[gatewayConfig.cardHeight ?? 176]}
+                        onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardHeight: v})}
+                      />
+                    </div>
+
                     <div className="space-y-3 pt-2 border-t">
                       <div className="flex items-center justify-between">
                         <Label className="font-semibold">Cartões de Opção</Label>
