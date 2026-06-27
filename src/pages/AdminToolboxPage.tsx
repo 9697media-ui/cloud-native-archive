@@ -2581,7 +2581,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
   .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 0 16px; height: ${gatewayConfig.pillHeight ?? 24}px; ${gatewayConfig.pillWidth ? `width: ${gatewayConfig.pillWidth}px;` : ''} display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; }
   .nav-gateway-441 .ng-grid-spacer { display: none; }
-  @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }
+  @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }${gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? `
+  @keyframes ng-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ng-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes ng-zoom { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
+  @keyframes ng-slide { from { opacity: 0; transform: translateX(-32px); } to { opacity: 1; transform: translateX(0); } }
+  .nav-gateway-441 .ng-col { opacity: 0; animation: ng-${gatewayConfig.entranceAnim} ${Number(gatewayConfig.entranceDuration) || 600}ms ease forwards; }` : ''}
 </style>`;
 
     const hasLord = (gatewayConfig.options || []).some((o: any) => o.lordIcon);
