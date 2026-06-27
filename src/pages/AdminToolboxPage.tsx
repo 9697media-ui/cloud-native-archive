@@ -3552,10 +3552,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     );
                   })}
                 </div>
-              </section>
+               </section>
+                </TabsContent>
 
-
-              <section className="border-b p-4">
+                <TabsContent value="models" className="m-0 focus-visible:outline-none">
+              <section className="p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <FolderOpen className="h-4 w-4" /> Modelos Salvos
                   {savedTemplates.length > 0 && (
