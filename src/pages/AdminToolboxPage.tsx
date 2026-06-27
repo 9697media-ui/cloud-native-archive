@@ -3518,13 +3518,17 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
             </Card>
 
 
-            <Card>
-              <CardHeader className="pb-4">
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-3 border-b bg-muted/30">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                   <FolderOpen className="h-4 w-4" /> Modelos Salvos
+                  {savedTemplates.length > 0 && (
+                    <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{savedTemplates.length}</span>
+                  )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+              <CardContent className="space-y-2 max-h-[300px] overflow-y-auto pr-2 pt-4">
+
                 {savedTemplates.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center py-4 italic">Nenhum modelo salvo ainda.</p>
                 ) : (
