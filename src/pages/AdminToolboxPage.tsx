@@ -3362,33 +3362,41 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             </div>
                             {opt.iconMode === 'svg' ? (
                               <div className="space-y-2 rounded-md border border-input p-2">
-                                <div className="space-y-1">
-                                  <Label className="text-xs">SVG estático (obrigatório)</Label>
-                                  <textarea
-                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
-                                    value={opt.svgStatic || ''}
-                                    onChange={(e) => update({ svgStatic: e.target.value })}
-                                    placeholder="<svg ...>...</svg>"
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <Label className="text-xs">SVG hover (ao passar o mouse)</Label>
-                                  <textarea
-                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
-                                    value={opt.svgHover || ''}
-                                    onChange={(e) => update({ svgHover: e.target.value })}
-                                    placeholder="<svg ...>...</svg> (opcional)"
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <Label className="text-xs">SVG clique</Label>
-                                  <textarea
-                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
-                                    value={opt.svgActive || ''}
-                                    onChange={(e) => update({ svgActive: e.target.value })}
-                                    placeholder="<svg ...>...</svg> (opcional)"
-                                  />
-                                </div>
+                                <p className="text-[11px] text-muted-foreground">Cole o código SVG ou anexe um arquivo .svg — o conteúdo é embutido direto no código gerado.</p>
+                                {([
+                                  { key: 'svgStatic', label: 'SVG estático (obrigatório)', ph: '<svg ...>...</svg>' },
+                                  { key: 'svgHover', label: 'SVG hover (ao passar o mouse)', ph: '<svg ...>...</svg> (opcional)' },
+                                  { key: 'svgActive', label: 'SVG clique', ph: '<svg ...>...</svg> (opcional)' },
+                                ] as const).map((f) => (
+                                  <div className="space-y-1" key={f.key}>
+                                    <div className="flex items-center justify-between gap-2">
+                                      <Label className="text-xs">{f.label}</Label>
+                                      <label className="cursor-pointer text-[11px] text-primary hover:underline">
+                                        Anexar .svg
+                                        <input
+                                          type="file"
+                                          accept=".svg,image/svg+xml"
+                                          className="hidden"
+                                          onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            const reader = new FileReader();
+                                            reader.onload = () => update({ [f.key]: String(reader.result || '') });
+                                            reader.readAsText(file);
+                                            e.target.value = '';
+                                          }}
+                                        />
+                                      </label>
+                                    </div>
+                                    <textarea
+                                      className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+                                      value={(opt as any)[f.key] || ''}
+                                      onChange={(e) => update({ [f.key]: e.target.value })}
+                                      placeholder={f.ph}
+                                    />
+                                  </div>
+                                ))}
+
                                 <div className="grid grid-cols-2 gap-2">
                                   <div className="space-y-1">
                                     <Label className="text-xs">Transição (ms)</Label>
