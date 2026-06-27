@@ -4364,8 +4364,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                        </div>
                      </div>
 
-                     <div className="border-t pt-3 space-y-3">
-                       <Label className="text-xs font-bold uppercase text-muted-foreground">Página ativa (borda)</Label>
+                     <CollapsibleSection title="Página ativa (borda)">
                        <div className="grid grid-cols-3 gap-3">
                          <div className="space-y-2">
                            <Label className="text-xs">Cor</Label>
