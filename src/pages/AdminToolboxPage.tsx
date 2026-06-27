@@ -4362,7 +4362,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                              onChange={(e) => setMenuConfig({...menuConfig, hoverBorderWidth: Number(e.target.value) || 0})} />
                          </div>
                        </div>
-                     </div>
+                     </CollapsibleSection>
 
                      <CollapsibleSection title="Página ativa (borda)">
                        <div className="grid grid-cols-3 gap-3">
