@@ -3393,6 +3393,39 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                     </div>
 
+                    <div className="space-y-2">
+                      <Label>Fonte do Widget</Label>
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        value={gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}
+                        onChange={(e) => setGatewayConfig({...gatewayConfig, fontFamily: e.target.value})}
+                      >
+                        <option value="system-ui, -apple-system, sans-serif">Sistema (padrão)</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="Georgia, serif">Georgia (serifada)</option>
+                        <option value="'Courier New', monospace">Monoespaçada</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Altura da Pílula</Label>
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="number"
+                            className="h-7 w-16 text-xs"
+                            value={gatewayConfig.pillHeight ?? 24}
+                            onChange={(e) => setGatewayConfig({...gatewayConfig, pillHeight: Number(e.target.value) || 0})}
+                          />
+                          <span className="text-xs text-muted-foreground">px</span>
+                        </div>
+                      </div>
+                      <Slider min={16} max={64} step={1} value={[gatewayConfig.pillHeight ?? 24]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, pillHeight: v})} />
+                    </div>
+
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
