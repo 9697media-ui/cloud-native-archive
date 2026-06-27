@@ -2549,13 +2549,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       .replace(/\u2029/g, '\\u2029');
 
   const generateGatewayCode = () => {
-    const opacity = (Number(gatewayConfig.overlayOpacity ?? 60) / 100).toFixed(2);
-    const bg = gatewayConfig.backgroundImage
-      ? `background-image: linear-gradient(rgba(0,0,0,${opacity}), rgba(0,0,0,${opacity})), url('${gatewayConfig.backgroundImage}'); background-size: cover; background-position: center;`
-      : `background-color: ${gatewayConfig.bgColor};`;
-
     const css = `<style>
-  .nav-gateway-441 { position: relative; width: 100%; min-height: 600px; display: flex; align-items: center; justify-content: center; padding: 64px 24px; box-sizing: border-box; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; ${bg} }
+  .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; }
   .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
   .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px; }
   .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px; }
@@ -3365,19 +3360,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <Input value={gatewayConfig.subtitle} onChange={(e) => setGatewayConfig({...gatewayConfig, subtitle: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                      <Label>Imagem de Fundo (URL)</Label>
-                      <Input value={gatewayConfig.backgroundImage} onChange={(e) => setGatewayConfig({...gatewayConfig, backgroundImage: e.target.value})} placeholder="https://... (opcional)" />
+                      <Label>Cor do Texto</Label>
+                      <ColorField value={gatewayConfig.titleColor} onChange={(v) => setGatewayConfig({...gatewayConfig, titleColor: v})} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Cor de Fundo</Label>
-                        <ColorField value={gatewayConfig.bgColor} onChange={(v) => setGatewayConfig({...gatewayConfig, bgColor: v})} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Cor do Texto</Label>
-                        <ColorField value={gatewayConfig.titleColor} onChange={(v) => setGatewayConfig({...gatewayConfig, titleColor: v})} />
-                      </div>
-                    </div>
+
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
