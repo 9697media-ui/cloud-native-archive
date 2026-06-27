@@ -3387,11 +3387,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               ))}
 
                               <div className="space-y-1">
-                                <Label className="text-xs">Tamanho do ícone (px)</Label>
-                                <Input
-                                  type="number"
-                                  value={opt.svgSize ?? 56}
-                                  onChange={(e) => update({ svgSize: Number(e.target.value) })}
+                                <Label className="text-xs">Tamanho do ícone ({opt.svgSize ?? 56}px)</Label>
+                                <Slider
+                                  min={16}
+                                  max={160}
+                                  step={1}
+                                  value={[opt.svgSize ?? 56]}
+                                  onValueChange={([val]) => update({ svgSize: val })}
                                 />
                               </div>
                               <div className="grid grid-cols-2 gap-2">
