@@ -3427,6 +3427,22 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <Slider min={16} max={64} step={1} value={[gatewayConfig.pillHeight ?? 24]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, pillHeight: v})} />
                     </div>
 
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Largura da Pílula <span className="text-xs text-muted-foreground">(0 = automática)</span></Label>
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="number"
+                            className="h-7 w-16 text-xs"
+                            value={gatewayConfig.pillWidth ?? 0}
+                            onChange={(e) => setGatewayConfig({...gatewayConfig, pillWidth: Number(e.target.value) || 0})}
+                          />
+                          <span className="text-xs text-muted-foreground">px</span>
+                        </div>
+                      </div>
+                      <Slider min={0} max={320} step={1} value={[gatewayConfig.pillWidth ?? 0]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, pillWidth: v})} />
+                    </div>
+
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
