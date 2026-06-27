@@ -404,7 +404,19 @@ const getDefaultConfig = (type: string) =>
 // edição passam a existir, mas tudo que o usuário já configurou é preservado.
 const upgradeConfig = (type: string, saved: any) => {
   const base = JSON.parse(JSON.stringify(getDefaultConfig(type)));
-  return { ...base, ...(saved && typeof saved === 'object' ? saved : {}) };
+  const merged = { ...base, ...(saved && typeof saved === 'object' ? saved : {}) };
+  // Mescla campos novos de cada item/opção, preservando valores salvos.
+  if (type === 'gateway' && Array.isArray(merged.options)) {
+    const itemBase = (base.options && base.options[0]) || {};
+    merged.options = merged.options.map((o: any) => ({ ...itemBase, ...o }));
+  }
+  if (type === 'menu' && Array.isArray(merged.items)) {
+    merged.items = merged.items.map((it: any) => ({
+      ...it,
+      children: Array.isArray(it.children) ? it.children : [],
+    }));
+  }
+  return merged;
 };
 
 
@@ -618,7 +630,7 @@ export default function AdminToolboxPage() {
     setActiveWidgetType(template.type);
     setCurrentTemplateId(template.id);
     setTemplateName(template.name);
-    applyConfig(template.type, cfg);
+    applyConfig(template.type, upgradeConfig(template.type, cfg));
     setDraftSavedAt(savedAt);
 
     toast(savedAt
