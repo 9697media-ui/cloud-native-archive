@@ -636,6 +636,27 @@ const fontRules = (family?: string, weight?: string | number, style?: string) =>
 };
 
 // Seletor reutilizável de família + peso + variação para qualquer texto editável.
+const CollapsibleSection: React.FC<{
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}> = ({ title, defaultOpen = false, children }) => {
+  const [open, setOpen] = React.useState(defaultOpen);
+  return (
+    <div className="border-t pt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between gap-2 rounded-md px-1 py-1.5 text-left transition-colors hover:bg-muted/50"
+      >
+        <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{title}</span>
+        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")} />
+      </button>
+      {open && <div className="space-y-3 pt-3">{children}</div>}
+    </div>
+  );
+};
+
 const FontSelect: React.FC<{
   value?: string;
   weight?: string | number;
