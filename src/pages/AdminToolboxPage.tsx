@@ -3570,6 +3570,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
               <CardHeader className="pb-3 border-b bg-muted/30">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                   <Settings className="h-4 w-4" /> Configurações
+                  <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold capitalize text-primary tracking-normal">{activeWidgetType}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-4">
