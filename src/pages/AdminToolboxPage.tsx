@@ -4482,7 +4482,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         onClick={() => setMenuConfig({...menuConfig, activeBgColor: 'transparent'})}>
                         Fundo transparente
                       </Button>
-                    </div>
+                     </CollapsibleSection>
                     <div className="flex gap-2">
                       <Button 
                         variant="secondary" 
