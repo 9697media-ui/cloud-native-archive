@@ -2585,7 +2585,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       let iconHtml: string;
       if (useSvg) {
         const wrapClasses = ['ng-svg-icon', svgHover ? 'has-hover' : '', svgActive ? 'has-active' : ''].filter(Boolean).join(' ');
-        iconHtml = `<span class="${wrapClasses}" style="--ng-svg-dur:${svgDur};--ng-svg-ease:${svgEase};color:${o.iconColor};" data-click-hold="${o.svgClickHold ? '1' : '0'}" aria-hidden="true">`
+        iconHtml = `<span class="${wrapClasses}" style="--ng-svg-dur:${svgDur};--ng-svg-ease:${svgEase};width:${Number(o.svgSize) || 56}px;height:${Number(o.svgSize) || 56}px;color:${o.iconColor};" data-click-hold="${o.svgClickHold ? '1' : '0'}" aria-hidden="true">`
           + `<span class="ng-svg-layer is-static">${svgStatic}</span>`
           + (svgHover ? `<span class="ng-svg-layer is-hover">${svgHover}</span>` : '')
           + (svgActive ? `<span class="ng-svg-layer is-active">${svgActive}</span>` : '')
@@ -3386,6 +3386,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 </div>
                               ))}
 
+                              <div className="space-y-1">
+                                <Label className="text-xs">Tamanho do ícone (px)</Label>
+                                <Input
+                                  type="number"
+                                  value={opt.svgSize ?? 56}
+                                  onChange={(e) => update({ svgSize: Number(e.target.value) })}
+                                />
+                              </div>
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="space-y-1">
                                   <Label className="text-xs">Transição (ms)</Label>
