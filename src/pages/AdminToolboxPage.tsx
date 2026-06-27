@@ -3610,7 +3610,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 )}
                 </div>
               </section>
+                </TabsContent>
 
+                <TabsContent value="config" className="m-0 focus-visible:outline-none">
               <section className="p-4">
                 <div className="sticky top-0 z-10 -mx-4 -mt-4 mb-4 flex items-center gap-2 border-b bg-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/80">
                   <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
