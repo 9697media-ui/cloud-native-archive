@@ -3472,63 +3472,63 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
           
           {/* Sidebar Configurações */}
           <div className="lg:col-span-4 space-y-6">
-            <Card>
-              <CardHeader className="pb-4">
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-3 border-b bg-muted/30">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                   <Settings className="h-4 w-4" /> Tipo de Widget
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <Button 
-                  variant={activeWidgetType === 'whatsapp' ? 'default' : 'outline'} 
-                  className="w-full justify-start gap-3 h-12"
-                  onClick={() => setActiveWidgetType('whatsapp')}
-                >
-                  <MessageCircle className="h-5 w-5" />
-                  <span>Botão WhatsApp</span>
-                </Button>
-                <Button 
-                  variant={activeWidgetType === 'banner' ? 'default' : 'outline'} 
-                  className="w-full justify-start gap-3 h-12"
-                  onClick={() => setActiveWidgetType('banner')}
-                >
-                  <AlertTriangle className="h-5 w-5" />
-                  <span>Banner de Aviso</span>
-                </Button>
-                <Button 
-                  variant={activeWidgetType === 'menu' ? 'default' : 'outline'} 
-                  className="w-full justify-start gap-3 h-12"
-                  onClick={() => setActiveWidgetType('menu')}
-                >
-                  <MenuIcon className="h-5 w-5" />
-                  <span>Menu Responsivo</span>
-                </Button>
-                <Button 
-                  variant={activeWidgetType === 'gateway' ? 'default' : 'outline'} 
-                  className="w-full justify-start gap-3 h-12"
-                  onClick={() => setActiveWidgetType('gateway')}
-                >
-                  <LayoutGrid className="h-5 w-5" />
-                  <span>Gateway de Navegação</span>
-                </Button>
-                <Button 
-                  variant={activeWidgetType === 'sidetab' ? 'default' : 'outline'} 
-                  className="w-full justify-start gap-3 h-12"
-                  onClick={() => setActiveWidgetType('sidetab')}
-                >
-                  <PanelRight className="h-5 w-5" />
-                  <span>Aba Lateral</span>
-                </Button>
+              <CardContent className="p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { type: 'whatsapp', icon: MessageCircle, label: 'WhatsApp', hint: 'Botão flutuante' },
+                    { type: 'banner', icon: AlertTriangle, label: 'Banner', hint: 'Aviso topo' },
+                    { type: 'menu', icon: MenuIcon, label: 'Menu', hint: 'Responsivo' },
+                    { type: 'gateway', icon: LayoutGrid, label: 'Gateway', hint: 'Navegação' },
+                    { type: 'sidetab', icon: PanelRight, label: 'Aba Lateral', hint: 'Lateral fixa' },
+                  ] as const).map(({ type, icon: Icon, label, hint }) => {
+                    const active = activeWidgetType === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setActiveWidgetType(type)}
+                        className={cn(
+                          "group flex flex-col items-start gap-2 rounded-lg border p-3 text-left transition-all",
+                          active
+                            ? "border-primary bg-primary/10 shadow-sm ring-1 ring-primary/30"
+                            : "border-border bg-background hover:border-primary/40 hover:bg-muted/50"
+                        )}
+                      >
+                        <span className={cn(
+                          "flex h-9 w-9 items-center justify-center rounded-md transition-colors",
+                          active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:text-foreground"
+                        )}>
+                          <Icon className="h-5 w-5" />
+                        </span>
+                        <span className="space-y-0.5">
+                          <span className={cn("block text-sm font-medium leading-none", active ? "text-foreground" : "text-foreground")}>{label}</span>
+                          <span className="block text-[11px] text-muted-foreground">{hint}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-4">
+
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-3 border-b bg-muted/30">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                   <FolderOpen className="h-4 w-4" /> Modelos Salvos
+                  {savedTemplates.length > 0 && (
+                    <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{savedTemplates.length}</span>
+                  )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+              <CardContent className="space-y-2 max-h-[300px] overflow-y-auto pr-2 pt-4">
+
                 {savedTemplates.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center py-4 italic">Nenhum modelo salvo ainda.</p>
                 ) : (
@@ -3559,14 +3559,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="overflow-hidden">
 
-              <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Configurações
+              <CardHeader className="pb-3 border-b bg-muted/30">
+                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Settings className="h-4 w-4" /> Configurações
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-4">
+
                 {activeWidgetType === 'whatsapp' ? (
                   <>
                     <div className="space-y-2">
