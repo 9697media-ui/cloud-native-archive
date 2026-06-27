@@ -2526,16 +2526,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-card:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
   .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
   .nav-gateway-441 .ng-svg-icon { position: relative; display: inline-block; width: 56px; height: 56px; }
-  .nav-gateway-441 .ng-svg-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--ng-svg-dur, 300ms) var(--ng-svg-ease, ease); }
+  .nav-gateway-441 .ng-svg-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transform: var(--ng-svg-out-transform, none); filter: var(--ng-svg-out-filter, none); transition: opacity var(--ng-svg-dur, 300ms) var(--ng-svg-ease, ease), transform var(--ng-svg-dur, 300ms) var(--ng-svg-ease, ease), filter var(--ng-svg-dur, 300ms) var(--ng-svg-ease, ease); will-change: opacity, transform, filter; }
    .nav-gateway-441 .ng-svg-layer svg { width: 100%; height: 100%; display: block; fill: currentColor; }
    .nav-gateway-441 .ng-svg-layer svg [fill]:not([fill="none"]) { fill: currentColor; }
    .nav-gateway-441 .ng-svg-layer svg [stroke]:not([stroke="none"]) { stroke: currentColor; }
-   .nav-gateway-441 .ng-svg-icon .is-static { opacity: 1; }
+   .nav-gateway-441 .ng-svg-icon .is-static { opacity: 1; transform: var(--ng-svg-in-transform, none); filter: var(--ng-svg-in-filter, none); }
    .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-static { opacity: 0; }
-   .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-hover { opacity: 1; }
+   .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-hover { opacity: 1; transform: var(--ng-svg-in-transform, none); filter: var(--ng-svg-in-filter, none); }
    .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-static,
    .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-hover { opacity: 0 !important; }
-   .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-active { opacity: 1 !important; }
+   .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-active { opacity: 1 !important; transform: var(--ng-svg-in-transform, none) !important; filter: var(--ng-svg-in-filter, none) !important; }
   .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
   .nav-gateway-441 .ng-pill { background: rgba(255,255,255,.2); color: #fff; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
@@ -2586,11 +2586,20 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const svgActive = sanitizeSvg(o.svgActive);
       const useSvg = !!svgStatic;
       const svgDur = `${(Number(o.svgTransition ?? 300) || 300)}ms`;
-      const svgEase = o.svgEasing || 'ease';
+      const legacyEasings = ['ease', 'linear', 'ease-in', 'ease-out', 'ease-in-out', 'cubic-bezier(.34,1.56,.64,1)'];
+      const svgEffect = legacyEasings.includes(o.svgEasing) ? 'fade' : (o.svgEasing || 'fade');
+      const effectMap: Record<string, { ease: string; outTransform: string; outFilter: string }> = {
+        fade: { ease: 'ease', outTransform: 'none', outFilter: 'none' },
+        soft: { ease: 'cubic-bezier(.22,.61,.36,1)', outTransform: 'translateY(8px)', outFilter: 'none' },
+        slide: { ease: 'cubic-bezier(.2,.8,.2,1)', outTransform: 'translateX(-12px)', outFilter: 'none' },
+        blur: { ease: 'ease-out', outTransform: 'none', outFilter: 'blur(6px)' },
+        snap: { ease: 'steps(1, end)', outTransform: 'none', outFilter: 'none' },
+      };
+      const svgMotion = effectMap[svgEffect] || effectMap.fade;
       let iconHtml: string;
       if (useSvg) {
         const wrapClasses = ['ng-svg-icon', svgHover ? 'has-hover' : '', svgActive ? 'has-active' : ''].filter(Boolean).join(' ');
-        iconHtml = `<span class="${wrapClasses}" style="--ng-svg-dur:${svgDur};--ng-svg-ease:${svgEase};width:${Number(o.svgSize) || 56}px;height:${Number(o.svgSize) || 56}px;color:${o.iconColor};" data-click-hold="${o.svgClickHold ? '1' : '0'}" aria-hidden="true">`
+        iconHtml = `<span class="${wrapClasses}" style="--ng-svg-dur:${svgDur};--ng-svg-ease:${svgMotion.ease};--ng-svg-out-transform:${svgMotion.outTransform};--ng-svg-out-filter:${svgMotion.outFilter};--ng-svg-in-transform:none;--ng-svg-in-filter:none;width:${Number(o.svgSize) || 56}px;height:${Number(o.svgSize) || 56}px;color:${o.iconColor};" data-click-hold="${o.svgClickHold ? '1' : '0'}" aria-hidden="true">`
           + `<span class="ng-svg-layer is-static">${svgStatic}</span>`
           + (svgHover ? `<span class="ng-svg-layer is-hover">${svgHover}</span>` : '')
           + (svgActive ? `<span class="ng-svg-layer is-active">${svgActive}</span>` : '')
@@ -3414,15 +3423,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                   <Label className="text-xs">Efeito de transição</Label>
                                   <select
                                     className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
-                                    value={opt.svgEasing || 'ease'}
+                                    value={['ease', 'linear', 'ease-in', 'ease-out', 'ease-in-out', 'cubic-bezier(.34,1.56,.64,1)'].includes(opt.svgEasing) ? 'fade' : (opt.svgEasing || 'fade')}
                                     onChange={(e) => update({ svgEasing: e.target.value })}
                                   >
-                                    <option value="ease">Suave (ease)</option>
-                                    <option value="linear">Linear</option>
-                                    <option value="ease-in">Acelerar (ease-in)</option>
-                                    <option value="ease-out">Desacelerar (ease-out)</option>
-                                    <option value="ease-in-out">Suave nas pontas (ease-in-out)</option>
-                                    <option value="cubic-bezier(.34,1.56,.64,1)">Salto (bounce)</option>
+                                    <option value="fade">Opacidade suave</option>
+                                    <option value="soft">Subir suave</option>
+                                    <option value="slide">Deslizar lateral</option>
+                                    <option value="blur">Desfoque</option>
+                                    <option value="snap">Troca imediata</option>
                                   </select>
                                 </div>
                               </div>
