@@ -3527,29 +3527,35 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 max-h-[300px] overflow-y-auto pr-2 pt-4">
+              <CardContent className="space-y-1.5 max-h-[320px] overflow-y-auto pr-1.5 pt-4">
 
                 {savedTemplates.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-4 italic">Nenhum modelo salvo ainda.</p>
+                  <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                      <FolderOpen className="h-5 w-5" />
+                    </span>
+                    <p className="text-xs text-muted-foreground">Nenhum modelo salvo ainda.</p>
+                  </div>
                 ) : (
                   savedTemplates.map((template) => (
                     <div key={template.id} className={cn(
-                      "flex items-center justify-between p-2 rounded-lg border text-sm transition-colors",
-                      currentTemplateId === template.id ? "bg-primary/10 border-primary" : "hover:bg-muted"
+                      "group flex items-center gap-2 p-2 rounded-lg border text-sm transition-all",
+                      currentTemplateId === template.id
+                        ? "bg-primary/10 border-primary shadow-sm"
+                        : "border-border hover:bg-muted/60 hover:border-primary/30"
                     )}>
-                      <div className="flex flex-col truncate pr-2 cursor-pointer flex-1" onClick={() => loadTemplate(template)}>
-                        <span className="font-medium truncate">{template.name}</span>
-                        <span className="text-[10px] text-muted-foreground uppercase">{template.type}</span>
+                      <div className="flex min-w-0 flex-1 cursor-pointer flex-col" onClick={() => loadTemplate(template)}>
+                        <span className="truncate font-medium leading-tight">{template.name}</span>
+                        <span className="mt-1 inline-flex w-fit items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">{template.type}</span>
                       </div>
-                      <div className="flex gap-1 shrink-0">
+                      <div className="flex shrink-0 items-center gap-0.5 opacity-60 transition-opacity group-hover:opacity-100">
                         <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar" onClick={() => loadTemplate(template)}>
                           <Edit className="h-3 w-3" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7" title="Atualizar modelo (cria cópia com novas propriedades)" disabled={isSaving} onClick={() => upgradeTemplate(template)}>
                           <RefreshCw className="h-3 w-3" />
                         </Button>
-
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteTemplate(template.id)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Excluir" onClick={() => deleteTemplate(template.id)}>
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
