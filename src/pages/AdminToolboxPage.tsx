@@ -384,10 +384,22 @@ const DEFAULT_GATEWAY_CONFIG = {
   ] as any[],
 };
 
+const DEFAULT_SIDETAB_CONFIG = {
+  label: 'Quero ajudar',
+  link: '#',
+  bgColor: '#4f46e5',
+  textColor: '#ffffff',
+  side: 'right',
+  position: 96,
+  fontSize: 14,
+  radius: 8,
+};
+
 const getDefaultConfig = (type: string) =>
   type === 'whatsapp' ? DEFAULT_WHATSAPP_CONFIG :
   type === 'banner' ? DEFAULT_BANNER_CONFIG :
-  type === 'gateway' ? DEFAULT_GATEWAY_CONFIG : DEFAULT_MENU_CONFIG;
+  type === 'gateway' ? DEFAULT_GATEWAY_CONFIG :
+  type === 'sidetab' ? DEFAULT_SIDETAB_CONFIG : DEFAULT_MENU_CONFIG;
 
 
 // Mescla a config padrão atual com a config salva: novas propriedades de
