@@ -3548,7 +3548,23 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             {preset.name}
                           </Button>
                         ))}
-                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Organização (estrutura)</Label>
+                      <select
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        value={gatewayConfig.layout ?? 'top-center'}
+                        onChange={(e) => setGatewayConfig({ ...gatewayConfig, layout: e.target.value })}
+                      >
+                        <option value="top-center">Título no topo, cards centralizados</option>
+                        <option value="top-left">Título no topo, alinhado à esquerda</option>
+                        <option value="split">Dividido (título ao lado dos cards)</option>
+                        <option value="grid2">Grade de 2 colunas</option>
+                        <option value="grid3">Grade de 3 colunas</option>
+                        <option value="list">Lista em linhas (ícone à esquerda)</option>
+                        <option value="no-title">Somente cards (sem título)</option>
+                      </select>
+                    </div>
                     </div>
                     <div className="space-y-2">
                       <Label>Título</Label>
