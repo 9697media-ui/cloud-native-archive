@@ -577,6 +577,34 @@ const upgradeConfig = (type: string, saved: any) => {
   return merged;
 };
 
+// Lista única de fontes para todos os campos de texto personalizável.
+const FONT_OPTIONS: { value: string; label: string }[] = [
+  { value: '', label: 'Padrão do widget' },
+  { value: "system-ui, -apple-system, sans-serif", label: 'Sistema' },
+  { value: "'Inter', sans-serif", label: 'Inter' },
+  { value: "'Poppins', sans-serif", label: 'Poppins' },
+  { value: "'Roboto', sans-serif", label: 'Roboto' },
+  { value: "'Montserrat', sans-serif", label: 'Montserrat' },
+  { value: 'Georgia, serif', label: 'Georgia (serifada)' },
+  { value: "'Courier New', monospace", label: 'Monoespaçada' },
+];
+
+// Seletor de fonte reutilizável para qualquer campo de texto editável.
+const FontSelect: React.FC<{ value?: string; onChange: (v: string) => void; className?: string }> = ({ value, onChange, className }) => (
+  <select
+    className={className ?? 'w-full h-9 rounded-md border border-input bg-background px-3 text-sm'}
+    value={value ?? ''}
+    onChange={(e) => onChange(e.target.value)}
+  >
+    {FONT_OPTIONS.map((f) => (
+      <option key={f.label} value={f.value}>{f.label}</option>
+    ))}
+  </select>
+);
+
+
+
+
 
 
 
