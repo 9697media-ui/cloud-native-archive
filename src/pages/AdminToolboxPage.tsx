@@ -3547,7 +3547,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <div className="flex min-w-0 flex-1 cursor-pointer flex-col" onClick={() => loadTemplate(template)}>
                         <span className="truncate font-medium leading-tight">{template.name}</span>
                         <span className="mt-1 inline-flex w-fit items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">{template.type}</span>
+                        {(template.updated_at || template.created_at) && (
+                          <span className="mt-1 text-[9px] text-muted-foreground">
+                            {new Date(template.updated_at || template.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                          </span>
+                        )}
                       </div>
+
                       <div className="flex shrink-0 items-center gap-0.5 opacity-60 transition-opacity group-hover:opacity-100">
                         <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar" onClick={() => loadTemplate(template)}>
                           <Edit className="h-3 w-3" />
