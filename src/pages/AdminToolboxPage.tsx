@@ -797,15 +797,17 @@ export default function AdminToolboxPage() {
       wpApiUrl: '',
       testUrl: 'https://anabrasil.org/ana/'
     },
-    gateway: DEFAULT_GATEWAY_CONFIG
+    gateway: DEFAULT_GATEWAY_CONFIG,
+    sidetab: DEFAULT_SIDETAB_CONFIG
   };
 
-  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway') => {
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab') => {
     setActiveWidgetType(type);
     if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
     else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
     else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
     else if (type === 'gateway') setGatewayConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.gateway)));
+    else if (type === 'sidetab') setSidetabConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.sidetab)));
     
     toast({
       title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
