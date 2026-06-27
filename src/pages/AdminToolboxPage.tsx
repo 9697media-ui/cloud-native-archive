@@ -3641,6 +3641,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             </div>
                           </div>
                           <Slider min={100} max={2000} step={50} value={[gatewayConfig.entranceDuration ?? 600]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, entranceDuration: v})} />
+                          <div className="flex items-center justify-between pt-1">
+                            <div>
+                              <Label>Animação sincronizada</Label>
+                              <p className="text-xs text-muted-foreground">{gatewayConfig.entranceSync ? 'Dupla: todos os cards entram juntos' : 'Individual: entrada escalonada'}</p>
+                            </div>
+                            <Switch checked={!!gatewayConfig.entranceSync} onCheckedChange={(v) => setGatewayConfig({...gatewayConfig, entranceSync: v})} />
+                          </div>
                         </div>
                       )}
                     </div>
