@@ -618,7 +618,7 @@ export default function AdminToolboxPage() {
     setActiveWidgetType(template.type);
     setCurrentTemplateId(template.id);
     setTemplateName(template.name);
-    applyConfig(template.type, cfg);
+    applyConfig(template.type, upgradeConfig(template.type, cfg));
     setDraftSavedAt(savedAt);
 
     toast(savedAt
@@ -3434,14 +3434,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <Label className="font-semibold">Cartões de Opção</Label>
                         <Button
                           type="button" variant="outline" size="sm" className="gap-1"
-                          onClick={() => setGatewayConfig({...gatewayConfig, options: [...gatewayConfig.options, { id: Math.random().toString(36).slice(2, 8), icon: '⭐', iconColor: '#4f46e5', cardLabel: 'Nova Opção', pillText: '', link: '#' }]})}
+                          onClick={() => setGatewayConfig({...gatewayConfig, options: [...(gatewayConfig.options || []), { id: Math.random().toString(36).slice(2, 8), icon: '⭐', iconColor: '#4f46e5', cardLabel: 'Nova Opção', pillText: '', link: '#' }]})}
                         >
                           <Plus className="h-3 w-3" /> Adicionar
                         </Button>
                       </div>
-                      {gatewayConfig.options.map((opt: any, idx: number) => {
+                      {(gatewayConfig.options || []).map((opt: any, idx: number) => {
                         const update = (patch: any) => {
-                          const next = [...gatewayConfig.options];
+                          const next = [...(gatewayConfig.options || [])];
                           next[idx] = { ...next[idx], ...patch };
                           setGatewayConfig({...gatewayConfig, options: next});
                         };
