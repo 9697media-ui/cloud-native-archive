@@ -369,7 +369,7 @@ const DEFAULT_GATEWAY_CONFIG = {
   overlayOpacity: 60,
   cardHeight: 176,
   cardWidth: 176,
-  pillBgColor: '#ffffff33',
+  pillBgColor: '#ffffff',
   pillTextColor: '#ffffff',
   title: 'Bem-vindo',
   subtitle: 'Escolha por onde deseja começar',
