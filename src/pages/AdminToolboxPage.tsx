@@ -2520,10 +2520,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
   .nav-gateway-441 .ng-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
   .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 176px; height: 176px; background: #fff; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
-  .nav-gateway-441 .ng-card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
+  .nav-gateway-441 .ng-card:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
   .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
   .nav-gateway-441 .ng-svg-icon { position: relative; display: inline-block; width: 56px; height: 56px; }
-  .nav-gateway-441 .ng-svg-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--ng-svg-dur, 300ms) ease; }
+  .nav-gateway-441 .ng-svg-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--ng-svg-dur, 300ms) var(--ng-svg-ease, ease); }
   .nav-gateway-441 .ng-svg-layer svg { width: 100%; height: 100%; display: block; }
   .nav-gateway-441 .ng-svg-icon .is-static { opacity: 1; }
   .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-static { opacity: 0; }
@@ -2579,12 +2579,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const svgStatic = sanitizeSvg(o.svgStatic);
       const svgHover = sanitizeSvg(o.svgHover);
       const svgActive = sanitizeSvg(o.svgActive);
-      const useSvg = o.iconMode === 'svg' && svgStatic;
+      const useSvg = !!svgStatic;
       const svgDur = `${(Number(o.svgTransition ?? 300) || 300)}ms`;
+      const svgEase = o.svgEasing || 'ease';
       let iconHtml: string;
       if (useSvg) {
         const wrapClasses = ['ng-svg-icon', svgHover ? 'has-hover' : '', svgActive ? 'has-active' : ''].filter(Boolean).join(' ');
-        iconHtml = `<span class="${wrapClasses}" style="--ng-svg-dur:${svgDur};color:${o.iconColor};" data-click-hold="${o.svgClickHold ? '1' : '0'}" aria-hidden="true">`
+        iconHtml = `<span class="${wrapClasses}" style="--ng-svg-dur:${svgDur};--ng-svg-ease:${svgEase};color:${o.iconColor};" data-click-hold="${o.svgClickHold ? '1' : '0'}" aria-hidden="true">`
           + `<span class="ng-svg-layer is-static">${svgStatic}</span>`
           + (svgHover ? `<span class="ng-svg-layer is-hover">${svgHover}</span>` : '')
           + (svgActive ? `<span class="ng-svg-layer is-active">${svgActive}</span>` : '')
@@ -2941,7 +2942,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 })();
 </script>` : '';
 
-    const hasSvg = (gatewayConfig.options || []).some((o: any) => o.iconMode === 'svg' && o.svgStatic);
+    const hasSvg = (gatewayConfig.options || []).some((o: any) => sanitizeSvg(o.svgStatic));
     const svgScript = hasSvg ? `
 <script>
 (function(){
@@ -3345,92 +3346,80 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 <Input value={opt.cardLabel} onChange={(e) => update({ cardLabel: e.target.value })} />
                               </div>
                               <div className="space-y-1">
-                                <Label className="text-xs">Ícone (emoji)</Label>
-                                <Input value={opt.icon} onChange={(e) => update({ icon: e.target.value })} />
+                                <Label className="text-xs">Cor do ícone</Label>
+                                <ColorField value={opt.iconColor} onChange={(v) => update({ iconColor: v })} />
                               </div>
                             </div>
-                            <div className="space-y-1">
-                              <Label className="text-xs">Tipo de ícone</Label>
-                              <select
-                                className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
-                                value={opt.iconMode || 'default'}
-                                onChange={(e) => update({ iconMode: e.target.value })}
-                              >
-                                <option value="default">Emoji / Lottie (URL)</option>
-                                <option value="svg">SVG animado (3 estados)</option>
-                              </select>
-                            </div>
-                            {opt.iconMode === 'svg' ? (
-                              <div className="space-y-2 rounded-md border border-input p-2">
-                                <p className="text-[11px] text-muted-foreground">Cole o código SVG ou anexe um arquivo .svg — o conteúdo é embutido direto no código gerado.</p>
-                                {([
-                                  { key: 'svgStatic', label: 'SVG estático (obrigatório)', ph: '<svg ...>...</svg>' },
-                                  { key: 'svgHover', label: 'SVG hover (ao passar o mouse)', ph: '<svg ...>...</svg> (opcional)' },
-                                  { key: 'svgActive', label: 'SVG clique', ph: '<svg ...>...</svg> (opcional)' },
-                                ] as const).map((f) => (
-                                  <div className="space-y-1" key={f.key}>
-                                    <div className="flex items-center justify-between gap-2">
-                                      <Label className="text-xs">{f.label}</Label>
-                                      <label className="cursor-pointer text-[11px] text-primary hover:underline">
-                                        Anexar .svg
-                                        <input
-                                          type="file"
-                                          accept=".svg,image/svg+xml"
-                                          className="hidden"
-                                          onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (!file) return;
-                                            const reader = new FileReader();
-                                            reader.onload = () => update({ [f.key]: String(reader.result || '') });
-                                            reader.readAsText(file);
-                                            e.target.value = '';
-                                          }}
-                                        />
-                                      </label>
-                                    </div>
-                                    <textarea
-                                      className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
-                                      value={(opt as any)[f.key] || ''}
-                                      onChange={(e) => update({ [f.key]: e.target.value })}
-                                      placeholder={f.ph}
-                                    />
+                            <div className="space-y-2 rounded-md border border-input p-2">
+                              <p className="text-[11px] text-muted-foreground">Cole o código SVG ou anexe um arquivo .svg — o conteúdo é embutido direto no código gerado.</p>
+                              {([
+                                { key: 'svgStatic', label: 'SVG estático (obrigatório)', ph: '<svg ...>...</svg>' },
+                                { key: 'svgHover', label: 'SVG hover (ao passar o mouse)', ph: '<svg ...>...</svg> (opcional)' },
+                                { key: 'svgActive', label: 'SVG clique', ph: '<svg ...>...</svg> (opcional)' },
+                              ] as const).map((f) => (
+                                <div className="space-y-1" key={f.key}>
+                                  <div className="flex items-center justify-between gap-2">
+                                    <Label className="text-xs">{f.label}</Label>
+                                    <label className="cursor-pointer text-[11px] text-primary hover:underline">
+                                      Anexar .svg
+                                      <input
+                                        type="file"
+                                        accept=".svg,image/svg+xml"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (!file) return;
+                                          const reader = new FileReader();
+                                          reader.onload = () => update({ [f.key]: String(reader.result || '') });
+                                          reader.readAsText(file);
+                                          e.target.value = '';
+                                        }}
+                                      />
+                                    </label>
                                   </div>
-                                ))}
+                                  <textarea
+                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+                                    value={(opt as any)[f.key] || ''}
+                                    onChange={(e) => update({ [f.key]: e.target.value })}
+                                    placeholder={f.ph}
+                                  />
+                                </div>
+                              ))}
 
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div className="space-y-1">
-                                    <Label className="text-xs">Transição (ms)</Label>
-                                    <Input
-                                      type="number"
-                                      value={opt.svgTransition ?? 300}
-                                      onChange={(e) => update({ svgTransition: Number(e.target.value) })}
-                                    />
-                                  </div>
-                                  <label className="flex items-end gap-2 text-xs pb-2">
-                                    <input
-                                      type="checkbox"
-                                      checked={!!opt.svgClickHold}
-                                      onChange={(e) => update({ svgClickHold: e.target.checked })}
-                                    />
-                                    Manter estado de clique
-                                  </label>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1">
+                                  <Label className="text-xs">Transição (ms)</Label>
+                                  <Input
+                                    type="number"
+                                    value={opt.svgTransition ?? 300}
+                                    onChange={(e) => update({ svgTransition: Number(e.target.value) })}
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <Label className="text-xs">Efeito de transição</Label>
+                                  <select
+                                    className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                                    value={opt.svgEasing || 'ease'}
+                                    onChange={(e) => update({ svgEasing: e.target.value })}
+                                  >
+                                    <option value="ease">Suave (ease)</option>
+                                    <option value="linear">Linear</option>
+                                    <option value="ease-in">Acelerar (ease-in)</option>
+                                    <option value="ease-out">Desacelerar (ease-out)</option>
+                                    <option value="ease-in-out">Suave nas pontas (ease-in-out)</option>
+                                    <option value="cubic-bezier(.34,1.56,.64,1)">Salto (bounce)</option>
+                                  </select>
                                 </div>
                               </div>
-                            ) : (
-                            <div className="space-y-1">
-                              <Label className="text-xs">Ícone animado Lottie (Lordicon/Flaticon JSON)</Label>
-                              <Input
-                                value={opt.lordIcon || ''}
-                                onChange={(e) => update({
-                                  lordIcon: e.target.value,
-                                  lordData: null,
-                                  lordDataVersion: Date.now(),
-                                  lordColors: [],
-                                })}
-                                placeholder="https://.../icone.json (opcional, substitui o emoji)"
-                              />
+                              <label className="flex items-center gap-2 text-xs">
+                                <input
+                                  type="checkbox"
+                                  checked={!!opt.svgClickHold}
+                                  onChange={(e) => update({ svgClickHold: e.target.checked })}
+                                />
+                                Manter estado de clique
+                              </label>
                             </div>
-                            )}
                             {opt.lordIcon && (
                               <div className="space-y-1">
                                 <Label className="text-xs">Animação</Label>
