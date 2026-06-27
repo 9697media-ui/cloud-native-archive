@@ -841,7 +841,7 @@ export default function AdminToolboxPage() {
     setDemoDoc(getGeneratedCode() + demoScript);
     setDemoVersion((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig]);
+  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig]);
 
   // A demo não altera CSS. Este efeito só espelha classe de dispositivo para o
   // modo "Site" (fora do iframe isolado) e mantém o foco automático de submenu.
