@@ -376,8 +376,6 @@ const DEFAULT_GATEWAY_CONFIG = {
   title: 'Bem-vindo',
   subtitle: 'Escolha por onde deseja começar',
   titleColor: '#ffffff',
-  stickyLabel: 'Quero ajudar',
-  stickyLink: '#',
   options: [
     { id: 'social', icon: '👥', iconColor: '#14b8a6', cardLabel: 'Social', pillText: 'Associação Nazarena', link: '#' },
     { id: 'educacao', icon: '🎓', iconColor: '#eab308', cardLabel: 'Educação', pillText: 'Grupo de Oração', link: '#' },
