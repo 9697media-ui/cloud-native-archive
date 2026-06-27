@@ -3345,15 +3345,37 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Altura do Cartão: {gatewayConfig.cardHeight ?? 176}px</Label>
-                      <Slider
-                        min={120}
-                        max={320}
-                        step={4}
-                        value={[gatewayConfig.cardHeight ?? 176]}
-                        onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardHeight: v})}
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Largura do Cartão</Label>
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              className="h-7 w-16 text-xs"
+                              value={gatewayConfig.cardWidth ?? 176}
+                              onChange={(e) => setGatewayConfig({...gatewayConfig, cardWidth: Number(e.target.value) || 0})}
+                            />
+                            <span className="text-xs text-muted-foreground">px</span>
+                          </div>
+                        </div>
+                        <Slider min={120} max={320} step={4} value={[gatewayConfig.cardWidth ?? 176]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardWidth: v})} />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Altura do Cartão</Label>
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              className="h-7 w-16 text-xs"
+                              value={gatewayConfig.cardHeight ?? 176}
+                              onChange={(e) => setGatewayConfig({...gatewayConfig, cardHeight: Number(e.target.value) || 0})}
+                            />
+                            <span className="text-xs text-muted-foreground">px</span>
+                          </div>
+                        </div>
+                        <Slider min={120} max={320} step={4} value={[gatewayConfig.cardHeight ?? 176]} onValueChange={([v]) => setGatewayConfig({...gatewayConfig, cardHeight: v})} />
+                      </div>
                     </div>
 
                     <div className="space-y-3 pt-2 border-t">
