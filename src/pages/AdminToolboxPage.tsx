@@ -1806,6 +1806,8 @@ export default function AdminToolboxPage() {
     align-items: center;
     justify-content: space-between;
     font-family: ${menuConfig.fontFamily};
+    font-weight: ${menuConfig.fontWeight ?? '400'};
+    font-style: ${menuConfig.fontStyle ?? 'normal'};
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: ${menuConfig.sticky ? 'sticky' : 'relative'};
     top: 0;
@@ -2865,10 +2867,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     const css = `<style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
   ${layoutCss}
-  .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; }
+  .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; font-weight: ${gatewayConfig.fontWeight ?? '400'}; font-style: ${gatewayConfig.fontStyle ?? 'normal'}; }
   .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
-  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: 800; margin: 0 0 12px;${gatewayConfig.titleFont ? ` font-family: ${gatewayConfig.titleFont};` : ''} }
-  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px;${gatewayConfig.subtitleFont ? ` font-family: ${gatewayConfig.subtitleFont};` : ''} }
+  .nav-gateway-441 h1 { color: ${gatewayConfig.titleColor}; font-size: 40px; font-weight: ${gatewayConfig.titleFontWeight ?? '800'}; margin: 0 0 12px;${fontRules(gatewayConfig.titleFont, gatewayConfig.titleFontWeight, gatewayConfig.titleFontStyle)} }
+  .nav-gateway-441 .ng-sub { color: ${gatewayConfig.titleColor}; opacity: 0.8; font-size: 18px; margin: 0 0 48px;${fontRules(gatewayConfig.subtitleFont, gatewayConfig.subtitleFontWeight, gatewayConfig.subtitleFontStyle)} }
   .nav-gateway-441 .ng-grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start; }
   .nav-gateway-441 .ng-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
   .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: ${gatewayConfig.cardWidth ?? 176}px; height: ${gatewayConfig.cardHeight ?? 176}px; background: ${gatewayConfig.cardBgColor ?? '#fff'}; border-radius: ${gatewayConfig.cardRadius ?? 24}px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
@@ -2970,9 +2972,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     <div class="ng-col"${animDelay}>
       <a class="ng-card ${cardClass}" href="${o.link || '#'}" style="--ng-lbl:${o.iconColor}">
         ${iconHtml}
-        <span class="ng-label"${o.labelFont ? ` style="font-family:${o.labelFont}"` : ''}>${o.cardLabel || ''}</span>
+        <span class="ng-label"${fontRules(o.labelFont, o.labelFontWeight, o.labelFontStyle) ? ` style="${fontRules(o.labelFont, o.labelFontWeight, o.labelFontStyle).trim()}"` : ''}>${o.cardLabel || ''}</span>
       </a>
-      ${o.pillText ? `<span class="ng-pill"${o.pillFont ? ` style="font-family:${o.pillFont}"` : ''}>${o.pillText}</span>` : ''}
+      ${o.pillText ? `<span class="ng-pill"${fontRules(o.pillFont, o.pillFontWeight, o.pillFontStyle) ? ` style="${fontRules(o.pillFont, o.pillFontWeight, o.pillFontStyle).trim()}"` : ''}>${o.pillText}</span>` : ''}
     </div>`;
     }).join('');
 
