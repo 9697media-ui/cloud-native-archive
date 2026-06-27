@@ -2793,6 +2793,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     .nav-gateway-441[data-layout="split"] .ng-inner { grid-template-columns: 1fr; }
   }`;
     const css = `<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
   ${layoutCss}
   .nav-gateway-441 { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; background: transparent; font-family: ${gatewayConfig.fontFamily ?? 'system-ui, -apple-system, sans-serif'}; }
   .nav-gateway-441 .ng-inner { position: relative; z-index: 1; max-width: 900px; width: 100%; text-align: center; }
