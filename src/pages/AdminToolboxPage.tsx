@@ -3501,14 +3501,22 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* Sidebar Configurações */}
-          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:pr-1.5">
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-3 border-b bg-muted/30">
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+          <div className="lg:col-span-4 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:pr-1.5">
+            <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+              <div className="border-b bg-muted/30 px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Painel de edição</p>
+                    <h2 className="text-base font-semibold leading-tight">Ferramentas do widget</h2>
+                  </div>
+                  <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold capitalize text-primary">{activeWidgetType}</span>
+                </div>
+              </div>
+
+              <section className="border-b p-4">
+                <div className="mb-3 flex items-center gap-2">
                   <Settings className="h-4 w-4" /> Tipo de Widget
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-3">
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   {([
                     { type: 'whatsapp', icon: MessageCircle, label: 'WhatsApp', hint: 'Botão flutuante' },
@@ -3524,10 +3532,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         type="button"
                         onClick={() => setActiveWidgetType(type)}
                         className={cn(
-                          "group flex flex-col items-start gap-2 rounded-lg border p-3 text-left transition-all",
+                          "group flex min-h-[96px] flex-col items-start gap-2 rounded-lg border p-3 text-left transition-all",
                           active
                             ? "border-primary bg-primary/10 shadow-sm ring-1 ring-primary/30"
-                            : "border-border bg-background hover:border-primary/40 hover:bg-muted/50"
+                            : "border-border bg-background hover:-translate-y-0.5 hover:border-primary/40 hover:bg-muted/50 hover:shadow-sm"
                         )}
                       >
                         <span className={cn(
@@ -3544,24 +3552,21 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     );
                   })}
                 </div>
-              </CardContent>
-            </Card>
+              </section>
 
 
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-3 border-b bg-muted/30">
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <section className="border-b p-4">
+                <div className="mb-3 flex items-center gap-2">
                   <FolderOpen className="h-4 w-4" /> Modelos Salvos
                   {savedTemplates.length > 0 && (
                     <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{savedTemplates.length}</span>
                   )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1.5 max-h-[320px] overflow-y-auto pr-1.5 pt-4">
+                </div>
+                <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1.5">
 
                 {savedTemplates.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-muted/20 py-8 text-center">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-background text-muted-foreground shadow-sm">
                       <FolderOpen className="h-5 w-5" />
                     </span>
                     <p className="text-xs text-muted-foreground">Nenhum modelo salvo ainda.</p>
@@ -3569,19 +3574,24 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 ) : (
                   savedTemplates.map((template) => (
                     <div key={template.id} className={cn(
-                      "group flex items-center gap-2 p-2 rounded-lg border text-sm transition-all",
+                      "group flex items-center gap-3 rounded-xl border p-3 text-sm transition-all",
                       currentTemplateId === template.id
-                        ? "bg-primary/10 border-primary shadow-sm"
-                        : "border-border hover:bg-muted/60 hover:border-primary/30"
+                        ? "bg-primary/10 border-primary shadow-sm ring-1 ring-primary/20"
+                        : "border-border bg-background hover:-translate-y-0.5 hover:bg-muted/50 hover:border-primary/30 hover:shadow-sm"
                     )}>
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:text-primary">
+                        <LayoutGrid className="h-4 w-4" />
+                      </span>
                       <div className="flex min-w-0 flex-1 cursor-pointer flex-col" onClick={() => loadTemplate(template)}>
                         <span className="truncate font-medium leading-tight">{template.name}</span>
-                        <span className="mt-1 inline-flex w-fit items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">{template.type}</span>
-                        {(template.updated_at || template.created_at) && (
-                          <span className="mt-1 text-[9px] text-muted-foreground">
-                            {new Date(template.updated_at || template.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                          </span>
-                        )}
+                        <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                          <span className="inline-flex w-fit items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">{template.type}</span>
+                          {(template.updated_at || template.created_at) && (
+                            <span className="text-[9px] text-muted-foreground">
+                              {new Date(template.updated_at || template.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </span>
+                          )}
+                        </span>
                       </div>
 
                       <div className="flex shrink-0 items-center gap-0.5 opacity-60 transition-opacity group-hover:opacity-100">
@@ -3598,18 +3608,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                   ))
                 )}
-              </CardContent>
-            </Card>
+                </div>
+              </section>
 
-            <Card className="overflow-hidden">
-
-              <CardHeader className="pb-3 border-b bg-muted/30">
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <section className="p-4">
+                <div className="mb-3 flex items-center gap-2">
                   <Settings className="h-4 w-4" /> Configurações
                   <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold capitalize text-primary tracking-normal">{activeWidgetType}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-4">
+                </div>
+              <div className="space-y-4">
 
                 {activeWidgetType === 'whatsapp' ? (
                   <>
