@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
@@ -376,18 +376,28 @@ const DEFAULT_GATEWAY_CONFIG = {
   title: 'Bem-vindo',
   subtitle: 'Escolha por onde deseja começar',
   titleColor: '#ffffff',
-  stickyLabel: 'Quero ajudar',
-  stickyLink: '#',
   options: [
     { id: 'social', icon: '👥', iconColor: '#14b8a6', cardLabel: 'Social', pillText: 'Associação Nazarena', link: '#' },
     { id: 'educacao', icon: '🎓', iconColor: '#eab308', cardLabel: 'Educação', pillText: 'Grupo de Oração', link: '#' },
   ] as any[],
 };
 
+const DEFAULT_SIDETAB_CONFIG = {
+  label: 'Quero ajudar',
+  link: '#',
+  bgColor: '#4f46e5',
+  textColor: '#ffffff',
+  side: 'right',
+  position: 96,
+  fontSize: 14,
+  radius: 8,
+};
+
 const getDefaultConfig = (type: string) =>
   type === 'whatsapp' ? DEFAULT_WHATSAPP_CONFIG :
   type === 'banner' ? DEFAULT_BANNER_CONFIG :
-  type === 'gateway' ? DEFAULT_GATEWAY_CONFIG : DEFAULT_MENU_CONFIG;
+  type === 'gateway' ? DEFAULT_GATEWAY_CONFIG :
+  type === 'sidetab' ? DEFAULT_SIDETAB_CONFIG : DEFAULT_MENU_CONFIG;
 
 
 // Mescla a config padrão atual com a config salva: novas propriedades de
@@ -515,12 +525,14 @@ export default function AdminToolboxPage() {
 
   const currentConfig = () => activeWidgetType === 'whatsapp' ? whatsappConfig :
     activeWidgetType === 'banner' ? bannerConfig :
-    activeWidgetType === 'gateway' ? gatewayConfig : menuConfig;
+    activeWidgetType === 'gateway' ? gatewayConfig :
+    activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
 
   const applyConfig = (type: string, config: any) => {
     if (type === 'whatsapp') setWhatsappConfig(config);
     else if (type === 'banner') setBannerConfig(config);
     else if (type === 'gateway') setGatewayConfig(config);
+    else if (type === 'sidetab') setSidetabConfig(config);
     else setMenuConfig(prev => ({
       ...prev,
       ...config,
@@ -549,7 +561,8 @@ export default function AdminToolboxPage() {
 
       const rawConfig = activeWidgetType === 'whatsapp' ? whatsappConfig : 
                      activeWidgetType === 'banner' ? bannerConfig :
-                     activeWidgetType === 'gateway' ? gatewayConfig : menuConfig;
+                     activeWidgetType === 'gateway' ? gatewayConfig :
+                     activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
       // Deep clone para evitar referências compartilhadas/mutações em items.activePaths
       const config = JSON.parse(JSON.stringify(rawConfig));
 
@@ -782,15 +795,17 @@ export default function AdminToolboxPage() {
       wpApiUrl: '',
       testUrl: 'https://anabrasil.org/ana/'
     },
-    gateway: DEFAULT_GATEWAY_CONFIG
+    gateway: DEFAULT_GATEWAY_CONFIG,
+    sidetab: DEFAULT_SIDETAB_CONFIG
   };
 
-  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway') => {
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab') => {
     setActiveWidgetType(type);
     if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
     else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
     else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
     else if (type === 'gateway') setGatewayConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.gateway)));
+    else if (type === 'sidetab') setSidetabConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.sidetab)));
     
     toast({
       title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
@@ -807,6 +822,8 @@ export default function AdminToolboxPage() {
 
   const [gatewayConfig, setGatewayConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_GATEWAY_CONFIG)));
 
+  const [sidetabConfig, setSidetabConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_SIDETAB_CONFIG)));
+
 
 
   // ===== Preview "demo" orientado pelo código final =====
@@ -822,7 +839,7 @@ export default function AdminToolboxPage() {
     setDemoDoc(getGeneratedCode() + demoScript);
     setDemoVersion((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig]);
+  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig]);
 
   // A demo não altera CSS. Este efeito só espelha classe de dispositivo para o
   // modo "Site" (fora do iframe isolado) e mantém o foco automático de submenu.
@@ -880,7 +897,8 @@ export default function AdminToolboxPage() {
     if (skipDraftRef.current) { skipDraftRef.current = false; return; }
     const config = activeWidgetType === 'whatsapp' ? whatsappConfig :
       activeWidgetType === 'banner' ? bannerConfig :
-      activeWidgetType === 'gateway' ? gatewayConfig : menuConfig;
+      activeWidgetType === 'gateway' ? gatewayConfig :
+      activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
     const t = setTimeout(() => {
       try {
         const at = new Date().toISOString();
@@ -890,7 +908,7 @@ export default function AdminToolboxPage() {
     }, 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, activeWidgetType, currentTemplateId]);
+  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, activeWidgetType, currentTemplateId]);
 
 
 
@@ -2545,7 +2563,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
   .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
-  .nav-gateway-441 .ng-sticky { position: fixed; bottom: 96px; right: 0; transform-origin: bottom right; transform: rotate(-90deg); background: #4f46e5; color: #fff; font-size: 14px; font-weight: 600; padding: 8px 20px; border-radius: 8px 8px 0 0; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,.2); z-index: 999998; }
+  .nav-gateway-441 .ng-grid-spacer { display: none; }
   @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }
 </style>`;
 
@@ -2984,10 +3002,6 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 })();
 </script>` : '';
 
-    const sticky = gatewayConfig.stickyLabel
-      ? `\n  <a class="ng-sticky" href="${gatewayConfig.stickyLink || '#'}">${gatewayConfig.stickyLabel}</a>`
-      : '';
-
     const html = `
 <!-- Início: Gateway de Navegação -->
 <div class="nav-gateway-441">
@@ -2996,10 +3010,25 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     ${gatewayConfig.subtitle ? `<p class="ng-sub">${gatewayConfig.subtitle}</p>` : ''}
     <div class="ng-grid">${cards}
     </div>
-  </div>${sticky}
+  </div>
 </div>
 <!-- Fim: Gateway de Navegação -->${lordScript}${svgScript}`;
 
+    return css + "\n" + html;
+  };
+
+  const generateSidetabCode = () => {
+    const c = sidetabConfig;
+    const side = c.side === 'left' ? 'left' : 'right';
+    const rotate = side === 'left' ? '90deg' : '-90deg';
+    const css = `<style>
+  .side-tab-771 { position: fixed; bottom: ${Number(c.position) || 96}px; ${side}: 0; transform-origin: bottom ${side}; transform: rotate(${rotate}); background: ${c.bgColor}; color: ${c.textColor}; font-size: ${Number(c.fontSize) || 14}px; font-weight: 600; padding: 8px 20px; border-radius: ${Number(c.radius) || 8}px ${Number(c.radius) || 8}px 0 0; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,.2); z-index: 999998; transition: filter .2s ease; }
+  .side-tab-771:hover { filter: brightness(.92); }
+</style>`;
+    const html = `
+<!-- Início: Aba Lateral -->
+<a class="side-tab-771" href="${c.link || '#'}">${c.label || ''}</a>
+<!-- Fim: Aba Lateral -->`;
     return css + "\n" + html;
   };
 
@@ -3007,6 +3036,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
     if (activeWidgetType === 'banner') return generateBannerCode();
     if (activeWidgetType === 'gateway') return generateGatewayCode();
+    if (activeWidgetType === 'sidetab') return generateSidetabCode();
     return generateMenuCode();
   };
 
@@ -3145,6 +3175,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 >
                   <LayoutGrid className="h-5 w-5" />
                   <span>Gateway de Navegação</span>
+                </Button>
+                <Button 
+                  variant={activeWidgetType === 'sidetab' ? 'default' : 'outline'} 
+                  className="w-full justify-start gap-3 h-12"
+                  onClick={() => setActiveWidgetType('sidetab')}
+                >
+                  <PanelRight className="h-5 w-5" />
+                  <span>Aba Lateral</span>
                 </Button>
               </CardContent>
             </Card>
@@ -3323,16 +3361,6 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       <div className="space-y-2">
                         <Label>Cor do Texto</Label>
                         <ColorField value={gatewayConfig.titleColor} onChange={(v) => setGatewayConfig({...gatewayConfig, titleColor: v})} />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Botão Lateral (texto)</Label>
-                        <Input value={gatewayConfig.stickyLabel} onChange={(e) => setGatewayConfig({...gatewayConfig, stickyLabel: e.target.value})} placeholder="Vazio = oculto" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Botão Lateral (link)</Label>
-                        <Input value={gatewayConfig.stickyLink} onChange={(e) => setGatewayConfig({...gatewayConfig, stickyLink: e.target.value})} />
                       </div>
                     </div>
 
@@ -3620,6 +3648,59 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                   </div>
                 )}
+
+                {/* CONFIG: ABA LATERAL */}
+                {activeWidgetType === 'sidetab' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Texto</Label>
+                      <Input value={sidetabConfig.label} onChange={(e) => setSidetabConfig({...sidetabConfig, label: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Link</Label>
+                      <Input value={sidetabConfig.link} onChange={(e) => setSidetabConfig({...sidetabConfig, link: e.target.value})} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Cor de Fundo</Label>
+                        <ColorField value={sidetabConfig.bgColor} onChange={(v) => setSidetabConfig({...sidetabConfig, bgColor: v})} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Cor do Texto</Label>
+                        <ColorField value={sidetabConfig.textColor} onChange={(v) => setSidetabConfig({...sidetabConfig, textColor: v})} />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Lado</Label>
+                      <div className="flex gap-2">
+                        <Button type="button" variant={sidetabConfig.side === 'left' ? 'default' : 'outline'} className="flex-1" onClick={() => setSidetabConfig({...sidetabConfig, side: 'left'})}>Esquerda</Button>
+                        <Button type="button" variant={sidetabConfig.side === 'right' ? 'default' : 'outline'} className="flex-1" onClick={() => setSidetabConfig({...sidetabConfig, side: 'right'})}>Direita</Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Distância da base (px)</Label>
+                        <Input type="number" className="w-20 h-7" value={sidetabConfig.position} onChange={(e) => setSidetabConfig({...sidetabConfig, position: Number(e.target.value) || 0})} />
+                      </div>
+                      <Slider min={0} max={400} step={4} value={[sidetabConfig.position]} onValueChange={([v]) => setSidetabConfig({...sidetabConfig, position: v})} />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Tamanho da Fonte (px)</Label>
+                        <Input type="number" className="w-20 h-7" value={sidetabConfig.fontSize} onChange={(e) => setSidetabConfig({...sidetabConfig, fontSize: Number(e.target.value) || 0})} />
+                      </div>
+                      <Slider min={10} max={28} step={1} value={[sidetabConfig.fontSize]} onValueChange={([v]) => setSidetabConfig({...sidetabConfig, fontSize: v})} />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Cantos Arredondados (px)</Label>
+                        <Input type="number" className="w-20 h-7" value={sidetabConfig.radius} onChange={(e) => setSidetabConfig({...sidetabConfig, radius: Number(e.target.value) || 0})} />
+                      </div>
+                      <Slider min={0} max={40} step={1} value={[sidetabConfig.radius]} onValueChange={([v]) => setSidetabConfig({...sidetabConfig, radius: v})} />
+                    </div>
+                  </div>
+                )}
+
 
 
 
