@@ -309,6 +309,8 @@ const DEFAULT_MENU_CONFIG = {
   textColor: '#1f2937',
   accentColor: '#4f46e5',
   fontFamily: 'system-ui, -apple-system, sans-serif',
+  fontWeight: '400',
+  fontStyle: 'normal',
   fontSize: 15,
   itemSpacing: 5,
   itemPadding: 15,
@@ -387,8 +389,14 @@ const DEFAULT_GATEWAY_CONFIG = {
   pillWidthTablet: undefined as number | undefined,
   pillWidthMobile: undefined as number | undefined,
   fontFamily: 'system-ui, -apple-system, sans-serif',
+  fontWeight: '400',
+  fontStyle: 'normal',
   titleFont: '',
+  titleFontWeight: '800',
+  titleFontStyle: 'normal',
   subtitleFont: '',
+  subtitleFontWeight: '400',
+  subtitleFontStyle: 'normal',
   labelHoverFromIcon: false,
   layout: 'top-center',
   entranceAnim: 'none',
@@ -398,8 +406,8 @@ const DEFAULT_GATEWAY_CONFIG = {
   subtitle: 'Escolha por onde deseja começar',
   titleColor: '#ffffff',
   options: [
-    { id: 'social', icon: '👥', iconColor: '#14b8a6', cardLabel: 'Social', pillText: 'Associação Nazarena', link: '#' },
-    { id: 'educacao', icon: '🎓', iconColor: '#eab308', cardLabel: 'Educação', pillText: 'Grupo de Oração', link: '#' },
+    { id: 'social', icon: '👥', iconColor: '#14b8a6', cardLabel: 'Social', labelFont: '', labelFontWeight: '700', labelFontStyle: 'normal', pillText: 'Associação Nazarena', pillFont: '', pillFontWeight: '500', pillFontStyle: 'normal', link: '#' },
+    { id: 'educacao', icon: '🎓', iconColor: '#eab308', cardLabel: 'Educação', labelFont: '', labelFontWeight: '700', labelFontStyle: 'normal', pillText: 'Grupo de Oração', pillFont: '', pillFontWeight: '500', pillFontStyle: 'normal', link: '#' },
   ] as any[],
 };
 
@@ -588,7 +596,7 @@ const upgradeConfig = (type: string, saved: any) => {
   return merged;
 };
 
-// Lista única de fontes para todos os campos de texto personalizável.
+// Lista única de famílias, pesos e estilos para todos os campos de texto personalizável.
 const FONT_OPTIONS: { value: string; label: string }[] = [
   { value: '', label: 'Padrão do widget' },
   { value: "system-ui, -apple-system, sans-serif", label: 'Sistema' },
@@ -600,17 +608,75 @@ const FONT_OPTIONS: { value: string; label: string }[] = [
   { value: "'Courier New', monospace", label: 'Monoespaçada' },
 ];
 
-// Seletor de fonte reutilizável para qualquer campo de texto editável.
-const FontSelect: React.FC<{ value?: string; onChange: (v: string) => void; className?: string }> = ({ value, onChange, className }) => (
-  <select
-    className={className ?? 'w-full h-9 rounded-md border border-input bg-background px-3 text-sm'}
-    value={value ?? ''}
-    onChange={(e) => onChange(e.target.value)}
-  >
-    {FONT_OPTIONS.map((f) => (
-      <option key={f.label} value={f.value}>{f.label}</option>
-    ))}
-  </select>
+const FONT_WEIGHT_OPTIONS: { value: string; label: string }[] = [
+  { value: '', label: 'Peso padrão' },
+  { value: '100', label: '100 — Thin' },
+  { value: '200', label: '200 — ExtraLight' },
+  { value: '300', label: '300 — Light' },
+  { value: '400', label: '400 — Regular' },
+  { value: '500', label: '500 — Medium' },
+  { value: '600', label: '600 — SemiBold' },
+  { value: '700', label: '700 — Bold' },
+  { value: '800', label: '800 — ExtraBold' },
+  { value: '900', label: '900 — Black' },
+];
+
+const FONT_STYLE_OPTIONS: { value: string; label: string }[] = [
+  { value: '', label: 'Estilo padrão' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'italic', label: 'Itálico' },
+];
+
+const fontRules = (family?: string, weight?: string | number, style?: string) => {
+  const rules: string[] = [];
+  if (family) rules.push(`font-family:${family};`);
+  if (weight) rules.push(`font-weight:${weight};`);
+  if (style) rules.push(`font-style:${style};`);
+  return rules.length ? ` ${rules.join(' ')}` : '';
+};
+
+// Seletor reutilizável de família + peso + variação para qualquer texto editável.
+const FontSelect: React.FC<{
+  value?: string;
+  weight?: string | number;
+  style?: string;
+  onChange: (v: string) => void;
+  onWeightChange?: (v: string) => void;
+  onStyleChange?: (v: string) => void;
+  className?: string;
+}> = ({ value, weight, style, onChange, onWeightChange, onStyleChange, className }) => (
+  <div className={cn('grid grid-cols-1 gap-2 sm:grid-cols-3', className)}>
+    <select
+      className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+      value={value ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label="Família da fonte"
+    >
+      {FONT_OPTIONS.map((f) => (
+        <option key={f.label} value={f.value}>{f.label}</option>
+      ))}
+    </select>
+    <select
+      className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+      value={String(weight ?? '')}
+      onChange={(e) => onWeightChange?.(e.target.value)}
+      aria-label="Peso da fonte"
+    >
+      {FONT_WEIGHT_OPTIONS.map((f) => (
+        <option key={f.value || f.label} value={f.value}>{f.label}</option>
+      ))}
+    </select>
+    <select
+      className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+      value={style ?? ''}
+      onChange={(e) => onStyleChange?.(e.target.value)}
+      aria-label="Estilo da fonte"
+    >
+      {FONT_STYLE_OPTIONS.map((f) => (
+        <option key={f.value || f.label} value={f.value}>{f.label}</option>
+      ))}
+    </select>
+  </div>
 );
 
 
