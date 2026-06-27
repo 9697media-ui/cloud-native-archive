@@ -2655,8 +2655,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       } else {
         iconHtml = `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
       }
+      const animDelay = gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? ` style="animation-delay:${index * 120}ms"` : '';
       return `
-    <div class="ng-col">
+    <div class="ng-col"${animDelay}>
       <a class="ng-card ${cardClass}" href="${o.link || '#'}">
         ${iconHtml}
         <span class="ng-label">${o.cardLabel || ''}</span>
