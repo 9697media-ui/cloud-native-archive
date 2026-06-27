@@ -3513,7 +3513,17 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 </div>
               </div>
 
-              <section className="border-b p-4">
+              <Tabs defaultValue="config" className="w-full">
+                <div className="border-b px-3 pt-3">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="config" className="gap-1.5 text-xs"><Settings className="h-3.5 w-3.5" /> Editar</TabsTrigger>
+                    <TabsTrigger value="models" className="gap-1.5 text-xs"><FolderOpen className="h-3.5 w-3.5" /> Modelos{savedTemplates.length > 0 && <span className="rounded-full bg-primary/15 px-1.5 text-[9px] font-bold text-primary">{savedTemplates.length}</span>}</TabsTrigger>
+                    <TabsTrigger value="widget" className="gap-1.5 text-xs"><LayoutGrid className="h-3.5 w-3.5" /> Widget</TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <TabsContent value="widget" className="m-0 focus-visible:outline-none">
+              <section className="p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <Settings className="h-4 w-4" /> Tipo de Widget
                 </div>
