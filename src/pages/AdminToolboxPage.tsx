@@ -3004,10 +3004,6 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 })();
 </script>` : '';
 
-    const sticky = gatewayConfig.stickyLabel
-      ? `\n  <a class="ng-sticky" href="${gatewayConfig.stickyLink || '#'}">${gatewayConfig.stickyLabel}</a>`
-      : '';
-
     const html = `
 <!-- Início: Gateway de Navegação -->
 <div class="nav-gateway-441">
@@ -3016,10 +3012,25 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     ${gatewayConfig.subtitle ? `<p class="ng-sub">${gatewayConfig.subtitle}</p>` : ''}
     <div class="ng-grid">${cards}
     </div>
-  </div>${sticky}
+  </div>
 </div>
 <!-- Fim: Gateway de Navegação -->${lordScript}${svgScript}`;
 
+    return css + "\n" + html;
+  };
+
+  const generateSidetabCode = () => {
+    const c = sidetabConfig;
+    const side = c.side === 'left' ? 'left' : 'right';
+    const rotate = side === 'left' ? '90deg' : '-90deg';
+    const css = `<style>
+  .side-tab-771 { position: fixed; bottom: ${Number(c.position) || 96}px; ${side}: 0; transform-origin: bottom ${side}; transform: rotate(${rotate}); background: ${c.bgColor}; color: ${c.textColor}; font-size: ${Number(c.fontSize) || 14}px; font-weight: 600; padding: 8px 20px; border-radius: ${Number(c.radius) || 8}px ${Number(c.radius) || 8}px 0 0; text-decoration: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,.2); z-index: 999998; transition: filter .2s ease; }
+  .side-tab-771:hover { filter: brightness(.92); }
+</style>`;
+    const html = `
+<!-- Início: Aba Lateral -->
+<a class="side-tab-771" href="${c.link || '#'}">${c.label || ''}</a>
+<!-- Fim: Aba Lateral -->`;
     return css + "\n" + html;
   };
 
@@ -3027,6 +3038,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
     if (activeWidgetType === 'banner') return generateBannerCode();
     if (activeWidgetType === 'gateway') return generateGatewayCode();
+    if (activeWidgetType === 'sidetab') return generateSidetabCode();
     return generateMenuCode();
   };
 
