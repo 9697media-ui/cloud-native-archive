@@ -2480,6 +2480,23 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   };
 
 
+  // Sanitiza markup SVG colado pelo usuário antes de embutir no HTML gerado.
+  // Remove <script>, handlers on*, e protocolos perigosos (javascript:).
+  const sanitizeSvg = (raw?: string): string => {
+    if (!raw || typeof raw !== 'string') return '';
+    let s = raw.trim();
+    const start = s.indexOf('<svg');
+    if (start === -1) return '';
+    const end = s.lastIndexOf('</svg>');
+    if (end !== -1) s = s.slice(start, end + 6);
+    else s = s.slice(start);
+    s = s.replace(/<script[\s\S]*?<\/script>/gi, '');
+    s = s.replace(/\son\w+\s*=\s*"[^"]*"/gi, '');
+    s = s.replace(/\son\w+\s*=\s*'[^']*'/gi, '');
+    s = s.replace(/(href|xlink:href)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '');
+    return s;
+  };
+
   // Função utilitária para obter o código gerado
   const escapeHtmlJson = (value: any) =>
     JSON.stringify(value)
