@@ -2749,6 +2749,25 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
   const generateGatewayCode = () => {
     const lay = gatewayConfig.layout || 'top-center';
+    // Valores responsivos: tablet/mobile herdam do desktop quando não definidos.
+    const gcw = gatewayConfig.cardWidth ?? 176;
+    const gch = gatewayConfig.cardHeight ?? 176;
+    const gcr = gatewayConfig.cardRadius ?? 24;
+    const gph = gatewayConfig.pillHeight ?? 24;
+    const gpw = gatewayConfig.pillWidth ?? 0;
+    const cardRespCss = (cw: number, chh: number, cr: number) =>
+      `.nav-gateway-441 .ng-card { width: ${cw}px; height: ${chh}px; border-radius: ${cr}px; }`;
+    const pillRespCss = (ph: number, pw: number) =>
+      `.nav-gateway-441 .ng-pill { height: ${ph}px; ${pw ? `width: ${pw}px;` : 'width: auto;'} }`;
+    const responsiveCss = `
+  @media (max-width: 1024px) and (min-width: 641px) {
+    ${cardRespCss(gatewayConfig.cardWidthTablet ?? gcw, gatewayConfig.cardHeightTablet ?? gch, gatewayConfig.cardRadiusTablet ?? gcr)}
+    ${pillRespCss(gatewayConfig.pillHeightTablet ?? gph, gatewayConfig.pillWidthTablet ?? gpw)}
+  }
+  @media (max-width: 640px) {
+    ${cardRespCss(gatewayConfig.cardWidthMobile ?? gcw, gatewayConfig.cardHeightMobile ?? gch, gatewayConfig.cardRadiusMobile ?? gcr)}
+    ${pillRespCss(gatewayConfig.pillHeightMobile ?? gph, gatewayConfig.pillWidthMobile ?? gpw)}
+  }`;
     const layoutCss = `
   .nav-gateway-441[data-layout="top-left"] .ng-inner { text-align: left; }
   .nav-gateway-441[data-layout="top-left"] .ng-grid { justify-content: flex-start; }
