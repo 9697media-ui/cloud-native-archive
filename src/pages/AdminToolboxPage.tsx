@@ -527,12 +527,14 @@ export default function AdminToolboxPage() {
 
   const currentConfig = () => activeWidgetType === 'whatsapp' ? whatsappConfig :
     activeWidgetType === 'banner' ? bannerConfig :
-    activeWidgetType === 'gateway' ? gatewayConfig : menuConfig;
+    activeWidgetType === 'gateway' ? gatewayConfig :
+    activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
 
   const applyConfig = (type: string, config: any) => {
     if (type === 'whatsapp') setWhatsappConfig(config);
     else if (type === 'banner') setBannerConfig(config);
     else if (type === 'gateway') setGatewayConfig(config);
+    else if (type === 'sidetab') setSidetabConfig(config);
     else setMenuConfig(prev => ({
       ...prev,
       ...config,
