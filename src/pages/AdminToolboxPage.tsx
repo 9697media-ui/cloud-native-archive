@@ -2977,7 +2977,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     </div>
   </div>${sticky}
 </div>
-<!-- Fim: Gateway de Navegação -->${lordScript}`;
+<!-- Fim: Gateway de Navegação -->${lordScript}${svgScript}`;
 
     return css + "\n" + html;
   };
