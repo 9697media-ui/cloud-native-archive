@@ -3423,15 +3423,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                   <Label className="text-xs">Efeito de transição</Label>
                                   <select
                                     className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
-                                    value={opt.svgEasing || 'ease'}
+                                    value={['ease', 'linear', 'ease-in', 'ease-out', 'ease-in-out', 'cubic-bezier(.34,1.56,.64,1)'].includes(opt.svgEasing) ? 'fade' : (opt.svgEasing || 'fade')}
                                     onChange={(e) => update({ svgEasing: e.target.value })}
                                   >
-                                    <option value="ease">Suave (ease)</option>
-                                    <option value="linear">Linear</option>
-                                    <option value="ease-in">Acelerar (ease-in)</option>
-                                    <option value="ease-out">Desacelerar (ease-out)</option>
-                                    <option value="ease-in-out">Suave nas pontas (ease-in-out)</option>
-                                    <option value="cubic-bezier(.34,1.56,.64,1)">Salto (bounce)</option>
+                                    <option value="fade">Opacidade suave</option>
+                                    <option value="soft">Subir suave</option>
+                                    <option value="slide">Deslizar lateral</option>
+                                    <option value="blur">Desfoque</option>
+                                    <option value="snap">Troca imediata</option>
                                   </select>
                                 </div>
                               </div>
