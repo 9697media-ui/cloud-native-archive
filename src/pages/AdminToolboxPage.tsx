@@ -5105,8 +5105,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+              </section>
+            </div>
           </div>
 
           <div className="lg:col-span-8 flex flex-col gap-6 relative">
