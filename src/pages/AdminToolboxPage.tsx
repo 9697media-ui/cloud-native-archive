@@ -3422,6 +3422,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 placeholder="https://.../icone.json (opcional, substitui o emoji)"
                               />
                             </div>
+                            )}
                             {opt.lordIcon && (
                               <div className="space-y-1">
                                 <Label className="text-xs">Animação</Label>
