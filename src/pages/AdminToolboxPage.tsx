@@ -2480,6 +2480,23 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   };
 
 
+  // Sanitiza markup SVG colado pelo usuário antes de embutir no HTML gerado.
+  // Remove <script>, handlers on*, e protocolos perigosos (javascript:).
+  const sanitizeSvg = (raw?: string): string => {
+    if (!raw || typeof raw !== 'string') return '';
+    let s = raw.trim();
+    const start = s.indexOf('<svg');
+    if (start === -1) return '';
+    const end = s.lastIndexOf('</svg>');
+    if (end !== -1) s = s.slice(start, end + 6);
+    else s = s.slice(start);
+    s = s.replace(/<script[\s\S]*?<\/script>/gi, '');
+    s = s.replace(/\son\w+\s*=\s*"[^"]*"/gi, '');
+    s = s.replace(/\son\w+\s*=\s*'[^']*'/gi, '');
+    s = s.replace(/(href|xlink:href)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '');
+    return s;
+  };
+
   // Função utilitária para obter o código gerado
   const escapeHtmlJson = (value: any) =>
     JSON.stringify(value)
@@ -2505,6 +2522,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .nav-gateway-441 .ng-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 176px; height: 176px; background: #fff; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,.1); text-decoration: none; transition: all .3s ease; }
   .nav-gateway-441 .ng-card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(0,0,0,.25); }
   .nav-gateway-441 .ng-icon { font-size: 52px; line-height: 1; }
+  .nav-gateway-441 .ng-svg-icon { position: relative; display: inline-block; width: 56px; height: 56px; }
+  .nav-gateway-441 .ng-svg-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--ng-svg-dur, 300ms) ease; }
+  .nav-gateway-441 .ng-svg-layer svg { width: 100%; height: 100%; display: block; }
+  .nav-gateway-441 .ng-svg-icon .is-static { opacity: 1; }
+  .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-static { opacity: 0; }
+  .nav-gateway-441 .ng-card:hover .ng-svg-icon.has-hover .is-hover { opacity: 1; }
+  .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-static,
+  .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-hover { opacity: 0 !important; }
+  .nav-gateway-441 .ng-svg-icon.has-active.is-clicked .is-active { opacity: 1 !important; }
   .nav-gateway-441 .ng-lottie { display: block; width: 56px; height: 56px; }
   .nav-gateway-441 .ng-label { font-size: 18px; font-weight: 700; color: #1e293b; }
   .nav-gateway-441 .ng-pill { background: rgba(255,255,255,.2); color: #fff; font-size: 12px; font-weight: 500; padding: 4px 16px; border-radius: 9999px; }
@@ -2550,9 +2576,24 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       const embeddedData = finalLordData
         ? `<script type="application/json" class="ng-lottie-json">${escapeHtmlJson(finalLordData)}</script>`
         : '';
-      const iconHtml = o.lordIcon
-        ? `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}" data-ng-key='${renderKey}'${fallbackColors}${recolorAttr} aria-hidden="true">${embeddedData}</span>`
-        : `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
+      const svgStatic = sanitizeSvg(o.svgStatic);
+      const svgHover = sanitizeSvg(o.svgHover);
+      const svgActive = sanitizeSvg(o.svgActive);
+      const useSvg = o.iconMode === 'svg' && svgStatic;
+      const svgDur = `${(Number(o.svgTransition ?? 300) || 300)}ms`;
+      let iconHtml: string;
+      if (useSvg) {
+        const wrapClasses = ['ng-svg-icon', svgHover ? 'has-hover' : '', svgActive ? 'has-active' : ''].filter(Boolean).join(' ');
+        iconHtml = `<span class="${wrapClasses}" style="--ng-svg-dur:${svgDur};color:${o.iconColor};" data-click-hold="${o.svgClickHold ? '1' : '0'}" aria-hidden="true">`
+          + `<span class="ng-svg-layer is-static">${svgStatic}</span>`
+          + (svgHover ? `<span class="ng-svg-layer is-hover">${svgHover}</span>` : '')
+          + (svgActive ? `<span class="ng-svg-layer is-active">${svgActive}</span>` : '')
+          + `</span>`;
+      } else if (o.lordIcon) {
+        iconHtml = `<span class="ng-lottie ${isLoop ? 'ng-lottie-loop' : 'ng-lottie-hold'}" data-src="${o.lordIcon}" data-ng-key='${renderKey}'${fallbackColors}${recolorAttr} aria-hidden="true">${embeddedData}</span>`;
+      } else {
+        iconHtml = `<span class="ng-icon" style="color:${o.iconColor};">${o.icon || ''}</span>`;
+      }
       return `
     <div class="ng-col">
       <a class="ng-card ${cardClass}" href="${o.link || '#'}">
@@ -2900,6 +2941,28 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 })();
 </script>` : '';
 
+    const hasSvg = (gatewayConfig.options || []).some((o: any) => o.iconMode === 'svg' && o.svgStatic);
+    const svgScript = hasSvg ? `
+<script>
+(function(){
+  function bind(){
+    document.querySelectorAll('.nav-gateway-441 .ng-card').forEach(function(card){
+      var icon = card.querySelector('.ng-svg-icon.has-active');
+      if(!icon || card.__ngSvgBound) return;
+      card.__ngSvgBound = true;
+      var hold = icon.getAttribute('data-click-hold') === '1';
+      card.addEventListener('click', function(){
+        if(hold){ icon.classList.toggle('is-clicked'); }
+        else { icon.classList.add('is-clicked'); }
+      });
+      card.addEventListener('mouseleave', function(){ if(!hold) icon.classList.remove('is-clicked'); });
+    });
+  }
+  if(document.readyState !== 'loading') bind();
+  else document.addEventListener('DOMContentLoaded', bind);
+})();
+</script>` : '';
+
     const sticky = gatewayConfig.stickyLabel
       ? `\n  <a class="ng-sticky" href="${gatewayConfig.stickyLink || '#'}">${gatewayConfig.stickyLabel}</a>`
       : '';
@@ -2914,7 +2977,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     </div>
   </div>${sticky}
 </div>
-<!-- Fim: Gateway de Navegação -->${lordScript}`;
+<!-- Fim: Gateway de Navegação -->${lordScript}${svgScript}`;
 
     return css + "\n" + html;
   };
@@ -3287,6 +3350,66 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                               </div>
                             </div>
                             <div className="space-y-1">
+                              <Label className="text-xs">Tipo de ícone</Label>
+                              <select
+                                className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                                value={opt.iconMode || 'default'}
+                                onChange={(e) => update({ iconMode: e.target.value })}
+                              >
+                                <option value="default">Emoji / Lottie (URL)</option>
+                                <option value="svg">SVG animado (3 estados)</option>
+                              </select>
+                            </div>
+                            {opt.iconMode === 'svg' ? (
+                              <div className="space-y-2 rounded-md border border-input p-2">
+                                <div className="space-y-1">
+                                  <Label className="text-xs">SVG estático (obrigatório)</Label>
+                                  <textarea
+                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+                                    value={opt.svgStatic || ''}
+                                    onChange={(e) => update({ svgStatic: e.target.value })}
+                                    placeholder="<svg ...>...</svg>"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <Label className="text-xs">SVG hover (ao passar o mouse)</Label>
+                                  <textarea
+                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+                                    value={opt.svgHover || ''}
+                                    onChange={(e) => update({ svgHover: e.target.value })}
+                                    placeholder="<svg ...>...</svg> (opcional)"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <Label className="text-xs">SVG clique</Label>
+                                  <textarea
+                                    className="w-full min-h-[64px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+                                    value={opt.svgActive || ''}
+                                    onChange={(e) => update({ svgActive: e.target.value })}
+                                    placeholder="<svg ...>...</svg> (opcional)"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="space-y-1">
+                                    <Label className="text-xs">Transição (ms)</Label>
+                                    <Input
+                                      type="number"
+                                      value={opt.svgTransition ?? 300}
+                                      onChange={(e) => update({ svgTransition: Number(e.target.value) })}
+                                    />
+                                  </div>
+                                  <label className="flex items-end gap-2 text-xs pb-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!opt.svgClickHold}
+                                      onChange={(e) => update({ svgClickHold: e.target.checked })}
+                                    />
+                                    Manter estado de clique
+                                  </label>
+                                </div>
+                              </div>
+                            ) : (
+                            <div className="space-y-1">
                               <Label className="text-xs">Ícone animado Lottie (Lordicon/Flaticon JSON)</Label>
                               <Input
                                 value={opt.lordIcon || ''}
@@ -3299,6 +3422,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 placeholder="https://.../icone.json (opcional, substitui o emoji)"
                               />
                             </div>
+                            )}
                             {opt.lordIcon && (
                               <div className="space-y-1">
                                 <Label className="text-xs">Animação</Label>
