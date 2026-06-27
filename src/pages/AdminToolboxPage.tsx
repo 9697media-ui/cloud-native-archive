@@ -899,7 +899,8 @@ export default function AdminToolboxPage() {
     if (skipDraftRef.current) { skipDraftRef.current = false; return; }
     const config = activeWidgetType === 'whatsapp' ? whatsappConfig :
       activeWidgetType === 'banner' ? bannerConfig :
-      activeWidgetType === 'gateway' ? gatewayConfig : menuConfig;
+      activeWidgetType === 'gateway' ? gatewayConfig :
+      activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
     const t = setTimeout(() => {
       try {
         const at = new Date().toISOString();
