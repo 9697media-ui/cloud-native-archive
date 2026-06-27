@@ -851,10 +851,15 @@ export default function AdminToolboxPage() {
   const demoScript = `<script>window.open=function(){return null;};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.menu-items a');if(!a){document.querySelectorAll('.has-submenu.open').forEach(function(x){x.classList.remove('open');});return;}e.preventDefault();e.stopPropagation();var parent=a.parentElement;var hs=(parent&&parent.classList.contains('has-submenu')&&parent.querySelector(':scope > .submenu'))?parent:null;var sub=a.closest('.submenu');var keep=hs||(sub?sub.closest('.has-submenu'):null);document.querySelectorAll('.has-submenu.open').forEach(function(x){if(!(keep&&(x===keep||x.contains(keep)))){x.classList.remove('open');}});if(hs){hs.classList.toggle('open');}var top=sub?(sub.closest('.has-submenu')||a):a;var topLink=top.querySelector?(top.matches('a')?top:top.querySelector(':scope > a')):a;document.querySelectorAll('.menu-items a.active').forEach(function(x){x.classList.remove('active');});a.classList.add('active');if(topLink)topLink.classList.add('active');},true);</scr`+`ipt>`;
 
   useEffect(() => {
-    setDemoDoc(getGeneratedCode() + demoScript);
+    // Fundo de teste APENAS no preview (não faz parte do código final).
+    const previewBg = activeWidgetType === 'gateway'
+      ? `<style>body{background:linear-gradient(135deg,#1e293b,#334155);min-height:100vh;margin:0;display:flex;align-items:center;justify-content:center;padding:48px 24px;box-sizing:border-box;}</style>`
+      : '';
+    setDemoDoc(getGeneratedCode() + previewBg + demoScript);
     setDemoVersion((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig]);
+
 
   // A demo não altera CSS. Este efeito só espelha classe de dispositivo para o
   // modo "Site" (fora do iframe isolado) e mantém o foco automático de submenu.
