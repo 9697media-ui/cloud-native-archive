@@ -3671,6 +3671,33 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 .tb-editor select,
                 .tb-editor [role="combobox"] {
                   border-radius: 0.55rem;
+                  min-width: 0;
+                  max-width: 100%;
+                }
+                /* Selects nativos: evitar corte de texto */
+                .tb-editor select {
+                  padding-left: 0.5rem;
+                  padding-right: 1.5rem;
+                  text-overflow: ellipsis;
+                  width: 100%;
+                }
+                /* Campos numéricos: sem setas e com largura suficiente */
+                .tb-editor input[type="number"] {
+                  -moz-appearance: textfield;
+                  padding-left: 0.5rem;
+                  padding-right: 0.4rem;
+                  text-align: center;
+                }
+                .tb-editor input[type="number"]::-webkit-outer-spin-button,
+                .tb-editor input[type="number"]::-webkit-inner-spin-button {
+                  -webkit-appearance: none;
+                  margin: 0;
+                }
+                /* Botões de preset/seleção: texto não estoura, quebra com elegância */
+                .tb-editor button {
+                  white-space: normal;
+                  word-break: break-word;
+                  min-width: 0;
                 }
                 /* Linhas de switch ganham aparência de toggle-card */
                 .tb-editor > div > .flex.items-center.justify-between {
@@ -3678,6 +3705,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                   border-radius: 0.7rem;
                   background: hsl(var(--muted) / 0.25);
                   padding: 0.6rem 0.8rem;
+                  gap: 0.5rem;
+                }
+                /* Label dentro de linhas flex pode quebrar */
+                .tb-editor .flex.items-center.justify-between > label {
+                  flex: 1 1 auto;
+                  min-width: 0;
                 }
               `}</style>
               <div className="tb-editor space-y-4">
