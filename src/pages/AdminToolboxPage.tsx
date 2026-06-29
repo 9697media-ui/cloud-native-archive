@@ -3827,6 +3827,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </select>
                     </div>
                     </div>
+                    </CollapsibleSection>
                     <CollapsibleSection title="Textos & fontes" defaultOpen>
                     <div className="space-y-2">
                       <Label>Título</Label>
