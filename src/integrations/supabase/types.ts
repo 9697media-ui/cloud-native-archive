@@ -268,7 +268,6 @@ export type Database = {
           created_at: string
           delegated_units: string[] | null
           email: string | null
-          google_refresh_token: string | null
           id: string
           is_active: boolean | null
           is_beta_tester: boolean | null
@@ -285,7 +284,6 @@ export type Database = {
           created_at?: string
           delegated_units?: string[] | null
           email?: string | null
-          google_refresh_token?: string | null
           id?: string
           is_active?: boolean | null
           is_beta_tester?: boolean | null
@@ -302,7 +300,6 @@ export type Database = {
           created_at?: string
           delegated_units?: string[] | null
           email?: string | null
-          google_refresh_token?: string | null
           id?: string
           is_active?: boolean | null
           is_beta_tester?: boolean | null
@@ -440,6 +437,27 @@ export type Database = {
           is_active_beta?: boolean | null
           is_active_production?: boolean | null
           name?: string
+        }
+        Relationships: []
+      }
+      user_google_tokens: {
+        Row: {
+          created_at: string
+          refresh_token: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
