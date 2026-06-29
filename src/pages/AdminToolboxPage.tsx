@@ -3792,6 +3792,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 {/* CONFIG: GATEWAY */}
                 {activeWidgetType === 'gateway' && (
                   <div className="space-y-4">
+                    <CollapsibleSection title="Layout & estrutura" defaultOpen>
                     <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
                       <Label>Modelo de layout</Label>
                       <p className="text-xs text-muted-foreground">Escolha uma variação visual pré-definida. Você pode editar tudo depois.</p>
