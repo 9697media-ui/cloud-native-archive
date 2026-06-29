@@ -3863,6 +3863,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       />
                       Título do cartão muda para a cor do ícone no hover
                     </label>
+                    </CollapsibleSection>
 
 
 
