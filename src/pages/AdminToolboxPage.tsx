@@ -3513,14 +3513,15 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 </div>
               </div>
 
-              <Tabs defaultValue="config" className="w-full">
+              <Tabs defaultValue="widget" className="w-full">
                 <div className="border-b px-3 pt-3">
                   <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="config" className="gap-1.5 text-xs"><Settings className="h-3.5 w-3.5" /> Editar</TabsTrigger>
-                    <TabsTrigger value="models" className="gap-1.5 text-xs"><FolderOpen className="h-3.5 w-3.5" /> Modelos{savedTemplates.length > 0 && <span className="rounded-full bg-primary/15 px-1.5 text-[9px] font-bold text-primary">{savedTemplates.length}</span>}</TabsTrigger>
                     <TabsTrigger value="widget" className="gap-1.5 text-xs"><LayoutGrid className="h-3.5 w-3.5" /> Widget</TabsTrigger>
+                    <TabsTrigger value="models" className="gap-1.5 text-xs"><FolderOpen className="h-3.5 w-3.5" /> Modelos{(() => { const n = savedTemplates.filter(t => t.type === activeWidgetType).length; return n > 0 ? <span className="rounded-full bg-primary/15 px-1.5 text-[9px] font-bold text-primary">{n}</span> : null; })()}</TabsTrigger>
+                    <TabsTrigger value="config" className="gap-1.5 text-xs"><Settings className="h-3.5 w-3.5" /> Editor</TabsTrigger>
                   </TabsList>
                 </div>
+
 
                 <TabsContent value="widget" className="m-0 focus-visible:outline-none">
               <section className="p-4">
@@ -3566,24 +3567,27 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 </TabsContent>
 
                 <TabsContent value="models" className="m-0 focus-visible:outline-none">
+              {(() => {
+                const filteredTemplates = savedTemplates.filter((t) => t.type === activeWidgetType);
+                return (
               <section className="p-4">
                 <div className="mb-3 flex items-center gap-2">
-                  <FolderOpen className="h-4 w-4" /> Modelos Salvos
-                  {savedTemplates.length > 0 && (
-                    <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{savedTemplates.length}</span>
+                  <FolderOpen className="h-4 w-4" /> Modelos de <span className="font-semibold capitalize text-primary">{activeWidgetType}</span>
+                  {filteredTemplates.length > 0 && (
+                    <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{filteredTemplates.length}</span>
                   )}
                 </div>
                 <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1.5">
 
-                {savedTemplates.length === 0 ? (
+                {filteredTemplates.length === 0 ? (
                   <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-muted/20 py-8 text-center">
                     <span className="flex h-11 w-11 items-center justify-center rounded-full bg-background text-muted-foreground shadow-sm">
                       <FolderOpen className="h-5 w-5" />
                     </span>
-                    <p className="text-xs text-muted-foreground">Nenhum modelo salvo ainda.</p>
+                    <p className="text-xs text-muted-foreground">Nenhum modelo de <span className="capitalize">{activeWidgetType}</span> salvo ainda.</p>
                   </div>
                 ) : (
-                  savedTemplates.map((template) => (
+                  filteredTemplates.map((template) => (
                     <div key={template.id} className={cn(
                       "group flex items-center gap-3 rounded-xl border p-3 text-sm transition-all",
                       currentTemplateId === template.id
@@ -3621,7 +3625,10 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 )}
                 </div>
               </section>
+                );
+              })()}
                 </TabsContent>
+
 
                 <TabsContent value="config" className="m-0 focus-visible:outline-none">
               <section className="p-4">
