@@ -3932,6 +3932,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       )}
                     </div>
 
+                    <CollapsibleSection title="Dimensões por dispositivo" defaultOpen>
                     <div className="space-y-3 rounded-lg border p-3">
                       <div className="flex items-center justify-between">
                         <Label className="font-semibold">Dimensões por dispositivo</Label>
