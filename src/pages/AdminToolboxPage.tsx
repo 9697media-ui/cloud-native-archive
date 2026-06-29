@@ -4022,6 +4022,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <Slider min={120} max={320} step={4} value={[gwGet('cardHeight', panelDevice)]} onValueChange={([v]) => gwSet('cardHeight', panelDevice, v)} />
                       </div>
                     </div>
+                    </CollapsibleSection>
 
                     <CollapsibleSection title="Cartões de opção" defaultOpen>
                     <div className="space-y-3 pt-2 border-t">
