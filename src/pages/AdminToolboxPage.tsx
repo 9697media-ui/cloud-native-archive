@@ -3866,6 +3866,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
 
 
+                    <CollapsibleSection title="Cores & fonte global" defaultOpen>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Cor do Cartão</Label>
