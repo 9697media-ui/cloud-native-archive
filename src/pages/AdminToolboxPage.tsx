@@ -3641,7 +3641,47 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <p className="text-sm font-semibold capitalize">{activeWidgetType}</p>
                   </div>
                 </div>
-              <div className="space-y-4">
+              <style>{`
+                .tb-editor { font-feature-settings: "cv02","cv03","cv04"; }
+                /* Cada bloco de campo vira um cartão sutil */
+                .tb-editor > div > .space-y-2,
+                .tb-editor .grid > .space-y-2 {
+                  border: 1px solid hsl(var(--border) / 0.7);
+                  border-radius: 0.7rem;
+                  background: hsl(var(--muted) / 0.25);
+                  padding: 0.7rem 0.8rem;
+                  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+                }
+                .tb-editor > div > .space-y-2:hover,
+                .tb-editor .grid > .space-y-2:hover {
+                  border-color: hsl(var(--primary) / 0.45);
+                  background: hsl(var(--muted) / 0.4);
+                  box-shadow: 0 1px 8px -4px hsl(var(--primary) / 0.35);
+                }
+                /* Labels mais legíveis e hierárquicos */
+                .tb-editor label {
+                  font-size: 0.72rem;
+                  font-weight: 600;
+                  letter-spacing: 0.01em;
+                  color: hsl(var(--foreground) / 0.85);
+                }
+                /* Inputs/selects com respiro consistente */
+                .tb-editor input:not([type="checkbox"]):not([type="radio"]),
+                .tb-editor textarea,
+                .tb-editor select,
+                .tb-editor [role="combobox"] {
+                  border-radius: 0.55rem;
+                }
+                /* Linhas de switch ganham aparência de toggle-card */
+                .tb-editor > div > .flex.items-center.justify-between {
+                  border: 1px solid hsl(var(--border) / 0.7);
+                  border-radius: 0.7rem;
+                  background: hsl(var(--muted) / 0.25);
+                  padding: 0.6rem 0.8rem;
+                }
+              `}</style>
+              <div className="tb-editor space-y-4">
+
 
                 {activeWidgetType === 'whatsapp' ? (
                   <>
