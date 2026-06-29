@@ -4023,6 +4023,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </div>
                     </div>
 
+                    <CollapsibleSection title="Cartões de opção" defaultOpen>
                     <div className="space-y-3 pt-2 border-t">
                       <div className="flex items-center justify-between">
                         <Label className="font-semibold">Cartões de Opção</Label>
