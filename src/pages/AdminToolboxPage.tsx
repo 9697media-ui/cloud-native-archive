@@ -3892,6 +3892,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         onStyleChange={(v) => setGatewayConfig({...gatewayConfig, fontStyle: v})}
                       />
                     </div>
+                    </CollapsibleSection>
 
                     <CollapsibleSection title="Animação de entrada" defaultOpen>
                     <div className="space-y-2">
