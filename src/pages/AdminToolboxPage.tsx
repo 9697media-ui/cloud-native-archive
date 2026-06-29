@@ -707,6 +707,7 @@ const FontSelect: React.FC<{
         <option key={f.value || f.label} value={f.value}>{f.label}</option>
       ))}
     </select>
+    </div>
   </div>
 );
 
