@@ -675,9 +675,9 @@ const FontSelect: React.FC<{
   onStyleChange?: (v: string) => void;
   className?: string;
 }> = ({ value, weight, style, onChange, onWeightChange, onStyleChange, className }) => (
-  <div className={cn('grid grid-cols-1 gap-2 sm:grid-cols-3', className)}>
+  <div className={cn('space-y-2', className)}>
     <select
-      className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+      className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
       value={value ?? ''}
       onChange={(e) => onChange(e.target.value)}
       aria-label="Família da fonte"
@@ -686,6 +686,7 @@ const FontSelect: React.FC<{
         <option key={f.label} value={f.value}>{f.label}</option>
       ))}
     </select>
+    <div className="grid grid-cols-2 gap-2">
     <select
       className="h-9 rounded-md border border-input bg-background px-3 text-sm"
       value={String(weight ?? '')}
