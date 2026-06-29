@@ -4126,8 +4126,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 <Trash2 className="h-3 w-3" />
                               </Button>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div className="space-y-1">
+                            <div className="space-y-3">
+                              <div className="space-y-1.5">
                                 <Label className="text-xs">Título</Label>
                                 <Input value={opt.cardLabel} onChange={(e) => update({ cardLabel: e.target.value })} />
                                 <FontSelect
@@ -4139,11 +4139,12 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                   onStyleChange={(v) => update({ labelFontStyle: v })}
                                 />
                               </div>
-                              <div className="space-y-1">
+                              <div className="space-y-1.5">
                                 <Label className="text-xs">Cor do ícone</Label>
                                 <ColorField value={opt.iconColor} onChange={(v) => update({ iconColor: v })} />
                               </div>
                             </div>
+
                             <div className="space-y-2 rounded-md border border-input p-2">
                               <p className="text-[11px] text-muted-foreground">Cole o código SVG ou anexe um arquivo .svg — o conteúdo é embutido direto no código gerado.</p>
                               {([
