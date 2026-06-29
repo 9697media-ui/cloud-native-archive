@@ -3893,6 +3893,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       />
                     </div>
 
+                    <CollapsibleSection title="Animação de entrada" defaultOpen>
                     <div className="space-y-2">
                       <Label>Animação de Entrada</Label>
                       <select
