@@ -4256,6 +4256,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         );
                       })}
                     </div>
+                    </CollapsibleSection>
                   </div>
                 )}
 
