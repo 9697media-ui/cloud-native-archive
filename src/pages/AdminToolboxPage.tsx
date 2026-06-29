@@ -3792,6 +3792,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 {/* CONFIG: GATEWAY */}
                 {activeWidgetType === 'gateway' && (
                   <div className="space-y-4">
+                    <CollapsibleSection title="Layout & estrutura" defaultOpen>
                     <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
                       <Label>Modelo de layout</Label>
                       <p className="text-xs text-muted-foreground">Escolha uma variação visual pré-definida. Você pode editar tudo depois.</p>
@@ -3826,6 +3827,8 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       </select>
                     </div>
                     </div>
+                    </CollapsibleSection>
+                    <CollapsibleSection title="Textos & fontes" defaultOpen>
                     <div className="space-y-2">
                       <Label>Título</Label>
                       <Input value={gatewayConfig.title} onChange={(e) => setGatewayConfig({...gatewayConfig, title: e.target.value})} />
@@ -3863,9 +3866,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                       />
                       Título do cartão muda para a cor do ícone no hover
                     </label>
+                    </CollapsibleSection>
 
 
 
+                    <CollapsibleSection title="Cores & fonte global" defaultOpen>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Cor do Cartão</Label>
@@ -3892,7 +3897,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         onStyleChange={(v) => setGatewayConfig({...gatewayConfig, fontStyle: v})}
                       />
                     </div>
+                    </CollapsibleSection>
 
+                    <CollapsibleSection title="Animação de entrada" defaultOpen>
                     <div className="space-y-2">
                       <Label>Animação de Entrada</Label>
                       <select
@@ -3931,7 +3938,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         </div>
                       )}
                     </div>
+                    </CollapsibleSection>
 
+                    <CollapsibleSection title="Dimensões por dispositivo" defaultOpen>
                     <div className="space-y-3 rounded-lg border p-3">
                       <div className="flex items-center justify-between">
                         <Label className="font-semibold">Dimensões por dispositivo</Label>
@@ -4022,7 +4031,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         <Slider min={120} max={320} step={4} value={[gwGet('cardHeight', panelDevice)]} onValueChange={([v]) => gwSet('cardHeight', panelDevice, v)} />
                       </div>
                     </div>
+                    </CollapsibleSection>
 
+                    <CollapsibleSection title="Cartões de opção" defaultOpen>
                     <div className="space-y-3 pt-2 border-t">
                       <div className="flex items-center justify-between">
                         <Label className="font-semibold">Cartões de Opção</Label>
@@ -4256,6 +4267,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                         );
                       })}
                     </div>
+                    </CollapsibleSection>
                   </div>
                 )}
 
