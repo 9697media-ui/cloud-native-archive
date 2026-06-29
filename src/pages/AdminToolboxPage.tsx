@@ -644,25 +644,31 @@ const CollapsibleSection: React.FC<{
   const [open, setOpen] = React.useState(defaultOpen);
   return (
     <div className={cn(
-      "overflow-hidden rounded-lg border bg-card transition-all",
-      open ? "border-primary/30 shadow-sm" : "border-border"
+      "overflow-hidden rounded-xl border transition-all",
+      open ? "border-primary/40 bg-card shadow-md" : "border-border bg-card/60 shadow-sm"
     )}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition-colors hover:bg-muted/60",
-          open && "bg-primary/5"
+          "flex w-full items-center justify-between gap-2 px-3.5 py-3 text-left transition-colors",
+          open ? "bg-primary/5" : "hover:bg-muted/50"
         )}
       >
-        <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-foreground">
-          <span className={cn("h-2 w-2 rounded-full", open ? "bg-primary" : "bg-muted-foreground/40")} />
+        <span className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wide text-foreground">
+          <span className={cn(
+            "flex h-5 w-5 items-center justify-center rounded-md transition-colors",
+            open ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          )}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", open ? "bg-primary-foreground" : "bg-muted-foreground/60")} />
+          </span>
           {title}
         </span>
         <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180 text-primary")} />
       </button>
-      {open && <div className="space-y-3 border-t bg-background/60 p-3">{children}</div>}
+      {open && <div className="space-y-3 border-t bg-background/40 p-3">{children}</div>}
     </div>
+
   );
 };
 
@@ -3644,51 +3650,70 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                   </div>
                 </div>
               <style>{`
-                .tb-editor { font-feature-settings: "cv02","cv03","cv04"; }
-                /* Cada bloco de campo vira um cartão sutil */
+                .tb-editor {
+                  font-feature-settings: "cv02","cv03","cv04";
+                  --tb-radius: 0.85rem;
+                }
+                /* Cada bloco de campo vira um cartão limpo e moderno */
                 .tb-editor > div > .space-y-2,
                 .tb-editor .grid > .space-y-2 {
-                  border: 1px solid hsl(var(--border) / 0.7);
-                  border-radius: 0.7rem;
-                  background: hsl(var(--muted) / 0.25);
-                  padding: 0.7rem 0.8rem;
-                  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+                  border: 1px solid hsl(var(--border) / 0.6);
+                  border-radius: var(--tb-radius);
+                  background: hsl(var(--card));
+                  padding: 0.75rem 0.85rem;
+                  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.04);
+                  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
                 }
                 .tb-editor > div > .space-y-2:hover,
                 .tb-editor .grid > .space-y-2:hover {
-                  border-color: hsl(var(--primary) / 0.45);
-                  background: hsl(var(--muted) / 0.4);
-                  box-shadow: 0 1px 8px -4px hsl(var(--primary) / 0.35);
+                  border-color: hsl(var(--primary) / 0.5);
+                  box-shadow: 0 4px 16px -8px hsl(var(--primary) / 0.4);
+                }
+                .tb-editor > div > .space-y-2:focus-within,
+                .tb-editor .grid > .space-y-2:focus-within {
+                  border-color: hsl(var(--primary) / 0.7);
+                  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
                 }
                 /* Labels mais legíveis e hierárquicos */
                 .tb-editor label {
                   font-size: 0.72rem;
                   font-weight: 600;
                   letter-spacing: 0.01em;
-                  color: hsl(var(--foreground) / 0.85);
+                  color: hsl(var(--muted-foreground));
+                  text-transform: uppercase;
                 }
                 /* Inputs/selects com respiro consistente */
                 .tb-editor input:not([type="checkbox"]):not([type="radio"]),
                 .tb-editor textarea,
                 .tb-editor select,
                 .tb-editor [role="combobox"] {
-                  border-radius: 0.55rem;
+                  border-radius: 0.6rem;
                   min-width: 0;
                   max-width: 100%;
+                  transition: border-color .15s ease, box-shadow .15s ease;
+                }
+                .tb-editor input:focus-visible,
+                .tb-editor textarea:focus-visible,
+                .tb-editor select:focus-visible {
+                  outline: none;
+                  border-color: hsl(var(--primary));
+                  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.18);
                 }
                 /* Selects nativos: evitar corte de texto */
                 .tb-editor select {
-                  padding-left: 0.5rem;
+                  padding-left: 0.55rem;
                   padding-right: 1.5rem;
                   text-overflow: ellipsis;
                   width: 100%;
+                  cursor: pointer;
                 }
-                /* Campos numéricos: sem setas e com largura suficiente */
+                /* Campos numéricos: sem setas e centralizados */
                 .tb-editor input[type="number"] {
                   -moz-appearance: textfield;
                   padding-left: 0.5rem;
                   padding-right: 0.4rem;
                   text-align: center;
+                  font-variant-numeric: tabular-nums;
                 }
                 .tb-editor input[type="number"]::-webkit-outer-spin-button,
                 .tb-editor input[type="number"]::-webkit-inner-spin-button {
@@ -3703,17 +3728,25 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 }
                 /* Linhas de switch ganham aparência de toggle-card */
                 .tb-editor > div > .flex.items-center.justify-between {
-                  border: 1px solid hsl(var(--border) / 0.7);
-                  border-radius: 0.7rem;
-                  background: hsl(var(--muted) / 0.25);
-                  padding: 0.6rem 0.8rem;
+                  border: 1px solid hsl(var(--border) / 0.6);
+                  border-radius: var(--tb-radius);
+                  background: hsl(var(--card));
+                  padding: 0.7rem 0.85rem;
                   gap: 0.5rem;
+                  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.04);
+                  transition: border-color .18s ease, box-shadow .18s ease;
+                }
+                .tb-editor > div > .flex.items-center.justify-between:hover {
+                  border-color: hsl(var(--primary) / 0.45);
                 }
                 /* Label dentro de linhas flex pode quebrar */
                 .tb-editor .flex.items-center.justify-between > label {
                   flex: 1 1 auto;
                   min-width: 0;
+                  text-transform: none;
                 }
+                /* Sliders com mais respiro */
+                .tb-editor [role="slider"] { cursor: grab; }
               `}</style>
               <div className="tb-editor space-y-4">
 
