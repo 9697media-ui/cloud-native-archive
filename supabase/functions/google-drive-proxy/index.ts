@@ -113,9 +113,11 @@ serve(async (req) => {
     }
 
     if (!refreshToken) {
+      // Return 200 so the client can show a friendly message instead of crashing
+      // with "Edge Function returned a non-2xx status code".
       return new Response(JSON.stringify({ error: "google_auth_required" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
+        status: 200,
       });
     }
 
