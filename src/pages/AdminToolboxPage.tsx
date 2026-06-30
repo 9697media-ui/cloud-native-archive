@@ -3489,18 +3489,24 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
             </div>
           </div>
           <div className="flex gap-2">
+            {currentTemplateId ? (
+              <Button variant="outline" className="gap-2" disabled={isSaving} onClick={overwriteWithDraft}>
+                <Save className="h-4 w-4" />
+                {isSaving ? 'Salvando...' : 'Salvar alterações'}
+              </Button>
+            ) : null}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <Save className="h-4 w-4" />
-                  {currentTemplateId ? 'Atualizar Modelo' : 'Salvar Novo Modelo'}
+                <Button variant={currentTemplateId ? 'ghost' : 'outline'} className="gap-2" onClick={() => { setCurrentTemplateId(null); }}>
+                  <Plus className="h-4 w-4" />
+                  Salvar como novo
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Salvar Configuração do Widget</DialogTitle>
+                  <DialogTitle>Salvar como novo modelo</DialogTitle>
                   <DialogDescription>
-                    Salve este modelo para usá-lo ou editá-lo novamente depois.
+                    Cria um novo modelo a partir da configuração atual, sem alterar o original.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="py-4">
@@ -3520,6 +3526,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+
             <Button className="md:w-auto w-full" variant="secondary" onClick={() => setViewMode('code')}>
               Gerar Código para Copiar
             </Button>
