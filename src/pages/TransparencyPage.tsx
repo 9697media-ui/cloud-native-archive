@@ -181,16 +181,13 @@ const TransparencyPage = () => {
   const handleGoogleLogin = async () => {
     setIsAuthenticating(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          queryParams: { access_type: 'offline', prompt: 'consent' },
-          scopes: 'https://www.googleapis.com/auth/drive.readonly',
-          redirectTo: window.location.origin + '/portal-transparencia?type=google_auth',
-          skipBrowserRedirect: false
-        },
+      const redirectUri = window.location.origin + '/portal-transparencia?type=google_connect';
+      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+        body: { action: 'get_auth_url', redirectUri }
       });
-      if (error) throw error;
+      if (error || !(data as any)?.url) throw error || new Error('no_url');
+      // Redirect straight to Google's consent screen (keeps the current app session intact)
+      window.location.href = (data as any).url;
     } catch (error) {
       console.error('Error Google OAuth:', error);
       toast.error('Erro ao iniciar autenticação Google');
