@@ -74,6 +74,7 @@ const TransparencyPage = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
+  const [googleAccount, setGoogleAccount] = useState<string | null>(null);
   const [editingConfig, setEditingConfig] = useState<{ id: string, label: string } | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'none'>('asc');
   const [isBatchAdding, setIsBatchAdding] = useState(false);
