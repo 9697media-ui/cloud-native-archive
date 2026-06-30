@@ -17,9 +17,51 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { action, folderId, nextPageToken } = await req.json();
+    const { action, folderId, nextPageToken, redirectUri, code } = await req.json();
     const googleClientId = Deno.env.get("GOOGLE_CLIENT_ID");
     const googleClientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET");
+
+    // Build the standalone Google consent URL (does NOT touch the app's auth session)
+    if (action === "get_auth_url") {
+      const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+      authUrl.searchParams.set("client_id", googleClientId!);
+      authUrl.searchParams.set("redirect_uri", redirectUri);
+      authUrl.searchParams.set("response_type", "code");
+      authUrl.searchParams.set("scope", "https://www.googleapis.com/auth/drive.readonly");
+      authUrl.searchParams.set("access_type", "offline");
+      authUrl.searchParams.set("prompt", "consent");
+      return new Response(JSON.stringify({ url: authUrl.toString() }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Exchange the authorization code for a refresh token and store it globally
+    if (action === "exchange_code") {
+      const exchange = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        body: new URLSearchParams({
+          client_id: googleClientId!,
+          client_secret: googleClientSecret!,
+          code,
+          redirect_uri: redirectUri,
+          grant_type: "authorization_code",
+        }),
+      });
+      const exchanged = await exchange.json();
+      if (!exchanged.refresh_token) {
+        return new Response(JSON.stringify({ error: "no_refresh_token", details: exchanged }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+      await supabaseClient.from("global_settings").upsert({
+        key: "google_drive_refresh_token",
+        value: { refresh_token: exchanged.refresh_token },
+      });
+      return new Response(JSON.stringify({ connected: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Fetch refresh token from global settings instead of a specific user profile
     const { data: setting } = await supabaseClient
