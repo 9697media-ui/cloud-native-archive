@@ -197,6 +197,28 @@ const TransparencyPage = () => {
     }
   };
 
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [showDisconnectDialog, setShowDisconnectDialog] = useState(false);
+
+  const handleGoogleDisconnect = async () => {
+    setIsDisconnecting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+        body: { action: 'disconnect' }
+      });
+      if (error || (data as any)?.connected) throw error || new Error('failed');
+      setHasGoogleAuth(false);
+      setGoogleAccount(null);
+      toast.success('Google Drive desconectado');
+    } catch (err) {
+      console.error('Error disconnecting Drive:', err);
+      toast.error('Erro ao desconectar o Google Drive');
+    } finally {
+      setIsDisconnecting(false);
+      setShowDisconnectDialog(false);
+    }
+  };
+
   const syncOriginalName = async (config: any) => {
     try {
       const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
