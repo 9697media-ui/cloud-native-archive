@@ -3571,6 +3571,14 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
               </DialogContent>
             </Dialog>
 
+            {currentTemplateId ? (
+              <Button variant="outline" className="gap-2" disabled={isSaving} onClick={overwriteWithDraft}>
+                <Save className="h-4 w-4" />
+                {isSaving ? 'Salvando...' : 'Salvar alterações'}
+              </Button>
+            ) : null}
+
+
             <Button className="md:w-auto w-full" variant="secondary" onClick={() => setViewMode('code')}>
               Gerar Código para Copiar
             </Button>
