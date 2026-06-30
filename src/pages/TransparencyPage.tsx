@@ -450,6 +450,29 @@ const TransparencyPage = () => {
               {googleAccount && <span className="font-semibold">· {googleAccount}</span>}
             </span>
           )}
+          {hasGoogleAuth === true && isAdmin && (
+            <Dialog open={showDisconnectDialog} onOpenChange={setShowDisconnectDialog}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs text-destructive hover:text-destructive">
+                  <X className="h-3.5 w-3.5" /> Desconectar Google Drive
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Desconectar Google Drive?</DialogTitle>
+                  <DialogDescription>
+                    Isso removerá a conexão global com o Google Drive{googleAccount ? ` (${googleAccount})` : ''}. As pastas continuarão salvas, mas o conteúdo (arquivos e embeds) não carregará até reconectar.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowDisconnectDialog(false)} disabled={isDisconnecting}>Cancelar</Button>
+                  <Button variant="destructive" onClick={handleGoogleDisconnect} disabled={isDisconnecting}>
+                    {isDisconnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Desconectar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => { const next: Record<string, any> = { none: 'asc', asc: 'desc', desc: 'none' }; setSortOrder(next[sortOrder]); }} className="gap-2 h-10">
