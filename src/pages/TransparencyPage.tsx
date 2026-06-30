@@ -105,34 +105,31 @@ const TransparencyPage = () => {
 
   useEffect(() => {
     const handleOAuthResponse = async () => {
-      const hash = window.location.hash;
-      const isGoogleAuth = searchParams.get('type') === 'google_auth' || hash.includes('access_token=');
-      
-      if (isGoogleAuth) {
+      const code = searchParams.get('code');
+      const isGoogleConnect = searchParams.get('type') === 'google_connect' && code;
+
+      if (isGoogleConnect) {
         setLoading(true);
         try {
-          await new Promise(resolve => setTimeout(resolve, 500));
-          const { data: { session } } = await supabase.auth.getSession();
-          
-          if (session?.provider_refresh_token) {
-            const { error: updateError } = await supabase
-              .from('global_settings')
-              .upsert({ 
-                key: 'google_drive_refresh_token', 
-                value: { refresh_token: session.provider_refresh_token } 
-              });
-            
-            if (!updateError) {
-              toast.success('Google Drive conectado globalmente!');
-              setHasGoogleAuth(true);
-            }
+          const redirectUri = window.location.origin + '/portal-transparencia?type=google_connect';
+          const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+            body: { action: 'exchange_code', code, redirectUri }
+          });
+          if (!error && (data as any)?.connected) {
+            toast.success('Google Drive conectado globalmente!');
+            setHasGoogleAuth(true);
+          } else {
+            toast.error('Não foi possível conectar o Google Drive');
           }
         } catch (err: any) {
           console.error(err);
         } finally {
           searchParams.delete('type');
+          searchParams.delete('code');
+          searchParams.delete('scope');
+          searchParams.delete('authuser');
+          searchParams.delete('prompt');
           setSearchParams(searchParams, { replace: true });
-          window.location.hash = '';
           setLoading(false);
           checkGoogleAuth();
         }
@@ -142,6 +139,7 @@ const TransparencyPage = () => {
     handleOAuthResponse();
     checkGoogleAuth();
   }, [checkGoogleAuth, searchParams, setSearchParams]);
+
 
   useEffect(() => {
     if (searchParams.get('embed') === 'true') {
@@ -183,16 +181,13 @@ const TransparencyPage = () => {
   const handleGoogleLogin = async () => {
     setIsAuthenticating(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          queryParams: { access_type: 'offline', prompt: 'consent' },
-          scopes: 'https://www.googleapis.com/auth/drive.readonly',
-          redirectTo: window.location.origin + '/portal-transparencia?type=google_auth',
-          skipBrowserRedirect: false
-        },
+      const redirectUri = window.location.origin + '/portal-transparencia?type=google_connect';
+      const { data, error } = await supabase.functions.invoke('google-drive-proxy', {
+        body: { action: 'get_auth_url', redirectUri }
       });
-      if (error) throw error;
+      if (error || !(data as any)?.url) throw error || new Error('no_url');
+      // Redirect straight to Google's consent screen (keeps the current app session intact)
+      window.location.href = (data as any).url;
     } catch (error) {
       console.error('Error Google OAuth:', error);
       toast.error('Erro ao iniciar autenticação Google');
