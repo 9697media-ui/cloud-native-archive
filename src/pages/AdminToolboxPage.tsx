@@ -3687,10 +3687,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             <Edit className="h-3 w-3" />
                           </Button>
                           {hasUnsavedDraft && (
-                            <Button variant="ghost" size="icon" className="h-7 w-7" title="Atualizar modelo com o rascunho atual" disabled={isSaving} onClick={overwriteWithDraft}>
-                              <RefreshCw className="h-3 w-3" />
-                            </Button>
+                            <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600" title="Há alterações não salvas neste modelo">rascunho</span>
                           )}
+
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Excluir modelo salvo" onClick={() => deleteTemplate(template.id)}>
                             <Trash2 className="h-3 w-3" />
                           </Button>
