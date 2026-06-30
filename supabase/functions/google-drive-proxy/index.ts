@@ -136,9 +136,10 @@ serve(async (req) => {
     const accessToken = tokens.access_token;
 
     if (!accessToken) {
-        return new Response(JSON.stringify({ error: "Could not refresh access token", details: tokens }), {
+        // Token revoked/expired — treat as disconnected so the UI shows a friendly message.
+        return new Response(JSON.stringify({ error: "google_auth_required", details: tokens }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
-            status: 401,
+            status: 200,
         });
     }
 
