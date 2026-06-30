@@ -30,6 +30,13 @@ serve(async (req) => {
 
     const refreshToken = setting?.value?.refresh_token;
 
+    // Lightweight connection check that does not expose the token.
+    if (action === "check_auth") {
+      return new Response(JSON.stringify({ connected: !!refreshToken }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!refreshToken) {
       return new Response(JSON.stringify({ error: "google_auth_required" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
