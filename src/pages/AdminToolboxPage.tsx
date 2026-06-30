@@ -978,6 +978,9 @@ export default function AdminToolboxPage() {
     if (!currentTemplateId) return;
     setIsSaving(true);
     try {
+      // Guarda a versão atual no histórico antes de sobrepor.
+      const prev = savedTemplates.find((t) => t.id === currentTemplateId);
+      if (prev) pushHistory(prev, 'Antes de sobrepor');
       const { error } = await supabase
         .from('widget_templates')
         .update({ config: currentConfig() })
@@ -986,10 +989,41 @@ export default function AdminToolboxPage() {
       localStorage.removeItem(`widget_draft_${currentTemplateId}`);
       baselineRef.current = templateStateString(activeWidgetType, currentConfig());
       setDraftSavedAt(null);
-      toast({ title: "Modelo atualizado", description: "O rascunho sobrepôs o modelo." });
+      toast({ title: "Modelo atualizado", description: "O rascunho sobrepôs o modelo. Versão anterior salva no histórico." });
       fetchTemplates();
     } catch (error: any) {
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Restaura uma versão do histórico de um modelo.
+  const restoreHistory = async (entry: any) => {
+    if (!historyTemplate) return;
+    setIsSaving(true);
+    try {
+      // Guarda a versão atual antes de restaurar (permite desfazer).
+      const current = savedTemplates.find((t) => t.id === historyTemplate.id);
+      if (current) pushHistory(current, 'Antes de restaurar');
+      const { error } = await supabase
+        .from('widget_templates')
+        .update({ config: entry.config })
+        .eq('id', historyTemplate.id);
+      if (error) throw error;
+      if (currentTemplateId === historyTemplate.id) {
+        skipDraftRef.current = true;
+        const cfg = upgradeConfig(historyTemplate.type, entry.config);
+        applyConfig(historyTemplate.type, cfg);
+        baselineRef.current = templateStateString(historyTemplate.type, entry.config);
+        localStorage.removeItem(`widget_draft_${historyTemplate.id}`);
+        setDraftSavedAt(null);
+      }
+      toast({ title: "Versão restaurada", description: `"${cleanName(historyTemplate.name)}" voltou para a versão de ${new Date(entry.savedAt).toLocaleString('pt-BR')}.` });
+      setHistoryTemplate(null);
+      fetchTemplates();
+    } catch (error: any) {
+      toast({ title: "Erro ao restaurar", description: error.message, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
