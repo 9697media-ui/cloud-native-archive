@@ -3597,6 +3597,41 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
           </Alert>
         )}
 
+        <Dialog open={!!historyTemplate} onOpenChange={(o) => !o && setHistoryTemplate(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2"><History className="h-4 w-4" /> Histórico de versões</DialogTitle>
+              <DialogDescription>
+                {historyTemplate ? <>Versões anteriores de <strong>{cleanName(historyTemplate.name)}</strong>. Restaurar substitui a configuração atual (a atual é salva no histórico antes).</> : null}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[50vh] space-y-2 overflow-y-auto py-2">
+              {historyTemplate && getHistory(historyTemplate.id).length === 0 ? (
+                <div className="rounded-lg border border-dashed bg-muted/20 py-8 text-center text-sm text-muted-foreground">
+                  Nenhuma versão anterior ainda. O histórico é criado ao sobrepor ou restaurar este modelo.
+                </div>
+              ) : (
+                historyTemplate && getHistory(historyTemplate.id).map((entry: any, i: number) => (
+                  <div key={i} className="flex items-center gap-3 rounded-lg border bg-background p-3 text-sm">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                      <Clock3Fallback />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{entry.note || 'Versão anterior'}</p>
+                      <p className="text-[11px] text-muted-foreground">{new Date(entry.savedAt).toLocaleString('pt-BR')}</p>
+                    </div>
+                    <Button size="sm" variant="outline" className="shrink-0 gap-1.5" disabled={isSaving} onClick={() => restoreHistory(entry)}>
+                      <RotateCcw className="h-3.5 w-3.5" /> Restaurar
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+
+
 
 
 
