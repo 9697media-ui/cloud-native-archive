@@ -102,6 +102,7 @@ const TransparencyPage = () => {
       body: { action: 'check_auth' }
     });
     setHasGoogleAuth(!!(data as any)?.connected);
+    setGoogleAccount((data as any)?.email ?? null);
   }, []);
 
   useEffect(() => {
