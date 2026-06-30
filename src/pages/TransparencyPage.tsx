@@ -31,7 +31,8 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  Layers
+  Layers,
+  CheckCircle2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -422,7 +423,14 @@ const TransparencyPage = () => {
       )}
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div><h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1></div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1>
+          {hasGoogleAuth === true && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Google Drive conectado
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => { const next: Record<string, any> = { none: 'asc', asc: 'desc', desc: 'none' }; setSortOrder(next[sortOrder]); }} className="gap-2 h-10">
             {sortOrder === 'none' && <ArrowUpDown className="h-4 w-4" />}
