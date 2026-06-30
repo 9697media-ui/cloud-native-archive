@@ -938,6 +938,7 @@ export default function AdminToolboxPage() {
     setCurrentTemplateId(template.id);
     setTemplateName(template.name);
     applyConfig(template.type, upgradeConfig(template.type, cfg));
+    baselineRef.current = JSON.stringify({ type: template.type, config: upgradeConfig(template.type, cfg) });
     setDraftSavedAt(savedAt);
 
     toast(savedAt
