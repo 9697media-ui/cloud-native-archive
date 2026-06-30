@@ -3761,12 +3761,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           </span>
                         </div>
 
+                        {hasUnsavedDraft && (
+                          <span className="flex shrink-0 h-7 w-7 items-center justify-center text-amber-600" title="Há alterações não salvas neste modelo">
+                            <Edit className="h-3 w-3" />
+                          </span>
+                        )}
                         <div className="flex shrink-0 items-center gap-0.5 opacity-60 transition-opacity group-hover:opacity-100">
-                          {hasUnsavedDraft && (
-                            <span className="flex h-7 w-7 items-center justify-center text-amber-600" title="Há alterações não salvas neste modelo">
-                              <Edit className="h-3 w-3" />
-                            </span>
-                          )}
+
                           {hasUnsavedDraft && (
                             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-primary/10" title="Atualizar modelo com o rascunho" disabled={isSaving} onClick={() => overwriteWithDraft()}>
                               <RefreshCw className="h-3 w-3" />
