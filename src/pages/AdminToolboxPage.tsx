@@ -366,6 +366,8 @@ const DEFAULT_MENU_CONFIG = {
 };
 
 const DEFAULT_GATEWAY_CONFIG = {
+  enabled: true,
+  mobileFooterBar: false,
   backgroundImage: '',
   bgColor: '#0f172a',
   overlayOpacity: 60,
