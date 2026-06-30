@@ -425,6 +425,7 @@ const TransparencyPage = () => {
           {hasGoogleAuth === true && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
               <CheckCircle2 className="h-3.5 w-3.5" /> Google Drive conectado
+              {googleAccount && <span className="font-semibold">· {googleAccount}</span>}
             </span>
           )}
         </div>
