@@ -3758,9 +3758,6 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                 {new Date(template.updated_at || template.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                               </span>
                             )}
-                            {hasUnsavedDraft && (
-                              <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600" title="Há alterações não salvas neste modelo">rascunho</span>
-                            )}
                           </span>
                         </div>
 
