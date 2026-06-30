@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown, History, RotateCcw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
@@ -746,8 +746,22 @@ export default function AdminToolboxPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
   const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+  const [historyTemplate, setHistoryTemplate] = useState<any | null>(null);
   const skipDraftRef = React.useRef(false);
   const baselineRef = React.useRef<string | null>(null);
+
+  // ---- Histórico de versões por modelo (salvo localmente) ----
+  const HISTORY_LIMIT = 30;
+  const cleanName = (n: string) => (n || '').replace(/(\s*\(atualizado\))+/gi, '').trim();
+  const getHistory = (id: string): any[] => {
+    try { return JSON.parse(localStorage.getItem(`widget_history_${id}`) || '[]'); } catch { return []; }
+  };
+  const pushHistory = (template: any, note?: string) => {
+    if (!template?.id) return;
+    const entry = { savedAt: new Date().toISOString(), name: template.name, config: template.config, note: note || 'Versão anterior' };
+    const list = [entry, ...getHistory(template.id)].slice(0, HISTORY_LIMIT);
+    localStorage.setItem(`widget_history_${template.id}`, JSON.stringify(list));
+  };
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -964,6 +978,9 @@ export default function AdminToolboxPage() {
     if (!currentTemplateId) return;
     setIsSaving(true);
     try {
+      // Guarda a versão atual no histórico antes de sobrepor.
+      const prev = savedTemplates.find((t) => t.id === currentTemplateId);
+      if (prev) pushHistory(prev, 'Antes de sobrepor');
       const { error } = await supabase
         .from('widget_templates')
         .update({ config: currentConfig() })
@@ -972,10 +989,41 @@ export default function AdminToolboxPage() {
       localStorage.removeItem(`widget_draft_${currentTemplateId}`);
       baselineRef.current = templateStateString(activeWidgetType, currentConfig());
       setDraftSavedAt(null);
-      toast({ title: "Modelo atualizado", description: "O rascunho sobrepôs o modelo." });
+      toast({ title: "Modelo atualizado", description: "O rascunho sobrepôs o modelo. Versão anterior salva no histórico." });
       fetchTemplates();
     } catch (error: any) {
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Restaura uma versão do histórico de um modelo.
+  const restoreHistory = async (entry: any) => {
+    if (!historyTemplate) return;
+    setIsSaving(true);
+    try {
+      // Guarda a versão atual antes de restaurar (permite desfazer).
+      const current = savedTemplates.find((t) => t.id === historyTemplate.id);
+      if (current) pushHistory(current, 'Antes de restaurar');
+      const { error } = await supabase
+        .from('widget_templates')
+        .update({ config: entry.config })
+        .eq('id', historyTemplate.id);
+      if (error) throw error;
+      if (currentTemplateId === historyTemplate.id) {
+        skipDraftRef.current = true;
+        const cfg = upgradeConfig(historyTemplate.type, entry.config);
+        applyConfig(historyTemplate.type, cfg);
+        baselineRef.current = templateStateString(historyTemplate.type, entry.config);
+        localStorage.removeItem(`widget_draft_${historyTemplate.id}`);
+        setDraftSavedAt(null);
+      }
+      toast({ title: "Versão restaurada", description: `"${cleanName(historyTemplate.name)}" voltou para a versão de ${new Date(entry.savedAt).toLocaleString('pt-BR')}.` });
+      setHistoryTemplate(null);
+      fetchTemplates();
+    } catch (error: any) {
+      toast({ title: "Erro ao restaurar", description: error.message, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -3540,22 +3588,49 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
             <AlertTitle>Rascunho salvo automaticamente</AlertTitle>
             <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-sm">
-                Alterações não salvas em <strong>{templateName || 'modelo'}</strong> — salvas localmente às {new Date(draftSavedAt).toLocaleTimeString()}.
+                Alterações não salvas em <strong>{cleanName(templateName) || 'modelo'}</strong> — salvas localmente às {new Date(draftSavedAt).toLocaleTimeString()}. Use <strong>Salvar alterações</strong> (acima) para gravar.
               </span>
-              <span className="flex gap-2 shrink-0">
-                <Button size="sm" variant="default" disabled={isSaving} onClick={overwriteWithDraft}>
-                  Sobrepor modelo
-                </Button>
-                <Button size="sm" variant="outline" disabled={isSaving} onClick={saveDraftAsNew}>
-                  Salvar como novo
-                </Button>
-                <Button size="sm" variant="ghost" disabled={isSaving} onClick={discardDraft}>
-                  Descartar rascunho
-                </Button>
-              </span>
+              <Button size="sm" variant="ghost" className="shrink-0" disabled={isSaving} onClick={discardDraft}>
+                Descartar rascunho
+              </Button>
             </AlertDescription>
           </Alert>
         )}
+
+        <Dialog open={!!historyTemplate} onOpenChange={(o) => !o && setHistoryTemplate(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2"><History className="h-4 w-4" /> Histórico de versões</DialogTitle>
+              <DialogDescription>
+                {historyTemplate ? <>Versões anteriores de <strong>{cleanName(historyTemplate.name)}</strong>. Restaurar substitui a configuração atual (a atual é salva no histórico antes).</> : null}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[50vh] space-y-2 overflow-y-auto py-2">
+              {historyTemplate && getHistory(historyTemplate.id).length === 0 ? (
+                <div className="rounded-lg border border-dashed bg-muted/20 py-8 text-center text-sm text-muted-foreground">
+                  Nenhuma versão anterior ainda. O histórico é criado ao sobrepor ou restaurar este modelo.
+                </div>
+              ) : (
+                historyTemplate && getHistory(historyTemplate.id).map((entry: any, i: number) => (
+                  <div key={i} className="flex items-center gap-3 rounded-lg border bg-background p-3 text-sm">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                      <History className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{entry.note || 'Versão anterior'}</p>
+                      <p className="text-[11px] text-muted-foreground">{new Date(entry.savedAt).toLocaleString('pt-BR')}</p>
+                    </div>
+                    <Button size="sm" variant="outline" className="shrink-0 gap-1.5" disabled={isSaving} onClick={() => restoreHistory(entry)}>
+                      <RotateCcw className="h-3.5 w-3.5" /> Restaurar
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+
 
 
 
@@ -3671,13 +3746,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           <LayoutGrid className="h-4 w-4" />
                         </span>
                         <div className="flex min-w-0 flex-1 cursor-pointer flex-col" onClick={() => loadTemplate(template)}>
-                          <span className="truncate font-medium leading-tight">{template.name}</span>
+                          <span className="truncate font-medium leading-tight">{cleanName(template.name)}</span>
                           <span className="mt-1 flex flex-wrap items-center gap-1.5">
                             <span className="inline-flex w-fit items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">{template.type}</span>
                             {(template.updated_at || template.created_at) && (
                               <span className="text-[9px] text-muted-foreground">
                                 {new Date(template.updated_at || template.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                               </span>
+                            )}
+                            {hasUnsavedDraft && (
+                              <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600" title="Há alterações não salvas neste modelo">rascunho</span>
                             )}
                           </span>
                         </div>
@@ -3687,9 +3765,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             <Edit className="h-3 w-3" />
                           </Button>
                           {hasUnsavedDraft && (
-                            <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600" title="Há alterações não salvas neste modelo">rascunho</span>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-primary/10" title="Atualizar modelo com o rascunho" disabled={isSaving} onClick={() => overwriteWithDraft()}>
+                              <RefreshCw className="h-3 w-3" />
+                            </Button>
                           )}
-
+                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Histórico de versões" onClick={() => setHistoryTemplate(template)}>
+                            <History className="h-3 w-3" />
+                          </Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Excluir modelo salvo" onClick={() => deleteTemplate(template.id)}>
                             <Trash2 className="h-3 w-3" />
                           </Button>
