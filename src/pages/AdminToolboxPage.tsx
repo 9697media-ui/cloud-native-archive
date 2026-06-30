@@ -1232,6 +1232,11 @@ export default function AdminToolboxPage() {
       activeWidgetType === 'gateway' ? gatewayConfig :
       activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
     const t = setTimeout(() => {
+      // Só registra rascunho se houver alteração real em relação ao modelo carregado.
+      if (baselineRef.current !== null &&
+          baselineRef.current === JSON.stringify({ type: activeWidgetType, config })) {
+        return;
+      }
       try {
         const at = new Date().toISOString();
         localStorage.setItem(`widget_draft_${currentTemplateId}`, JSON.stringify({ type: activeWidgetType, config, savedAt: at }));
