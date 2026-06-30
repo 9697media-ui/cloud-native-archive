@@ -3588,19 +3588,11 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
             <AlertTitle>Rascunho salvo automaticamente</AlertTitle>
             <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-sm">
-                Alterações não salvas em <strong>{templateName || 'modelo'}</strong> — salvas localmente às {new Date(draftSavedAt).toLocaleTimeString()}.
+                Alterações não salvas em <strong>{cleanName(templateName) || 'modelo'}</strong> — salvas localmente às {new Date(draftSavedAt).toLocaleTimeString()}. Use <strong>Salvar alterações</strong> (acima) para gravar.
               </span>
-              <span className="flex gap-2 shrink-0">
-                <Button size="sm" variant="default" disabled={isSaving} onClick={overwriteWithDraft}>
-                  Sobrepor modelo
-                </Button>
-                <Button size="sm" variant="outline" disabled={isSaving} onClick={saveDraftAsNew}>
-                  Salvar como novo
-                </Button>
-                <Button size="sm" variant="ghost" disabled={isSaving} onClick={discardDraft}>
-                  Descartar rascunho
-                </Button>
-              </span>
+              <Button size="sm" variant="ghost" className="shrink-0" disabled={isSaving} onClick={discardDraft}>
+                Descartar rascunho
+              </Button>
             </AlertDescription>
           </Alert>
         )}
