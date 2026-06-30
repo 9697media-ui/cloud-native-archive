@@ -3614,7 +3614,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 historyTemplate && getHistory(historyTemplate.id).map((entry: any, i: number) => (
                   <div key={i} className="flex items-center gap-3 rounded-lg border bg-background p-3 text-sm">
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                      <Clock3Fallback />
+                      <History className="h-4 w-4" />
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{entry.note || 'Versão anterior'}</p>
