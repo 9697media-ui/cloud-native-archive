@@ -1741,11 +1741,11 @@ export default function AdminToolboxPage() {
       z-index: 999998;
     }
     ${p} .menu-items.active {
-      max-height: 80vh;
+      max-height: 2000px;
       padding: 8px;
       box-shadow: ${menuShadow};
       border-color: rgba(0,0,0,0.08);
-      overflow-y: auto;
+      overflow: visible;
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
