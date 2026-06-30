@@ -1035,7 +1035,7 @@ export default function AdminToolboxPage() {
     if (currentTemplateId) localStorage.removeItem(`widget_draft_${currentTemplateId}`);
     setDraftSavedAt(null);
     setCurrentTemplateId(null);
-    setTemplateName(prev => (prev ? `${prev} (cópia)` : ''));
+    setTemplateName(prev => { const base = cleanName(prev); return base ? `${base} (cópia)` : ''; });
     setIsDialogOpen(true);
   };
 
