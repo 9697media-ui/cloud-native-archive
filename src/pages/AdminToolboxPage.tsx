@@ -744,6 +744,7 @@ export default function AdminToolboxPage() {
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
   const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
   const skipDraftRef = React.useRef(false);
+  const baselineRef = React.useRef<string | null>(null);
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
