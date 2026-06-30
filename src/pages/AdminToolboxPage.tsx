@@ -924,25 +924,20 @@ export default function AdminToolboxPage() {
 
   const loadTemplate = (template: any) => {
     skipDraftRef.current = true;
-    // Baseline = config do modelo já normalizado com novos recursos do editor.
-    const baseCfg = upgradeConfig(template.type, template.config);
-    const baseStr = JSON.stringify({ type: template.type, config: baseCfg });
+    // Baseline = config exatamente como está salvo no banco.
+    // Assim, tanto edições do usuário quanto novos recursos/props do editor
+    // (que mudam o config normalizado) disparam rascunho/atualizar.
+    const baseStr = JSON.stringify({ type: template.type, config: template.config });
 
-    let cfg = baseCfg;
+    let cfg = upgradeConfig(template.type, template.config);
     let savedAt: string | null = null;
     try {
       const raw = localStorage.getItem(`widget_draft_${template.id}`);
       if (raw) {
         const d = JSON.parse(raw);
         if (d && d.config) {
-          const draftCfg = upgradeConfig(template.type, d.config);
-          // Só é rascunho se houver diferença real além de novos recursos padrão.
-          if (JSON.stringify({ type: template.type, config: draftCfg }) !== baseStr) {
-            cfg = draftCfg;
-            savedAt = d.savedAt ?? null;
-          } else {
-            localStorage.removeItem(`widget_draft_${template.id}`);
-          }
+          cfg = upgradeConfig(template.type, d.config);
+          savedAt = d.savedAt ?? null;
         }
       }
     } catch { /* ignore drafts corrompidos */ }
@@ -952,7 +947,9 @@ export default function AdminToolboxPage() {
     setTemplateName(template.name);
     applyConfig(template.type, cfg);
     baselineRef.current = baseStr;
-    setDraftSavedAt(savedAt);
+    // Mostra aviso se o config carregado já difere do salvo (edição ou novos recursos).
+    const diff = JSON.stringify({ type: template.type, config: cfg }) !== baseStr;
+    setDraftSavedAt(savedAt ?? (diff ? new Date().toISOString() : null));
 
     toast(savedAt
       ? { title: "Rascunho restaurado", description: `Alterações não salvas de "${template.name}".` }
