@@ -74,7 +74,30 @@ serve(async (req) => {
 
     // Lightweight connection check that does not expose the token.
     if (action === "check_auth") {
-      return new Response(JSON.stringify({ connected: !!refreshToken }), {
+      let email: string | null = null;
+      if (refreshToken) {
+        try {
+          const tr = await fetch("https://oauth2.googleapis.com/token", {
+            method: "POST",
+            body: new URLSearchParams({
+              client_id: googleClientId!,
+              client_secret: googleClientSecret!,
+              refresh_token: refreshToken,
+              grant_type: "refresh_token",
+            }),
+          });
+          const tk = await tr.json();
+          if (tk.access_token) {
+            const aboutRes = await fetch(
+              "https://www.googleapis.com/drive/v3/about?fields=user(emailAddress,displayName)",
+              { headers: { Authorization: `Bearer ${tk.access_token}` } }
+            );
+            const about = await aboutRes.json();
+            email = about?.user?.emailAddress ?? null;
+          }
+        } catch (_) { /* ignore */ }
+      }
+      return new Response(JSON.stringify({ connected: !!refreshToken, email }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
