@@ -952,9 +952,9 @@ export default function AdminToolboxPage() {
     // Mostra aviso se o config carregado já difere do salvo (edição ou novos recursos).
     const diff = templateStateString(template.type, cfg) !== baseStr;
     if (!diff) localStorage.removeItem(`widget_draft_${template.id}`);
-    setDraftSavedAt(savedAt ?? (diff ? new Date().toISOString() : null));
+    setDraftSavedAt(diff ? (savedAt ?? new Date().toISOString()) : null);
 
-    toast(savedAt
+    toast(diff && savedAt
       ? { title: "Rascunho restaurado", description: `Alterações não salvas de "${template.name}".` }
       : { title: "Modelo carregado", description: `Editando: ${template.name}` });
   };
