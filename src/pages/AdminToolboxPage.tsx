@@ -3867,19 +3867,33 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
                       <Label>Modelo de layout</Label>
                       <p className="text-xs text-muted-foreground">Escolha uma variação visual pré-definida. Você pode editar tudo depois.</p>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                         {GATEWAY_PRESETS.map((preset) => (
                           <Button
                             key={preset.id}
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="justify-start"
+                            className="h-auto min-w-0 w-full justify-center text-center"
                             onClick={() => setGatewayConfig({ ...gatewayConfig, ...preset.style })}
                           >
                             {preset.name}
                           </Button>
                         ))}
+                    </div>
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <div className="min-w-0">
+                        <Label>Ativar widget</Label>
+                        <p className="text-xs text-muted-foreground">Liga/desliga a geração do código do gateway.</p>
+                      </div>
+                      <Switch checked={gatewayConfig.enabled !== false} onCheckedChange={(v) => setGatewayConfig({ ...gatewayConfig, enabled: v })} />
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <Label>Barra fixa no rodapé (mobile)</Label>
+                        <p className="text-xs text-muted-foreground">No celular, exibe os cards como um menu fixo no rodapé.</p>
+                      </div>
+                      <Switch checked={!!gatewayConfig.mobileFooterBar} onCheckedChange={(v) => setGatewayConfig({ ...gatewayConfig, mobileFooterBar: v })} />
                     </div>
                     <div className="space-y-2">
                       <Label>Organização (estrutura)</Label>
