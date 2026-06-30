@@ -3711,13 +3711,16 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                           <LayoutGrid className="h-4 w-4" />
                         </span>
                         <div className="flex min-w-0 flex-1 cursor-pointer flex-col" onClick={() => loadTemplate(template)}>
-                          <span className="truncate font-medium leading-tight">{template.name}</span>
+                          <span className="truncate font-medium leading-tight">{cleanName(template.name)}</span>
                           <span className="mt-1 flex flex-wrap items-center gap-1.5">
                             <span className="inline-flex w-fit items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">{template.type}</span>
                             {(template.updated_at || template.created_at) && (
                               <span className="text-[9px] text-muted-foreground">
                                 {new Date(template.updated_at || template.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                               </span>
+                            )}
+                            {hasUnsavedDraft && (
+                              <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600" title="Há alterações não salvas neste modelo">rascunho</span>
                             )}
                           </span>
                         </div>
@@ -3727,9 +3730,13 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                             <Edit className="h-3 w-3" />
                           </Button>
                           {hasUnsavedDraft && (
-                            <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600" title="Há alterações não salvas neste modelo">rascunho</span>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-primary/10" title="Atualizar modelo com o rascunho" disabled={isSaving} onClick={() => overwriteWithDraft()}>
+                              <RefreshCw className="h-3 w-3" />
+                            </Button>
                           )}
-
+                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Histórico de versões" onClick={() => setHistoryTemplate(template)}>
+                            <History className="h-3 w-3" />
+                          </Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Excluir modelo salvo" onClick={() => deleteTemplate(template.id)}>
                             <Trash2 className="h-3 w-3" />
                           </Button>
