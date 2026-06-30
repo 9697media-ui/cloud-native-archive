@@ -746,8 +746,22 @@ export default function AdminToolboxPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
   const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+  const [historyTemplate, setHistoryTemplate] = useState<any | null>(null);
   const skipDraftRef = React.useRef(false);
   const baselineRef = React.useRef<string | null>(null);
+
+  // ---- Histórico de versões por modelo (salvo localmente) ----
+  const HISTORY_LIMIT = 30;
+  const cleanName = (n: string) => (n || '').replace(/(\s*\(atualizado\))+/gi, '').trim();
+  const getHistory = (id: string): any[] => {
+    try { return JSON.parse(localStorage.getItem(`widget_history_${id}`) || '[]'); } catch { return []; }
+  };
+  const pushHistory = (template: any, note?: string) => {
+    if (!template?.id) return;
+    const entry = { savedAt: new Date().toISOString(), name: template.name, config: template.config, note: note || 'Versão anterior' };
+    const list = [entry, ...getHistory(template.id)].slice(0, HISTORY_LIMIT);
+    localStorage.setItem(`widget_history_${template.id}`, JSON.stringify(list));
+  };
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
