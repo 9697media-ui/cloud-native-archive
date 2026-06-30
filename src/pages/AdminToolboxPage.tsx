@@ -1003,23 +1003,23 @@ export default function AdminToolboxPage() {
     if (!historyTemplate) return;
     setIsSaving(true);
     try {
-      // Guarda a versão atual antes de restaurar (permite desfazer).
-      const current = savedTemplates.find((t) => t.id === historyTemplate.id);
-      if (current) pushHistory(current, 'Antes de restaurar');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Erro", description: "Você precisa estar logado.", variant: "destructive" });
+        return;
+      }
+      // Restaurar cria uma cópia nova "(restaurado)", preservando o modelo atual.
+      const merged = upgradeConfig(historyTemplate.type, entry.config);
       const { error } = await supabase
         .from('widget_templates')
-        .update({ config: entry.config })
-        .eq('id', historyTemplate.id);
+        .insert({
+          name: `${cleanName(historyTemplate.name)} (restaurado)`,
+          type: historyTemplate.type,
+          config: merged,
+          user_id: user.id,
+        });
       if (error) throw error;
-      if (currentTemplateId === historyTemplate.id) {
-        skipDraftRef.current = true;
-        const cfg = upgradeConfig(historyTemplate.type, entry.config);
-        applyConfig(historyTemplate.type, cfg);
-        baselineRef.current = templateStateString(historyTemplate.type, entry.config);
-        localStorage.removeItem(`widget_draft_${historyTemplate.id}`);
-        setDraftSavedAt(null);
-      }
-      toast({ title: "Versão restaurada", description: `"${cleanName(historyTemplate.name)}" voltou para a versão de ${new Date(entry.savedAt).toLocaleString('pt-BR')}.` });
+      toast({ title: "Versão restaurada", description: `Criada uma cópia "(restaurado)" da versão de ${new Date(entry.savedAt).toLocaleString('pt-BR')}. O modelo original foi mantido.` });
       setHistoryTemplate(null);
       fetchTemplates();
     } catch (error: any) {
@@ -1028,6 +1028,7 @@ export default function AdminToolboxPage() {
       setIsSaving(false);
     }
   };
+
 
   // Salva o rascunho atual como um novo modelo.
   const saveDraftAsNew = () => {
