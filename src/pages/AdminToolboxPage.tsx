@@ -2934,7 +2934,18 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
    .nav-gateway-441 .ng-pill { background: ${gatewayConfig.pillBgColor ?? 'rgba(255,255,255,.2)'}; color: ${gatewayConfig.pillTextColor ?? '#fff'}; font-size: 12px; font-weight: 500; padding: 0 16px; height: ${gatewayConfig.pillHeight ?? 24}px; ${gatewayConfig.pillWidth ? `width: ${gatewayConfig.pillWidth}px;` : ''} display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; }
   .nav-gateway-441 .ng-grid-spacer { display: none; }
   ${responsiveCss}
-  @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }${gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? `
+  @media (max-width: 640px) { .nav-gateway-441 .ng-grid { flex-direction: column; align-items: center; } .nav-gateway-441 h1 { font-size: 30px; } }${gatewayConfig.mobileFooterBar ? `
+  @media (max-width: 640px) {
+    .nav-gateway-441 { position: fixed; left: 0; right: 0; bottom: 0; z-index: 999990; width: 100%; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #ffffff; box-shadow: 0 -6px 20px -8px rgba(0,0,0,.25); }
+    .nav-gateway-441 .ng-inner { max-width: 100%; }
+    .nav-gateway-441 h1, .nav-gateway-441 .ng-sub, .nav-gateway-441 .ng-pill { display: none; }
+    .nav-gateway-441 .ng-grid { flex-direction: row !important; flex-wrap: nowrap; gap: 4px; justify-content: space-around; align-items: stretch; }
+    .nav-gateway-441 .ng-col { flex: 1 1 0; gap: 4px; opacity: 1 !important; animation: none !important; }
+    .nav-gateway-441 .ng-card { width: 100% !important; height: auto !important; min-height: 52px; gap: 4px !important; padding: 6px 2px; background: transparent !important; box-shadow: none !important; border-radius: 12px !important; }
+    .nav-gateway-441 .ng-icon { font-size: 24px; }
+    .nav-gateway-441 .ng-svg-icon, .nav-gateway-441 .ng-lottie { width: 26px; height: 26px; }
+    .nav-gateway-441 .ng-label { font-size: 11px; font-weight: 600; }
+  }` : ''}${gatewayConfig.entranceAnim && gatewayConfig.entranceAnim !== 'none' ? `
   @keyframes ng-fade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes ng-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes ng-zoom { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
