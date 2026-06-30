@@ -2017,7 +2017,7 @@ export default function AdminToolboxPage() {
      color: ${menuConfig.hoverTextColor} !important;
      background-color: ${menuConfig.hoverBgColor} !important;
      border-color: ${menuConfig.hoverBorderColor} !important;
-     border-width: ${menuConfig.hoverBorderWidth}px !important;
+     /* border-width mantido igual ao estado base para evitar deslocamento dos itens no hover */
      box-shadow: none !important;
      opacity: 1 !important;
    }
