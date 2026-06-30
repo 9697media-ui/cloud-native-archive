@@ -957,8 +957,7 @@ const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName:
   if (loading) return <div className="flex items-center justify-center p-8"><Loader2 className="h-5 w-5 animate-spin" /></div>;
   if (error === 'authentication_required') return (
     <div className="p-8 text-center border rounded-lg bg-muted/20">
-      <p className="text-sm font-medium mb-1">Conteúdo temporariamente indisponível</p>
-      <p className="text-xs text-muted-foreground mb-4">A conexão com o Google Drive foi interrompida. Os documentos voltam assim que a conexão for restabelecida.</p>
+      <p className="text-sm font-medium mb-4">Conteúdo temporariamente indisponível</p>
       <Button variant="outline" size="sm" onClick={fetchFiles}>Tentar novamente</Button>
     </div>
   );
