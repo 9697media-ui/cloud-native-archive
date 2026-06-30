@@ -744,6 +744,7 @@ export default function AdminToolboxPage() {
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
   const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
   const skipDraftRef = React.useRef(false);
+  const baselineRef = React.useRef<string | null>(null);
   
   // Ref para controle de debounce na detecção de URL
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -937,6 +938,7 @@ export default function AdminToolboxPage() {
     setCurrentTemplateId(template.id);
     setTemplateName(template.name);
     applyConfig(template.type, upgradeConfig(template.type, cfg));
+    baselineRef.current = JSON.stringify({ type: template.type, config: upgradeConfig(template.type, cfg) });
     setDraftSavedAt(savedAt);
 
     toast(savedAt
@@ -1230,6 +1232,11 @@ export default function AdminToolboxPage() {
       activeWidgetType === 'gateway' ? gatewayConfig :
       activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
     const t = setTimeout(() => {
+      // Só registra rascunho se houver alteração real em relação ao modelo carregado.
+      if (baselineRef.current !== null &&
+          baselineRef.current === JSON.stringify({ type: activeWidgetType, config })) {
+        return;
+      }
       try {
         const at = new Date().toISOString();
         localStorage.setItem(`widget_draft_${currentTemplateId}`, JSON.stringify({ type: activeWidgetType, config, savedAt: at }));
