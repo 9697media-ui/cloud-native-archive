@@ -94,13 +94,12 @@ const TransparencyPage = () => {
   };
 
   const checkGoogleAuth = useCallback(async () => {
-    const { data } = await supabase
-      .from('global_settings')
-      .select('value')
-      .eq('key', 'google_drive_refresh_token')
-      .maybeSingle();
-    const value = data?.value as any;
-    setHasGoogleAuth(!!value?.refresh_token);
+    // Use the edge function (service role) to check the global connection,
+    // since global_settings is not readable by non-admin users via RLS.
+    const { data } = await supabase.functions.invoke('google-drive-proxy', {
+      body: { action: 'check_auth' }
+    });
+    setHasGoogleAuth(!!(data as any)?.connected);
   }, []);
 
   useEffect(() => {
