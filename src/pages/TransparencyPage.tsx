@@ -74,6 +74,7 @@ const TransparencyPage = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
+  const [googleAccount, setGoogleAccount] = useState<string | null>(null);
   const [editingConfig, setEditingConfig] = useState<{ id: string, label: string } | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'none'>('asc');
   const [isBatchAdding, setIsBatchAdding] = useState(false);
@@ -101,6 +102,7 @@ const TransparencyPage = () => {
       body: { action: 'check_auth' }
     });
     setHasGoogleAuth(!!(data as any)?.connected);
+    setGoogleAccount((data as any)?.email ?? null);
   }, []);
 
   useEffect(() => {
@@ -423,6 +425,7 @@ const TransparencyPage = () => {
           {hasGoogleAuth === true && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
               <CheckCircle2 className="h-3.5 w-3.5" /> Google Drive conectado
+              {googleAccount && <span className="font-semibold">· {googleAccount}</span>}
             </span>
           )}
         </div>
