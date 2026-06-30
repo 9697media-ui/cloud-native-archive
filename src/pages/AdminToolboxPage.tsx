@@ -752,7 +752,7 @@ export default function AdminToolboxPage() {
 
   // ---- Histórico de versões por modelo (salvo localmente) ----
   const HISTORY_LIMIT = 30;
-  const cleanName = (n: string) => (n || '').replace(/(\s*\(atualizado\))+/gi, '').trim();
+  const cleanName = (n: string) => (n || '').replace(/(\s*\((atualizado|cópia|copia|restaurado)\))+/gi, '').trim();
   const getHistory = (id: string): any[] => {
     try { return JSON.parse(localStorage.getItem(`widget_history_${id}`) || '[]'); } catch { return []; }
   };
@@ -1035,7 +1035,7 @@ export default function AdminToolboxPage() {
     if (currentTemplateId) localStorage.removeItem(`widget_draft_${currentTemplateId}`);
     setDraftSavedAt(null);
     setCurrentTemplateId(null);
-    setTemplateName(prev => (prev ? `${prev} (cópia)` : ''));
+    setTemplateName(prev => { const base = cleanName(prev); return base ? `${base} (cópia)` : ''; });
     setIsDialogOpen(true);
   };
 
