@@ -102,6 +102,16 @@ serve(async (req) => {
       });
     }
 
+    if (action === "disconnect") {
+      await supabaseClient
+        .from("global_settings")
+        .delete()
+        .eq("key", "google_drive_refresh_token");
+      return new Response(JSON.stringify({ connected: false }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!refreshToken) {
       return new Response(JSON.stringify({ error: "google_auth_required" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
