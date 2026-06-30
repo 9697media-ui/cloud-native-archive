@@ -924,21 +924,34 @@ export default function AdminToolboxPage() {
 
   const loadTemplate = (template: any) => {
     skipDraftRef.current = true;
-    let cfg = template.config;
+    // Baseline = config do modelo já normalizado com novos recursos do editor.
+    const baseCfg = upgradeConfig(template.type, template.config);
+    const baseStr = JSON.stringify({ type: template.type, config: baseCfg });
+
+    let cfg = baseCfg;
     let savedAt: string | null = null;
     try {
       const raw = localStorage.getItem(`widget_draft_${template.id}`);
       if (raw) {
         const d = JSON.parse(raw);
-        if (d && d.config) { cfg = d.config; savedAt = d.savedAt ?? null; }
+        if (d && d.config) {
+          const draftCfg = upgradeConfig(template.type, d.config);
+          // Só é rascunho se houver diferença real além de novos recursos padrão.
+          if (JSON.stringify({ type: template.type, config: draftCfg }) !== baseStr) {
+            cfg = draftCfg;
+            savedAt = d.savedAt ?? null;
+          } else {
+            localStorage.removeItem(`widget_draft_${template.id}`);
+          }
+        }
       }
     } catch { /* ignore drafts corrompidos */ }
 
     setActiveWidgetType(template.type);
     setCurrentTemplateId(template.id);
     setTemplateName(template.name);
-    applyConfig(template.type, upgradeConfig(template.type, cfg));
-    baselineRef.current = JSON.stringify({ type: template.type, config: upgradeConfig(template.type, cfg) });
+    applyConfig(template.type, cfg);
+    baselineRef.current = baseStr;
     setDraftSavedAt(savedAt);
 
     toast(savedAt
