@@ -2868,6 +2868,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
       .replace(/\u2029/g, '\\u2029');
 
   const generateGatewayCode = () => {
+    if (gatewayConfig.enabled === false) {
+      return '<!-- Gateway de Navegação desativado -->';
+    }
     const lay = gatewayConfig.layout || 'top-center';
     // Valores responsivos: tablet/mobile herdam do desktop quando não definidos.
     const gcw = gatewayConfig.cardWidth ?? 176;
