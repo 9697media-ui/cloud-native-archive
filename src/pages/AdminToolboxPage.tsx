@@ -1265,7 +1265,9 @@ export default function AdminToolboxPage() {
     const t = setTimeout(() => {
       // Só registra rascunho se houver alteração real em relação ao modelo carregado.
       if (baselineRef.current !== null &&
-          baselineRef.current === JSON.stringify({ type: activeWidgetType, config })) {
+          baselineRef.current === templateStateString(activeWidgetType, config)) {
+        localStorage.removeItem(`widget_draft_${currentTemplateId}`);
+        setDraftSavedAt(null);
         return;
       }
       try {
@@ -3540,6 +3542,9 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                 <Button size="sm" variant="outline" disabled={isSaving} onClick={saveDraftAsNew}>
                   Salvar como novo
                 </Button>
+                <Button size="sm" variant="ghost" disabled={isSaving} onClick={discardDraft}>
+                  Descartar rascunho
+                </Button>
               </span>
             </AlertDescription>
           </Alert>
@@ -3646,43 +3651,46 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     <p className="text-xs text-muted-foreground">Nenhum modelo de <span className="capitalize">{activeWidgetType}</span> salvo ainda.</p>
                   </div>
                 ) : (
-                  filteredTemplates.map((template) => (
-                    <div key={template.id} className={cn(
-                      "group flex items-center gap-3 rounded-xl border p-3 text-sm transition-all",
-                      currentTemplateId === template.id
-                        ? "bg-primary/10 border-primary shadow-sm ring-1 ring-primary/20"
-                        : "border-border bg-background hover:-translate-y-0.5 hover:bg-muted/50 hover:border-primary/30 hover:shadow-sm"
-                    )}>
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:text-primary">
-                        <LayoutGrid className="h-4 w-4" />
-                      </span>
-                      <div className="flex min-w-0 flex-1 cursor-pointer flex-col" onClick={() => loadTemplate(template)}>
-                        <span className="truncate font-medium leading-tight">{template.name}</span>
-                        <span className="mt-1 flex flex-wrap items-center gap-1.5">
-                          <span className="inline-flex w-fit items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">{template.type}</span>
-                          {(template.updated_at || template.created_at) && (
-                            <span className="text-[9px] text-muted-foreground">
-                              {new Date(template.updated_at || template.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                            </span>
-                          )}
+                  filteredTemplates.map((template) => {
+                    const hasUnsavedDraft = currentTemplateId === template.id && Boolean(draftSavedAt);
+                    return (
+                      <div key={template.id} className={cn(
+                        "group flex items-center gap-3 rounded-xl border p-3 text-sm transition-all",
+                        currentTemplateId === template.id
+                          ? "bg-primary/10 border-primary shadow-sm ring-1 ring-primary/20"
+                          : "border-border bg-background hover:-translate-y-0.5 hover:bg-muted/50 hover:border-primary/30 hover:shadow-sm"
+                      )}>
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground group-hover:text-primary">
+                          <LayoutGrid className="h-4 w-4" />
                         </span>
-                      </div>
+                        <div className="flex min-w-0 flex-1 cursor-pointer flex-col" onClick={() => loadTemplate(template)}>
+                          <span className="truncate font-medium leading-tight">{template.name}</span>
+                          <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                            <span className="inline-flex w-fit items-center rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">{template.type}</span>
+                            {(template.updated_at || template.created_at) && (
+                              <span className="text-[9px] text-muted-foreground">
+                                {new Date(template.updated_at || template.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                              </span>
+                            )}
+                          </span>
+                        </div>
 
-                      <div className="flex shrink-0 items-center gap-0.5 opacity-60 transition-opacity group-hover:opacity-100">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar" onClick={() => loadTemplate(template)}>
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        {currentTemplateId === template.id && draftSavedAt && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Atualizar modelo (cria cópia com novas propriedades)" disabled={isSaving} onClick={() => upgradeTemplate(template)}>
-                            <RefreshCw className="h-3 w-3" />
+                        <div className="flex shrink-0 items-center gap-0.5 opacity-60 transition-opacity group-hover:opacity-100">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar" onClick={() => loadTemplate(template)}>
+                            <Edit className="h-3 w-3" />
                           </Button>
-                        )}
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Excluir" onClick={() => deleteTemplate(template.id)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                          {hasUnsavedDraft && (
+                            <Button variant="ghost" size="icon" className="h-7 w-7" title="Atualizar modelo com o rascunho atual" disabled={isSaving} onClick={overwriteWithDraft}>
+                              <RefreshCw className="h-3 w-3" />
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" title="Excluir modelo salvo" onClick={() => deleteTemplate(template.id)}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
                 </div>
               </section>
