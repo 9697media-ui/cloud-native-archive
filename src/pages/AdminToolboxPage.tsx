@@ -597,6 +597,9 @@ const upgradeConfig = (type: string, saved: any) => {
   return merged;
 };
 
+const templateStateString = (type: string, config: any) =>
+  JSON.stringify({ type, config: upgradeConfig(type, config) });
+
 // Lista única de famílias, pesos e estilos para todos os campos de texto personalizável.
 const FONT_OPTIONS: { value: string; label: string }[] = [
   { value: '', label: 'Padrão do widget' },
@@ -924,10 +927,9 @@ export default function AdminToolboxPage() {
 
   const loadTemplate = (template: any) => {
     skipDraftRef.current = true;
-    // Baseline = config exatamente como está salvo no banco.
-    // Assim, tanto edições do usuário quanto novos recursos/props do editor
-    // (que mudam o config normalizado) disparam rascunho/atualizar.
-    const baseStr = JSON.stringify({ type: template.type, config: template.config });
+    // Baseline normalizado: novos campos padrão do editor não contam como
+    // alteração do usuário. Só diferenças reais exibem rascunho/atualização.
+    const baseStr = templateStateString(template.type, template.config);
 
     let cfg = upgradeConfig(template.type, template.config);
     let savedAt: string | null = null;
@@ -948,7 +950,8 @@ export default function AdminToolboxPage() {
     applyConfig(template.type, cfg);
     baselineRef.current = baseStr;
     // Mostra aviso se o config carregado já difere do salvo (edição ou novos recursos).
-    const diff = JSON.stringify({ type: template.type, config: cfg }) !== baseStr;
+    const diff = templateStateString(template.type, cfg) !== baseStr;
+    if (!diff) localStorage.removeItem(`widget_draft_${template.id}`);
     setDraftSavedAt(savedAt ?? (diff ? new Date().toISOString() : null));
 
     toast(savedAt
@@ -967,6 +970,7 @@ export default function AdminToolboxPage() {
         .eq('id', currentTemplateId);
       if (error) throw error;
       localStorage.removeItem(`widget_draft_${currentTemplateId}`);
+      baselineRef.current = templateStateString(activeWidgetType, currentConfig());
       setDraftSavedAt(null);
       toast({ title: "Modelo atualizado", description: "O rascunho sobrepôs o modelo." });
       fetchTemplates();
@@ -984,6 +988,21 @@ export default function AdminToolboxPage() {
     setCurrentTemplateId(null);
     setTemplateName(prev => (prev ? `${prev} (cópia)` : ''));
     setIsDialogOpen(true);
+  };
+
+  const discardDraft = () => {
+    if (!currentTemplateId) return;
+    const template = savedTemplates.find((t) => t.id === currentTemplateId);
+    if (!template) return;
+    skipDraftRef.current = true;
+    localStorage.removeItem(`widget_draft_${currentTemplateId}`);
+    const cfg = upgradeConfig(template.type, template.config);
+    setActiveWidgetType(template.type);
+    setTemplateName(template.name);
+    applyConfig(template.type, cfg);
+    baselineRef.current = templateStateString(template.type, template.config);
+    setDraftSavedAt(null);
+    toast({ title: "Rascunho descartado", description: "O modelo voltou para a versão salva." });
   };
 
 
@@ -1025,6 +1044,8 @@ export default function AdminToolboxPage() {
       if (currentTemplateId === id) {
         setCurrentTemplateId(null);
         setTemplateName('');
+        setDraftSavedAt(null);
+        baselineRef.current = null;
       }
       toast({ title: "Excluído", description: "Modelo removido com sucesso." });
     } catch (error: any) {
