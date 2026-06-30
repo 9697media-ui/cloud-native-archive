@@ -955,8 +955,20 @@ const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName:
   useEffect(() => { fetchFiles(); }, [fetchFiles]);
 
   if (loading) return <div className="flex items-center justify-center p-8"><Loader2 className="h-5 w-5 animate-spin" /></div>;
-  if (error === 'authentication_required') return <div className="p-8 text-center border rounded-lg bg-muted/20"><p className="text-sm text-muted-foreground mb-4">Autenticação necessária.</p></div>;
-  if (error) return <div className="p-8 text-center text-destructive"><p className="text-sm">{error}</p><Button variant="ghost" size="sm" onClick={fetchFiles} className="mt-2">Tentar novamente</Button></div>;
+  if (error === 'authentication_required') return (
+    <div className="p-8 text-center border rounded-lg bg-muted/20">
+      <p className="text-sm font-medium mb-1">Conteúdo temporariamente indisponível</p>
+      <p className="text-xs text-muted-foreground mb-4">A conexão com o Google Drive foi interrompida. Os documentos voltam assim que a conexão for restabelecida.</p>
+      <Button variant="outline" size="sm" onClick={fetchFiles}>Tentar novamente</Button>
+    </div>
+  );
+  if (error) return (
+    <div className="p-8 text-center border rounded-lg bg-muted/20">
+      <p className="text-sm font-medium mb-1">Não foi possível carregar os documentos</p>
+      <p className="text-xs text-muted-foreground mb-4">Ocorreu um erro ao acessar o Google Drive. Tente novamente em instantes.</p>
+      <Button variant="outline" size="sm" onClick={fetchFiles}>Tentar novamente</Button>
+    </div>
+  );
   if (items.length === 0) return <div className="p-8 text-center text-muted-foreground text-sm">Nenhum arquivo encontrado.</div>;
 
   return <div className="space-y-1">{items.map(item => <DriveItemComponent key={item.id} item={item} depth={0} />)}</div>;
