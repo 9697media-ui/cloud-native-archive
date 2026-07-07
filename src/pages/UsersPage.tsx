@@ -93,7 +93,7 @@ export default function UsersPage() {
     email: '',
     password: '',
     role: 'viewer',
-    unit: 'Grupo ANA Brasil',
+    unit: 'Administração',
     permission_level: 'visualizador'
   });
   const [preRegisterSubmitting, setPreRegisterSubmitting] = useState(false);
@@ -147,7 +147,7 @@ export default function UsersPage() {
       email: '',
       password: '',
       role: 'viewer',
-      unit: 'Grupo ANA Brasil',
+      unit: 'Administração',
       permission_level: 'visualizador'
     });
     refetch();
@@ -375,7 +375,7 @@ export default function UsersPage() {
       id: dbu.user_id,
       name: dbu.name,
       email: dbu.email,
-      unit: (dbu.unit as any) || 'Grupo ANA Brasil',
+      unit: (dbu.unit as any) || 'Administração',
       permission_level: (dbu.permission_level || 'usuario_padrao') as any,
       is_active: dbu.is_active !== false,
       created_at: dbu.created_at,
@@ -527,11 +527,11 @@ export default function UsersPage() {
     
     // Define o nível e unidade baseados na regra solicitada
     let level: any = 'visualizador';
-    let unit: any = 'Grupo ANA Brasil';
+    let unit: any = 'Administração';
     
     if (req.requested_role === 'admin') {
       level = 'admin_geral';
-      unit = 'Grupo ANA Brasil';
+      unit = 'Administração';
     } else if (req.requested_role === 'criador') {
       level = 'gestor_unidade';
       unit = req.requested_unit || 'DIC';
@@ -1605,7 +1605,7 @@ export default function UsersPage() {
                   <SelectContent>
                     {UNITS.filter(u => {
                       if (editForm.permission_level === 'gestor_unidade') {
-                        return u !== 'Grupo ANA Brasil';
+                        return u !== 'Administração';
                       }
                       return true;
                     }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
@@ -1621,8 +1621,8 @@ export default function UsersPage() {
                     let newUnit = editForm.unit;
                     
                     if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') {
-                      newUnit = 'Grupo ANA Brasil';
-                    } else if (newLevel === 'gestor_unidade' && newUnit === 'Grupo ANA Brasil') {
+                      newUnit = 'Administração';
+                    } else if (newLevel === 'gestor_unidade' && newUnit === 'Administração') {
                       newUnit = 'DIC'; // Valor padrão para gestores
                     }
                     
@@ -1853,8 +1853,8 @@ export default function UsersPage() {
                   onValueChange={v => {
                     const newLevel = v as any;
                     let newUnit = preRegisterForm.unit;
-                    if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') newUnit = 'Grupo ANA Brasil';
-                    else if (newLevel === 'gestor_unidade' && newUnit === 'Grupo ANA Brasil') newUnit = 'DIC';
+                    if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') newUnit = 'Administração';
+                    else if (newLevel === 'gestor_unidade' && newUnit === 'Administração') newUnit = 'DIC';
                     setPreRegisterForm({ ...preRegisterForm, permission_level: newLevel, unit: newUnit });
                   }}
                 >
@@ -1874,7 +1874,7 @@ export default function UsersPage() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {UNITS.filter(u => {
-                      if (preRegisterForm.permission_level === 'gestor_unidade') return u !== 'Grupo ANA Brasil';
+                      if (preRegisterForm.permission_level === 'gestor_unidade') return u !== 'Administração';
                       return true;
                     }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                   </SelectContent>
