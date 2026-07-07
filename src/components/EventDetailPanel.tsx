@@ -12,7 +12,7 @@ const unitBadgeColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic text-primary-foreground',
   'Nilópolis': 'bg-unit-nilopolis text-primary-foreground',
   'Santana': 'bg-unit-santana text-primary-foreground',
-  'Grupo ANA Brasil': 'bg-unit-geral text-primary-foreground',
+  'Administração': 'bg-unit-geral text-primary-foreground',
 };
 
 interface Props {

@@ -1,4 +1,14 @@
-export type Unit = 'DIC' | 'Nilópolis' | 'Santana' | 'Grupo ANA Brasil';
+export type Unit = 'DIC' | 'Nilópolis' | 'Santana' | 'Administração';
+
+export type BondType =
+  | 'rh'
+  | 'financeiro'
+  | 'marketing'
+  | 'nota_fiscal'
+  | 'gestao_social'
+  | 'educador'
+  | 'parceiro'
+  | 'usuario_comum';
 
 export type EventStatus = 'confirmado' | 'pendente' | 'cancelado' | 'concluido';
 
@@ -83,22 +93,23 @@ export interface AppUser {
   view_restrictions?: Unit[] | null;
   delegated_units?: Unit[] | null;
   is_beta_tester?: boolean;
+  bond_type?: BondType | null;
 }
 
-export const UNITS: Unit[] = ['DIC', 'Nilópolis', 'Santana', 'Grupo ANA Brasil'];
+export const UNITS: Unit[] = ['DIC', 'Nilópolis', 'Santana', 'Administração'];
 
 export const UNIT_COLORS: Record<Unit, string> = {
   'DIC': 'unit-dic',
   'Nilópolis': 'unit-nilopolis',
   'Santana': 'unit-santana',
-  'Grupo ANA Brasil': 'unit-geral',
+  'Administração': 'unit-geral',
 };
 
 export const UNIT_BG_COLORS: Record<Unit, string> = {
   'DIC': 'bg-unit-dic',
   'Nilópolis': 'bg-unit-nilopolis',
   'Santana': 'bg-unit-santana',
-  'Grupo ANA Brasil': 'bg-unit-geral',
+  'Administração': 'bg-unit-geral',
 };
 
 export const EVENT_TYPES: EventType[] = ['reunião', 'evento institucional', 'apresentação', 'cobertura', 'ação externa', 'programação interna', 'outro'];
@@ -120,3 +131,22 @@ export const PERMISSION_LEVELS: { value: PermissionLevel; label: string }[] = [
   { value: 'editor', label: 'Editor (Apenas Edição)' },
   { value: 'usuario_padrao', label: 'Usuário Padrão (Visualizador)' },
 ];
+
+// Vínculo do usuário — agrupado por categoria
+export const BOND_LABELS: Record<BondType, string> = {
+  rh: 'RH',
+  financeiro: 'Financeiro',
+  marketing: 'Marketing',
+  nota_fiscal: 'Nota Fiscal',
+  gestao_social: 'Gestão Social',
+  educador: 'Educador',
+  parceiro: 'Parceiro',
+  usuario_comum: 'Usuário Comum',
+};
+
+export const BOND_GROUPS: { label: string; options: BondType[] }[] = [
+  { label: 'Interno — Administrativo (Setor)', options: ['rh', 'financeiro', 'marketing', 'nota_fiscal'] },
+  { label: 'Interno — Social (Unidade)', options: ['gestao_social', 'educador'] },
+  { label: 'Externo', options: ['parceiro', 'usuario_comum'] },
+];
+

@@ -13,6 +13,7 @@ export interface DbUser {
   is_beta_tester: boolean;
   created_at: string;
   view_restrictions?: any;
+  bond_type?: string | null;
 }
 
 export function useDbUsers() {
@@ -25,7 +26,7 @@ export function useDbUsers() {
     try {
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('user_id, name, email, permission_level, unit, created_at, is_active, view_restrictions, is_beta_tester')
+        .select('user_id, name, email, permission_level, unit, created_at, is_active, view_restrictions, is_beta_tester, bond_type')
         .order('created_at', { ascending: true });
 
       if (profileError) throw profileError;
@@ -54,6 +55,7 @@ export function useDbUsers() {
         is_beta_tester: (p as any).is_beta_tester === true,
         created_at: p.created_at,
         view_restrictions: (p as any).view_restrictions,
+        bond_type: (p as any).bond_type ?? null,
       }));
 
       setDbUsers(users);

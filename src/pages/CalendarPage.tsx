@@ -30,14 +30,14 @@ const unitDotColors: Record<Unit, string> = {
   'DIC': 'bg-unit-dic',
   'Nilópolis': 'bg-unit-nilopolis',
   'Santana': 'bg-unit-santana',
-  'Grupo ANA Brasil': 'bg-unit-geral',
+  'Administração': 'bg-unit-geral',
 };
 
 const unitBorderColors: Record<Unit, string> = {
   'DIC': 'border-l-unit-dic',
   'Nilópolis': 'border-l-unit-nilopolis',
   'Santana': 'border-l-unit-santana',
-  'Grupo ANA Brasil': 'border-l-unit-geral',
+  'Administração': 'border-l-unit-geral',
 };
 
 type View = 'month' | 'week' | 'list';
@@ -55,7 +55,7 @@ export default function CalendarPage() {
 
   // Sync filter unit with user unit when it changes (useful for test mode)
   useEffect(() => {
-    if (unit && unit !== 'Grupo ANA Brasil') {
+    if (unit && unit !== 'Administração') {
       setFilterUnit(unit);
     } else {
       setFilterUnit('all');

@@ -7,7 +7,7 @@ import { useUserRole, useAccessRequests } from '@/hooks/useUserRole';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useDbUsers } from '@/hooks/useDbUsers';
 import { useViewConfigs } from '@/hooks/useViewConfigs';
-import { AppUser, UNITS, PERMISSION_LEVELS } from '@/types';
+import { AppUser, UNITS, PERMISSION_LEVELS, BOND_LABELS, BOND_GROUPS, BondType } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -93,8 +93,9 @@ export default function UsersPage() {
     email: '',
     password: '',
     role: 'viewer',
-    unit: 'Grupo ANA Brasil',
-    permission_level: 'visualizador'
+    unit: 'Administração',
+    permission_level: 'visualizador',
+    bond_type: ''
   });
   const [preRegisterSubmitting, setPreRegisterSubmitting] = useState(false);
 
@@ -147,8 +148,9 @@ export default function UsersPage() {
       email: '',
       password: '',
       role: 'viewer',
-      unit: 'Grupo ANA Brasil',
-      permission_level: 'visualizador'
+      unit: 'Administração',
+      permission_level: 'visualizador',
+      bond_type: ''
     });
     refetch();
   };
@@ -375,13 +377,14 @@ export default function UsersPage() {
       id: dbu.user_id,
       name: dbu.name,
       email: dbu.email,
-      unit: (dbu.unit as any) || 'Grupo ANA Brasil',
+      unit: (dbu.unit as any) || 'Administração',
       permission_level: (dbu.permission_level || 'usuario_padrao') as any,
       is_active: dbu.is_active !== false,
       created_at: dbu.created_at,
       updated_at: dbu.created_at,
       view_restrictions: dbu.view_restrictions,
       is_beta_tester: dbu.is_beta_tester,
+      bond_type: (dbu.bond_type as any) ?? null,
     }));
 
 
@@ -461,6 +464,7 @@ export default function UsersPage() {
             permission_level: editForm.permission_level,
             is_active: editForm.is_active,
             is_beta_tester: editForm.is_beta_tester,
+            bond_type: (editForm.bond_type as any) || null,
             updated_at: new Date().toISOString(),
           })
 
@@ -527,11 +531,11 @@ export default function UsersPage() {
     
     // Define o nível e unidade baseados na regra solicitada
     let level: any = 'visualizador';
-    let unit: any = 'Grupo ANA Brasil';
+    let unit: any = 'Administração';
     
     if (req.requested_role === 'admin') {
       level = 'admin_geral';
-      unit = 'Grupo ANA Brasil';
+      unit = 'Administração';
     } else if (req.requested_role === 'criador') {
       level = 'gestor_unidade';
       unit = req.requested_unit || 'DIC';
@@ -1099,6 +1103,11 @@ export default function UsersPage() {
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge variant="outline" className="text-[10px]">{user.unit}</Badge>
                             <Badge variant="secondary" className="text-[10px]">{permLabel(user.permission_level)}</Badge>
+                            {user.bond_type && BOND_LABELS[user.bond_type as BondType] && (
+                              <Badge variant="outline" className="text-[10px] border-primary/40 text-primary">
+                                {BOND_LABELS[user.bond_type as BondType]}
+                              </Badge>
+                            )}
                             <Badge variant={user.is_active ? 'default' : 'destructive'} className="text-[10px]">
                               {user.is_active ? 'Ativo' : 'Inativo'}
                             </Badge>
@@ -1605,7 +1614,7 @@ export default function UsersPage() {
                   <SelectContent>
                     {UNITS.filter(u => {
                       if (editForm.permission_level === 'gestor_unidade') {
-                        return u !== 'Grupo ANA Brasil';
+                        return u !== 'Administração';
                       }
                       return true;
                     }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
@@ -1613,7 +1622,7 @@ export default function UsersPage() {
                 </Select>
               </div>
               <div>
-                <Label>Nível de Permissão</Label>
+                <Label>Nível de Acesso</Label>
                 <Select 
                   value={editForm.permission_level} 
                   onValueChange={v => {
@@ -1621,8 +1630,8 @@ export default function UsersPage() {
                     let newUnit = editForm.unit;
                     
                     if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') {
-                      newUnit = 'Grupo ANA Brasil';
-                    } else if (newLevel === 'gestor_unidade' && newUnit === 'Grupo ANA Brasil') {
+                      newUnit = 'Administração';
+                    } else if (newLevel === 'gestor_unidade' && newUnit === 'Administração') {
                       newUnit = 'DIC'; // Valor padrão para gestores
                     }
                     
@@ -1634,6 +1643,26 @@ export default function UsersPage() {
                     {PERMISSION_LEVELS
                       .filter(p => isAdmin || p.value !== 'admin_geral')
                       .map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Vínculo</Label>
+                <Select 
+                  value={editForm.bond_type || 'none'} 
+                  onValueChange={v => setEditForm({ ...editForm, bond_type: v === 'none' ? null : (v as BondType) })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sem vínculo</SelectItem>
+                    {BOND_GROUPS.map(group => (
+                      <div key={group.label}>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>
+                        {group.options.map(opt => (
+                          <SelectItem key={opt} value={opt}>{BOND_LABELS[opt]}</SelectItem>
+                        ))}
+                      </div>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -1853,8 +1882,8 @@ export default function UsersPage() {
                   onValueChange={v => {
                     const newLevel = v as any;
                     let newUnit = preRegisterForm.unit;
-                    if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') newUnit = 'Grupo ANA Brasil';
-                    else if (newLevel === 'gestor_unidade' && newUnit === 'Grupo ANA Brasil') newUnit = 'DIC';
+                    if (newLevel === 'admin_geral' || newLevel === 'eventos_parceiros') newUnit = 'Administração';
+                    else if (newLevel === 'gestor_unidade' && newUnit === 'Administração') newUnit = 'DIC';
                     setPreRegisterForm({ ...preRegisterForm, permission_level: newLevel, unit: newUnit });
                   }}
                 >
@@ -1874,13 +1903,33 @@ export default function UsersPage() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {UNITS.filter(u => {
-                      if (preRegisterForm.permission_level === 'gestor_unidade') return u !== 'Grupo ANA Brasil';
+                      if (preRegisterForm.permission_level === 'gestor_unidade') return u !== 'Administração';
                       return true;
                     }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                   </SelectContent>
                 </Select>
-              </div>
             </div>
+            <div className="space-y-2">
+              <Label>Vínculo</Label>
+              <Select 
+                value={preRegisterForm.bond_type || 'none'} 
+                onValueChange={v => setPreRegisterForm({ ...preRegisterForm, bond_type: v === 'none' ? '' : v })}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem vínculo</SelectItem>
+                  {BOND_GROUPS.map(group => (
+                    <div key={group.label}>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>
+                      {group.options.map(opt => (
+                        <SelectItem key={opt} value={opt}>{BOND_LABELS[opt]}</SelectItem>
+                      ))}
+                    </div>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPreRegister(false)} disabled={preRegisterSubmitting}>Cancelar</Button>
