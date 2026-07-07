@@ -1615,7 +1615,7 @@ export default function UsersPage() {
                 </Select>
               </div>
               <div>
-                <Label>Nível de Permissão</Label>
+                <Label>Nível de Acesso</Label>
                 <Select 
                   value={editForm.permission_level} 
                   onValueChange={v => {
@@ -1636,6 +1636,26 @@ export default function UsersPage() {
                     {PERMISSION_LEVELS
                       .filter(p => isAdmin || p.value !== 'admin_geral')
                       .map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Vínculo</Label>
+                <Select 
+                  value={editForm.bond_type || 'none'} 
+                  onValueChange={v => setEditForm({ ...editForm, bond_type: v === 'none' ? null : (v as BondType) })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sem vínculo</SelectItem>
+                    {BOND_GROUPS.map(group => (
+                      <div key={group.label}>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>
+                        {group.options.map(opt => (
+                          <SelectItem key={opt} value={opt}>{BOND_LABELS[opt]}</SelectItem>
+                        ))}
+                      </div>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
