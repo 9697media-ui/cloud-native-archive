@@ -265,7 +265,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   {conflicts.map(c => (
                     <div key={c.id} className="rounded-lg border border-border p-3">
                       <p className="font-medium text-foreground">{c.title}</p>
-                      <p className="text-xs text-muted-foreground">{c.unit} · {new Date(c.start_datetime).toLocaleString('pt-BR')}</p>
+                      <p className="text-xs text-muted-foreground">{eventUnitLabel(c.unit)} · {new Date(c.start_datetime).toLocaleString('pt-BR')}</p>
                     </div>
                   ))}
                 </div>
