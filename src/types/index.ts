@@ -150,3 +150,32 @@ export const BOND_GROUPS: { label: string; options: BondType[] }[] = [
   { label: 'Externo', options: ['parceiro', 'usuario_comum'] },
 ];
 
+// Regras de cascata: o vínculo determina o nível de acesso e a unidade.
+// unitMode:
+//   'fixed-admin' -> unidade sempre 'Administração' (travada)
+//   'choose'      -> unidade escolhida livremente
+//   'none'        -> nenhuma unidade (travada, valor vazio)
+export type UnitMode = 'fixed-admin' | 'choose' | 'none';
+
+export const BOND_RULES: Record<BondType, { permission_level: PermissionLevel; unitMode: UnitMode }> = {
+  // Interno — Administrativo
+  rh: { permission_level: 'gestor_unidade', unitMode: 'fixed-admin' },
+  financeiro: { permission_level: 'gestor_unidade', unitMode: 'fixed-admin' },
+  marketing: { permission_level: 'gestor_unidade', unitMode: 'fixed-admin' },
+  nota_fiscal: { permission_level: 'gestor_unidade', unitMode: 'fixed-admin' },
+  // Interno — Social
+  gestao_social: { permission_level: 'gestor_unidade', unitMode: 'choose' },
+  educador: { permission_level: 'usuario_padrao', unitMode: 'choose' },
+  // Externo
+  parceiro: { permission_level: 'usuario_padrao', unitMode: 'none' },
+  usuario_comum: { permission_level: 'usuario_padrao', unitMode: 'none' },
+};
+
+// Rótulo de leitura da unidade no contexto de EVENTOS.
+// 'Administração' é exibida como 'Grupo ANA Brasil' (globaliza todas as unidades),
+// mas o valor gravado permanece 'Administração'.
+export function eventUnitLabel(unit: string): string {
+  return unit === 'Administração' ? 'Grupo ANA Brasil' : unit;
+}
+
+
