@@ -37,7 +37,7 @@ const ROLE_LABELS: Record<string, string> = {
   criador: 'Criador e Editor',
   editor: 'Editor (Apenas Edição)',
   admin_geral: 'Admin Geral',
-  gestor_unidade: 'Gestor de Unidade',
+  gestor_unidade: 'Gestor',
   eventos_parceiros: 'Eventos e Parceiros',
   usuario_padrao: 'Usuário Padrão',
   usuario_padrao_admin: 'Admin',
