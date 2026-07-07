@@ -425,7 +425,7 @@ export default function UsersPage() {
     
     return [
       { id: 'admins', title: 'Administradores', users: admins, icon: <ShieldCheck className="h-5 w-5 text-primary" /> },
-      { id: 'gestores', title: 'Gestores de Unidade', users: gestores, icon: <Shield className="h-5 w-5 text-primary" /> },
+      { id: 'gestores', title: 'Gestores', users: gestores, icon: <Shield className="h-5 w-5 text-primary" /> },
       { id: 'normal', title: 'Usuários e Visualizadores', users: normalUsers, icon: <UserCog className="h-5 w-5 text-primary" /> }
     ];
   }, [filtered]);
