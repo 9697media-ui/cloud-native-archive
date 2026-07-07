@@ -13,6 +13,7 @@ export interface DbUser {
   is_beta_tester: boolean;
   created_at: string;
   view_restrictions?: any;
+  bond_type?: string | null;
 }
 
 export function useDbUsers() {
