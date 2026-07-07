@@ -1154,7 +1154,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       )}
 
                       <div className="absolute bottom-0 left-0 right-0 p-4 z-[20] flex flex-col items-start justify-end h-full">
-                        <Badge className="bg-primary/80 text-white mb-2 text-[10px] border-none backdrop-blur-sm shrink-0">{form.unit || 'UNIDADE'}</Badge>
+                        <Badge className="bg-primary/80 text-white mb-2 text-[10px] border-none backdrop-blur-sm shrink-0">{form.unit ? eventUnitLabel(form.unit) : 'UNIDADE'}</Badge>
                         
                         {form.use_logo_as_title && form.event_logo_url ? (
                           <div className={`flex items-center justify-start ${form.full_height_title ? 'h-1/2 w-full mb-2' : 'h-12 w-full mb-1'}`}>
