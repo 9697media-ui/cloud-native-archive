@@ -95,7 +95,8 @@ Deno.serve(async (req) => {
         email,
         is_active: true,
         permission_level: permissionLevel || 'usuario_padrao',
-        unit: unit || 'Grupo ANA Brasil',
+        unit: unit || 'Administração',
+        bond_type: bond_type || null,
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
