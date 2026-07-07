@@ -7,7 +7,7 @@ import { useUserRole, useAccessRequests } from '@/hooks/useUserRole';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useDbUsers } from '@/hooks/useDbUsers';
 import { useViewConfigs } from '@/hooks/useViewConfigs';
-import { AppUser, UNITS, PERMISSION_LEVELS, BOND_LABELS, BOND_GROUPS, BondType } from '@/types';
+import { AppUser, UNITS, PERMISSION_LEVELS, BOND_LABELS, BOND_GROUPS, BOND_RULES, BondType } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
