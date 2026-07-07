@@ -461,6 +461,7 @@ export default function UsersPage() {
             permission_level: editForm.permission_level,
             is_active: editForm.is_active,
             is_beta_tester: editForm.is_beta_tester,
+            bond_type: (editForm.bond_type as any) || null,
             updated_at: new Date().toISOString(),
           })
 
