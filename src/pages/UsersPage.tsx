@@ -43,6 +43,19 @@ const ROLE_LABELS: Record<string, string> = {
   usuario_padrao_admin: 'Admin',
 };
 
+// Deriva nível de acesso e unidade a partir do vínculo escolhido.
+function deriveFromBond(bond: BondType | '' | null | undefined, currentUnit: string) {
+  if (!bond) return null;
+  const rule = BOND_RULES[bond as BondType];
+  if (!rule) return null;
+  let unit = currentUnit;
+  if (rule.unitMode === 'fixed-admin') unit = 'Administração';
+  else if (rule.unitMode === 'none') unit = '';
+  else if (rule.unitMode === 'choose' && (!currentUnit || currentUnit === 'Administração')) unit = 'DIC';
+  return { permission_level: rule.permission_level, unit, unitMode: rule.unitMode };
+}
+
+
 const ROLE_ICONS: Record<string, React.ReactNode> = {
   admin: <ShieldCheck className="h-3.5 w-3.5" />,
   admin_geral: <ShieldCheck className="h-3.5 w-3.5" />,
