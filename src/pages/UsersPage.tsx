@@ -382,6 +382,7 @@ export default function UsersPage() {
       updated_at: dbu.created_at,
       view_restrictions: dbu.view_restrictions,
       is_beta_tester: dbu.is_beta_tester,
+      bond_type: (dbu.bond_type as any) ?? null,
     }));
 
 
