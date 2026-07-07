@@ -1103,6 +1103,11 @@ export default function UsersPage() {
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge variant="outline" className="text-[10px]">{user.unit}</Badge>
                             <Badge variant="secondary" className="text-[10px]">{permLabel(user.permission_level)}</Badge>
+                            {user.bond_type && BOND_LABELS[user.bond_type as BondType] && (
+                              <Badge variant="outline" className="text-[10px] border-primary/40 text-primary">
+                                {BOND_LABELS[user.bond_type as BondType]}
+                              </Badge>
+                            )}
                             <Badge variant={user.is_active ? 'default' : 'destructive'} className="text-[10px]">
                               {user.is_active ? 'Ativo' : 'Inativo'}
                             </Badge>
