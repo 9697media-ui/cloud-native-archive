@@ -1,0 +1,14 @@
+GRANT EXECUTE ON FUNCTION public.check_is_admin(uuid) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.check_is_manager(uuid) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.is_admin(uuid) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.is_manager(uuid) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.get_user_role(uuid) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.get_user_unit(uuid) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.get_user_unit_v2(uuid) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.get_user_delegated_units(uuid) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.can_manage_unit(text) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.has_unit_access(text) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.is_manager_of_unit(uuid, text) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.check_audit_log_access(text) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.check_profile_unit_access(uuid) TO authenticated, anon;
