@@ -55,6 +55,7 @@ export function useDbUsers() {
         is_beta_tester: (p as any).is_beta_tester === true,
         created_at: p.created_at,
         view_restrictions: (p as any).view_restrictions,
+        bond_type: (p as any).bond_type ?? null,
       }));
 
       setDbUsers(users);
