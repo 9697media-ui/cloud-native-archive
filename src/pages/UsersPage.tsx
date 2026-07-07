@@ -7,7 +7,7 @@ import { useUserRole, useAccessRequests } from '@/hooks/useUserRole';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useDbUsers } from '@/hooks/useDbUsers';
 import { useViewConfigs } from '@/hooks/useViewConfigs';
-import { AppUser, UNITS, PERMISSION_LEVELS, BOND_LABELS, BOND_GROUPS, BondType } from '@/types';
+import { AppUser, UNITS, PERMISSION_LEVELS, BOND_LABELS, BOND_GROUPS, BOND_RULES, BondType } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,11 +37,24 @@ const ROLE_LABELS: Record<string, string> = {
   criador: 'Criador e Editor',
   editor: 'Editor (Apenas Edição)',
   admin_geral: 'Admin Geral',
-  gestor_unidade: 'Gestor de Unidade',
+  gestor_unidade: 'Gestor',
   eventos_parceiros: 'Eventos e Parceiros',
   usuario_padrao: 'Usuário Padrão',
   usuario_padrao_admin: 'Admin',
 };
+
+// Deriva nível de acesso e unidade a partir do vínculo escolhido.
+function deriveFromBond(bond: BondType | '' | null | undefined, currentUnit: string) {
+  if (!bond) return null;
+  const rule = BOND_RULES[bond as BondType];
+  if (!rule) return null;
+  let unit = currentUnit;
+  if (rule.unitMode === 'fixed-admin') unit = 'Administração';
+  else if (rule.unitMode === 'none') unit = '';
+  else if (rule.unitMode === 'choose' && (!currentUnit || currentUnit === 'Administração')) unit = 'DIC';
+  return { permission_level: rule.permission_level, unit, unitMode: rule.unitMode };
+}
+
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
   admin: <ShieldCheck className="h-3.5 w-3.5" />,
@@ -425,7 +438,7 @@ export default function UsersPage() {
     
     return [
       { id: 'admins', title: 'Administradores', users: admins, icon: <ShieldCheck className="h-5 w-5 text-primary" /> },
-      { id: 'gestores', title: 'Gestores de Unidade', users: gestores, icon: <Shield className="h-5 w-5 text-primary" /> },
+      { id: 'gestores', title: 'Gestores', users: gestores, icon: <Shield className="h-5 w-5 text-primary" /> },
       { id: 'normal', title: 'Usuários e Visualizadores', users: normalUsers, icon: <UserCog className="h-5 w-5 text-primary" /> }
     ];
   }, [filtered]);
@@ -1604,26 +1617,37 @@ export default function UsersPage() {
                 <Input value={editForm.email} onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
               </div>
               <div>
-                <Label>Unidade</Label>
+                <Label>Vínculo</Label>
                 <Select 
-                  disabled={editForm.permission_level === 'admin_geral' || editForm.permission_level === 'eventos_parceiros'}
-                  value={editForm.unit} 
-                  onValueChange={v => setEditForm({ ...editForm, unit: v as any })}
+                  value={editForm.bond_type || 'none'} 
+                  onValueChange={v => {
+                    const bond = v === 'none' ? null : (v as BondType);
+                    const derived = deriveFromBond(bond, editForm.unit);
+                    setEditForm({
+                      ...editForm,
+                      bond_type: bond,
+                      ...(derived ? { permission_level: derived.permission_level as any, unit: derived.unit as any } : {}),
+                    });
+                  }}
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
                   <SelectContent>
-                    {UNITS.filter(u => {
-                      if (editForm.permission_level === 'gestor_unidade') {
-                        return u !== 'Administração';
-                      }
-                      return true;
-                    }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    <SelectItem value="none">Sem vínculo</SelectItem>
+                    {BOND_GROUPS.map(group => (
+                      <div key={group.label}>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>
+                        {group.options.map(opt => (
+                          <SelectItem key={opt} value={opt}>{BOND_LABELS[opt]}</SelectItem>
+                        ))}
+                      </div>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Nível de Acesso</Label>
                 <Select 
+                  disabled={!!editForm.bond_type}
                   value={editForm.permission_level} 
                   onValueChange={v => {
                     const newLevel = v as any;
@@ -1647,25 +1671,33 @@ export default function UsersPage() {
                 </Select>
               </div>
               <div>
-                <Label>Vínculo</Label>
-                <Select 
-                  value={editForm.bond_type || 'none'} 
-                  onValueChange={v => setEditForm({ ...editForm, bond_type: v === 'none' ? null : (v as BondType) })}
-                >
-                  <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Sem vínculo</SelectItem>
-                    {BOND_GROUPS.map(group => (
-                      <div key={group.label}>
-                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>
-                        {group.options.map(opt => (
-                          <SelectItem key={opt} value={opt}>{BOND_LABELS[opt]}</SelectItem>
-                        ))}
-                      </div>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Unidade</Label>
+                {editForm.bond_type && BOND_RULES[editForm.bond_type as BondType]?.unitMode === 'none' ? (
+                  <p className="text-sm text-muted-foreground py-2">Vínculo externo — sem unidade.</p>
+                ) : (
+                  <Select 
+                    disabled={
+                      editForm.permission_level === 'admin_geral' ||
+                      editForm.permission_level === 'eventos_parceiros' ||
+                      (!!editForm.bond_type && BOND_RULES[editForm.bond_type as BondType]?.unitMode === 'fixed-admin')
+                    }
+                    value={editForm.unit} 
+                    onValueChange={v => setEditForm({ ...editForm, unit: v as any })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {UNITS.filter(u => {
+                        const mode = editForm.bond_type ? BOND_RULES[editForm.bond_type as BondType]?.unitMode : undefined;
+                        if (mode === 'fixed-admin') return u === 'Administração';
+                        if (mode === 'choose') return u !== 'Administração';
+                        if (editForm.permission_level === 'gestor_unidade') return u !== 'Administração';
+                        return true;
+                      }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
+
               <div className="flex flex-col gap-4 p-4 border rounded-lg bg-primary/5">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
@@ -1874,10 +1906,39 @@ export default function UsersPage() {
                 Informe esta senha ao usuário. Ele poderá alterá-la depois.
               </p>
             </div>
+            <div className="space-y-2">
+              <Label>Vínculo</Label>
+              <Select 
+                value={preRegisterForm.bond_type || 'none'} 
+                onValueChange={v => {
+                  const bond = v === 'none' ? '' : (v as BondType);
+                  const derived = deriveFromBond(bond as BondType, preRegisterForm.unit);
+                  setPreRegisterForm({
+                    ...preRegisterForm,
+                    bond_type: bond,
+                    ...(derived ? { permission_level: derived.permission_level, unit: derived.unit } : {}),
+                  });
+                }}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem vínculo</SelectItem>
+                  {BOND_GROUPS.map(group => (
+                    <div key={group.label}>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>
+                      {group.options.map(opt => (
+                        <SelectItem key={opt} value={opt}>{BOND_LABELS[opt]}</SelectItem>
+                      ))}
+                    </div>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Nível de Acesso</Label>
                 <Select 
+                  disabled={!!preRegisterForm.bond_type}
                   value={preRegisterForm.permission_level} 
                   onValueChange={v => {
                     const newLevel = v as any;
@@ -1895,42 +1956,34 @@ export default function UsersPage() {
               </div>
               <div className="space-y-2">
                 <Label>Unidade</Label>
-                <Select 
-                  disabled={preRegisterForm.permission_level === 'admin_geral' || preRegisterForm.permission_level === 'eventos_parceiros'}
-                  value={preRegisterForm.unit} 
-                  onValueChange={v => setPreRegisterForm({ ...preRegisterForm, unit: v as any })}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {UNITS.filter(u => {
-                      if (preRegisterForm.permission_level === 'gestor_unidade') return u !== 'Administração';
-                      return true;
-                    }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Vínculo</Label>
-              <Select 
-                value={preRegisterForm.bond_type || 'none'} 
-                onValueChange={v => setPreRegisterForm({ ...preRegisterForm, bond_type: v === 'none' ? '' : v })}
-              >
-                <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Sem vínculo</SelectItem>
-                  {BOND_GROUPS.map(group => (
-                    <div key={group.label}>
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>
-                      {group.options.map(opt => (
-                        <SelectItem key={opt} value={opt}>{BOND_LABELS[opt]}</SelectItem>
-                      ))}
-                    </div>
-                  ))}
-                </SelectContent>
-              </Select>
+                {preRegisterForm.bond_type && BOND_RULES[preRegisterForm.bond_type as BondType]?.unitMode === 'none' ? (
+                  <p className="text-sm text-muted-foreground py-2">Vínculo externo — sem unidade.</p>
+                ) : (
+                  <Select 
+                    disabled={
+                      preRegisterForm.permission_level === 'admin_geral' ||
+                      preRegisterForm.permission_level === 'eventos_parceiros' ||
+                      (!!preRegisterForm.bond_type && BOND_RULES[preRegisterForm.bond_type as BondType]?.unitMode === 'fixed-admin')
+                    }
+                    value={preRegisterForm.unit} 
+                    onValueChange={v => setPreRegisterForm({ ...preRegisterForm, unit: v as any })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {UNITS.filter(u => {
+                        const mode = preRegisterForm.bond_type ? BOND_RULES[preRegisterForm.bond_type as BondType]?.unitMode : undefined;
+                        if (mode === 'fixed-admin') return u === 'Administração';
+                        if (mode === 'choose') return u !== 'Administração';
+                        if (preRegisterForm.permission_level === 'gestor_unidade') return u !== 'Administração';
+                        return true;
+                      }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
             </div>
           </div>
-          </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPreRegister(false)} disabled={preRegisterSubmitting}>Cancelar</Button>
             <Button onClick={handlePreRegister} disabled={preRegisterSubmitting}>

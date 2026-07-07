@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApp } from '@/contexts/AppContext';
 import { useUserRole } from '@/hooks/useUserRole';
-import { AppEvent, UNITS, EVENT_TYPES, EVENT_STATUSES, PARTNER_TYPES, Unit, EventType, EventStatus, PartnerType, SYSTEM_COLORS } from '@/types';
+import { AppEvent, UNITS, EVENT_TYPES, EVENT_STATUSES, PARTNER_TYPES, Unit, EventType, EventStatus, PartnerType, SYSTEM_COLORS, eventUnitLabel } from '@/types';
 import { getStatusDotClass } from '@/lib/statusColors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -265,7 +265,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   {conflicts.map(c => (
                     <div key={c.id} className="rounded-lg border border-border p-3">
                       <p className="font-medium text-foreground">{c.title}</p>
-                      <p className="text-xs text-muted-foreground">{c.unit} · {new Date(c.start_datetime).toLocaleString('pt-BR')}</p>
+                      <p className="text-xs text-muted-foreground">{eventUnitLabel(c.unit)} · {new Date(c.start_datetime).toLocaleString('pt-BR')}</p>
                     </div>
                   ))}
                 </div>
@@ -291,7 +291,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     <Select value={form.unit} onValueChange={v => setForm({ ...form, unit: v as Unit })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                        {UNITS.map(u => <SelectItem key={u} value={u}>{eventUnitLabel(u)}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -1020,7 +1020,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 });
                               }}
                             />
-                            {u}
+                            {eventUnitLabel(u)}
                           </label>
                         ))}
                       </div>
@@ -1154,7 +1154,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       )}
 
                       <div className="absolute bottom-0 left-0 right-0 p-4 z-[20] flex flex-col items-start justify-end h-full">
-                        <Badge className="bg-primary/80 text-white mb-2 text-[10px] border-none backdrop-blur-sm shrink-0">{form.unit || 'UNIDADE'}</Badge>
+                        <Badge className="bg-primary/80 text-white mb-2 text-[10px] border-none backdrop-blur-sm shrink-0">{form.unit ? eventUnitLabel(form.unit) : 'UNIDADE'}</Badge>
                         
                         {form.use_logo_as_title && form.event_logo_url ? (
                           <div className={`flex items-center justify-start ${form.full_height_title ? 'h-1/2 w-full mb-2' : 'h-12 w-full mb-1'}`}>
