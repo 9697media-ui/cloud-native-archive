@@ -1020,7 +1020,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                                 });
                               }}
                             />
-                            {u}
+                            {eventUnitLabel(u)}
                           </label>
                         ))}
                       </div>
