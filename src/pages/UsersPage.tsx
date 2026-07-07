@@ -1698,7 +1698,6 @@ export default function UsersPage() {
                 )}
               </div>
 
-              </div>
               <div className="flex flex-col gap-4 p-4 border rounded-lg bg-primary/5">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
