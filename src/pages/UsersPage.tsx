@@ -1982,9 +1982,8 @@ export default function UsersPage() {
                 )}
               </div>
             </div>
+          </div>
 
-          </div>
-          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPreRegister(false)} disabled={preRegisterSubmitting}>Cancelar</Button>
             <Button onClick={handlePreRegister} disabled={preRegisterSubmitting}>
