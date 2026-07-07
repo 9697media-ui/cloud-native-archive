@@ -291,7 +291,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     <Select value={form.unit} onValueChange={v => setForm({ ...form, unit: v as Unit })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                        {UNITS.map(u => <SelectItem key={u} value={u}>{eventUnitLabel(u)}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
