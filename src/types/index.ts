@@ -93,6 +93,7 @@ export interface AppUser {
   view_restrictions?: Unit[] | null;
   delegated_units?: Unit[] | null;
   is_beta_tester?: boolean;
+  bond_type?: BondType | null;
 }
 
 export const UNITS: Unit[] = ['DIC', 'Nilópolis', 'Santana', 'Administração'];
