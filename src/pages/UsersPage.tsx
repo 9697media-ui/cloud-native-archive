@@ -94,7 +94,8 @@ export default function UsersPage() {
     password: '',
     role: 'viewer',
     unit: 'Administração',
-    permission_level: 'visualizador'
+    permission_level: 'visualizador',
+    bond_type: ''
   });
   const [preRegisterSubmitting, setPreRegisterSubmitting] = useState(false);
 
