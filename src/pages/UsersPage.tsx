@@ -1901,8 +1901,28 @@ export default function UsersPage() {
                     }).map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                   </SelectContent>
                 </Select>
-              </div>
             </div>
+            <div className="space-y-2">
+              <Label>Vínculo</Label>
+              <Select 
+                value={preRegisterForm.bond_type || 'none'} 
+                onValueChange={v => setPreRegisterForm({ ...preRegisterForm, bond_type: v === 'none' ? '' : v })}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem vínculo</SelectItem>
+                  {BOND_GROUPS.map(group => (
+                    <div key={group.label}>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>
+                      {group.options.map(opt => (
+                        <SelectItem key={opt} value={opt}>{BOND_LABELS[opt]}</SelectItem>
+                      ))}
+                    </div>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPreRegister(false)} disabled={preRegisterSubmitting}>Cancelar</Button>
