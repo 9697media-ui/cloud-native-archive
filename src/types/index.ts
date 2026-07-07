@@ -1,4 +1,14 @@
-export type Unit = 'DIC' | 'Nilópolis' | 'Santana' | 'Grupo ANA Brasil';
+export type Unit = 'DIC' | 'Nilópolis' | 'Santana' | 'Administração';
+
+export type BondType =
+  | 'rh'
+  | 'financeiro'
+  | 'marketing'
+  | 'nota_fiscal'
+  | 'gestao_social'
+  | 'educador'
+  | 'parceiro'
+  | 'usuario_comum';
 
 export type EventStatus = 'confirmado' | 'pendente' | 'cancelado' | 'concluido';
 
