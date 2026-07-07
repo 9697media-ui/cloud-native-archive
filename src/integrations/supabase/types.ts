@@ -265,6 +265,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bond_type: string | null
           created_at: string
           delegated_units: string[] | null
           email: string | null
@@ -281,6 +282,7 @@ export type Database = {
           view_restrictions: Json | null
         }
         Insert: {
+          bond_type?: string | null
           created_at?: string
           delegated_units?: string[] | null
           email?: string | null
@@ -297,6 +299,7 @@ export type Database = {
           view_restrictions?: Json | null
         }
         Update: {
+          bond_type?: string | null
           created_at?: string
           delegated_units?: string[] | null
           email?: string | null
