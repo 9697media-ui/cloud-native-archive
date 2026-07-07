@@ -131,3 +131,22 @@ export const PERMISSION_LEVELS: { value: PermissionLevel; label: string }[] = [
   { value: 'editor', label: 'Editor (Apenas Edição)' },
   { value: 'usuario_padrao', label: 'Usuário Padrão (Visualizador)' },
 ];
+
+// Vínculo do usuário — agrupado por categoria
+export const BOND_LABELS: Record<BondType, string> = {
+  rh: 'RH',
+  financeiro: 'Financeiro',
+  marketing: 'Marketing',
+  nota_fiscal: 'Nota Fiscal',
+  gestao_social: 'Gestão Social',
+  educador: 'Educador',
+  parceiro: 'Parceiro',
+  usuario_comum: 'Usuário Comum',
+};
+
+export const BOND_GROUPS: { label: string; options: BondType[] }[] = [
+  { label: 'Interno — Administrativo (Setor)', options: ['rh', 'financeiro', 'marketing', 'nota_fiscal'] },
+  { label: 'Interno — Social (Unidade)', options: ['gestao_social', 'educador'] },
+  { label: 'Externo', options: ['parceiro', 'usuario_comum'] },
+];
+
