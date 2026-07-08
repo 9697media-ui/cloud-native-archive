@@ -520,27 +520,55 @@ export default function NewsGeneratorPage() {
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\n/g, '<br/>');
 
-    const bodyParts: string[] = [];
-    finalRenderModules.forEach((module: any) => {
+    // Renderiza o conteúdo de um módulo (célula da grade)
+    const cellHtml = (module: any): string => {
       if (module.type === 'paragraph') {
-        if (module.content)
-          bodyParts.push(
-            `<p style="font-size:12pt;line-height:1.5;text-align:justify;margin:0 0 14px 0;">${fmt(module.content)}</p>`
-          );
-      } else if (module.type === 'image') {
-        if (module.content)
-          bodyParts.push(
-            `<p style="text-align:center;margin:0 0 14px 0;"><img src="${esc(module.content)}" style="max-width:100%;height:auto;"/></p>`
-          );
-      } else if (module.type === 'gallery') {
-        (module.items || []).forEach((it: any) => {
-          if (it.content)
-            bodyParts.push(
-              `<p style="text-align:center;margin:0 0 14px 0;"><img src="${esc(it.content)}" style="max-width:100%;height:auto;"/></p>`
-            );
-        });
+        return `<div style="font-size:12pt;line-height:1.5;text-align:justify;">${fmt(module.content || '')}</div>`;
       }
+      if (module.type === 'image') {
+        return `<img src="${esc(module.content)}" style="width:100%;height:auto;display:block;"/>`;
+      }
+      if (module.type === 'gallery') {
+        return (module.items || [])
+          .filter((it: any) => it.content)
+          .map((it: any) => `<img src="${esc(it.content)}" style="width:100%;height:auto;display:block;margin-bottom:8px;"/>`)
+          .join('');
+      }
+      return '';
+    };
+
+    // Agrupa os módulos em linhas de 3 colunas, igual ao preview
+    const rows: any[][] = [];
+    let current: any[] = [];
+    let colSum = 0;
+    finalRenderModules.forEach((module: any) => {
+      if (!module.content && module.type !== 'gallery') return;
+      const cols = Math.min(module.cols || 3, 3);
+      if (colSum + cols > 3 && current.length > 0) {
+        rows.push(current);
+        current = [];
+        colSum = 0;
+      }
+      current.push(module);
+      colSum += cols;
     });
+    if (current.length > 0) rows.push(current);
+
+    const bodyParts: string[] = rows.map((row) => {
+      // Linha única de largura total -> bloco simples
+      if (row.length === 1) {
+        return `<div style="margin:0 0 14px 0;">${cellHtml(row[0])}</div>`;
+      }
+      const cells = row
+        .map((m) => {
+          const cols = Math.min(m.cols || 1, 3);
+          const width = ((cols / 3) * 100).toFixed(2);
+          return `<td valign="top" width="${width}%" style="width:${width}%;vertical-align:top;padding:0 6px;">${cellHtml(m)}</td>`;
+        })
+        .join('');
+      return `<table width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;margin:0 0 14px 0;"><tr>${cells}</tr></table>`;
+    });
+
 
     return `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
