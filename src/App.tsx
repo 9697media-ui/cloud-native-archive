@@ -82,7 +82,7 @@ const App = () => (
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route path="/email-preview" element={<EmailPreview />} />
                 <Route element={<AppLayout />}>
-                  <Route path="/" element={<PublicEventsPage />} />
+                  <Route path="/" element={<EventsHubPage />} />
                   <Route path="/visao-geral" element={
                     <ProtectedRoute><Dashboard /></ProtectedRoute>
                   } />
