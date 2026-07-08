@@ -25,6 +25,16 @@ interface Props {
   event?: AppEvent | null;
 }
 
+const slugify = (text: string): string =>
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/[^a-z0-9\s-]/g, '') // remove caracteres especiais
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
 const emptyEvent = (): Partial<AppEvent> => ({
   title: '',
   description: '',
@@ -69,15 +79,43 @@ const emptyEvent = (): Partial<AppEvent> => ({
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
-  const { addEvent, updateEvent, detectConflicts, setSelectedEvent } = useApp();
+  const { addEvent, updateEvent, detectConflicts, setSelectedEvent, events } = useApp();
   const { userName, unit, isAdmin } = useUserRole();
   const [form, setForm] = useState<Partial<AppEvent>>(emptyEvent());
   const [conflicts, setConflicts] = useState<AppEvent[]>([]);
   const [showConflictAlert, setShowConflictAlert] = useState(false);
   const [showBannerWarning, setShowBannerWarning] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   const isEditing = !!event;
+
+  // Gera um slug único a partir de um texto base, adicionando um sufixo numérico
+  // caso já exista outro evento com o mesmo slug.
+  const generateUniqueSlug = (base: string): string => {
+    const baseSlug = slugify(base);
+    if (!baseSlug) return '';
+    const taken = new Set(
+      events
+        .filter(e => e.id !== event?.id && e.slug)
+        .map(e => e.slug as string)
+    );
+    if (!taken.has(baseSlug)) return baseSlug;
+    let i = 2;
+    while (taken.has(`${baseSlug}-${i}`)) i++;
+    return `${baseSlug}-${i}`;
+  };
+
+  // Ao digitar o título, atualiza o slug automaticamente enquanto o usuário
+  // não tiver editado o campo manualmente.
+  useEffect(() => {
+    if (slugManuallyEdited) return;
+    const auto = generateUniqueSlug(form.title || '');
+    if (auto !== (form.slug || '')) {
+      setForm(prev => ({ ...prev, slug: auto }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.title, slugManuallyEdited]);
 
   useEffect(() => {
     if (event) {
@@ -99,6 +137,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     } else {
       setForm({ ...emptyEvent(), unit: (unit as Unit) || 'DIC' });
     }
+    // Ao editar um evento que já possui slug, preserva o valor existente.
+    setSlugManuallyEdited(!!event?.slug);
     setConflicts([]);
     setShowConflictAlert(false);
     setShowBannerWarning(false);
@@ -351,11 +391,14 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         <Input 
                           id="slug"
                           value={form.slug} 
-                          onChange={e => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} 
+                          onChange={e => {
+                            setSlugManuallyEdited(true);
+                            setForm({ ...form, slug: slugify(e.target.value) });
+                          }} 
                           placeholder="meu-evento-especial"
                         />
                       </div>
-                      <p className="text-[11px] text-muted-foreground mt-1">Deixe em branco para usar o ID padrão.</p>
+                      <p className="text-[11px] text-muted-foreground mt-1">Gerado automaticamente a partir do título. Edite para personalizar.</p>
                     </div>
                   </div>
                 )}
