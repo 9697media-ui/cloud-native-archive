@@ -944,7 +944,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                         <p className="text-[11px] text-muted-foreground">Capacidade já inclui o motorista.</p>
 
-                        {form.marketing_request && (
+                        {marketingSeat > 0 && (
                           <div className="px-3 py-2 bg-amber-50/60 rounded-md border border-dashed border-amber-300">
                             <p className="text-[11px] text-amber-700 flex items-center gap-1.5 font-medium">
                               <CheckCircle2 className="h-3 w-3" /> 1 vaga do marketing está sendo contabilizada na logística de transporte
