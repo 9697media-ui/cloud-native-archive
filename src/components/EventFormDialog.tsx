@@ -162,6 +162,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     setConflicts([]);
     setShowConflictAlert(false);
     setShowBannerWarning(false);
+    setTransportExtraEquipment(false);
     setErrors({});
   }, [event, open]);
 
