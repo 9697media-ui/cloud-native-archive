@@ -39,6 +39,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function MarketingRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isMarketing, loading: roleLoading } = useUserRole();
+  const [searchParams] = useSearchParams();
+  const isEmbed = searchParams.get('embed') === 'true';
+
+  if (authLoading || roleLoading) return null;
+  if (!isAuthenticated && !isEmbed) return <Navigate to="/login" replace />;
+  if (!isMarketing) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 function AuthRedirect({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
   const [searchParams] = useSearchParams();
