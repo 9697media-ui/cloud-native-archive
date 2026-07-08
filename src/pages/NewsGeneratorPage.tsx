@@ -580,47 +580,41 @@ export default function NewsGeneratorPage() {
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pageWidthMm = 210;
     const pageHeightMm = 297;
+
+    // Sempre uma única página A4: recorta a área com conteúdo e
+    // encaixa proporcionalmente dentro da página, igual ao preview.
     const pageHeightPx = Math.floor((canvas.width * pageHeightMm) / pageWidthMm);
     const sourceHeight = getCanvasContentHeight(canvas, pageHeightPx);
 
-    if (sourceHeight <= pageHeightPx * 1.15) {
-      const pageCanvas = document.createElement('canvas');
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = sourceHeight;
-      const context = pageCanvas.getContext('2d');
-      if (!context) throw new Error('Não foi possível preparar a página do PDF.');
+    const contentCanvas = document.createElement('canvas');
+    contentCanvas.width = canvas.width;
+    contentCanvas.height = sourceHeight;
+    const context = contentCanvas.getContext('2d');
+    if (!context) throw new Error('Não foi possível preparar a página do PDF.');
 
-      context.fillStyle = '#ffffff';
-      context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-      context.drawImage(canvas, 0, 0, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
-      pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, pageWidthMm, pageHeightMm);
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, contentCanvas.width, contentCanvas.height);
+    context.drawImage(canvas, 0, 0, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
 
-      return pdf;
-    }
+    // Escala proporcional para caber na página inteira (largura e altura).
+    const scale = Math.min(pageWidthMm / canvas.width, pageHeightMm / sourceHeight);
+    const renderWidthMm = canvas.width * scale;
+    const renderHeightMm = sourceHeight * scale;
+    const offsetX = (pageWidthMm - renderWidthMm) / 2;
+    const offsetY = (pageHeightMm - renderHeightMm) / 2;
 
-    const totalPages = Math.max(1, Math.ceil((sourceHeight - 2) / pageHeightPx));
-
-    for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
-      const sourceY = pageIndex * pageHeightPx;
-      const sliceHeight = Math.min(pageHeightPx, sourceHeight - sourceY);
-      if (sliceHeight <= 2) continue;
-
-      const pageCanvas = document.createElement('canvas');
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = pageHeightPx;
-      const context = pageCanvas.getContext('2d');
-      if (!context) throw new Error('Não foi possível preparar a página do PDF.');
-
-      context.fillStyle = '#ffffff';
-      context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-      context.drawImage(canvas, 0, sourceY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-
-      if (pageIndex > 0) pdf.addPage('a4', 'portrait');
-      pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, pageWidthMm, pageHeightMm);
-    }
+    pdf.addImage(
+      contentCanvas.toDataURL('image/jpeg', 0.98),
+      'JPEG',
+      offsetX,
+      offsetY,
+      renderWidthMm,
+      renderHeightMm,
+    );
 
     return pdf;
   };
+
 
   const handleOpenDoc = async () => {
     try {
