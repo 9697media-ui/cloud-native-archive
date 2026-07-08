@@ -93,10 +93,10 @@ const App = () => (
                     <ProtectedRoute><UsersPage /></ProtectedRoute>
                   } />
                   <Route path="/auditoria" element={
-                    <ProtectedRoute><AuditPage /></ProtectedRoute>
+                    <MarketingRoute><AuditPage /></MarketingRoute>
                   } />
                   <Route path="/design-manual" element={
-                    <ProtectedRoute><DesignManualPage /></ProtectedRoute>
+                    <MarketingRoute><DesignManualPage /></MarketingRoute>
                   } />
                   <Route path="/noticias" element={
                     <ProtectedRoute><NewsGeneratorPage /></ProtectedRoute>
