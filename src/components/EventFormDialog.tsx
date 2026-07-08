@@ -1280,27 +1280,27 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-3 py-1">
-            <div className="rounded-md border border-border p-3">
-              <p className="text-xs font-medium text-foreground mb-0.5">Usar automático (baseado no título)</p>
-              <p className="text-xs text-muted-foreground break-all">anabrasil.com/eventos/{autoSlugPreview}</p>
-            </div>
-            <div className="rounded-md border border-border p-3">
-              <p className="text-xs font-medium text-foreground mb-0.5">Manter personalizado</p>
-              <p className="text-xs text-muted-foreground break-all">anabrasil.com/eventos/{form.slug || 'preview'}</p>
-            </div>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowSlugPrompt(false)}>Manter personalizado</AlertDialogCancel>
-            <AlertDialogAction
+            <button
+              type="button"
               onClick={() => {
                 setSlugMode('auto');
                 setForm(prev => ({ ...prev, slug: autoSlugPreview }));
                 setShowSlugPrompt(false);
               }}
+              className="w-full text-left rounded-md border border-border p-3 transition-colors hover:border-primary hover:bg-accent"
             >
-              Usar automático
-            </AlertDialogAction>
-          </AlertDialogFooter>
+              <p className="text-xs font-medium text-foreground mb-0.5">Usar automático (baseado no título)</p>
+              <p className="text-xs text-muted-foreground break-all">anabrasil.com/eventos/{autoSlugPreview}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowSlugPrompt(false)}
+              className="w-full text-left rounded-md border border-border p-3 transition-colors hover:border-primary hover:bg-accent"
+            >
+              <p className="text-xs font-medium text-foreground mb-0.5">Manter personalizado</p>
+              <p className="text-xs text-muted-foreground break-all">anabrasil.com/eventos/{form.slug || 'preview'}</p>
+            </button>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
 
