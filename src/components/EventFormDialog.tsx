@@ -147,7 +147,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       setForm({ ...emptyEvent(), unit: (unit as Unit) || 'DIC' });
     }
     // Ao editar um evento que já possui slug, preserva o valor existente.
-    setSlugManuallyEdited(!!event?.slug);
+    setSlugMode(event?.slug ? 'custom' : 'auto');
+    setShowSlugPrompt(false);
     setConflicts([]);
     setShowConflictAlert(false);
     setShowBannerWarning(false);
