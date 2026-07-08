@@ -57,6 +57,7 @@ export function useDbUsers() {
         created_at: p.created_at,
         view_restrictions: (p as any).view_restrictions,
         bond_type: (p as any).bond_type ?? null,
+        partner_category: (p as any).partner_category ?? null,
       }));
 
       setDbUsers(users);
