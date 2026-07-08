@@ -395,14 +395,30 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       <Globe className="h-4 w-4" /> Configurações de Compartilhamento (Público)
                     </Label>
                     <div>
-                      <Label htmlFor="slug" className="text-xs font-medium mb-1 block">Link personalizado (Slug)</Label>
+                      <div className="flex items-center justify-between mb-1">
+                        <Label htmlFor="slug" className="text-xs font-medium block">Link personalizado (Slug)</Label>
+                        {slugMode === 'auto' ? (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Automático</Badge>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSlugMode('auto');
+                              setForm(prev => ({ ...prev, slug: generateUniqueSlug(prev.title || '') }));
+                            }}
+                            className="text-[10px] text-primary hover:underline"
+                          >
+                            Personalizado · Usar título
+                          </button>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-muted-foreground whitespace-nowrap">anabrasil.com/eventos/</span>
                         <Input 
                           id="slug"
                           value={form.slug} 
                           onChange={e => {
-                            setSlugManuallyEdited(true);
+                            setSlugMode('custom');
                             setForm({ ...form, slug: slugify(e.target.value) });
                           }} 
                           placeholder="meu-evento-especial"
