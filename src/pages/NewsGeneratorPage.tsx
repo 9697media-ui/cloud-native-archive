@@ -562,6 +562,12 @@ export default function NewsGeneratorPage() {
       windowHeight: window.innerHeight,
       onclone: (clonedDocument) => {
         const clonedElement = clonedDocument.getElementById('pdf-content');
+        const exportStyle = clonedDocument.createElement('style');
+        exportStyle.textContent = `
+          [data-pdf-helper="true"] { display: none !important; }
+          #pdf-content.pdf-export-mode { box-shadow: none !important; }
+        `;
+        clonedDocument.head.appendChild(exportStyle);
         if (clonedElement) {
           clonedElement.classList.add('pdf-export-mode');
           clonedElement.style.width = `${previewWidth}px`;
@@ -1080,7 +1086,7 @@ export default function NewsGeneratorPage() {
           onDragOver={handleContainerDragOver}
           onDrop={handleDrop}
         >
-          <div className={`border-b-4 border-primary pb-4 mb-8 ${isGeneratingPdf ? 'hidden' : 'print:hidden'}`}>
+          <div data-pdf-helper="true" className={`border-b-4 border-primary pb-4 mb-8 ${isGeneratingPdf ? 'hidden' : 'print:hidden'}`}>
             <span className="text-xs font-bold uppercase tracking-widest text-primary flex justify-between items-center">
               <span>Pré-visualização</span>
               <span className="text-slate-400 font-normal normal-case opacity-70 border border-slate-300 px-2 py-0.5 rounded text-[10px]">
