@@ -44,6 +44,7 @@ export function useUserRole() {
       setPermissionLevel(activePersona.permission_level);
       setUnit(activePersona.unit);
       setDelegatedUnits(activePersona.delegated_units || []);
+      setBondType((activePersona as any).bond_type || null);
       
       // If general admin, no restrictions. Otherwise, restrict to the persona's unit.
       setViewRestrictions(activePersona.permission_level === 'admin_geral' ? null : [activePersona.unit]);
