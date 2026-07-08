@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApp } from '@/contexts/AppContext';
 import { useUserRole } from '@/hooks/useUserRole';
-import { AppEvent, UNITS, EVENT_TYPES, EVENT_STATUSES, PARTNER_TYPES, Unit, EventType, EventStatus, PartnerType, SYSTEM_COLORS, eventUnitLabel } from '@/types';
+import { AppEvent, UNITS, EVENT_TYPES, EVENT_STATUSES, PARTNER_TYPES, Unit, EventType, EventStatus, PartnerType, SYSTEM_COLORS, eventUnitLabel, TRANSPORT_VEHICLES, TransportVehicle } from '@/types';
 import { getStatusDotClass } from '@/lib/statusColors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle2, Plus, X, Globe, Eye, Layout, CalendarDays, Lock, Share2, Info, EyeOff, Clock } from 'lucide-react';
+import { CheckCircle2, Plus, X, Globe, Eye, Layout, CalendarDays, Lock, Share2, Info, EyeOff, Clock, Truck, AlertTriangle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FileUpload } from './FileUpload';
 import { EventDetailDialog } from './EventDetailDialog';
@@ -77,6 +77,9 @@ const emptyEvent = (): Partial<AppEvent> => ({
   equipment_needed: '',
   marketing_items: [],
   marketing_coverage: false,
+  transport_needed: false,
+  transport_vehicle: '',
+  transport_passengers: 0,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
@@ -87,6 +90,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   const [showConflictAlert, setShowConflictAlert] = useState(false);
   const [showBannerWarning, setShowBannerWarning] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [transportExtraEquipment, setTransportExtraEquipment] = useState(false);
   const [slugMode, setSlugMode] = useState<'auto' | 'custom'>('auto');
   const [showSlugPrompt, setShowSlugPrompt] = useState(false);
   const [autoSlugPreview, setAutoSlugPreview] = useState('');
@@ -158,6 +162,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     setConflicts([]);
     setShowConflictAlert(false);
     setShowBannerWarning(false);
+    setTransportExtraEquipment(false);
     setErrors({});
   }, [event, open]);
 
@@ -241,6 +246,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       equipment_needed: form.equipment_needed || '',
       marketing_items: form.marketing_items || [],
       marketing_coverage: form.marketing_coverage || false,
+      transport_needed: form.transport_needed || false,
+      transport_vehicle: form.transport_needed ? (form.transport_vehicle || '') : '',
+      transport_passengers: form.transport_needed ? (Number(form.transport_passengers) || 0) : 0,
     };
   };
 
@@ -884,6 +892,99 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                     </div>
                   </div>
                 </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                    <Switch
+                      id="transport_needed"
+                      checked={form.transport_needed || false}
+                      onCheckedChange={v => setForm({ ...form, transport_needed: v })}
+                    />
+                    <Label htmlFor="transport_needed" className="cursor-pointer flex-1 text-sm font-semibold flex items-center gap-2">
+                      <Truck className="h-4 w-4" /> Logística de Transporte
+                    </Label>
+                  </div>
+
+                  {form.transport_needed && (() => {
+                    const vehicle = TRANSPORT_VEHICLES.find(v => v.value === form.transport_vehicle);
+                    const capacity = vehicle?.capacity ?? 0;
+                    const marketingSeat = form.marketing_request ? 1 : 0;
+                    const passengers = Number(form.transport_passengers) || 0;
+                    const occupied = passengers + marketingSeat;
+                    const seatsFull = capacity > 0 && occupied >= capacity;
+                    const seatsOver = capacity > 0 && occupied > capacity;
+                    const needSupport = seatsFull || transportExtraEquipment;
+                    return (
+                      <div className="rounded-lg border border-amber-100 bg-amber-50/30 p-4 space-y-4 animate-in fade-in slide-in-from-top-1">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <Label className="text-xs font-medium mb-1 block">Veículo</Label>
+                            <Select
+                              value={form.transport_vehicle || ''}
+                              onValueChange={v => setForm({ ...form, transport_vehicle: v as TransportVehicle })}
+                            >
+                              <SelectTrigger><SelectValue placeholder="Selecione o veículo" /></SelectTrigger>
+                              <SelectContent>
+                                {TRANSPORT_VEHICLES.map(v => (
+                                  <SelectItem key={v.value} value={v.value}>{v.label} — {v.capacity} assentos</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium mb-1 block">Passageiros previstos</Label>
+                            <Input
+                              type="number"
+                              min={0}
+                              value={form.transport_passengers ?? 0}
+                              onChange={e => setForm({ ...form, transport_passengers: Math.max(0, Number(e.target.value) || 0) })}
+                            />
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] text-muted-foreground">Capacidade já inclui o motorista.</p>
+
+                        {form.marketing_request && (
+                          <div className="px-3 py-2 bg-amber-50/60 rounded-md border border-dashed border-amber-300">
+                            <p className="text-[11px] text-amber-700 flex items-center gap-1.5 font-medium">
+                              <CheckCircle2 className="h-3 w-3" /> 1 vaga do marketing está sendo contabilizada na logística de transporte
+                            </p>
+                          </div>
+                        )}
+
+                        {capacity > 0 && (
+                          <p className="text-xs text-foreground">
+                            Ocupação: <span className="font-semibold">{occupied}</span> / {capacity} assentos
+                            {marketingSeat > 0 && <span className="text-muted-foreground"> (inclui 1 do marketing)</span>}
+                          </p>
+                        )}
+
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={transportExtraEquipment}
+                            onCheckedChange={v => setTransportExtraEquipment(!!v)}
+                          />
+                          Será necessário levar equipamentos/materiais volumosos
+                        </label>
+
+                        {needSupport && (
+                          <div className="px-3 py-2 bg-destructive/10 rounded-md border border-dashed border-destructive/40 animate-in fade-in zoom-in-95 duration-200">
+                            <p className="text-[11px] text-destructive flex items-center gap-1.5 font-medium">
+                              <AlertTriangle className="h-3 w-3" />
+                              {seatsOver
+                                ? 'Assentos excedidos — contabilize um veículo de apoio.'
+                                : seatsFull
+                                  ? 'Todos os assentos estão ocupados — contabilize um veículo de apoio.'
+                                  : 'Transporte de equipamentos — contabilize um veículo de apoio.'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+
+
 
                 <div className="space-y-4 pt-4 border-t">
                   <Label className="text-sm font-semibold mb-1.5 block">Observações internas</Label>
