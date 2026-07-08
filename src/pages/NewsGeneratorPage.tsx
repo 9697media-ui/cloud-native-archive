@@ -644,7 +644,20 @@ export default function NewsGeneratorPage() {
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 15mm; }
-          body { background: white; -webkit-print-color-adjust: exact; }
+          body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          /* Mantém a mesma grade de 3 colunas do preview, independente da largura */
+          .grid-container-modern {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 0 !important;
+            padding: 0 !important;
+          }
+          #pdf-content {
+            max-width: none !important;
+            width: 100% !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            background: none !important;
+          }
         }
         .avoid-break {
           page-break-inside: avoid !important;
