@@ -155,7 +155,9 @@ export function useUserRole() {
     permissionLevel,
     unit,
     delegatedUnits,
-    canViewAuditoria
+    canViewAuditoria,
+    bondType,
+    isMarketing
   };
 }
 
