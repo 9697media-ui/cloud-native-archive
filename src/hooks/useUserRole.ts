@@ -85,6 +85,7 @@ export function useUserRole() {
         setPermissionLevel(profileData.permission_level);
         setUnit(profileData.unit);
         setDelegatedUnits(profileData.delegated_units as string[] || []);
+        setBondType((profileData as any).bond_type || null);
       } else if (user.user_metadata?.name) {
         setUserName(user.user_metadata.name);
       } else {
