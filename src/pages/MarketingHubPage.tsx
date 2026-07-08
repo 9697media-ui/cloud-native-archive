@@ -1,38 +1,22 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { History, BookOpen, FileSearch, LayoutDashboard, Lock } from 'lucide-react';
 import { useUserRole } from '@/hooks/useUserRole';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import PageHeader from '@/components/PageHeader';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import AuditPage from '@/pages/AuditPage';
+import DesignManualPage from '@/pages/DesignManualPage';
+import TransparencyPage from '@/pages/TransparencyPage';
+import AdminToolboxPage from '@/pages/AdminToolboxPage';
 
-const tools = [
-  {
-    to: '/auditoria',
-    label: 'Auditoria',
-    description: 'Histórico de ações e registros do sistema.',
-    icon: History,
-  },
-  {
-    to: '/design-manual',
-    label: 'Manual Design',
-    description: 'Diretrizes visuais e identidade da marca.',
-    icon: BookOpen,
-  },
-  {
-    to: '/portal-transparencia',
-    label: 'Portal Transparência',
-    description: 'Configuração e gestão do portal de transparência.',
-    icon: FileSearch,
-  },
-  {
-    to: '/admin-toolbox',
-    label: 'Widgets',
-    description: 'Ferramentas e widgets administrativos.',
-    icon: LayoutDashboard,
-  },
+const tabs = [
+  { value: 'auditoria', label: 'Auditoria', icon: History, Component: AuditPage },
+  { value: 'design-manual', label: 'Manual Design', icon: BookOpen, Component: DesignManualPage },
+  { value: 'transparencia', label: 'Portal Transparência', icon: FileSearch, Component: TransparencyPage },
+  { value: 'widgets', label: 'Widgets', icon: LayoutDashboard, Component: AdminToolboxPage },
 ];
 
 export default function MarketingHubPage() {
   const { isMarketing, loading } = useUserRole();
+  const [activeTab, setActiveTab] = useState('auditoria');
 
   if (loading) return null;
 
@@ -49,27 +33,25 @@ export default function MarketingHubPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 lg:px-8">
-      <PageHeader
-        title="Marketing"
-        description="Central de ferramentas exclusivas do setor de Marketing."
-      />
+    <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-8">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="overflow-x-auto pb-2">
+          <TabsList className="h-10 w-max">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className="h-8 gap-1.5">
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {tools.map((tool) => (
-          <Link key={tool.to} to={tool.to} className="group">
-            <Card className="h-full transition-all hover:border-primary/40 hover:shadow-md">
-              <CardHeader>
-                <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <tool.icon className="h-5 w-5" />
-                </div>
-                <CardTitle className="text-base">{tool.label}</CardTitle>
-                <CardDescription>{tool.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
+        {tabs.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value} className="mt-4">
+            <tab.Component />
+          </TabsContent>
         ))}
-      </div>
+      </Tabs>
     </div>
   );
 }
