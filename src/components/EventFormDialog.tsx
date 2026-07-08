@@ -908,7 +908,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   {form.transport_needed && (() => {
                     const vehicle = TRANSPORT_VEHICLES.find(v => v.value === form.transport_vehicle);
                     const capacity = vehicle?.capacity ?? 0;
-                    const marketingSeat = form.marketing_request ? 1 : 0;
+                    const marketingSeat = (form.marketing_request && form.marketing_coverage) ? 1 : 0;
                     const passengers = Number(form.transport_passengers) || 0;
                     const occupied = passengers + marketingSeat;
                     const seatsFull = capacity > 0 && occupied >= capacity;
@@ -944,7 +944,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
 
                         <p className="text-[11px] text-muted-foreground">Capacidade já inclui o motorista.</p>
 
-                        {form.marketing_request && (
+                        {marketingSeat > 0 && (
                           <div className="px-3 py-2 bg-amber-50/60 rounded-md border border-dashed border-amber-300">
                             <p className="text-[11px] text-amber-700 flex items-center gap-1.5 font-medium">
                               <CheckCircle2 className="h-3 w-3" /> 1 vaga do marketing está sendo contabilizada na logística de transporte
