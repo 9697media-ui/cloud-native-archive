@@ -86,8 +86,36 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   const [showConflictAlert, setShowConflictAlert] = useState(false);
   const [showBannerWarning, setShowBannerWarning] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   const isEditing = !!event;
+
+  // Gera um slug único a partir de um texto base, adicionando um sufixo numérico
+  // caso já exista outro evento com o mesmo slug.
+  const generateUniqueSlug = (base: string): string => {
+    const baseSlug = slugify(base);
+    if (!baseSlug) return '';
+    const taken = new Set(
+      events
+        .filter(e => e.id !== event?.id && e.slug)
+        .map(e => e.slug as string)
+    );
+    if (!taken.has(baseSlug)) return baseSlug;
+    let i = 2;
+    while (taken.has(`${baseSlug}-${i}`)) i++;
+    return `${baseSlug}-${i}`;
+  };
+
+  // Ao digitar o título, atualiza o slug automaticamente enquanto o usuário
+  // não tiver editado o campo manualmente.
+  useEffect(() => {
+    if (slugManuallyEdited) return;
+    const auto = generateUniqueSlug(form.title || '');
+    if (auto !== (form.slug || '')) {
+      setForm(prev => ({ ...prev, slug: auto }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.title, slugManuallyEdited]);
 
   useEffect(() => {
     if (event) {
