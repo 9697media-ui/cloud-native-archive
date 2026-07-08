@@ -105,10 +105,10 @@ const App = () => (
                     <ProtectedRoute><MarketingHubPage /></ProtectedRoute>
                   } />
                   <Route path="/portal-transparencia" element={
-                    <ProtectedRoute><TransparencyPage /></ProtectedRoute>
+                    <MarketingRoute><TransparencyPage /></MarketingRoute>
                   } />
                   <Route path="/admin-toolbox" element={
-                    <ProtectedRoute><AdminToolboxPage /></ProtectedRoute>
+                    <MarketingRoute><AdminToolboxPage /></MarketingRoute>
                   } />
                   <Route path="*" element={<NotFound />} />
 
