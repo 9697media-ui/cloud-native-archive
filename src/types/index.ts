@@ -94,7 +94,17 @@ export interface AppUser {
   delegated_units?: Unit[] | null;
   is_beta_tester?: boolean;
   bond_type?: BondType | null;
+  partner_category?: PartnerCategory | null;
 }
+
+export type PartnerCategory = 'padrinho_doador' | 'empresa' | 'figura_publica' | 'outros';
+
+export const PARTNER_CATEGORIES: { value: PartnerCategory; label: string }[] = [
+  { value: 'padrinho_doador', label: 'Padrinho/Doador' },
+  { value: 'empresa', label: 'Empresa' },
+  { value: 'figura_publica', label: 'Figura Pública' },
+  { value: 'outros', label: 'Outros' },
+];
 
 export const UNITS: Unit[] = ['DIC', 'Nilópolis', 'Santana', 'Administração'];
 
