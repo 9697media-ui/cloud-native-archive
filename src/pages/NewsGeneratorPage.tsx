@@ -486,38 +486,48 @@ export default function NewsGeneratorPage() {
     setPdfError(false);
 
     try {
-      if (!(window as any).html2pdf) {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-        document.head.appendChild(script);
+      // Carrega as libs instaladas (mesmo motor de renderização do preview)
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
 
-        await Promise.race([
-          new Promise<void>((resolve, reject) => {
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error('Erro de rede ao carregar biblioteca'));
-          }),
-          new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Timeout no script')), 15000)),
-        ]);
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      // Aguarda o React aplicar o estado de impressão (esconder chrome do editor)
+      await new Promise((resolve) => setTimeout(resolve, 400));
 
       const element = document.getElementById('pdf-content');
-      const opt = {
-        margin: 15,
-        filename: 'noticia-institucional.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'], avoid: ['.avoid-break', 'h1', 'h2', 'img'] },
-      };
+      if (!element) throw new Error('Conteúdo não encontrado');
 
-      const pdfPromise = (window as any).html2pdf().set(opt).from(element).save();
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: element.scrollWidth,
+      });
 
-      await Promise.race([
-        pdfPromise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout gerando arquivo')), 20000)),
-      ]);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+      let heightLeft = imgHeight;
+      let position = margin;
+
+      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight - margin * 2;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + margin;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight - margin * 2;
+      }
+
+      pdf.save('noticia-institucional.pdf');
     } catch (error) {
       console.error('Falha ao gerar PDF:', error);
       setPdfError(true);
@@ -527,6 +537,7 @@ export default function NewsGeneratorPage() {
       setIsGeneratingPdf(false);
     }
   };
+
 
   const renderModules: any[] = [];
   let currentGalleryGroup: any = null;
