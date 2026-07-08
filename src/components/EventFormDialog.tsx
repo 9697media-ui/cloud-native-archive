@@ -87,7 +87,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   const [showConflictAlert, setShowConflictAlert] = useState(false);
   const [showBannerWarning, setShowBannerWarning] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [slugMode, setSlugMode] = useState<'auto' | 'custom'>('auto');
+  const [showSlugPrompt, setShowSlugPrompt] = useState(false);
+  const [autoSlugPreview, setAutoSlugPreview] = useState('');
 
   const isEditing = !!event;
 
