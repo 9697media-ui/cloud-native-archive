@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { email, password, name, role, permissionLevel, unit, bond_type } = body;
+    const { email, password, name, role, permissionLevel, unit, bond_type, partner_category } = body;
 
     if (!email || !password || !name || !role) {
       return new Response(JSON.stringify({ error: 'Parâmetros ausentes.' }), {
