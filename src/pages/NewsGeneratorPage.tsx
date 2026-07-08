@@ -1002,13 +1002,13 @@ export default function NewsGeneratorPage() {
               </div>
             )}
             {finalRenderModules.map((module) => {
-              const widthClass = isGeneratingPdf ? getPdfWidthClass(module.cols) : '';
+              const widthClass = '';
               const dragId = module.type === 'gallery' ? (module.items?.[0]?.id || module.id) : module.id;
               const isDraggingThis = dragItem?.id === dragId;
               const isTarget = dropIndicator?.id === dragId;
-              const heightStyle = getHeightStyle(module.rows, isGeneratingPdf);
+              const heightStyle = getHeightStyle(module.rows, false);
               
-              const gridStyle: React.CSSProperties = !isGeneratingPdf ? {
+              const gridStyle: React.CSSProperties = {
                 gridColumn: `span ${module.cols || 3}`,
                 gridRow: module.rows !== 'auto' ? `span ${module.rows}` : 'span 1',
                 height: '100%',
@@ -1016,9 +1016,8 @@ export default function NewsGeneratorPage() {
                 zIndex: 20,
                 display: 'flex',
                 flexDirection: 'column'
-              } : {
-                ...heightStyle
               };
+
 
               let contentRender: React.ReactNode = null;
               switch (module.type) {
