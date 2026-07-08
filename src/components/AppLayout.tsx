@@ -96,7 +96,7 @@ export default function AppLayout() {
     <div className={cn("flex min-h-screen flex-col bg-background", isCleanView && "min-h-0 h-auto bg-transparent overflow-visible")}>
       {!hideHeaderParam && !isEmbedParam && <ImpersonationBanner />}
       {!hideHeaderParam && !isEmbedParam && (
-        <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
+        <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80 print:hidden">
           <div className="flex h-16 w-full items-center gap-4 px-4 lg:px-8">
             {isMobile && (
               <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>

@@ -482,61 +482,30 @@ export default function NewsGeneratorPage() {
   };
 
   const handlePrint = async () => {
-    setIsGeneratingPdf(true);
     setPdfError(false);
+    // Ativa o modo limpo (esconde o chrome do editor) mantendo o layout do preview
+    setIsGeneratingPdf(true);
+
+    // Aguarda o React aplicar o modo de impressão antes de abrir o diálogo
+    await new Promise((resolve) => setTimeout(resolve, 350));
+
+    const cleanup = () => {
+      setIsGeneratingPdf(false);
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
 
     try {
-      // Carrega as libs instaladas (mesmo motor de renderização do preview)
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import('html2canvas'),
-        import('jspdf'),
-      ]);
-
-      // Aguarda o React aplicar o estado de impressão (esconder chrome do editor)
-      await new Promise((resolve) => setTimeout(resolve, 400));
-
-      const element = document.getElementById('pdf-content');
-      if (!element) throw new Error('Conteúdo não encontrado');
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        windowWidth: element.scrollWidth,
-      });
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const imgWidth = pageWidth - margin * 2;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const imgData = canvas.toDataURL('image/jpeg', 0.98);
-
-      let heightLeft = imgHeight;
-      let position = margin;
-
-      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - margin * 2;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + margin;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight - margin * 2;
-      }
-
-      pdf.save('noticia-institucional.pdf');
+      // Usa o motor de impressão do navegador -> renderização idêntica ao preview
+      window.print();
     } catch (error) {
-      console.error('Falha ao gerar PDF:', error);
+      console.error('Falha ao imprimir:', error);
       setPdfError(true);
       setTimeout(() => setPdfError(false), 7000);
-      window.print();
-    } finally {
-      setIsGeneratingPdf(false);
+      cleanup();
     }
   };
+
 
   const buildDocHtml = () => {
     const esc = (s: string) =>
@@ -551,27 +520,55 @@ export default function NewsGeneratorPage() {
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\n/g, '<br/>');
 
-    const bodyParts: string[] = [];
-    finalRenderModules.forEach((module: any) => {
+    // Renderiza o conteúdo de um módulo (célula da grade)
+    const cellHtml = (module: any): string => {
       if (module.type === 'paragraph') {
-        if (module.content)
-          bodyParts.push(
-            `<p style="font-size:12pt;line-height:1.5;text-align:justify;margin:0 0 14px 0;">${fmt(module.content)}</p>`
-          );
-      } else if (module.type === 'image') {
-        if (module.content)
-          bodyParts.push(
-            `<p style="text-align:center;margin:0 0 14px 0;"><img src="${esc(module.content)}" style="max-width:100%;height:auto;"/></p>`
-          );
-      } else if (module.type === 'gallery') {
-        (module.items || []).forEach((it: any) => {
-          if (it.content)
-            bodyParts.push(
-              `<p style="text-align:center;margin:0 0 14px 0;"><img src="${esc(it.content)}" style="max-width:100%;height:auto;"/></p>`
-            );
-        });
+        return `<div style="font-size:12pt;line-height:1.5;text-align:justify;">${fmt(module.content || '')}</div>`;
       }
+      if (module.type === 'image') {
+        return `<img src="${esc(module.content)}" style="width:100%;height:auto;display:block;"/>`;
+      }
+      if (module.type === 'gallery') {
+        return (module.items || [])
+          .filter((it: any) => it.content)
+          .map((it: any) => `<img src="${esc(it.content)}" style="width:100%;height:auto;display:block;margin-bottom:8px;"/>`)
+          .join('');
+      }
+      return '';
+    };
+
+    // Agrupa os módulos em linhas de 3 colunas, igual ao preview
+    const rows: any[][] = [];
+    let current: any[] = [];
+    let colSum = 0;
+    finalRenderModules.forEach((module: any) => {
+      if (!module.content && module.type !== 'gallery') return;
+      const cols = Math.min(module.cols || 3, 3);
+      if (colSum + cols > 3 && current.length > 0) {
+        rows.push(current);
+        current = [];
+        colSum = 0;
+      }
+      current.push(module);
+      colSum += cols;
     });
+    if (current.length > 0) rows.push(current);
+
+    const bodyParts: string[] = rows.map((row) => {
+      // Linha única de largura total -> bloco simples
+      if (row.length === 1) {
+        return `<div style="margin:0 0 14px 0;">${cellHtml(row[0])}</div>`;
+      }
+      const cells = row
+        .map((m) => {
+          const cols = Math.min(m.cols || 1, 3);
+          const width = ((cols / 3) * 100).toFixed(2);
+          return `<td valign="top" width="${width}%" style="width:${width}%;vertical-align:top;padding:0 6px;">${cellHtml(m)}</td>`;
+        })
+        .join('');
+      return `<table width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;margin:0 0 14px 0;"><tr>${cells}</tr></table>`;
+    });
+
 
     return `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
@@ -675,7 +672,20 @@ export default function NewsGeneratorPage() {
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 15mm; }
-          body { background: white; -webkit-print-color-adjust: exact; }
+          body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          /* Mantém a mesma grade de 3 colunas do preview, independente da largura */
+          .grid-container-modern {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 0 !important;
+            padding: 0 !important;
+          }
+          #pdf-content {
+            max-width: none !important;
+            width: 100% !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            background: none !important;
+          }
         }
         .avoid-break {
           page-break-inside: avoid !important;
