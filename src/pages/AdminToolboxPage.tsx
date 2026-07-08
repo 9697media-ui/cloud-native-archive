@@ -3517,7 +3517,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
 
   return (
-    <div className="container mx-auto py-10 px-4 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
         
         {/* Header Section */}
