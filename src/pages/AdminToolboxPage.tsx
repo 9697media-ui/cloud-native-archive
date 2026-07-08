@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown, History, RotateCcw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import PageHeader from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -3517,74 +3518,62 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
 
 
   return (
-    <div className="container mx-auto py-10 px-4 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
         
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary/10 rounded-xl">
-              <Lock className="h-8 w-8 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Construtor de Widgets Externos</h1>
-              <p className="text-muted-foreground">Crie ferramentas para usar em sites de terceiros (WordPress, Elementor, etc).</p>
-              <div className="flex gap-2 mt-2">
-                <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold" onClick={() => loadDemo('whatsapp')}>Demo Whats</Button>
-                <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold" onClick={() => loadDemo('banner')}>Demo Banner</Button>
-                <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold border-primary/40 text-primary" onClick={() => loadDemo('menu')}>Demo Menu c/ Submenu</Button>
-              </div>
-
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant={currentTemplateId ? 'ghost' : 'outline'} className="gap-2" onClick={() => { setTemplateName(cleanName(templateName)); setCurrentTemplateId(null); }}>
-                  <Plus className="h-4 w-4" />
-                  Salvar como novo
-                </Button>
-              </DialogTrigger>
-
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Salvar como novo modelo</DialogTitle>
-                  <DialogDescription>
-                    Cria um novo modelo a partir da configuração atual, sem alterar o original.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="py-4">
-                  <Label htmlFor="name">Nome do Modelo</Label>
-                  <Input 
-                    id="name" 
-                    placeholder="Ex: Menu Principal Elementor" 
-                    value={templateName}
-                    onChange={(e) => setTemplateName(e.target.value)}
-                  />
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-                  <Button onClick={saveTemplate} disabled={isSaving}>
-                    {isSaving ? "Salvando..." : "Confirmar Salvar"}
+        <PageHeader
+          title="Construtor de Widgets Externos"
+          description="Crie ferramentas para usar em sites de terceiros (WordPress, Elementor, etc)."
+          actions={
+            <>
+              <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold" onClick={() => loadDemo('whatsapp')}>Demo Whats</Button>
+              <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold" onClick={() => loadDemo('banner')}>Demo Banner</Button>
+              <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase tracking-wider font-bold border-primary/40 text-primary" onClick={() => loadDemo('menu')}>Demo Menu c/ Submenu</Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant={currentTemplateId ? 'ghost' : 'outline'} className="gap-2" onClick={() => { setTemplateName(cleanName(templateName)); setCurrentTemplateId(null); }}>
+                    <Plus className="h-4 w-4" />
+                    Salvar como novo
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-
-            {currentTemplateId ? (
-              <Button variant="outline" className="gap-2" disabled={isSaving} onClick={overwriteWithDraft}>
-                <Save className="h-4 w-4" />
-                {isSaving ? 'Salvando...' : 'Salvar alterações'}
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Salvar como novo modelo</DialogTitle>
+                    <DialogDescription>
+                      Cria um novo modelo a partir da configuração atual, sem alterar o original.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <Label htmlFor="name">Nome do Modelo</Label>
+                    <Input 
+                      id="name" 
+                      placeholder="Ex: Menu Principal Elementor" 
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
+                    <Button onClick={saveTemplate} disabled={isSaving}>
+                      {isSaving ? "Salvando..." : "Confirmar Salvar"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              {currentTemplateId ? (
+                <Button variant="outline" className="gap-2" disabled={isSaving} onClick={overwriteWithDraft}>
+                  <Save className="h-4 w-4" />
+                  {isSaving ? 'Salvando...' : 'Salvar alterações'}
+                </Button>
+              ) : null}
+              <Button className="md:w-auto w-full" variant="secondary" onClick={() => setViewMode('code')}>
+                Gerar Código para Copiar
               </Button>
-            ) : null}
+            </>
+          }
+        />
 
-
-            <Button className="md:w-auto w-full" variant="secondary" onClick={() => setViewMode('code')}>
-              Gerar Código para Copiar
-            </Button>
-
-          </div>
-        </div>
 
         {currentTemplateId && draftSavedAt && (
           <Alert className="bg-amber-500/10 border-amber-500/30">

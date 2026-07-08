@@ -37,6 +37,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import PageHeader from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import {
@@ -433,7 +434,7 @@ const TransparencyPage = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-5xl">
+    <div className="space-y-6">
       {hasGoogleAuth === false && (
         <Card className="mb-8 border-amber-200 bg-amber-50">
           <CardHeader><CardTitle className="text-amber-800 flex items-center gap-2"><LogIn className="h-5 w-5" /> Conexão Necessária</CardTitle></CardHeader>
@@ -441,16 +442,52 @@ const TransparencyPage = () => {
         </Card>
       )}
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Portal da Transparência</h1>
-          {hasGoogleAuth === true && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Google Drive conectado
-              {googleAccount && <span className="font-semibold">· {googleAccount}</span>}
-            </span>
-          )}
-          {hasGoogleAuth === true && isAdmin && (
+      <PageHeader
+        title="Portal da Transparência"
+        description="Documentos e pastas compartilhadas para consulta pública."
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={() => { const next: Record<string, any> = { none: 'asc', asc: 'desc', desc: 'none' }; setSortOrder(next[sortOrder]); }} className="gap-2 h-10">
+              {sortOrder === 'none' && <ArrowUpDown className="h-4 w-4" />}
+              {sortOrder === 'asc' && <ArrowUp className="h-4 w-4" />}
+              {sortOrder === 'desc' && <ArrowDown className="h-4 w-4" />}
+              Ordenar {sortOrder !== 'none' && (sortOrder === 'asc' ? '(A-Z)' : '(Z-A)')}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setIsBatchAdding(true);
+                setBatchAddingStep('select');
+                setSelectedItems([]);
+              }}
+              className="gap-2 h-10"
+            >
+              <Layers className="h-4 w-4" />
+              Adicionar em Lote
+            </Button>
+            <Dialog open={isAdding} onOpenChange={setIsAdding}>
+              <DialogTrigger asChild><Button className="gap-2 h-10"><Plus className="h-4 w-4" /> Nova Pasta</Button></DialogTrigger>
+              <DialogContent>
+                <DialogHeader><DialogTitle>Adicionar Pasta</DialogTitle></DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2"><label className="text-sm font-medium">Nome / Rótulo</label><Input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} /></div>
+                  <div className="space-y-2"><label className="text-sm font-medium">Link ou ID da Pasta</label><div className="relative"><Input value={newFolderId} onChange={(e) => { setNewFolderId(e.target.value); if (e.target.value.length > 20) fetchFolderName(e.target.value); }} className={isFetchingName ? "pr-10" : ""} />{isFetchingName && <div className="absolute right-3 top-1/2 -translate-y-1/2"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>}</div></div>
+                </div>
+                <DialogFooter><Button onClick={handleAddConfig}>Salvar</Button></DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        }
+      />
+
+      {hasGoogleAuth === true && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Google Drive conectado
+            {googleAccount && <span className="font-semibold">· {googleAccount}</span>}
+          </span>
+          {isAdmin && (
             <Dialog open={showDisconnectDialog} onOpenChange={setShowDisconnectDialog}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs text-destructive hover:text-destructive">
@@ -474,40 +511,8 @@ const TransparencyPage = () => {
             </Dialog>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => { const next: Record<string, any> = { none: 'asc', asc: 'desc', desc: 'none' }; setSortOrder(next[sortOrder]); }} className="gap-2 h-10">
-            {sortOrder === 'none' && <ArrowUpDown className="h-4 w-4" />}
-            {sortOrder === 'asc' && <ArrowUp className="h-4 w-4" />}
-            {sortOrder === 'desc' && <ArrowDown className="h-4 w-4" />}
-            Ordenar {sortOrder !== 'none' && (sortOrder === 'asc' ? '(A-Z)' : '(Z-A)')}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setIsBatchAdding(true);
-              setBatchAddingStep('select');
-              setSelectedItems([]);
-            }}
-            className="gap-2 h-10"
-          >
-            <Layers className="h-4 w-4" />
-            Adicionar em Lote
-          </Button>
+      )}
 
-          <Dialog open={isAdding} onOpenChange={setIsAdding}>
-            <DialogTrigger asChild><Button className="gap-2 h-10"><Plus className="h-4 w-4" /> Nova Pasta</Button></DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>Adicionar Pasta</DialogTitle></DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2"><label className="text-sm font-medium">Nome / Rótulo</label><Input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} /></div>
-                <div className="space-y-2"><label className="text-sm font-medium">Link ou ID da Pasta</label><div className="relative"><Input value={newFolderId} onChange={(e) => { setNewFolderId(e.target.value); if (e.target.value.length > 20) fetchFolderName(e.target.value); }} className={isFetchingName ? "pr-10" : ""} />{isFetchingName && <div className="absolute right-3 top-1/2 -translate-y-1/2"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>}</div></div>
-              </div>
-              <DialogFooter><Button onClick={handleAddConfig}>Salvar</Button></DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
 
       {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : (
         <div className="grid gap-6">

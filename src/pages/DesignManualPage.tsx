@@ -155,24 +155,18 @@ export default function DesignManualPage() {
   }
 
   return (
-    <div className="container max-w-7xl py-8 space-y-8 animate-in fade-in duration-500" id="design-manual-content">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-primary/10">
-        <div className="flex items-center gap-4">
-          <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-sm border border-primary/10">
-            <img src={logoImg} alt="anabrasil" className="h-12 w-12 object-contain" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>Manual de UX/UI Design</h1>
-            <p className="text-muted-foreground max-w-2xl">Diretrizes visuais e de experiência do usuário do ecossistema anabrasil.</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
+    <div className="space-y-6 animate-in fade-in duration-500" id="design-manual-content">
+      <PageHeader
+        title="Manual de UX/UI Design"
+        description="Diretrizes visuais e de experiência do usuário do ecossistema anabrasil."
+        actions={
           <Button onClick={exportToPDF} disabled={isExporting} variant="outline" className="gap-2">
             {isExporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             Exportar PDF
           </Button>
-        </div>
-      </div>
+        }
+      />
+
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <aside className="md:col-span-1 space-y-4">
