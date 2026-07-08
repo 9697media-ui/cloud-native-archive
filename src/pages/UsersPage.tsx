@@ -1645,6 +1645,22 @@ export default function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {editForm.bond_type === 'parceiro' && (
+                <div>
+                  <Label>Categoria do Parceiro</Label>
+                  <Select
+                    value={editForm.partner_category || ''}
+                    onValueChange={v => setEditForm({ ...editForm, partner_category: v as PartnerCategory })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Selecione a categoria" /></SelectTrigger>
+                    <SelectContent>
+                      {PARTNER_CATEGORIES.map(c => (
+                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div>
                 <Label>Nível de Acesso</Label>
                 <Select 
