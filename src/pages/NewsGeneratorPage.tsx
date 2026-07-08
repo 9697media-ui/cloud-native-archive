@@ -488,7 +488,6 @@ export default function NewsGeneratorPage() {
     try {
       setPdfError(false);
       setIsExportingPdf(true);
-      setIsGeneratingPdf(true);
       await waitForExportLayout();
       const pdf = await createPreviewPdf();
       pdf.save(getPdfFileName());
@@ -497,7 +496,6 @@ export default function NewsGeneratorPage() {
       setPdfError(true);
       setTimeout(() => setPdfError(false), 7000);
     } finally {
-      setIsGeneratingPdf(false);
       setIsExportingPdf(false);
     }
   };
@@ -550,6 +548,7 @@ export default function NewsGeneratorPage() {
   const createPreviewPdf = async () => {
     const element = document.getElementById('pdf-content');
     if (!element) throw new Error('Preview não encontrado para gerar o PDF.');
+    const previewWidth = Math.ceil(element.getBoundingClientRect().width);
 
     await waitForPreviewAssets(element);
 
@@ -559,11 +558,16 @@ export default function NewsGeneratorPage() {
       allowTaint: false,
       logging: false,
       backgroundColor: '#ffffff',
-      windowWidth: Math.max(document.documentElement.scrollWidth, 1200),
-      windowHeight: Math.max(document.documentElement.scrollHeight, 1600),
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
       onclone: (clonedDocument) => {
         const clonedElement = clonedDocument.getElementById('pdf-content');
-        clonedElement?.classList.add('pdf-export-mode');
+        if (clonedElement) {
+          clonedElement.classList.add('pdf-export-mode');
+          clonedElement.style.width = `${previewWidth}px`;
+          clonedElement.style.maxWidth = `${previewWidth}px`;
+          clonedElement.style.minWidth = `${previewWidth}px`;
+        }
       },
     });
 
@@ -600,7 +604,6 @@ export default function NewsGeneratorPage() {
     try {
       setPdfError(false);
       setIsExportingPdf(true);
-      setIsGeneratingPdf(true);
       await waitForExportLayout();
       const pdf = await createPreviewPdf();
       const blob = pdf.output('blob');
@@ -620,7 +623,6 @@ export default function NewsGeneratorPage() {
       setPdfError(true);
       setTimeout(() => setPdfError(false), 7000);
     } finally {
-      setIsGeneratingPdf(false);
       setIsExportingPdf(false);
     }
   };
