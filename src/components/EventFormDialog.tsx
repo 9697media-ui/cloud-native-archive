@@ -959,13 +959,16 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                           </p>
                         )}
 
-                        <label className="flex items-center gap-2 text-sm cursor-pointer">
-                          <Checkbox
+                        <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-sm">
+                          <Switch
+                            id="transport_extra_equipment"
                             checked={transportExtraEquipment}
                             onCheckedChange={v => setTransportExtraEquipment(!!v)}
                           />
-                          Será necessário levar equipamentos/materiais volumosos
-                        </label>
+                          <Label htmlFor="transport_extra_equipment" className="cursor-pointer flex-1 text-sm font-medium">
+                            Será necessário levar equipamentos/materiais volumosos
+                          </Label>
+                        </div>
 
                         {needSupport && (
                           <div className="px-3 py-2 bg-destructive/10 rounded-md border border-dashed border-destructive/40 animate-in fade-in zoom-in-95 duration-200">
