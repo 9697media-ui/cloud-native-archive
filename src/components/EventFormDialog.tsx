@@ -110,20 +110,26 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   };
 
   // Ao digitar o título: se o slug estiver em modo automático, atualiza direto.
-  // Se estiver personalizado, calcula o candidato automático e abre o pop-up
-  // para o usuário decidir entre usar o automático ou manter o personalizado.
+  // Se estiver personalizado, aguarda 5s sem digitação antes de abrir o pop-up
+  // (debounce) para o usuário decidir entre usar o automático ou manter o atual.
   useEffect(() => {
     const auto = generateUniqueSlug(form.title || '');
     if (slugMode === 'auto') {
       if (auto !== (form.slug || '')) {
         setForm(prev => ({ ...prev, slug: auto }));
       }
-    } else if (auto && auto !== (form.slug || '')) {
+      return;
+    }
+    // Modo personalizado: só pergunta se o automático diferir do slug atual.
+    if (!auto || auto === (form.slug || '')) return;
+    const timer = setTimeout(() => {
       setAutoSlugPreview(auto);
       setShowSlugPrompt(true);
-    }
+    }, 5000);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.title, slugMode]);
+
 
 
   useEffect(() => {
