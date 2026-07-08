@@ -482,61 +482,30 @@ export default function NewsGeneratorPage() {
   };
 
   const handlePrint = async () => {
-    setIsGeneratingPdf(true);
     setPdfError(false);
+    // Ativa o modo limpo (esconde o chrome do editor) mantendo o layout do preview
+    setIsGeneratingPdf(true);
+
+    // Aguarda o React aplicar o modo de impressão antes de abrir o diálogo
+    await new Promise((resolve) => setTimeout(resolve, 350));
+
+    const cleanup = () => {
+      setIsGeneratingPdf(false);
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
 
     try {
-      // Carrega as libs instaladas (mesmo motor de renderização do preview)
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import('html2canvas'),
-        import('jspdf'),
-      ]);
-
-      // Aguarda o React aplicar o estado de impressão (esconder chrome do editor)
-      await new Promise((resolve) => setTimeout(resolve, 400));
-
-      const element = document.getElementById('pdf-content');
-      if (!element) throw new Error('Conteúdo não encontrado');
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        windowWidth: element.scrollWidth,
-      });
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const imgWidth = pageWidth - margin * 2;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const imgData = canvas.toDataURL('image/jpeg', 0.98);
-
-      let heightLeft = imgHeight;
-      let position = margin;
-
-      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - margin * 2;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + margin;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight - margin * 2;
-      }
-
-      pdf.save('noticia-institucional.pdf');
+      // Usa o motor de impressão do navegador -> renderização idêntica ao preview
+      window.print();
     } catch (error) {
-      console.error('Falha ao gerar PDF:', error);
+      console.error('Falha ao imprimir:', error);
       setPdfError(true);
       setTimeout(() => setPdfError(false), 7000);
-      window.print();
-    } finally {
-      setIsGeneratingPdf(false);
+      cleanup();
     }
   };
+
 
   const buildDocHtml = () => {
     const esc = (s: string) =>
