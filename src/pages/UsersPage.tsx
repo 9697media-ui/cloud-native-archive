@@ -164,7 +164,8 @@ export default function UsersPage() {
       role: 'viewer',
       unit: 'Administração',
       permission_level: 'visualizador',
-      bond_type: ''
+      bond_type: '',
+      partner_category: ''
     });
     refetch();
   };
