@@ -30,6 +30,7 @@ export function useUserRole() {
   const [permissionLevel, setPermissionLevel] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>(null);
   const [delegatedUnits, setDelegatedUnits] = useState<string[]>([]);
+  const [bondType, setBondType] = useState<string | null>(null);
 
 
   useEffect(() => {
