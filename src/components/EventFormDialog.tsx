@@ -1020,10 +1020,17 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                           </div>
                           
                           {form.marketing_coverage && (
-                            <div className="px-3 py-2 bg-blue-50/50 rounded-md border border-dashed border-blue-200 animate-in fade-in zoom-in-95 duration-200">
-                              <p className="text-[11px] text-blue-600 flex items-center gap-1.5 font-medium">
-                                <CheckCircle2 className="h-3 w-3" /> Cobertura fotográfica e/ou vídeo solicitada
-                              </p>
+                            <div className="space-y-2 animate-in fade-in zoom-in-95 duration-200">
+                              <div className="px-3 py-2 bg-blue-50/50 rounded-md border border-dashed border-blue-200">
+                                <p className="text-[11px] text-blue-600 flex items-center gap-1.5 font-medium">
+                                  <CheckCircle2 className="h-3 w-3" /> Cobertura fotográfica e/ou vídeo solicitada
+                                </p>
+                              </div>
+                              <div className="px-3 py-2 bg-amber-50/60 rounded-md border border-dashed border-amber-300">
+                                <p className="text-[11px] text-amber-700 flex items-center gap-1.5 font-medium">
+                                  <CheckCircle2 className="h-3 w-3" /> 1 vaga do marketing está sendo contabilizada na logística de transporte
+                                </p>
+                              </div>
                             </div>
                           )}
 
