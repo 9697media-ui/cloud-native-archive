@@ -15,8 +15,8 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { to: '/', label: 'Eventos', icon: Globe },
-  { to: '/visao-geral', label: 'Visão Geral', icon: LayoutDashboard, requireAuth: true },
-  { to: '/calendario', label: 'Calendário', icon: Calendar, requireAuth: true },
+  { to: '/visao-geral', label: 'Visão Geral', icon: LayoutDashboard, requireAuth: true, hidden: true },
+  { to: '/calendario', label: 'Calendário', icon: Calendar, requireAuth: true, hidden: true },
   { to: '/noticias', label: 'Notícias (Informativo)', icon: Newspaper, requireAuth: true },
   { to: '/marketing', label: 'Marketing', icon: Megaphone, requireAuth: true, marketingOnly: true },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },

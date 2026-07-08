@@ -21,6 +21,7 @@ import AuthConfirmPage from "./pages/AuthConfirmPage";
 import DesignManualPage from "./pages/DesignManualPage";
 import NewsGeneratorPage from "./pages/NewsGeneratorPage";
 import MarketingHubPage from "./pages/MarketingHubPage";
+import EventsHubPage from "./pages/EventsHubPage";
 import TransparencyPage from "./pages/TransparencyPage";
 import NotFound from "./pages/NotFound";
 import EmailPreview from "./pages/EmailPreview";
@@ -81,7 +82,7 @@ const App = () => (
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route path="/email-preview" element={<EmailPreview />} />
                 <Route element={<AppLayout />}>
-                  <Route path="/" element={<PublicEventsPage />} />
+                  <Route path="/" element={<EventsHubPage />} />
                   <Route path="/visao-geral" element={
                     <ProtectedRoute><Dashboard /></ProtectedRoute>
                   } />
