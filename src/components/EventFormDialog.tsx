@@ -1265,6 +1265,39 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
         </div>
       </DialogContent>
 
+      <AlertDialog open={showSlugPrompt} onOpenChange={setShowSlugPrompt}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Slug personalizado detectado</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você editou o link manualmente, mas o título mudou. O que deseja fazer com o link do evento?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3 py-1">
+            <div className="rounded-md border border-border p-3">
+              <p className="text-xs font-medium text-foreground mb-0.5">Usar automático (baseado no título)</p>
+              <p className="text-xs text-muted-foreground break-all">anabrasil.com/eventos/{autoSlugPreview}</p>
+            </div>
+            <div className="rounded-md border border-border p-3">
+              <p className="text-xs font-medium text-foreground mb-0.5">Manter personalizado</p>
+              <p className="text-xs text-muted-foreground break-all">anabrasil.com/eventos/{form.slug || 'preview'}</p>
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowSlugPrompt(false)}>Manter personalizado</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setSlugMode('auto');
+                setForm(prev => ({ ...prev, slug: autoSlugPreview }));
+                setShowSlugPrompt(false);
+              }}
+            >
+              Usar automático
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </Dialog>
   );
 }
