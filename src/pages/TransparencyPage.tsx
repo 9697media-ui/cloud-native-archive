@@ -37,6 +37,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import PageHeader from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import {
@@ -433,7 +434,7 @@ const TransparencyPage = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-5xl">
+    <div className="space-y-6">
       {hasGoogleAuth === false && (
         <Card className="mb-8 border-amber-200 bg-amber-50">
           <CardHeader><CardTitle className="text-amber-800 flex items-center gap-2"><LogIn className="h-5 w-5" /> Conexão Necessária</CardTitle></CardHeader>
