@@ -136,6 +136,9 @@ export type Database = {
           support_team: string | null
           target_audience: string | null
           title: string
+          transport_needed: boolean | null
+          transport_passengers: number | null
+          transport_vehicle: string | null
           unit: string
           updated_at: string
           updated_by: string | null
@@ -185,6 +188,9 @@ export type Database = {
           support_team?: string | null
           target_audience?: string | null
           title: string
+          transport_needed?: boolean | null
+          transport_passengers?: number | null
+          transport_vehicle?: string | null
           unit: string
           updated_at?: string
           updated_by?: string | null
@@ -234,6 +240,9 @@ export type Database = {
           support_team?: string | null
           target_audience?: string | null
           title?: string
+          transport_needed?: boolean | null
+          transport_passengers?: number | null
+          transport_vehicle?: string | null
           unit?: string
           updated_at?: string
           updated_by?: string | null
