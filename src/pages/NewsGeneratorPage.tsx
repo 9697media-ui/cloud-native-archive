@@ -566,7 +566,19 @@ export default function NewsGeneratorPage() {
         exportStyle.textContent = `
           [data-pdf-helper="true"] { display: none !important; }
           #pdf-content.pdf-export-mode { box-shadow: none !important; }
+          /* Remove grades e bordas visuais do editor no PDF */
+          #pdf-content.pdf-export-mode .grid-background { background-image: none !important; }
+          #pdf-content.pdf-export-mode .page-ruler-bg { background-image: none !important; }
+          #pdf-content.pdf-export-mode .grid-container-modern,
+          #pdf-content.pdf-export-mode .grid-container-modern * {
+            border-color: transparent !important;
+            box-shadow: none !important;
+          }
+          #pdf-content.pdf-export-mode .grid-container-modern {
+            background: transparent !important;
+          }
         `;
+
         clonedDocument.head.appendChild(exportStyle);
         if (clonedElement) {
           clonedElement.classList.add('pdf-export-mode');
