@@ -18,6 +18,7 @@ import { FileUpload } from './FileUpload';
 import { EventDetailDialog } from './EventDetailDialog';
 import { BannerMissingDialog } from './BannerMissingDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface Props {
   open: boolean;
@@ -86,7 +87,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
   const [showConflictAlert, setShowConflictAlert] = useState(false);
   const [showBannerWarning, setShowBannerWarning] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [slugMode, setSlugMode] = useState<'auto' | 'custom'>('auto');
+  const [showSlugPrompt, setShowSlugPrompt] = useState(false);
+  const [autoSlugPreview, setAutoSlugPreview] = useState('');
 
   const isEditing = !!event;
 
@@ -106,16 +109,22 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
     return `${baseSlug}-${i}`;
   };
 
-  // Ao digitar o título, atualiza o slug automaticamente enquanto o usuário
-  // não tiver editado o campo manualmente.
+  // Ao digitar o título: se o slug estiver em modo automático, atualiza direto.
+  // Se estiver personalizado, calcula o candidato automático e abre o pop-up
+  // para o usuário decidir entre usar o automático ou manter o personalizado.
   useEffect(() => {
-    if (slugManuallyEdited) return;
     const auto = generateUniqueSlug(form.title || '');
-    if (auto !== (form.slug || '')) {
-      setForm(prev => ({ ...prev, slug: auto }));
+    if (slugMode === 'auto') {
+      if (auto !== (form.slug || '')) {
+        setForm(prev => ({ ...prev, slug: auto }));
+      }
+    } else if (auto && auto !== (form.slug || '')) {
+      setAutoSlugPreview(auto);
+      setShowSlugPrompt(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.title, slugManuallyEdited]);
+  }, [form.title, slugMode]);
+
 
   useEffect(() => {
     if (event) {
@@ -138,7 +147,8 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       setForm({ ...emptyEvent(), unit: (unit as Unit) || 'DIC' });
     }
     // Ao editar um evento que já possui slug, preserva o valor existente.
-    setSlugManuallyEdited(!!event?.slug);
+    setSlugMode(event?.slug ? 'custom' : 'auto');
+    setShowSlugPrompt(false);
     setConflicts([]);
     setShowConflictAlert(false);
     setShowBannerWarning(false);
@@ -385,14 +395,30 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                       <Globe className="h-4 w-4" /> Configurações de Compartilhamento (Público)
                     </Label>
                     <div>
-                      <Label htmlFor="slug" className="text-xs font-medium mb-1 block">Link personalizado (Slug)</Label>
+                      <div className="flex items-center justify-between mb-1">
+                        <Label htmlFor="slug" className="text-xs font-medium block">Link personalizado (Slug)</Label>
+                        {slugMode === 'auto' ? (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Automático</Badge>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSlugMode('auto');
+                              setForm(prev => ({ ...prev, slug: generateUniqueSlug(prev.title || '') }));
+                            }}
+                            className="text-[10px] text-primary hover:underline"
+                          >
+                            Personalizado · Usar título
+                          </button>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-muted-foreground whitespace-nowrap">anabrasil.com/eventos/</span>
                         <Input 
                           id="slug"
                           value={form.slug} 
                           onChange={e => {
-                            setSlugManuallyEdited(true);
+                            setSlugMode('custom');
                             setForm({ ...form, slug: slugify(e.target.value) });
                           }} 
                           placeholder="meu-evento-especial"
@@ -1238,6 +1264,39 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
           )}
         </div>
       </DialogContent>
+
+      <AlertDialog open={showSlugPrompt} onOpenChange={setShowSlugPrompt}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Slug personalizado detectado</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você editou o link manualmente, mas o título mudou. O que deseja fazer com o link do evento?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3 py-1">
+            <div className="rounded-md border border-border p-3">
+              <p className="text-xs font-medium text-foreground mb-0.5">Usar automático (baseado no título)</p>
+              <p className="text-xs text-muted-foreground break-all">anabrasil.com/eventos/{autoSlugPreview}</p>
+            </div>
+            <div className="rounded-md border border-border p-3">
+              <p className="text-xs font-medium text-foreground mb-0.5">Manter personalizado</p>
+              <p className="text-xs text-muted-foreground break-all">anabrasil.com/eventos/{form.slug || 'preview'}</p>
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowSlugPrompt(false)}>Manter personalizado</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setSlugMode('auto');
+                setForm(prev => ({ ...prev, slug: autoSlugPreview }));
+                setShowSlugPrompt(false);
+              }}
+            >
+              Usar automático
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </Dialog>
   );
