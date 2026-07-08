@@ -1952,6 +1952,22 @@ export default function UsersPage() {
                 </SelectContent>
               </Select>
             </div>
+            {preRegisterForm.bond_type === 'parceiro' && (
+              <div className="space-y-2">
+                <Label>Categoria do Parceiro</Label>
+                <Select
+                  value={preRegisterForm.partner_category || ''}
+                  onValueChange={v => setPreRegisterForm({ ...preRegisterForm, partner_category: v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione a categoria" /></SelectTrigger>
+                  <SelectContent>
+                    {PARTNER_CATEGORIES.map(c => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Nível de Acesso</Label>
