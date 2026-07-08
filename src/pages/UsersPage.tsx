@@ -479,6 +479,7 @@ export default function UsersPage() {
             is_active: editForm.is_active,
             is_beta_tester: editForm.is_beta_tester,
             bond_type: (editForm.bond_type as any) || null,
+            partner_category: editForm.bond_type === 'parceiro' ? ((editForm.partner_category as any) || null) : null,
             updated_at: new Date().toISOString(),
           })
 
