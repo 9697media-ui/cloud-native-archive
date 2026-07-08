@@ -88,29 +88,19 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
         </div>
       )}
 
-      {/* MODO PDF: Grid em Blocos */}
+      {/* MODO PDF: mesma aparência do preview (primeira imagem do carrossel) */}
       {isGeneratingPdf && (
-        <div style={{ width: '100%', fontSize: 0, ...heightStyle }}>
-          {items.map((item, idx) => {
-            const isOddTotal = items.length % 2 !== 0;
-            const isFirst = idx === 0;
-            const pdfStyle: React.CSSProperties = (isOddTotal && isFirst)
-              ? { width: '100%', display: 'block', marginBottom: '16px', aspectRatio: heightStyle?.height ? undefined : '21/9', height: heightStyle?.height, objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' }
-              : { width: 'calc(50% - 8px)', display: 'inline-block', verticalAlign: 'top', margin: '4px', marginBottom: '16px', aspectRatio: heightStyle?.height ? undefined : '4/3', height: heightStyle?.height, objectFit: 'cover', pageBreakInside: 'avoid', breakInside: 'avoid' };
-
-            return (
-              <img
-                key={item.id}
-                src={item.content}
-                alt=""
-                style={pdfStyle}
-                onError={(e: any) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://placehold.co/800x400/eeeeee/999999?text=Erro';
-                }}
-              />
-            );
-          })}
+        <div className="relative w-full h-full rounded-xl overflow-hidden shadow-md bg-muted" style={finalHeightStyle}>
+          <img
+            src={items[0]?.content}
+            alt=""
+            className="w-full h-full object-cover"
+            style={{ minHeight: heightStyle?.height === 'auto' ? '400px' : '0px' }}
+            onError={(e: any) => {
+              e.target.onerror = null;
+              e.target.src = 'https://placehold.co/800x400/eeeeee/999999?text=Imagem+N%C3%A3o+Encontrada';
+            }}
+          />
         </div>
       )}
     </div>
