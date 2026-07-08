@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { History, BookOpen, FileSearch, LayoutDashboard, Megaphone, Lock } from 'lucide-react';
+import { History, BookOpen, FileSearch, LayoutDashboard, Lock } from 'lucide-react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHeader from '@/components/PageHeader';
