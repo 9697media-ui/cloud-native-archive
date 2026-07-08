@@ -1066,7 +1066,7 @@ export default function NewsGeneratorPage() {
             className="bg-white text-slate-700 border border-slate-300 px-4 py-2 rounded-lg shadow-lg hover:bg-slate-50 transition-colors flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FileText size={18} />
-            Abrir como Word
+            Abrir
           </button>
 
 
