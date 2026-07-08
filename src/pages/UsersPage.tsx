@@ -7,7 +7,7 @@ import { useUserRole, useAccessRequests } from '@/hooks/useUserRole';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useDbUsers } from '@/hooks/useDbUsers';
 import { useViewConfigs } from '@/hooks/useViewConfigs';
-import { AppUser, UNITS, PERMISSION_LEVELS, BOND_LABELS, BOND_GROUPS, BOND_RULES, BondType } from '@/types';
+import { AppUser, UNITS, PERMISSION_LEVELS, BOND_LABELS, BOND_GROUPS, BOND_RULES, BondType, PARTNER_CATEGORIES, PartnerCategory } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -108,7 +108,8 @@ export default function UsersPage() {
     role: 'viewer',
     unit: 'Administração',
     permission_level: 'visualizador',
-    bond_type: ''
+    bond_type: '',
+    partner_category: ''
   });
   const [preRegisterSubmitting, setPreRegisterSubmitting] = useState(false);
 
@@ -163,7 +164,8 @@ export default function UsersPage() {
       role: 'viewer',
       unit: 'Administração',
       permission_level: 'visualizador',
-      bond_type: ''
+      bond_type: '',
+      partner_category: ''
     });
     refetch();
   };
@@ -398,6 +400,7 @@ export default function UsersPage() {
       view_restrictions: dbu.view_restrictions,
       is_beta_tester: dbu.is_beta_tester,
       bond_type: (dbu.bond_type as any) ?? null,
+      partner_category: (dbu.partner_category as any) ?? null,
     }));
 
 
@@ -478,6 +481,7 @@ export default function UsersPage() {
             is_active: editForm.is_active,
             is_beta_tester: editForm.is_beta_tester,
             bond_type: (editForm.bond_type as any) || null,
+            partner_category: editForm.bond_type === 'parceiro' ? ((editForm.partner_category as any) || null) : null,
             updated_at: new Date().toISOString(),
           })
 
@@ -1643,6 +1647,22 @@ export default function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {editForm.bond_type === 'parceiro' && (
+                <div>
+                  <Label>Categoria do Parceiro</Label>
+                  <Select
+                    value={editForm.partner_category || ''}
+                    onValueChange={v => setEditForm({ ...editForm, partner_category: v as PartnerCategory })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Selecione a categoria" /></SelectTrigger>
+                    <SelectContent>
+                      {PARTNER_CATEGORIES.map(c => (
+                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div>
                 <Label>Nível de Acesso</Label>
                 <Select 
@@ -1932,6 +1952,22 @@ export default function UsersPage() {
                 </SelectContent>
               </Select>
             </div>
+            {preRegisterForm.bond_type === 'parceiro' && (
+              <div className="space-y-2">
+                <Label>Categoria do Parceiro</Label>
+                <Select
+                  value={preRegisterForm.partner_category || ''}
+                  onValueChange={v => setPreRegisterForm({ ...preRegisterForm, partner_category: v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione a categoria" /></SelectTrigger>
+                  <SelectContent>
+                    {PARTNER_CATEGORIES.map(c => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Nível de Acesso</Label>

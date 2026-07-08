@@ -14,6 +14,7 @@ export interface DbUser {
   created_at: string;
   view_restrictions?: any;
   bond_type?: string | null;
+  partner_category?: string | null;
 }
 
 export function useDbUsers() {
@@ -26,7 +27,7 @@ export function useDbUsers() {
     try {
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('user_id, name, email, permission_level, unit, created_at, is_active, view_restrictions, is_beta_tester, bond_type')
+        .select('user_id, name, email, permission_level, unit, created_at, is_active, view_restrictions, is_beta_tester, bond_type, partner_category')
         .order('created_at', { ascending: true });
 
       if (profileError) throw profileError;
@@ -56,6 +57,7 @@ export function useDbUsers() {
         created_at: p.created_at,
         view_restrictions: (p as any).view_restrictions,
         bond_type: (p as any).bond_type ?? null,
+        partner_category: (p as any).partner_category ?? null,
       }));
 
       setDbUsers(users);

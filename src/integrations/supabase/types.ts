@@ -274,6 +274,7 @@ export type Database = {
           is_beta_tester: boolean | null
           modules: string[] | null
           name: string | null
+          partner_category: string | null
           permission_level: string | null
           status: string | null
           unit: string | null
@@ -291,6 +292,7 @@ export type Database = {
           is_beta_tester?: boolean | null
           modules?: string[] | null
           name?: string | null
+          partner_category?: string | null
           permission_level?: string | null
           status?: string | null
           unit?: string | null
@@ -308,6 +310,7 @@ export type Database = {
           is_beta_tester?: boolean | null
           modules?: string[] | null
           name?: string | null
+          partner_category?: string | null
           permission_level?: string | null
           status?: string | null
           unit?: string | null
