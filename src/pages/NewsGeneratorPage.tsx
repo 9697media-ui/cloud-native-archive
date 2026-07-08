@@ -955,7 +955,7 @@ export default function NewsGeneratorPage() {
         <article
           id="pdf-content"
           className={`bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-6 md:p-12 shadow-2xl rounded-sm text-slate-800
-            ${isGeneratingPdf ? 'shadow-none p-0 max-w-none w-full' : 'page-ruler-bg print:shadow-none print:p-0 print:max-w-none print:w-full print:bg-none'}
+            ${isGeneratingPdf ? 'shadow-none' : 'page-ruler-bg print:shadow-none print:p-0 print:max-w-none print:w-full print:bg-none'}
           `}
           onDragOver={handleContainerDragOver}
           onDrop={handleDrop}
