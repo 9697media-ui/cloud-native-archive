@@ -88,6 +88,9 @@ const App = () => (
                   <Route path="/noticias" element={
                     <ProtectedRoute><NewsGeneratorPage /></ProtectedRoute>
                   } />
+                  <Route path="/marketing" element={
+                    <ProtectedRoute><MarketingHubPage /></ProtectedRoute>
+                  } />
                   <Route path="/portal-transparencia" element={
                     <ProtectedRoute><TransparencyPage /></ProtectedRoute>
                   } />
