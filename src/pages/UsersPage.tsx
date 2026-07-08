@@ -398,6 +398,7 @@ export default function UsersPage() {
       view_restrictions: dbu.view_restrictions,
       is_beta_tester: dbu.is_beta_tester,
       bond_type: (dbu.bond_type as any) ?? null,
+      partner_category: (dbu.partner_category as any) ?? null,
     }));
 
 
