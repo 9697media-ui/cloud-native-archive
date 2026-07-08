@@ -77,6 +77,9 @@ const emptyEvent = (): Partial<AppEvent> => ({
   equipment_needed: '',
   marketing_items: [],
   marketing_coverage: false,
+  transport_needed: false,
+  transport_vehicle: '',
+  transport_passengers: 0,
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
