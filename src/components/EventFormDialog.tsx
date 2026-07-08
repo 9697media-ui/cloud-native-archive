@@ -391,11 +391,14 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                         <Input 
                           id="slug"
                           value={form.slug} 
-                          onChange={e => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} 
+                          onChange={e => {
+                            setSlugManuallyEdited(true);
+                            setForm({ ...form, slug: slugify(e.target.value) });
+                          }} 
                           placeholder="meu-evento-especial"
                         />
                       </div>
-                      <p className="text-[11px] text-muted-foreground mt-1">Deixe em branco para usar o ID padrão.</p>
+                      <p className="text-[11px] text-muted-foreground mt-1">Gerado automaticamente a partir do título. Edite para personalizar.</p>
                     </div>
                   </div>
                 )}
