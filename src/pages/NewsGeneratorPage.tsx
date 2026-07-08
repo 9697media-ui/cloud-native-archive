@@ -712,6 +712,29 @@ export default function NewsGeneratorPage() {
           padding: 12px !important;
           box-sizing: border-box;
         }
+        #pdf-content.pdf-export-mode {
+          width: 210mm !important;
+          max-width: 210mm !important;
+          min-height: 297mm !important;
+          padding: 48px !important;
+          border-radius: 2px !important;
+          box-shadow: none !important;
+          background: #ffffff !important;
+        }
+        #pdf-content.pdf-export-mode .grid-container-modern {
+          display: grid !important;
+          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+          grid-auto-rows: 150px !important;
+          gap: 0 !important;
+          padding: 0 !important;
+          min-height: 0 !important;
+          border: 0 !important;
+          background: transparent !important;
+          background-image: none !important;
+        }
+        #pdf-content.pdf-export-mode .module-content-wrapper {
+          box-shadow: none !important;
+        }
       `}</style>
 
       {/* Backdrop mobile */}
