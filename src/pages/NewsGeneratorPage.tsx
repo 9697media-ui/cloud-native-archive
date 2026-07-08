@@ -582,6 +582,22 @@ export default function NewsGeneratorPage() {
     const pageHeightMm = 297;
     const pageHeightPx = Math.floor((canvas.width * pageHeightMm) / pageWidthMm);
     const sourceHeight = getCanvasContentHeight(canvas, pageHeightPx);
+
+    if (sourceHeight <= pageHeightPx * 1.15) {
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = sourceHeight;
+      const context = pageCanvas.getContext('2d');
+      if (!context) throw new Error('Não foi possível preparar a página do PDF.');
+
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+      context.drawImage(canvas, 0, 0, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
+      pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, pageWidthMm, pageHeightMm);
+
+      return pdf;
+    }
+
     const totalPages = Math.max(1, Math.ceil((sourceHeight - 2) / pageHeightPx));
 
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
