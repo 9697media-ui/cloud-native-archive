@@ -25,6 +25,16 @@ interface Props {
   event?: AppEvent | null;
 }
 
+const slugify = (text: string): string =>
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/[^a-z0-9\s-]/g, '') // remove caracteres especiais
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
 const emptyEvent = (): Partial<AppEvent> => ({
   title: '',
   description: '',
@@ -69,7 +79,7 @@ const emptyEvent = (): Partial<AppEvent> => ({
 });
 
 export default function EventFormDialog({ open, onOpenChange, event }: Props) {
-  const { addEvent, updateEvent, detectConflicts, setSelectedEvent } = useApp();
+  const { addEvent, updateEvent, detectConflicts, setSelectedEvent, events } = useApp();
   const { userName, unit, isAdmin } = useUserRole();
   const [form, setForm] = useState<Partial<AppEvent>>(emptyEvent());
   const [conflicts, setConflicts] = useState<AppEvent[]>([]);
