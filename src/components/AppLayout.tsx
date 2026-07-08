@@ -46,7 +46,7 @@ export default function AppLayout() {
   }, [hideLoginParam]);
   
   const { isAuthenticated, signOut, user } = useAuth();
-  const { isAdmin, isManager, userName, unit, canViewAuditoria } = useUserRole();
+  const { isAdmin, isManager, userName, unit, canViewAuditoria, isMarketing } = useUserRole();
   const { eligible: betaEligible, rawEnabled: betaOn, toggleBeta } = useBetaPreference();
   const isEmbedded = useIsEmbedded();
   const isMobile = useIsMobile();
@@ -59,9 +59,10 @@ export default function AppLayout() {
         const isSpecialAdmin = user?.email && allowedEmails.includes(user.email);
         const isAdminEmail = isSpecialAdmin || user?.email === 'contato@anabrasil.org';
         
-        // Regra para páginas escondidas (apenas alyson-viana e mkt)
-        if (item.hidden) return isSpecialAdmin;
+        // Regra para páginas escondidas (não aparecem no menu, acessadas por outra página)
+        if (item.hidden) return false;
         
+        if (item.marketingOnly) return isMarketing;
         if (item.adminOnly) return isAdmin || isAdminEmail;
         if (item.managerOnly) return isAdmin || isManager || isAdminEmail;
         if (item.mktOrAdminOnly) return isAdmin || isAdminEmail;

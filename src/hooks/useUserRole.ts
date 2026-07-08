@@ -30,6 +30,7 @@ export function useUserRole() {
   const [permissionLevel, setPermissionLevel] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>(null);
   const [delegatedUnits, setDelegatedUnits] = useState<string[]>([]);
+  const [bondType, setBondType] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export function useUserRole() {
       setPermissionLevel(activePersona.permission_level);
       setUnit(activePersona.unit);
       setDelegatedUnits(activePersona.delegated_units || []);
+      setBondType((activePersona as any).bond_type || null);
       
       // If general admin, no restrictions. Otherwise, restrict to the persona's unit.
       setViewRestrictions(activePersona.permission_level === 'admin_geral' ? null : [activePersona.unit]);
@@ -71,7 +73,7 @@ export function useUserRole() {
       // Also check profile for permission_level and name
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('permission_level, name, is_active, view_restrictions, unit, delegated_units, is_beta_tester')
+        .select('permission_level, name, is_active, view_restrictions, unit, delegated_units, is_beta_tester, bond_type')
         .eq('user_id', user.id)
         .maybeSingle();
       
@@ -83,6 +85,7 @@ export function useUserRole() {
         setPermissionLevel(profileData.permission_level);
         setUnit(profileData.unit);
         setDelegatedUnits(profileData.delegated_units as string[] || []);
+        setBondType((profileData as any).bond_type || null);
       } else if (user.user_metadata?.name) {
         setUserName(user.user_metadata.name);
       } else {
@@ -133,6 +136,7 @@ export function useUserRole() {
   const canCreate = isAdmin || isCreator;
   const canViewAuditoria = isAdmin || isManager || hasDelegatedAccess;
   const canView = true; // System is public
+  const isMarketing = isAdmin || bondType === 'marketing' || isAdminEmail;
 
   return { 
     role, 
@@ -151,7 +155,9 @@ export function useUserRole() {
     permissionLevel,
     unit,
     delegatedUnits,
-    canViewAuditoria
+    canViewAuditoria,
+    bondType,
+    isMarketing
   };
 }
 

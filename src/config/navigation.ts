@@ -1,4 +1,4 @@
-import { Globe, LayoutDashboard, Calendar, Users, History, BookOpen, FileSearch, Newspaper } from 'lucide-react';
+import { Globe, LayoutDashboard, Calendar, Users, History, BookOpen, FileSearch, Newspaper, Megaphone } from 'lucide-react';
 
 export interface NavItem {
   to: string;
@@ -9,6 +9,7 @@ export interface NavItem {
   auditoriaOnly?: boolean;
   requireAuth?: boolean;
   mktOrAdminOnly?: boolean;
+  marketingOnly?: boolean;
   hidden?: boolean;
 }
 
@@ -18,8 +19,9 @@ export const navItems: NavItem[] = [
   { to: '/calendario', label: 'Calendário', icon: Calendar, requireAuth: true },
   { to: '/noticias', label: 'Notícias (Informativo)', icon: Newspaper, requireAuth: true },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
-  { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, adminOnly: true },
-  { to: '/design-manual', label: 'Manual Design', icon: BookOpen, requireAuth: true, mktOrAdminOnly: true },
-  { to: '/portal-transparencia', label: 'Portal Transparência', icon: FileSearch, requireAuth: true, adminOnly: true },
-  { to: '/admin-toolbox', label: 'Widgets', icon: LayoutDashboard, requireAuth: true, hidden: true },
+  { to: '/marketing', label: 'Marketing', icon: Megaphone, requireAuth: true, marketingOnly: true },
+  { to: '/auditoria', label: 'Auditoria', icon: History, requireAuth: true, marketingOnly: true, hidden: true },
+  { to: '/design-manual', label: 'Manual Design', icon: BookOpen, requireAuth: true, marketingOnly: true, hidden: true },
+  { to: '/portal-transparencia', label: 'Portal Transparência', icon: FileSearch, requireAuth: true, marketingOnly: true, hidden: true },
+  { to: '/admin-toolbox', label: 'Widgets', icon: LayoutDashboard, requireAuth: true, marketingOnly: true, hidden: true },
 ];

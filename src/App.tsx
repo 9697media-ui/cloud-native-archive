@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { TestViewProvider } from "@/contexts/TestViewContext";
 import AppLayout from "@/components/AppLayout";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -19,6 +20,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AuthConfirmPage from "./pages/AuthConfirmPage";
 import DesignManualPage from "./pages/DesignManualPage";
 import NewsGeneratorPage from "./pages/NewsGeneratorPage";
+import MarketingHubPage from "./pages/MarketingHubPage";
 import TransparencyPage from "./pages/TransparencyPage";
 import NotFound from "./pages/NotFound";
 import EmailPreview from "./pages/EmailPreview";
@@ -35,6 +37,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) return null;
   if (!isAuthenticated && !isEmbed) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
+function MarketingRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isMarketing, loading: roleLoading } = useUserRole();
+  const [searchParams] = useSearchParams();
+  const isEmbed = searchParams.get('embed') === 'true';
+
+  if (authLoading || roleLoading) return null;
+  if (!isAuthenticated && !isEmbed) return <Navigate to="/login" replace />;
+  if (!isMarketing) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
@@ -79,19 +93,22 @@ const App = () => (
                     <ProtectedRoute><UsersPage /></ProtectedRoute>
                   } />
                   <Route path="/auditoria" element={
-                    <ProtectedRoute><AuditPage /></ProtectedRoute>
+                    <MarketingRoute><AuditPage /></MarketingRoute>
                   } />
                   <Route path="/design-manual" element={
-                    <ProtectedRoute><DesignManualPage /></ProtectedRoute>
+                    <MarketingRoute><DesignManualPage /></MarketingRoute>
                   } />
                   <Route path="/noticias" element={
                     <ProtectedRoute><NewsGeneratorPage /></ProtectedRoute>
                   } />
+                  <Route path="/marketing" element={
+                    <ProtectedRoute><MarketingHubPage /></ProtectedRoute>
+                  } />
                   <Route path="/portal-transparencia" element={
-                    <ProtectedRoute><TransparencyPage /></ProtectedRoute>
+                    <MarketingRoute><TransparencyPage /></MarketingRoute>
                   } />
                   <Route path="/admin-toolbox" element={
-                    <ProtectedRoute><AdminToolboxPage /></ProtectedRoute>
+                    <MarketingRoute><AdminToolboxPage /></MarketingRoute>
                   } />
                   <Route path="*" element={<NotFound />} />
 
