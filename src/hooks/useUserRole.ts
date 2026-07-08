@@ -136,6 +136,7 @@ export function useUserRole() {
   const canCreate = isAdmin || isCreator;
   const canViewAuditoria = isAdmin || isManager || hasDelegatedAccess;
   const canView = true; // System is public
+  const isMarketing = isAdmin || bondType === 'marketing' || isAdminEmail;
 
   return { 
     role, 
