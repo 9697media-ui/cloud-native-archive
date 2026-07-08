@@ -1038,7 +1038,7 @@ export default function NewsGeneratorPage() {
 
       {/* PAINEL DE VISUALIZAÇÃO / PDF */}
       <div className="flex-1 flex flex-col min-h-0 p-4 md:p-10 bg-muted print:bg-white print:p-0 print:w-full print:h-auto print:block overflow-y-auto relative items-center">
-        <div className="sticky md:absolute top-0 right-0 md:top-6 md:right-6 w-full md:w-auto flex justify-end pb-4 md:pb-0 z-10 print:hidden">
+        <div className="sticky md:absolute top-0 right-0 md:top-6 md:right-6 w-full md:w-auto flex flex-wrap justify-end gap-2 pb-4 md:pb-0 z-10 print:hidden">
           <button
             type="button"
             onClick={handlePrint}
@@ -1048,6 +1048,17 @@ export default function NewsGeneratorPage() {
             {isGeneratingPdf ? <Loader2 size={18} className="animate-spin" /> : <Printer size={18} />}
             {isGeneratingPdf ? 'Gerando...' : 'Salvar PDF'}
           </button>
+
+          <button
+            type="button"
+            onClick={handleOpenDoc}
+            disabled={isGeneratingPdf}
+            className="bg-white text-slate-700 border border-slate-300 px-4 py-2 rounded-lg shadow-lg hover:bg-slate-50 transition-colors flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FileText size={18} />
+            Abrir como Word
+          </button>
+
 
           {pdfError && (
             <div className="mt-2 absolute top-full right-0 bg-destructive/10 text-destructive text-xs px-3 py-2 rounded-md shadow-sm border border-destructive/30 flex items-center gap-1 animate-pulse min-w-max">
