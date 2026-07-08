@@ -1646,7 +1646,7 @@ export default function UsersPage() {
               <div>
                 <Label>Nível de Acesso</Label>
                 <Select 
-                  disabled={!!editForm.bond_type}
+                  disabled={!!editForm.bond_type && !isAdmin}
                   value={editForm.permission_level} 
                   onValueChange={v => {
                     const newLevel = v as any;
