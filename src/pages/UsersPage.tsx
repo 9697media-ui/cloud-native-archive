@@ -1632,7 +1632,6 @@ export default function UsersPage() {
                 >
                   <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Sem vínculo</SelectItem>
                     {BOND_GROUPS.map(group => (
                       <div key={group.label}>
                         <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>
@@ -1922,7 +1921,6 @@ export default function UsersPage() {
               >
                 <SelectTrigger><SelectValue placeholder="Selecione o vínculo" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Sem vínculo</SelectItem>
                   {BOND_GROUPS.map(group => (
                     <div key={group.label}>
                       <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.label}</div>

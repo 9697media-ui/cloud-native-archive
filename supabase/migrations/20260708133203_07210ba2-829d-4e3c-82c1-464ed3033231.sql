@@ -1,0 +1,1 @@
+UPDATE public.profiles SET bond_type = 'usuario_comum', updated_at = now() WHERE bond_type IS NULL OR bond_type = 'none';
