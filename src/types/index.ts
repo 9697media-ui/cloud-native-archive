@@ -67,7 +67,18 @@ export interface AppEvent {
   equipment_needed?: string;
   marketing_items?: Array<{ type: 'cobertura' | 'demanda_grafica'; item: string; description: string }>;
   marketing_coverage?: boolean;
+  transport_needed?: boolean;
+  transport_vehicle?: TransportVehicle | '';
+  transport_passengers?: number;
 }
+
+export type TransportVehicle = 'van' | 'kombi' | 'utilitario';
+
+export const TRANSPORT_VEHICLES: { value: TransportVehicle; label: string; capacity: number }[] = [
+  { value: 'van', label: 'VAN', capacity: 15 },
+  { value: 'kombi', label: 'Kombi', capacity: 12 },
+  { value: 'utilitario', label: 'Utilitário/Caminhão', capacity: 2 },
+];
 
 export const SYSTEM_COLORS = [
   '#484848',
