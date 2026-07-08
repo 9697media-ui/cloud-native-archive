@@ -97,6 +97,7 @@ Deno.serve(async (req) => {
         permission_level: permissionLevel || 'usuario_padrao',
         unit: unit || 'Administração',
         bond_type: bond_type || null,
+        partner_category: bond_type === 'parceiro' ? (partner_category || null) : null,
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
