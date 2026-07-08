@@ -130,6 +130,7 @@ export default function NewsGeneratorPage() {
   const [dragItem, setDragItem] = useState<any>(null);
   const [dropIndicator, setDropIndicator] = useState<any>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [pdfError, setPdfError] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -486,7 +487,7 @@ export default function NewsGeneratorPage() {
   const handlePrint = async () => {
     try {
       setPdfError(false);
-      setIsGeneratingPdf(true);
+      setIsExportingPdf(true);
       const pdf = await createPreviewPdf();
       pdf.save(getPdfFileName());
     } catch (error) {
@@ -494,7 +495,7 @@ export default function NewsGeneratorPage() {
       setPdfError(true);
       setTimeout(() => setPdfError(false), 7000);
     } finally {
-      setIsGeneratingPdf(false);
+      setIsExportingPdf(false);
     }
   };
 
@@ -561,7 +562,7 @@ export default function NewsGeneratorPage() {
   const handleOpenDoc = async () => {
     try {
       setPdfError(false);
-      setIsGeneratingPdf(true);
+      setIsExportingPdf(true);
       const pdf = await createPreviewPdf();
       const blob = pdf.output('blob');
       const url = URL.createObjectURL(blob);
@@ -580,7 +581,7 @@ export default function NewsGeneratorPage() {
       setPdfError(true);
       setTimeout(() => setPdfError(false), 7000);
     } finally {
-      setIsGeneratingPdf(false);
+      setIsExportingPdf(false);
     }
   };
 
@@ -999,17 +1000,17 @@ export default function NewsGeneratorPage() {
           <button
             type="button"
             onClick={handlePrint}
-            disabled={isGeneratingPdf}
+            disabled={isExportingPdf}
             className="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg hover:bg-primary/90 transition-colors flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isGeneratingPdf ? <Loader2 size={18} className="animate-spin" /> : <Printer size={18} />}
-            {isGeneratingPdf ? 'Gerando...' : 'Salvar PDF'}
+            {isExportingPdf ? <Loader2 size={18} className="animate-spin" /> : <Printer size={18} />}
+            {isExportingPdf ? 'Gerando...' : 'Salvar PDF'}
           </button>
 
           <button
             type="button"
             onClick={handleOpenDoc}
-            disabled={isGeneratingPdf}
+            disabled={isExportingPdf}
             className="bg-white text-slate-700 border border-slate-300 px-4 py-2 rounded-lg shadow-lg hover:bg-slate-50 transition-colors flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FileText size={18} />
