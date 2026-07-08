@@ -51,7 +51,6 @@ export default function MarketingHubPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 lg:px-8">
       <PageHeader
-        icon={Megaphone}
         title="Marketing"
         description="Central de ferramentas exclusivas do setor de Marketing."
       />
