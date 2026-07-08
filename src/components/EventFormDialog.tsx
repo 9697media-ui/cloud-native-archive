@@ -908,7 +908,7 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
                   {form.transport_needed && (() => {
                     const vehicle = TRANSPORT_VEHICLES.find(v => v.value === form.transport_vehicle);
                     const capacity = vehicle?.capacity ?? 0;
-                    const marketingSeat = form.marketing_request ? 1 : 0;
+                    const marketingSeat = (form.marketing_request && form.marketing_coverage) ? 1 : 0;
                     const passengers = Number(form.transport_passengers) || 0;
                     const occupied = passengers + marketingSeat;
                     const seatsFull = capacity > 0 && occupied >= capacity;
