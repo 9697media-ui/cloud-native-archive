@@ -538,6 +538,111 @@ export default function NewsGeneratorPage() {
     }
   };
 
+  const buildDocHtml = () => {
+    const esc = (s: string) =>
+      (s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    // Converte **negrito** e quebras de linha em HTML
+    const fmt = (text: string) =>
+      esc(text)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br/>');
+
+    const bodyParts: string[] = [];
+    finalRenderModules.forEach((module: any) => {
+      if (module.type === 'paragraph') {
+        if (module.content)
+          bodyParts.push(
+            `<p style="font-size:12pt;line-height:1.5;text-align:justify;margin:0 0 14px 0;">${fmt(module.content)}</p>`
+          );
+      } else if (module.type === 'image') {
+        if (module.content)
+          bodyParts.push(
+            `<p style="text-align:center;margin:0 0 14px 0;"><img src="${esc(module.content)}" style="max-width:100%;height:auto;"/></p>`
+          );
+      } else if (module.type === 'gallery') {
+        (module.items || []).forEach((it: any) => {
+          if (it.content)
+            bodyParts.push(
+              `<p style="text-align:center;margin:0 0 14px 0;"><img src="${esc(it.content)}" style="max-width:100%;height:auto;"/></p>`
+            );
+        });
+      }
+    });
+
+    return `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8"/>
+<title>${esc(headerData.title || 'Notícia')}</title>
+<style>
+  @page { size: A4; margin: 2cm; }
+  body { font-family: Georgia, 'Times New Roman', serif; color: #1e293b; max-width: 800px; margin: 24px auto; padding: 0 16px; }
+  .meta { font-size: 10pt; text-transform: uppercase; letter-spacing: 1px; color: #64748b; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; padding: 6px 0; margin-bottom: 16px; }
+  h1 { font-size: 26pt; font-weight: 800; line-height: 1.15; margin: 0 0 10px 0; color: #0f172a; }
+  h2 { font-size: 15pt; font-weight: 500; color: #475569; margin: 0 0 24px 0; }
+</style>
+</head>
+<body>
+  <div class="meta">${esc(headerData.author || 'Autor e Data')}</div>
+  <h1>${esc(headerData.title || 'Título não definido')}</h1>
+  <h2>${esc(headerData.subtitle || '')}</h2>
+  ${bodyParts.join('\n  ')}
+</body>
+</html>`;
+  };
+
+  const handleOpenDoc = () => {
+    const html = buildDocHtml();
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+
+    // Página intermediária em nova aba: visualiza e permite salvar/baixar o .doc
+    const previewWin = window.open('', '_blank');
+    if (!previewWin) {
+      // Fallback: baixa direto caso o navegador bloqueie pop-ups
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${(headerData.title || 'noticia').replace(/[^\w\-]+/g, '_')}.doc`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      return;
+    }
+
+    const fileName = `${(headerData.title || 'noticia').replace(/[^\w\-]+/g, '_')}.doc`;
+    previewWin.document.write(`<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"/><title>${headerData.title || 'Notícia'} — Documento Word</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f1f5f9; color: #0f172a; }
+  .bar { position: sticky; top: 0; display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 20px; background: #fff; border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+  .bar strong { font-size: 14px; }
+  .btn { background: #2563eb; color: #fff; border: 0; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn:hover { background: #1d4ed8; }
+  .frame { max-width: 820px; margin: 24px auto; background: #fff; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+</style></head>
+<body>
+  <div class="bar">
+    <strong>Pré-visualização do documento Word (.doc)</strong>
+    <button class="btn" id="dl">⬇ Baixar .doc</button>
+  </div>
+  <div class="frame">${html.split('<body>')[1].split('</body>')[0]}</div>
+  <script>
+    const url = ${JSON.stringify(url)};
+    document.getElementById('dl').addEventListener('click', function () {
+      const a = document.createElement('a');
+      a.href = url; a.download = ${JSON.stringify(fileName)}; a.click();
+    });
+  <\/script>
+</body></html>`);
+    previewWin.document.close();
+  };
+
+
+
+
 
   const renderModules: any[] = [];
   let currentGalleryGroup: any = null;
@@ -933,7 +1038,7 @@ export default function NewsGeneratorPage() {
 
       {/* PAINEL DE VISUALIZAÇÃO / PDF */}
       <div className="flex-1 flex flex-col min-h-0 p-4 md:p-10 bg-muted print:bg-white print:p-0 print:w-full print:h-auto print:block overflow-y-auto relative items-center">
-        <div className="sticky md:absolute top-0 right-0 md:top-6 md:right-6 w-full md:w-auto flex justify-end pb-4 md:pb-0 z-10 print:hidden">
+        <div className="sticky md:absolute top-0 right-0 md:top-6 md:right-6 w-full md:w-auto flex flex-wrap justify-end gap-2 pb-4 md:pb-0 z-10 print:hidden">
           <button
             type="button"
             onClick={handlePrint}
@@ -943,6 +1048,17 @@ export default function NewsGeneratorPage() {
             {isGeneratingPdf ? <Loader2 size={18} className="animate-spin" /> : <Printer size={18} />}
             {isGeneratingPdf ? 'Gerando...' : 'Salvar PDF'}
           </button>
+
+          <button
+            type="button"
+            onClick={handleOpenDoc}
+            disabled={isGeneratingPdf}
+            className="bg-white text-slate-700 border border-slate-300 px-4 py-2 rounded-lg shadow-lg hover:bg-slate-50 transition-colors flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FileText size={18} />
+            Abrir como Word
+          </button>
+
 
           {pdfError && (
             <div className="mt-2 absolute top-full right-0 bg-destructive/10 text-destructive text-xs px-3 py-2 rounded-md shadow-sm border border-destructive/30 flex items-center gap-1 animate-pulse min-w-max">
