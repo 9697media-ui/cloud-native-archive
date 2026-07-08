@@ -488,6 +488,8 @@ export default function NewsGeneratorPage() {
     try {
       setPdfError(false);
       setIsExportingPdf(true);
+      setIsGeneratingPdf(true);
+      await waitForExportLayout();
       const pdf = await createPreviewPdf();
       pdf.save(getPdfFileName());
     } catch (error) {
@@ -495,6 +497,7 @@ export default function NewsGeneratorPage() {
       setPdfError(true);
       setTimeout(() => setPdfError(false), 7000);
     } finally {
+      setIsGeneratingPdf(false);
       setIsExportingPdf(false);
     }
   };
@@ -515,6 +518,35 @@ export default function NewsGeneratorPage() {
     );
   };
 
+  const waitForExportLayout = () =>
+    new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
+
+  const getCanvasContentHeight = (canvas: HTMLCanvasElement, minimumHeight: number) => {
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) return canvas.height;
+
+    const { width, height } = canvas;
+    const imageData = context.getImageData(0, 0, width, height).data;
+
+    for (let y = height - 1; y >= 0; y -= 1) {
+      for (let x = 0; x < width; x += 8) {
+        const index = (y * width + x) * 4;
+        const alpha = imageData[index + 3];
+        const red = imageData[index];
+        const green = imageData[index + 1];
+        const blue = imageData[index + 2];
+
+        if (alpha > 0 && (red < 248 || green < 248 || blue < 248)) {
+          return Math.min(height, Math.max(minimumHeight, y + 24));
+        }
+      }
+    }
+
+    return Math.min(height, minimumHeight);
+  };
+
   const createPreviewPdf = async () => {
     const element = document.getElementById('pdf-content');
     if (!element) throw new Error('Preview não encontrado para gerar o PDF.');
@@ -527,19 +559,24 @@ export default function NewsGeneratorPage() {
       allowTaint: false,
       logging: false,
       backgroundColor: '#ffffff',
-      windowWidth: document.documentElement.scrollWidth,
-      windowHeight: document.documentElement.scrollHeight,
+      windowWidth: Math.max(document.documentElement.scrollWidth, 1200),
+      windowHeight: Math.max(document.documentElement.scrollHeight, 1600),
+      onclone: (clonedDocument) => {
+        const clonedElement = clonedDocument.getElementById('pdf-content');
+        clonedElement?.classList.add('pdf-export-mode');
+      },
     });
 
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pageWidthMm = 210;
     const pageHeightMm = 297;
     const pageHeightPx = Math.floor((canvas.width * pageHeightMm) / pageWidthMm);
-    const totalPages = Math.max(1, Math.ceil((canvas.height - 2) / pageHeightPx));
+    const sourceHeight = getCanvasContentHeight(canvas, pageHeightPx);
+    const totalPages = Math.max(1, Math.ceil((sourceHeight - 2) / pageHeightPx));
 
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
       const sourceY = pageIndex * pageHeightPx;
-      const sliceHeight = Math.min(pageHeightPx, canvas.height - sourceY);
+      const sliceHeight = Math.min(pageHeightPx, sourceHeight - sourceY);
       if (sliceHeight <= 2) continue;
 
       const pageCanvas = document.createElement('canvas');
@@ -563,6 +600,8 @@ export default function NewsGeneratorPage() {
     try {
       setPdfError(false);
       setIsExportingPdf(true);
+      setIsGeneratingPdf(true);
+      await waitForExportLayout();
       const pdf = await createPreviewPdf();
       const blob = pdf.output('blob');
       const url = URL.createObjectURL(blob);
@@ -581,6 +620,7 @@ export default function NewsGeneratorPage() {
       setPdfError(true);
       setTimeout(() => setPdfError(false), 7000);
     } finally {
+      setIsGeneratingPdf(false);
       setIsExportingPdf(false);
     }
   };
