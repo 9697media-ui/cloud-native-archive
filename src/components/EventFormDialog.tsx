@@ -244,6 +244,9 @@ export default function EventFormDialog({ open, onOpenChange, event }: Props) {
       equipment_needed: form.equipment_needed || '',
       marketing_items: form.marketing_items || [],
       marketing_coverage: form.marketing_coverage || false,
+      transport_needed: form.transport_needed || false,
+      transport_vehicle: form.transport_needed ? (form.transport_vehicle || '') : '',
+      transport_passengers: form.transport_needed ? (Number(form.transport_passengers) || 0) : 0,
     };
   };
 
