@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import {
   Trash2,
   Image as ImageIcon,
@@ -482,159 +484,104 @@ export default function NewsGeneratorPage() {
   };
 
   const handlePrint = async () => {
-    setPdfError(false);
-    // Ativa o modo limpo (esconde o chrome do editor) mantendo o layout do preview
-    setIsGeneratingPdf(true);
-
-    // Aguarda o React aplicar o modo de impressão antes de abrir o diálogo
-    await new Promise((resolve) => setTimeout(resolve, 350));
-
-    const cleanup = () => {
-      setIsGeneratingPdf(false);
-      window.removeEventListener('afterprint', cleanup);
-    };
-    window.addEventListener('afterprint', cleanup);
-
     try {
-      // Usa o motor de impressão do navegador -> renderização idêntica ao preview
-      window.print();
+      setPdfError(false);
+      setIsGeneratingPdf(true);
+      const pdf = await createPreviewPdf();
+      pdf.save(getPdfFileName());
     } catch (error) {
-      console.error('Falha ao imprimir:', error);
+      console.error('Falha ao gerar PDF:', error);
       setPdfError(true);
       setTimeout(() => setPdfError(false), 7000);
-      cleanup();
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
 
+  const getPdfFileName = () => `${(headerData.title || 'noticia').replace(/[^\w\-]+/g, '_')}.pdf`;
 
-  const buildDocHtml = () => {
-    const esc = (s: string) =>
-      (s || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
-    // Converte **negrito** e quebras de linha em HTML
-    const fmt = (text: string) =>
-      esc(text)
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br/>');
-
-    // Renderiza o conteúdo de um módulo (célula da grade)
-    const cellHtml = (module: any): string => {
-      if (module.type === 'paragraph') {
-        return `<div style="font-size:12pt;line-height:1.5;text-align:justify;">${fmt(module.content || '')}</div>`;
-      }
-      if (module.type === 'image') {
-        return `<img src="${esc(module.content)}" style="width:100%;height:auto;display:block;"/>`;
-      }
-      if (module.type === 'gallery') {
-        return (module.items || [])
-          .filter((it: any) => it.content)
-          .map((it: any) => `<img src="${esc(it.content)}" style="width:100%;height:auto;display:block;margin-bottom:8px;"/>`)
-          .join('');
-      }
-      return '';
-    };
-
-    // Agrupa os módulos em linhas de 3 colunas, igual ao preview
-    const rows: any[][] = [];
-    let current: any[] = [];
-    let colSum = 0;
-    finalRenderModules.forEach((module: any) => {
-      if (!module.content && module.type !== 'gallery') return;
-      const cols = Math.min(module.cols || 3, 3);
-      if (colSum + cols > 3 && current.length > 0) {
-        rows.push(current);
-        current = [];
-        colSum = 0;
-      }
-      current.push(module);
-      colSum += cols;
-    });
-    if (current.length > 0) rows.push(current);
-
-    const bodyParts: string[] = rows.map((row) => {
-      // Linha única de largura total -> bloco simples
-      if (row.length === 1) {
-        return `<div style="margin:0 0 14px 0;">${cellHtml(row[0])}</div>`;
-      }
-      const cells = row
-        .map((m) => {
-          const cols = Math.min(m.cols || 1, 3);
-          const width = ((cols / 3) * 100).toFixed(2);
-          return `<td valign="top" width="${width}%" style="width:${width}%;vertical-align:top;padding:0 6px;">${cellHtml(m)}</td>`;
-        })
-        .join('');
-      return `<table width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;margin:0 0 14px 0;"><tr>${cells}</tr></table>`;
-    });
-
-
-    return `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-<head>
-<meta charset="utf-8"/>
-<title>${esc(headerData.title || 'Notícia')}</title>
-<style>
-  @page { size: A4; margin: 2cm; }
-  body { font-family: Georgia, 'Times New Roman', serif; color: #1e293b; max-width: 800px; margin: 24px auto; padding: 0 16px; }
-  .meta { font-size: 10pt; text-transform: uppercase; letter-spacing: 1px; color: #64748b; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; padding: 6px 0; margin-bottom: 16px; }
-  h1 { font-size: 26pt; font-weight: 800; line-height: 1.15; margin: 0 0 10px 0; color: #0f172a; }
-  h2 { font-size: 15pt; font-weight: 500; color: #475569; margin: 0 0 24px 0; }
-</style>
-</head>
-<body>
-  <div class="meta">${esc(headerData.author || 'Autor e Data')}</div>
-  <h1>${esc(headerData.title || 'Título não definido')}</h1>
-  <h2>${esc(headerData.subtitle || '')}</h2>
-  ${bodyParts.join('\n  ')}
-</body>
-</html>`;
+  const waitForPreviewAssets = async (element: HTMLElement) => {
+    await document.fonts?.ready;
+    const images = Array.from(element.querySelectorAll('img'));
+    await Promise.all(
+      images.map((image) => {
+        if (image.complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          image.addEventListener('load', () => resolve(), { once: true });
+          image.addEventListener('error', () => resolve(), { once: true });
+        });
+      })
+    );
   };
 
-  const handleOpenDoc = () => {
-    const html = buildDocHtml();
-    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-    const url = URL.createObjectURL(blob);
+  const createPreviewPdf = async () => {
+    const element = document.getElementById('pdf-content');
+    if (!element) throw new Error('Preview não encontrado para gerar o PDF.');
 
-    // Página intermediária em nova aba: visualiza e permite salvar/baixar o .doc
-    const previewWin = window.open('', '_blank');
-    if (!previewWin) {
-      // Fallback: baixa direto caso o navegador bloqueie pop-ups
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${(headerData.title || 'noticia').replace(/[^\w\-]+/g, '_')}.doc`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
-      return;
+    await waitForPreviewAssets(element);
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      backgroundColor: '#ffffff',
+      windowWidth: document.documentElement.scrollWidth,
+      windowHeight: document.documentElement.scrollHeight,
+    });
+
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageWidthMm = 210;
+    const pageHeightMm = 297;
+    const pageHeightPx = Math.floor((canvas.width * pageHeightMm) / pageWidthMm);
+    const totalPages = Math.max(1, Math.ceil((canvas.height - 2) / pageHeightPx));
+
+    for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
+      const sourceY = pageIndex * pageHeightPx;
+      const sliceHeight = Math.min(pageHeightPx, canvas.height - sourceY);
+      if (sliceHeight <= 2) continue;
+
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = pageHeightPx;
+      const context = pageCanvas.getContext('2d');
+      if (!context) throw new Error('Não foi possível preparar a página do PDF.');
+
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+      context.drawImage(canvas, 0, sourceY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+
+      if (pageIndex > 0) pdf.addPage('a4', 'portrait');
+      pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, pageWidthMm, pageHeightMm);
     }
 
-    const fileName = `${(headerData.title || 'noticia').replace(/[^\w\-]+/g, '_')}.doc`;
-    previewWin.document.write(`<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="utf-8"/><title>${headerData.title || 'Notícia'} — Documento Word</title>
-<style>
-  body { font-family: system-ui, sans-serif; margin: 0; background: #f1f5f9; color: #0f172a; }
-  .bar { position: sticky; top: 0; display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 20px; background: #fff; border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
-  .bar strong { font-size: 14px; }
-  .btn { background: #2563eb; color: #fff; border: 0; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .btn:hover { background: #1d4ed8; }
-  .frame { max-width: 820px; margin: 24px auto; background: #fff; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
-</style></head>
-<body>
-  <div class="bar">
-    <strong>Pré-visualização do documento Word (.doc)</strong>
-    <button class="btn" id="dl">⬇ Baixar .doc</button>
-  </div>
-  <div class="frame">${html.split('<body>')[1].split('</body>')[0]}</div>
-  <script>
-    const url = ${JSON.stringify(url)};
-    document.getElementById('dl').addEventListener('click', function () {
-      const a = document.createElement('a');
-      a.href = url; a.download = ${JSON.stringify(fileName)}; a.click();
-    });
-  <\/script>
-</body></html>`);
-    previewWin.document.close();
+    return pdf;
+  };
+
+  const handleOpenDoc = async () => {
+    try {
+      setPdfError(false);
+      setIsGeneratingPdf(true);
+      const pdf = await createPreviewPdf();
+      const blob = pdf.output('blob');
+      const url = URL.createObjectURL(blob);
+      const previewWin = window.open(url, '_blank', 'noopener,noreferrer');
+
+      if (!previewWin) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = getPdfFileName();
+        a.click();
+      }
+
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) {
+      console.error('Falha ao abrir PDF:', error);
+      setPdfError(true);
+      setTimeout(() => setPdfError(false), 7000);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
 
