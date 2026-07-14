@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import {
   Trash2,
   Image as ImageIcon,
