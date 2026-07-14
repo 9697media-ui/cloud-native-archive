@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import {
   Trash2,
   Image as ImageIcon,
@@ -1102,7 +1103,7 @@ export default function NewsGeneratorPage() {
 
         <article
           id="pdf-content"
-          className={`bg-white mx-auto w-full max-w-[210mm] min-h-[297mm] p-6 md:p-12 shadow-2xl rounded-sm text-slate-800
+          className={`bg-news-paper mx-auto w-full max-w-[210mm] min-h-[297mm] p-6 md:p-12 shadow-2xl rounded-sm text-slate-800 overflow-hidden
             ${isGeneratingPdf ? 'shadow-none' : 'page-ruler-bg print:shadow-none print:p-0 print:max-w-none print:w-full print:bg-none'}
           `}
           onDragOver={handleContainerDragOver}
@@ -1378,6 +1379,8 @@ export default function NewsGeneratorPage() {
           <footer className="mt-16 pt-6 border-t border-slate-200 text-center text-xs text-slate-400 print:block w-full avoid-break clear-both">
             Documento gerado pelo Sistema Institucional de Jornalismo Escolar
           </footer>
+
+          <InstitutionalFooterBar className="-mx-6 md:-mx-12 -mb-6 md:-mb-12 mt-8 print:mx-0 print:mb-0" />
         </article>
       </div>
 

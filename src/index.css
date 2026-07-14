@@ -62,6 +62,14 @@
     --warning-foreground: 150 4% 13%;
     --info: 199 100% 50%;
     --info-foreground: 40 27% 99%;
+
+    /* News (Informativo) paper + institutional footer bar */
+    --news-paper: 50 29% 92%;
+    --news-brand-1: 37 74% 85%;
+    --news-brand-2: 49 100% 49%;
+    --news-brand-3: 9 86% 67%;
+    --news-brand-4: 168 63% 70%;
+    --news-brand-5: 199 100% 50%;
   }
 
   .dark {

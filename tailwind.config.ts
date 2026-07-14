@@ -79,6 +79,12 @@ export default {
         "status-confirmed": "hsl(var(--status-confirmed))",
         "status-pending": "hsl(var(--status-pending))",
         "status-cancelled": "hsl(var(--status-cancelled))",
+        "news-paper": "hsl(var(--news-paper))",
+        "news-brand-1": "hsl(var(--news-brand-1))",
+        "news-brand-2": "hsl(var(--news-brand-2))",
+        "news-brand-3": "hsl(var(--news-brand-3))",
+        "news-brand-4": "hsl(var(--news-brand-4))",
+        "news-brand-5": "hsl(var(--news-brand-5))",
       },
       borderRadius: {
         lg: "var(--radius)",
