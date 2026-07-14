@@ -550,6 +550,7 @@ export default function NewsGeneratorPage() {
     const element = document.getElementById('pdf-content');
     if (!element) throw new Error('Preview não encontrado para gerar o PDF.');
     const previewWidth = Math.ceil(element.getBoundingClientRect().width);
+    const previewPageHeight = Math.ceil((previewWidth * 297) / 210);
 
     await waitForPreviewAssets(element);
 
@@ -567,6 +568,19 @@ export default function NewsGeneratorPage() {
         exportStyle.textContent = `
           [data-pdf-helper="true"] { display: none !important; }
           #pdf-content.pdf-export-mode { box-shadow: none !important; }
+          #pdf-content.pdf-export-mode {
+            position: relative !important;
+            min-height: ${previewPageHeight}px !important;
+            overflow: hidden !important;
+          }
+          #pdf-content.pdf-export-mode > [aria-hidden="true"] {
+            position: absolute !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+          }
           /* Remove grades e bordas visuais do editor no PDF */
           #pdf-content.pdf-export-mode .grid-background { background-image: none !important; }
           #pdf-content.pdf-export-mode .page-ruler-bg { background-image: none !important; }
@@ -593,6 +607,8 @@ export default function NewsGeneratorPage() {
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pageWidthMm = 210;
     const pageHeightMm = 297;
+    pdf.setFillColor(240, 238, 228);
+    pdf.rect(0, 0, pageWidthMm, pageHeightMm, 'F');
 
     // Sempre uma única página A4: recorta a área com conteúdo e
     // encaixa proporcionalmente dentro da página, igual ao preview.
