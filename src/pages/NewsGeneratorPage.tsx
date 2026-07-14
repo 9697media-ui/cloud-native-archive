@@ -558,7 +558,7 @@ export default function NewsGeneratorPage() {
       useCORS: true,
       allowTaint: false,
       logging: false,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#F0EEE4',
       windowWidth: window.innerWidth,
       windowHeight: window.innerHeight,
       onclone: (clonedDocument) => {
@@ -605,7 +605,7 @@ export default function NewsGeneratorPage() {
     const context = contentCanvas.getContext('2d');
     if (!context) throw new Error('Não foi possível preparar a página do PDF.');
 
-    context.fillStyle = '#ffffff';
+    context.fillStyle = '#F0EEE4';
     context.fillRect(0, 0, contentCanvas.width, contentCanvas.height);
     context.drawImage(canvas, 0, 0, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
 
