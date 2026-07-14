@@ -12,7 +12,7 @@ export function InstitutionalFooterBar({ className }: InstitutionalFooterBarProp
   return (
     <div
       className={cn(
-        'flex w-full overflow-hidden h-3 md:h-4 print:h-[18px]',
+        'flex overflow-hidden h-3 md:h-4 print:h-[18px]',
         className
       )}
       aria-hidden="true"
