@@ -711,7 +711,7 @@ export default function NewsGeneratorPage() {
           /* Mantém a mesma grade de 3 colunas do preview, independente da largura */
           .grid-container-modern {
             grid-template-columns: repeat(3, 1fr) !important;
-            gap: 0 !important;
+            gap: 10px !important;
             padding: 0 !important;
           }
           #pdf-content {
@@ -739,20 +739,23 @@ export default function NewsGeneratorPage() {
         .grid-container-modern {
           display: grid;
           grid-template-columns: repeat(1, 1fr);
-          gap: 0;
+          gap: 10px;
           padding: 0;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @media (min-width: 768px) {
           .grid-container-modern {
             grid-template-columns: repeat(3, 1fr);
-            gap: 0;
+            gap: 10px;
             padding: 0;
           }
           .grid-container-modern:hover {
             gap: 12px;
             padding: 24px;
           }
+        }
+        #pdf-content.pdf-export-mode .grid-container-modern {
+          gap: 10px !important;
         }
         /* Padding de 12px quando os blocos se encontram, conforme a regra */
         .module-content-wrapper {
