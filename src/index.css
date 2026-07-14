@@ -64,12 +64,12 @@
     --info-foreground: 40 27% 99%;
 
     /* News (Informativo) paper + institutional footer bar */
-    --news-paper: 43 33% 92%;
-    --news-brand-1: 35 76% 85%;
+    --news-paper: 50 29% 92%;
+    --news-brand-1: 37 74% 85%;
     --news-brand-2: 49 100% 49%;
-    --news-brand-3: 8 88% 67%;
-    --news-brand-4: 166 62% 69%;
-    --news-brand-5: 202 100% 50%;
+    --news-brand-3: 9 86% 67%;
+    --news-brand-4: 168 63% 70%;
+    --news-brand-5: 199 100% 50%;
   }
 
   .dark {
