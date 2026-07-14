@@ -1,84 +1,79 @@
-# Plano: Sistema de Beta Agnóstico de Hospedagem
+## Plano: Modernização Visual da Página Notícias (Informativo)
 
-Objetivo: fazer o sistema de Beta/Snapshot funcionar identicamente no Lovable e na Cloudflare Pages, com o Supabase como fonte única da verdade.
+Escopo: apenas análise e recomendações. Nenhum arquivo será alterado nesta etapa.
 
-## 1. Migration no Supabase
+---
 
-Adicionar campos na tabela `ui_versions`:
-- `commit_sha` (text) — hash do commit do Git
-- `environment` (text) — `lovable` | `cloudflare-preview` | `cloudflare-production`
-- `is_active_beta` (boolean) — versão ativa para beta testers
-- `is_active_production` (boolean) — versão ativa para usuários finais
-- `deployed_at` (timestamp)
-- `deployed_by` (text)
+### 1. Fundo da página — troca de branco por `#F0EEE4`
 
-Criar índices para busca rápida por `is_active_beta` e `is_active_production`.
+**Onde aplicar (a decidir na aprovação):**
+- (a) Fundo da área de preview/canvas da notícia (o "papel" onde os módulos são renderizados)
+- (b) Fundo do PDF exportado (via `html2canvas` no `NewsGeneratorPage.tsx`)
+- (c) Opcionalmente, fundo da própria rota `/noticias` (área externa ao card)
 
-## 2. Detecção de versão no frontend
+Recomendação: aplicar em (a) e (b) para garantir consistência entre visualização e PDF. Manter (c) com o token `--background` atual (`#F0EEE4` já é praticamente o valor do token global `40 27% 96%` — muito próximo, então o efeito é sutil e coerente com o design system).
 
-Criar `src/lib/version.ts`:
-- Lê `__APP_VERSION__` injetado pelo Vite no build
-- Lê `__APP_ENV__` (lovable/cloudflare/local)
-- Configurar `vite.config.ts` para injetar `VITE_COMMIT_SHA` e `VITE_ENVIRONMENT`
+**Análise de contraste (WCAG AA — texto sobre `#F0EEE4`):**
+- Texto principal `hsl(150 4% 13%)` ≈ `#1F211F` → contraste ~15.8:1 ✅ (AAA)
+- Texto muted `hsl(0 0% 28%)` ≈ `#474747` → contraste ~7.9:1 ✅ (AAA)
+- Primary `#8BE0C6` sobre `#F0EEE4` → ~1.4:1 ❌ (só usar em blocos, nunca em texto pequeno)
 
-Cloudflare Pages já expõe `CF_PAGES_COMMIT_SHA` automaticamente. No Lovable, usar fallback timestamp.
+**Legibilidade:** bege quente reduz o glare do branco puro, melhora leitura prolongada, transmite tom institucional/editorial (adequado ao ANA Brasil).
 
-## 3. Hook `useActiveVersion`
+**Impacto visual:** aproxima a peça de um "papel impresso", reforça identidade institucional; imagens continuam destacadas por contraste com o fundo levemente off-white.
 
-Criar `src/hooks/useActiveVersion.ts`:
-- Consulta `ui_versions` pelo `is_active_beta` ou `is_active_production`
-- Cruza com `profile.is_beta_tester` para decidir qual versão o usuário deve ver
-- Compara com `__APP_VERSION__` atual e mostra aviso se houver mismatch
+**Acessibilidade:** sem regressões — todos os textos do design system permanecem acima de AA. Verificar apenas placeholders e ícones cinza-claro em toolbars (garantir ≥ 4.5:1).
 
-## 4. Edge Function `register-deploy`
+**Modo escuro:** manter o comportamento atual (o `#F0EEE4` só se aplica ao "papel" da notícia; o restante segue tokens). O papel da notícia deve permanecer claro mesmo em dark mode, pois o PDF final é sempre claro.
 
-Cria `supabase/functions/register-deploy/index.ts`:
-- Recebe: `{ commit_sha, environment, deployed_by }`
-- Insere nova linha em `ui_versions`
-- Marca automaticamente como `is_active_beta = true` no ambiente correspondente
-- Protegida por token (secret `DEPLOY_WEBHOOK_TOKEN`)
+---
 
-## 5. Painel admin de Versões
+### 2. Rodapé institucional — barra de 5 faixas
 
-Atualizar a aba de Histórico em `UsersPage.tsx`:
-- Mostrar coluna `environment` (badge colorido: Lovable/Cloudflare)
-- Mostrar `commit_sha` (7 chars)
-- Botões: "Ativar como Beta" e "Promover para Produção"
-- Filtros por ambiente
+**Cores (ordem fixa, esquerda → direita):**
+`#F5DFBB` · `#FBCE00` · `#F37964` · `#81E2CF` · `#01ADFF`
 
-## 6. GitHub Action para Cloudflare
+**Estrutura recomendada:**
+- 5 divs `flex-1` (larguras iguais), lado a lado, sem gap
+- Container `flex w-full overflow-hidden`
 
-Criar `.github/workflows/register-deploy.yml`:
-- Roda após deploy do Cloudflare Pages
-- Chama a edge function `register-deploy` com o `CF_PAGES_COMMIT_SHA`
+**Altura recomendada:**
+- Visualização web: **12px** (fina, discreta, institucional — estilo bandeira/selo)
+- PDF A4 (816px de largura no canvas): **16–20px**, para manter proporção visível na impressão
+- Alternativa mais marcante: 24px se o objetivo for reforçar identidade visual
 
-## 7. Documentação
+**Posição:**
+- Última coisa dentro do "papel" da notícia, colada no fundo (sem margem inferior)
+- Aparece tanto no preview quanto no PDF exportado (mesmo componente, garante paridade)
 
-Adicionar `docs/DEPLOY.md` explicando:
-- Como publicar no Lovable (continua igual)
-- Como configurar Cloudflare Pages
-- Como o fluxo Beta → Snapshot funciona em ambos
+**Container vs largura total:**
+- Recomendo **ocupar 100% da largura do container da notícia** (não sangrar para fora do papel). Assim funciona como um "rodapé de marca" institucional e mantém a metáfora de documento.
+- Fora do container (edge-to-edge da viewport) só faria sentido se o fundo bege ocupasse a página inteira — não é o caso.
 
-## Detalhes técnicos
+**Border-radius:**
+- O papel da notícia usa `rounded-xl` (12px). A barra deve **acompanhar apenas os cantos inferiores** (`rounded-b-xl`) para não quebrar a silhueta do card.
+- No PDF: como o `html2canvas` rasteriza, garantir que o container pai tenha `overflow-hidden` para o radius recortar as pontas coloridas.
 
-```text
-┌──────────────────────────────────────────────┐
-│           SUPABASE (ui_versions)             │
-│  ┌────────────────────────────────────────┐  │
-│  │ commit_sha │ env      │ beta │ prod    │  │
-│  │ a3f9...    │ lovable  │ ✓    │         │  │
-│  │ b8c2...    │ cf-prod  │      │ ✓       │  │
-│  └────────────────────────────────────────┘  │
-└──────────────────┬───────────────────────────┘
-                   │ Frontend consulta
-        ┌──────────┴──────────┐
-        │                     │
-   Beta tester?           Usuário comum?
-   → mostra beta          → mostra prod
-```
+**Espaçamento acima da barra:**
+- Sem padding entre o último módulo de conteúdo e a barra (barra "toca" o fim do conteúdo) — reforça leitura de rodapé institucional.
+- Se ficar visualmente apertado, adicionar `mt-8` no wrapper da barra apenas na visualização web.
 
-## Notas
+---
 
-- Não há quebra do fluxo atual no Lovable — apenas adicionamos campos opcionais.
-- Mantém o campo `is_beta_tester` em `profiles` (já existe).
-- Cloudflare Pages é opcional: o sistema funciona 100% sem ele.
+### 3. Pontos de decisão para você aprovar
+
+1. Aplicar `#F0EEE4` em: **(a) papel + (b) PDF** apenas, ou também em (c) rota inteira?
+2. Altura da barra: **12px web / 18px PDF** (recomendado) ou uniforme 16px?
+3. Barra com `rounded-b-xl` acompanhando o papel (recomendado) ou 100% reta?
+4. Manter a barra também em eventuais previews de e-mail/embed da notícia?
+
+---
+
+### 4. Arquivos que seriam tocados na implementação (referência, não alterados agora)
+
+- `src/pages/NewsGeneratorPage.tsx` — fundo do canvas, novo componente `<InstitutionalFooterBar />`, inclusão no fluxo de export PDF
+- `src/index.css` — (opcional) token `--news-paper: 43 33% 92%;` e `--news-footer-*` para as 5 cores, evitando hex hard-coded nos componentes
+
+---
+
+Aguardando sua aprovação (ou ajustes) para partir para a implementação.
