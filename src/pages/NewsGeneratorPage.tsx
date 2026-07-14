@@ -745,7 +745,7 @@ export default function NewsGeneratorPage() {
         }
         #pdf-content.pdf-export-mode {
           box-shadow: none !important;
-          background: #ffffff !important;
+          background: #F0EEE4 !important;
         }
       `}</style>
 
