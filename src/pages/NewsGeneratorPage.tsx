@@ -29,6 +29,19 @@ const MODULE_RULES: Record<string, { label: string; max: number; icon: any; plac
   image: { label: 'Imagem (URL)', max: Infinity, icon: ImageIcon, placeholder: 'Cole o link/URL da imagem aqui...' },
 };
 
+const CATEGORY_OPTIONS: { value: string; label: string }[] = [
+  { value: '', label: 'Sem categoria' },
+  { value: 'educacao', label: 'Educação' },
+  { value: 'ana_piaui', label: 'ANA Piauí' },
+  { value: 'ana_nilopolis', label: 'ANA Nilópolis' },
+  { value: 'ana_dic', label: 'ANA DIC' },
+  { value: 'ana_santana', label: 'ANA Santana' },
+];
+const CATEGORY_LABELS: Record<string, string> = CATEGORY_OPTIONS.reduce(
+  (acc, o) => ({ ...acc, [o.value]: o.label }),
+  {} as Record<string, string>,
+);
+
 function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]; isGeneratingPdf: boolean, heightStyle?: React.CSSProperties }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -112,6 +125,7 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
 
 export default function NewsGeneratorPage() {
   const [headerData, setHeaderData] = useState({
+    category: 'educacao',
     author: 'Por: Equipe de Jornalismo - 28/05/2026',
     title: 'Olimpíadas de Matemática: Alunos se destacam',
     subtitle: 'Escola conquista três medalhas de ouro na etapa regional.',
@@ -254,7 +268,7 @@ export default function NewsGeneratorPage() {
   };
 
   const confirmNewArticle = () => {
-    setHeaderData({ author: '', title: '', subtitle: '' });
+    setHeaderData({ category: '', author: '', title: '', subtitle: '' });
     setModules([]);
     setShowClearModal(false);
   };
@@ -850,6 +864,21 @@ export default function NewsGeneratorPage() {
               <div className="space-y-1.5">
                 <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
                   <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">1</span>
+                  Categoria da Notícia
+                </label>
+                <select
+                  value={headerData.category}
+                  onChange={(e) => setHeaderData({ ...headerData, category: e.target.value })}
+                  className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                >
+                  {CATEGORY_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">2</span>
                   Autor e Data
                 </label>
                 <input
@@ -862,7 +891,7 @@ export default function NewsGeneratorPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">2</span>
+                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">3</span>
                   Título Principal
                 </label>
                 <input
@@ -875,7 +904,7 @@ export default function NewsGeneratorPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">3</span>
+                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">4</span>
                   Subtítulo
                 </label>
                 <input
@@ -1138,8 +1167,17 @@ export default function NewsGeneratorPage() {
           </div>
 
           <div className="w-full mb-8 avoid-break clear-both">
-            <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4">
-              {headerData.author || 'Autor e Data'}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4">
+              {headerData.category && CATEGORY_LABELS[headerData.category] && (
+                <span
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide whitespace-nowrap"
+                  style={{ backgroundColor: '#81E2CF', color: '#1F211F' }}
+                >
+                  {CATEGORY_LABELS[headerData.category].toUpperCase()}
+                </span>
+              )}
+              {headerData.category && headerData.author && <span className="text-slate-300">•</span>}
+              <span>{headerData.author || 'Autor e Data'}</span>
             </div>
             <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight tracking-tight mb-4 break-words">
               {headerData.title || 'Título não definido'}
