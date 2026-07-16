@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 
 // Detect deploy environment + commit
 // Cloudflare Pages exposes CF_PAGES, CF_PAGES_COMMIT_SHA, CF_PAGES_BRANCH
@@ -31,7 +32,7 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react(), mode === "development" && componentTagger(), mcpPlugin()].filter(Boolean),
   define: {
     __APP_VERSION__: JSON.stringify(commitSha),
     __APP_ENV__: JSON.stringify(environment),

@@ -26,6 +26,7 @@ import TransparencyPage from "./pages/TransparencyPage";
 import NotFound from "./pages/NotFound";
 import EmailPreview from "./pages/EmailPreview";
 import AdminToolboxPage from "./pages/AdminToolboxPage";
+import OAuthConsent from "./pages/OAuthConsent";
 
 
 
@@ -81,6 +82,7 @@ const App = () => (
                 <Route path="/auth/confirm" element={<AuthConfirmPage />} />
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route path="/email-preview" element={<EmailPreview />} />
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<EventsHubPage />} />
                   <Route path="/visao-geral" element={

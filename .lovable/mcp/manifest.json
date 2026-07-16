@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "sdk_version": "0.22.2",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://ihqogooddvhsvfhbwdez.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "ana-brasil-mcp",
+      "version": "0.1.0",
+      "title": "ANA Brasil MCP"
+    },
+    "tools": [
+      {
+        "name": "me",
+        "title": "Current user",
+        "description": "Return the signed-in user's profile: name, email, unit, permission level and role.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_events",
+        "title": "List events",
+        "description": "List events from the ANA Brasil calendar visible to the signed-in user. Respects the app's row-level security. Returns up to `limit` rows ordered by start date.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "description": "Max rows to return (default 25, max 100).",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "from": {
+              "description": "ISO date/datetime lower bound for start_datetime (inclusive).",
+              "type": "string"
+            },
+            "to": {
+              "description": "ISO date/datetime upper bound for start_datetime (inclusive).",
+              "type": "string"
+            },
+            "unit": {
+              "description": "Filter by organizing unit.",
+              "type": "string"
+            },
+            "status": {
+              "description": "Filter by event status.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_event",
+        "title": "Get event",
+        "description": "Fetch a single event by id, including its full metadata. Respects row-level security.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Event UUID."
+            }
+          },
+          "required": [
+            "id"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
