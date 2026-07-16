@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
+import { InstitutionalHeader } from '@/components/news/InstitutionalHeader';
 import {
   Trash2,
   Image as ImageIcon,
@@ -1165,6 +1166,8 @@ export default function NewsGeneratorPage() {
               </span>
             </span>
           </div>
+
+          <InstitutionalHeader />
 
           <div className="w-full mb-8 avoid-break clear-both">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4">
