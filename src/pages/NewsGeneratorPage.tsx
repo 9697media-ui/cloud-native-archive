@@ -1170,17 +1170,17 @@ export default function NewsGeneratorPage() {
           <InstitutionalHeader />
 
           <div className="w-full mb-8 avoid-break clear-both">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4 leading-none">
               {headerData.category && CATEGORY_LABELS[headerData.category] && (
                 <span
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide whitespace-nowrap"
+                  className="inline-flex items-center justify-center h-5 px-2.5 rounded-full text-xs font-semibold tracking-wide whitespace-nowrap leading-none"
                   style={{ backgroundColor: '#81E2CF', color: '#1F211F' }}
                 >
                   {CATEGORY_LABELS[headerData.category].toUpperCase()}
                 </span>
               )}
-              {headerData.category && headerData.author && <span className="text-slate-300">•</span>}
-              <span>{headerData.author || 'Autor e Data'}</span>
+              {headerData.category && headerData.author && <span className="text-slate-300 leading-none">•</span>}
+              <span className="leading-none">{headerData.author || 'Autor e Data'}</span>
             </div>
             <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight tracking-tight mb-4 break-words">
               {headerData.title || 'Título não definido'}
