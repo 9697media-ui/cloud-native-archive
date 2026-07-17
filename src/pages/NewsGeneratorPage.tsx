@@ -127,12 +127,15 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
     minHeight: !isGeneratingPdf ? '100%' : (heightStyle?.height === 'auto' ? '400px' : '0px')
   };
 
+  const activeCaption = items[currentIndex]?.caption;
+  const firstCaption = items[0]?.caption;
+
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full flex flex-col">
       {/* MODO BLOG: Slideshow interativo */}
       {!isGeneratingPdf && (
         <div 
-          className="relative w-full h-full rounded-xl overflow-hidden shadow-md group bg-muted"
+          className={`relative w-full rounded-xl overflow-hidden shadow-md group bg-muted ${activeCaption ? 'flex-1 min-h-0' : 'h-full'}`}
           style={finalHeightStyle}
         >
           {items.map((item, idx) => (
@@ -176,10 +179,15 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
           </div>
         </div>
       )}
+      {!isGeneratingPdf && activeCaption && (
+        <p className="px-2 py-1.5 text-[11px] leading-snug text-slate-600 italic text-center flex-shrink-0">
+          {activeCaption}
+        </p>
+      )}
 
       {/* MODO PDF: mesma aparência do preview (primeira imagem do carrossel) */}
       {isGeneratingPdf && (
-        <div className="relative w-full h-full rounded-xl overflow-hidden shadow-md bg-muted" style={finalHeightStyle}>
+        <div className={`relative w-full rounded-xl overflow-hidden shadow-md bg-muted ${firstCaption ? 'flex-1 min-h-0' : 'h-full'}`} style={finalHeightStyle}>
           <img
             src={items[0]?.content}
             alt=""
@@ -191,6 +199,11 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
             }}
           />
         </div>
+      )}
+      {isGeneratingPdf && firstCaption && (
+        <p className="px-2 py-1.5 text-[11px] leading-snug text-slate-600 italic text-center flex-shrink-0">
+          {firstCaption}
+        </p>
       )}
     </div>
   );
@@ -1144,11 +1157,29 @@ export default function NewsGeneratorPage() {
                           </div>
                         </>
                       ) : module.type === 'image' ? (
-                        <ImageBlockField
-                          value={module.content}
-                          onChange={(url) => updateContent(module.id, url)}
-                          placeholder={rule.placeholder}
-                        />
+                        <>
+                          <ImageBlockField
+                            value={module.content}
+                            onChange={(url) => updateContent(module.id, url)}
+                            placeholder={rule.placeholder}
+                          />
+                          <div className="mt-2">
+                            <label className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70 flex items-center justify-between mb-1">
+                              <span>Legenda (opcional)</span>
+                              <span className={`font-bold ${(module.caption?.length || 0) >= 120 ? 'text-destructive' : 'text-muted-foreground/60'}`}>
+                                {module.caption?.length || 0} / 120
+                              </span>
+                            </label>
+                            <input
+                              type="text"
+                              value={module.caption || ''}
+                              maxLength={120}
+                              onChange={(e) => setModules(modules.map((m) => (m.id === module.id ? { ...m, caption: e.target.value } : m)))}
+                              placeholder="Ex.: Alunos recebem medalha na etapa regional."
+                              className="w-full p-2 text-xs border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                            />
+                          </div>
+                        </>
                       ) : null}
                     </div>
                   </div>
@@ -1325,12 +1356,17 @@ export default function NewsGeneratorPage() {
                       <img
                         src={module.content}
                         alt="Notícia"
-                        className="w-full h-full object-cover pointer-events-none rounded-lg"
+                        className={`w-full ${module.caption ? 'flex-1 min-h-0' : 'h-full'} object-cover pointer-events-none rounded-lg`}
                         onError={(e: any) => {
                           e.target.onerror = null;
                           e.target.src = 'https://placehold.co/800x400/eeeeee/999999?text=Imagem+N%C3%A3o+Encontrada';
                         }}
                       />
+                      {module.caption && (
+                        <figcaption className="px-2 py-1.5 text-[11px] leading-snug text-slate-600 italic text-center flex-shrink-0">
+                          {module.caption}
+                        </figcaption>
+                      )}
                     </figure>
                   );
                   break;
