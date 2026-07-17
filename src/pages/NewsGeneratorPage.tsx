@@ -1171,30 +1171,30 @@ export default function NewsGeneratorPage() {
           <InstitutionalHeader />
 
           <div className="w-full mb-8 avoid-break clear-both">
-            <div
-              className="text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4"
-              style={{ lineHeight: '22px' }}
-            >
+            <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4">
               {headerData.category && CATEGORY_LABELS[headerData.category] && (
-                <span
-                  className="inline-block rounded-full text-xs font-semibold tracking-wide whitespace-nowrap"
-                  style={{
-                    backgroundColor: '#81E2CF',
-                    color: '#1F211F',
-                    padding: '0 12px',
-                    lineHeight: '22px',
-                    marginRight: '8px',
-                  }}
-                >
-                  {CATEGORY_LABELS[headerData.category].toUpperCase()}
-                </span>
-              )}
-
-              {headerData.category && headerData.author && (
-                <span className="text-slate-300" style={{ marginRight: '8px' }}>•</span>
+                <>
+                  <span
+                    className="text-xs font-semibold tracking-wide whitespace-nowrap"
+                    style={{
+                      backgroundColor: '#81E2CF',
+                      color: '#1F211F',
+                      padding: '2px 10px',
+                      borderRadius: '9999px',
+                      boxDecorationBreak: 'clone',
+                      WebkitBoxDecorationBreak: 'clone',
+                    }}
+                  >
+                    {CATEGORY_LABELS[headerData.category].toUpperCase()}
+                  </span>
+                  {headerData.author && (
+                    <span className="text-slate-300" style={{ margin: '0 8px' }}>•</span>
+                  )}
+                </>
               )}
               <span>{headerData.author || 'Autor e Data'}</span>
             </div>
+
             <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight tracking-tight mb-4 break-words">
               {headerData.title || 'Título não definido'}
             </h1>
