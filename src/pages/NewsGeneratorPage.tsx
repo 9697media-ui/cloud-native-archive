@@ -827,8 +827,18 @@ export default function NewsGeneratorPage() {
           break-inside: avoid !important;
         }
         .page-ruler-bg {
-          background-image: 
-            repeating-linear-gradient(to bottom, transparent, transparent 296mm, hsl(var(--border)) 296mm, hsl(var(--border)) 297mm);
+          /* Linha de quebra desenhada exatamente na borda inferior da folha A4.
+             Se o conteúdo couber em uma única página (altura == 297mm), a linha fica
+             na borda e é cortada pelo overflow-hidden — nada aparece.
+             Só se torna visível quando o conteúdo ultrapassa 297mm (páginas seguintes). */
+          background-image:
+            repeating-linear-gradient(
+              to bottom,
+              transparent 0,
+              transparent 297mm,
+              hsl(var(--border)) 297mm,
+              hsl(var(--border)) calc(297mm + 1px)
+            );
         }
         .grid-background {
           background-image: 
