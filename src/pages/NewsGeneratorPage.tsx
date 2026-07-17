@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import { InstitutionalHeader } from '@/components/news/InstitutionalHeader';
+import { ImageBlockField } from '@/components/news/ImageBlockField';
 import {
   Trash2,
   Image as ImageIcon,
@@ -1143,29 +1144,11 @@ export default function NewsGeneratorPage() {
                           </div>
                         </>
                       ) : module.type === 'image' ? (
-                        <div className="flex flex-col gap-2 h-full">
-                          <input
-                            type="url"
-                            value={module.content}
-                            onChange={(e) => updateContent(module.id, e.target.value)}
-                            placeholder={rule.placeholder}
-                            className="w-full p-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                          />
-                          {module.content ? (
-                            <div className="relative rounded-lg overflow-hidden border border-border bg-muted">
-                              <img
-                                src={module.content}
-                                alt="Preview"
-                                className="w-full h-28 object-cover"
-                                onError={(e: any) => { e.target.style.display = 'none'; }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="rounded-lg border border-dashed border-border bg-muted/30 h-20 flex items-center justify-center">
-                              <ImageIcon size={20} className="text-muted-foreground/40" />
-                            </div>
-                          )}
-                        </div>
+                        <ImageBlockField
+                          value={module.content}
+                          onChange={(url) => updateContent(module.id, url)}
+                          placeholder={rule.placeholder}
+                        />
                       ) : null}
                     </div>
                   </div>
