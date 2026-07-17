@@ -1343,12 +1343,17 @@ export default function NewsGeneratorPage() {
                       <img
                         src={module.content}
                         alt="Notícia"
-                        className="w-full h-full object-cover pointer-events-none rounded-lg"
+                        className={`w-full ${module.caption ? 'flex-1 min-h-0' : 'h-full'} object-cover pointer-events-none rounded-lg`}
                         onError={(e: any) => {
                           e.target.onerror = null;
                           e.target.src = 'https://placehold.co/800x400/eeeeee/999999?text=Imagem+N%C3%A3o+Encontrada';
                         }}
                       />
+                      {module.caption && (
+                        <figcaption className="px-2 py-1.5 text-[11px] leading-snug text-slate-600 italic text-center flex-shrink-0">
+                          {module.caption}
+                        </figcaption>
+                      )}
                     </figure>
                   );
                   break;
