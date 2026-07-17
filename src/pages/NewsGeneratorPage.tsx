@@ -43,6 +43,77 @@ const CATEGORY_LABELS: Record<string, string> = CATEGORY_OPTIONS.reduce(
   {} as Record<string, string>,
 );
 
+const CATEGORY_BADGE_WIDTHS: Record<string, number> = {
+  educacao: 82,
+  ana_piaui: 88,
+  ana_nilopolis: 126,
+  ana_dic: 78,
+  ana_santana: 116,
+};
+
+interface MetadataLineProps {
+  category: string;
+  author: string;
+}
+
+function MetadataLine({ category, author }: MetadataLineProps) {
+  const categoryLabel = category && CATEGORY_LABELS[category] ? CATEGORY_LABELS[category].toUpperCase() : '';
+  const authorLabel = author || 'Autor e Data';
+  const badgeWidth = categoryLabel ? CATEGORY_BADGE_WIDTHS[category] ?? Math.max(78, categoryLabel.length * 8 + 24) : 0;
+  const dotX = badgeWidth + 12;
+  const authorX = categoryLabel ? badgeWidth + 26 : 0;
+
+  return (
+    <svg
+      width="100%"
+      height="22"
+      className="block overflow-visible"
+      role="img"
+      aria-label={categoryLabel ? `${categoryLabel} • ${authorLabel}` : authorLabel}
+    >
+      <title>{categoryLabel ? `${categoryLabel} • ${authorLabel}` : authorLabel}</title>
+      {categoryLabel && (
+        <>
+          <rect x="0" y="0" width={badgeWidth} height="22" rx="11" fill="#81E2CF" />
+          <text
+            x={badgeWidth / 2}
+            y="11"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            alignmentBaseline="middle"
+            fill="#1F211F"
+            style={{ fontFamily: 'Poppins, system-ui, sans-serif', fontSize: 12, fontWeight: 600, letterSpacing: '0.3px' }}
+          >
+            {categoryLabel}
+          </text>
+          {author && (
+            <text
+              x={dotX}
+              y="11"
+              dominantBaseline="middle"
+              alignmentBaseline="middle"
+              fill="#CBD5E1"
+              style={{ fontFamily: 'Poppins, system-ui, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '0.3px' }}
+            >
+              •
+            </text>
+          )}
+        </>
+      )}
+      <text
+        x={authorX}
+        y="11"
+        dominantBaseline="middle"
+        alignmentBaseline="middle"
+        fill="#64748B"
+        style={{ fontFamily: 'Poppins, system-ui, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '0.3px' }}
+      >
+        {authorLabel}
+      </text>
+    </svg>
+  );
+}
+
 function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]; isGeneratingPdf: boolean, heightStyle?: React.CSSProperties }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -1155,7 +1226,6 @@ export default function NewsGeneratorPage() {
           className={`bg-news-paper mx-auto w-full max-w-[210mm] min-h-[297mm] p-6 md:p-12 shadow-2xl rounded-none text-slate-800 overflow-hidden
             ${isGeneratingPdf ? 'shadow-none' : 'page-ruler-bg print:shadow-none print:p-0 print:max-w-none print:w-full print:bg-none'}
           `}
-          style={{ fontFamily: '"Poppins", system-ui, sans-serif' }}
           onDragOver={handleContainerDragOver}
           onDrop={handleDrop}
         >
@@ -1171,28 +1241,8 @@ export default function NewsGeneratorPage() {
           <InstitutionalHeader />
 
           <div className="w-full mb-8 avoid-break clear-both">
-            <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4">
-              {headerData.category && CATEGORY_LABELS[headerData.category] && (
-                <>
-                  <span
-                    className="text-xs font-semibold tracking-wide whitespace-nowrap"
-                    style={{
-                      backgroundColor: '#81E2CF',
-                      color: '#1F211F',
-                      padding: '2px 10px',
-                      borderRadius: '9999px',
-                      boxDecorationBreak: 'clone',
-                      WebkitBoxDecorationBreak: 'clone',
-                    }}
-                  >
-                    {CATEGORY_LABELS[headerData.category].toUpperCase()}
-                  </span>
-                  {headerData.author && (
-                    <span className="text-slate-300" style={{ margin: '0 8px' }}>•</span>
-                  )}
-                </>
-              )}
-              <span>{headerData.author || 'Autor e Data'}</span>
+            <div className="border-t border-b border-slate-200 py-2 mb-4">
+              <MetadataLine category={headerData.category} author={headerData.author} />
             </div>
 
             <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight tracking-tight mb-4 break-words">
