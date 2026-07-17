@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import { InstitutionalHeader } from '@/components/news/InstitutionalHeader';
+import { ImageBlockField } from '@/components/news/ImageBlockField';
 import {
   Trash2,
   Image as ImageIcon,
