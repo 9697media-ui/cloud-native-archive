@@ -619,21 +619,6 @@ export default function NewsGeneratorPage() {
       },
     });
 
-    // 🔍 DEBUG: baixa o PNG bruto do html2canvas antes de mandar pro jsPDF
-    try {
-      const debugUrl = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = debugUrl;
-      a.download = `debug-html2canvas-${Date.now()}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      // eslint-disable-next-line no-console
-      console.log('[PDF DEBUG] canvas size:', canvas.width, 'x', canvas.height);
-    } catch (err) {
-      console.warn('[PDF DEBUG] falha ao exportar canvas:', err);
-    }
-
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pageWidthMm = 210;
     const pageHeightMm = 297;
