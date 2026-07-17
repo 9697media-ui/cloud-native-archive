@@ -127,12 +127,15 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
     minHeight: !isGeneratingPdf ? '100%' : (heightStyle?.height === 'auto' ? '400px' : '0px')
   };
 
+  const activeCaption = items[currentIndex]?.caption;
+  const firstCaption = items[0]?.caption;
+
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full flex flex-col">
       {/* MODO BLOG: Slideshow interativo */}
       {!isGeneratingPdf && (
         <div 
-          className="relative w-full h-full rounded-xl overflow-hidden shadow-md group bg-muted"
+          className={`relative w-full rounded-xl overflow-hidden shadow-md group bg-muted ${activeCaption ? 'flex-1 min-h-0' : 'h-full'}`}
           style={finalHeightStyle}
         >
           {items.map((item, idx) => (
@@ -176,10 +179,15 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
           </div>
         </div>
       )}
+      {!isGeneratingPdf && activeCaption && (
+        <p className="px-2 py-1.5 text-[11px] leading-snug text-slate-600 italic text-center flex-shrink-0">
+          {activeCaption}
+        </p>
+      )}
 
       {/* MODO PDF: mesma aparência do preview (primeira imagem do carrossel) */}
       {isGeneratingPdf && (
-        <div className="relative w-full h-full rounded-xl overflow-hidden shadow-md bg-muted" style={finalHeightStyle}>
+        <div className={`relative w-full rounded-xl overflow-hidden shadow-md bg-muted ${firstCaption ? 'flex-1 min-h-0' : 'h-full'}`} style={finalHeightStyle}>
           <img
             src={items[0]?.content}
             alt=""
@@ -191,6 +199,11 @@ function CarouselGallery({ items, isGeneratingPdf, heightStyle }: { items: any[]
             }}
           />
         </div>
+      )}
+      {isGeneratingPdf && firstCaption && (
+        <p className="px-2 py-1.5 text-[11px] leading-snug text-slate-600 italic text-center flex-shrink-0">
+          {firstCaption}
+        </p>
       )}
     </div>
   );
