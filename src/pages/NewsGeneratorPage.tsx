@@ -1173,20 +1173,18 @@ export default function NewsGeneratorPage() {
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4 leading-none">
               {headerData.category && CATEGORY_LABELS[headerData.category] && (
                 <span
-                  className="inline-flex items-center justify-center rounded-full text-xs font-semibold tracking-wide whitespace-nowrap align-middle"
+                  className="inline-block rounded-full text-xs font-semibold tracking-wide whitespace-nowrap align-middle"
                   style={{
                     backgroundColor: '#81E2CF',
                     color: '#1F211F',
-                    minHeight: '24px',
-                    padding: '0 12px',
-                    lineHeight: '12px',
+                    padding: '5px 12px',
+                    lineHeight: 1,
                   }}
                 >
-                  <span style={{ display: 'block', lineHeight: '12px', transform: 'translateY(-0.5px)' }}>
-                    {CATEGORY_LABELS[headerData.category].toUpperCase()}
-                  </span>
+                  {CATEGORY_LABELS[headerData.category].toUpperCase()}
                 </span>
               )}
+
               {headerData.category && headerData.author && <span className="text-slate-300 leading-none">•</span>}
               <span className="leading-none">{headerData.author || 'Autor e Data'}</span>
             </div>
