@@ -1173,8 +1173,13 @@ export default function NewsGeneratorPage() {
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-slate-500 uppercase tracking-wide border-t border-b border-slate-200 py-2 mb-4 leading-none">
               {headerData.category && CATEGORY_LABELS[headerData.category] && (
                 <span
-                  className="inline-flex items-center justify-center h-5 px-2.5 rounded-full text-xs font-semibold tracking-wide whitespace-nowrap leading-none"
-                  style={{ backgroundColor: '#81E2CF', color: '#1F211F' }}
+                  className="inline-block rounded-full text-xs font-semibold tracking-wide whitespace-nowrap align-middle"
+                  style={{
+                    backgroundColor: '#81E2CF',
+                    color: '#1F211F',
+                    padding: '3px 10px 3px',
+                    lineHeight: '14px',
+                  }}
                 >
                   {CATEGORY_LABELS[headerData.category].toUpperCase()}
                 </span>
