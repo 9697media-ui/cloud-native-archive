@@ -1144,11 +1144,29 @@ export default function NewsGeneratorPage() {
                           </div>
                         </>
                       ) : module.type === 'image' ? (
-                        <ImageBlockField
-                          value={module.content}
-                          onChange={(url) => updateContent(module.id, url)}
-                          placeholder={rule.placeholder}
-                        />
+                        <>
+                          <ImageBlockField
+                            value={module.content}
+                            onChange={(url) => updateContent(module.id, url)}
+                            placeholder={rule.placeholder}
+                          />
+                          <div className="mt-2">
+                            <label className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70 flex items-center justify-between mb-1">
+                              <span>Legenda (opcional)</span>
+                              <span className={`font-bold ${(module.caption?.length || 0) >= 120 ? 'text-destructive' : 'text-muted-foreground/60'}`}>
+                                {module.caption?.length || 0} / 120
+                              </span>
+                            </label>
+                            <input
+                              type="text"
+                              value={module.caption || ''}
+                              maxLength={120}
+                              onChange={(e) => setModules(modules.map((m) => (m.id === module.id ? { ...m, caption: e.target.value } : m)))}
+                              placeholder="Ex.: Alunos recebem medalha na etapa regional."
+                              className="w-full p-2 text-xs border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                            />
+                          </div>
+                        </>
                       ) : null}
                     </div>
                   </div>
