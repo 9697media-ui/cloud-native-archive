@@ -1,79 +1,140 @@
-## Plano: Modernização Visual da Página Notícias (Informativo)
+## Plano — Upload de Imagens no Bloco "Imagem"
 
-Escopo: apenas análise e recomendações. Nenhum arquivo será alterado nesta etapa.
-
----
-
-### 1. Fundo da página — troca de branco por `#F0EEE4`
-
-**Onde aplicar (a decidir na aprovação):**
-- (a) Fundo da área de preview/canvas da notícia (o "papel" onde os módulos são renderizados)
-- (b) Fundo do PDF exportado (via `html2canvas` no `NewsGeneratorPage.tsx`)
-- (c) Opcionalmente, fundo da própria rota `/noticias` (área externa ao card)
-
-Recomendação: aplicar em (a) e (b) para garantir consistência entre visualização e PDF. Manter (c) com o token `--background` atual (`#F0EEE4` já é praticamente o valor do token global `40 27% 96%` — muito próximo, então o efeito é sutil e coerente com o design system).
-
-**Análise de contraste (WCAG AA — texto sobre `#F0EEE4`):**
-- Texto principal `hsl(150 4% 13%)` ≈ `#1F211F` → contraste ~15.8:1 ✅ (AAA)
-- Texto muted `hsl(0 0% 28%)` ≈ `#474747` → contraste ~7.9:1 ✅ (AAA)
-- Primary `#8BE0C6` sobre `#F0EEE4` → ~1.4:1 ❌ (só usar em blocos, nunca em texto pequeno)
-
-**Legibilidade:** bege quente reduz o glare do branco puro, melhora leitura prolongada, transmite tom institucional/editorial (adequado ao ANA Brasil).
-
-**Impacto visual:** aproxima a peça de um "papel impresso", reforça identidade institucional; imagens continuam destacadas por contraste com o fundo levemente off-white.
-
-**Acessibilidade:** sem regressões — todos os textos do design system permanecem acima de AA. Verificar apenas placeholders e ícones cinza-claro em toolbars (garantir ≥ 4.5:1).
-
-**Modo escuro:** manter o comportamento atual (o `#F0EEE4` só se aplica ao "papel" da notícia; o restante segue tokens). O papel da notícia deve permanecer claro mesmo em dark mode, pois o PDF final é sempre claro.
+Adicionar suporte a upload no bloco `type: 'image'` da página Notícias, **sem quebrar** o modelo atual baseado em `content: string` (URL).
 
 ---
 
-### 2. Rodapé institucional — barra de 5 faixas
+### 1. Princípio arquitetural
 
-**Cores (ordem fixa, esquerda → direita):**
-`#F5DFBB` · `#FBCE00` · `#F37964` · `#81E2CF` · `#01ADFF`
+O upload é apenas um **atalho para gerar uma URL**. Após o upload no Supabase Storage, o retorno é uma URL pública que é gravada exatamente no mesmo campo `module.content` usado hoje. Preview, PDF, gallery-grouping e serialização JSON permanecem intocados.
 
-**Estrutura recomendada:**
-- 5 divs `flex-1` (larguras iguais), lado a lado, sem gap
-- Container `flex w-full overflow-hidden`
-
-**Altura recomendada:**
-- Visualização web: **12px** (fina, discreta, institucional — estilo bandeira/selo)
-- PDF A4 (816px de largura no canvas): **16–20px**, para manter proporção visível na impressão
-- Alternativa mais marcante: 24px se o objetivo for reforçar identidade visual
-
-**Posição:**
-- Última coisa dentro do "papel" da notícia, colada no fundo (sem margem inferior)
-- Aparece tanto no preview quanto no PDF exportado (mesmo componente, garante paridade)
-
-**Container vs largura total:**
-- Recomendo **ocupar 100% da largura do container da notícia** (não sangrar para fora do papel). Assim funciona como um "rodapé de marca" institucional e mantém a metáfora de documento.
-- Fora do container (edge-to-edge da viewport) só faria sentido se o fundo bege ocupasse a página inteira — não é o caso.
-
-**Border-radius:**
-- O papel da notícia usa `rounded-xl` (12px). A barra deve **acompanhar apenas os cantos inferiores** (`rounded-b-xl`) para não quebrar a silhueta do card.
-- No PDF: como o `html2canvas` rasteriza, garantir que o container pai tenha `overflow-hidden` para o radius recortar as pontas coloridas.
-
-**Espaçamento acima da barra:**
-- Sem padding entre o último módulo de conteúdo e a barra (barra "toca" o fim do conteúdo) — reforça leitura de rodapé institucional.
-- Se ficar visualmente apertado, adicionar `mt-8` no wrapper da barra apenas na visualização web.
+```text
+[Usuário] → [Upload | URL]
+              ↓         ↓
+        Supabase    (input atual)
+         Storage        ↓
+              ↓         ↓
+         URL pública ───┘
+              ↓
+        module.content (igual hoje)
+```
 
 ---
 
-### 3. Pontos de decisão para você aprovar
+### 2. Reutilização do bloco atual
 
-1. Aplicar `#F0EEE4` em: **(a) papel + (b) PDF** apenas, ou também em (c) rota inteira?
-2. Altura da barra: **12px web / 18px PDF** (recomendado) ou uniforme 16px?
-3. Barra com `rounded-b-xl` acompanhando o papel (recomendado) ou 100% reta?
-4. Manter a barra também em eventuais previews de e-mail/embed da notícia?
-
----
-
-### 4. Arquivos que seriam tocados na implementação (referência, não alterados agora)
-
-- `src/pages/NewsGeneratorPage.tsx` — fundo do canvas, novo componente `<InstitutionalFooterBar />`, inclusão no fluxo de export PDF
-- `src/index.css` — (opcional) token `--news-paper: 43 33% 92%;` e `--news-footer-*` para as 5 cores, evitando hex hard-coded nos componentes
+- **Zero alterações** na estrutura do módulo (`{ id, type: 'image', content, cols, rows }`).
+- **Zero alterações** no renderer do preview e do PDF (linhas ~1145 e ~1337 de `NewsGeneratorPage.tsx`).
+- **Zero alterações** no agrupamento automático de galeria (`preventGallery`, `cols === 3`).
+- Apenas o **editor lateral** do bloco ganha um seletor de modo (Upload | URL). O campo URL continua existindo e funcional.
 
 ---
 
-Aguardando sua aprovação (ou ajustes) para partir para a implementação.
+### 3. Supabase Storage
+
+- Reutilizar o bucket **público** já existente `event-attachments` (evita nova migration e nova policy).
+  - Alternativa: criar bucket dedicado `news-images` se o time preferir isolamento — decisão do usuário.
+- Path padronizado: `news/{yyyy}/{mm}/{uuid}.{ext}`.
+- Componente base: reaproveitar `src/components/FileUpload.tsx` (modo `single`) — já cobre upload, progress, toast e getPublicUrl.
+
+---
+
+### 4. Impacto no JSON das notícias
+
+- **Nenhum campo novo.** `content` continua sendo uma string URL.
+- Notícias antigas (URLs externas Unsplash, etc.) continuam abrindo, editando e exportando normalmente.
+- Diferença única: URLs vindas de upload apontam para `…supabase.co/storage/v1/object/public/event-attachments/news/…`.
+
+---
+
+### 5. Compatibilidade com notícias existentes
+
+- 100%. O campo persistido é idêntico.
+- Ao abrir uma notícia antiga, o editor detecta se `content` começa com o domínio do Storage → abre a aba **Upload** com a miniatura; caso contrário abre a aba **URL** com o link. Ambos os modos escrevem no mesmo `content`.
+
+---
+
+### 6. Tratamento de imagens grandes
+
+- Limite duro no cliente: **5 MB** (bloqueia antes de subir, evita custo).
+- Validação de MIME: `image/png`, `image/jpeg`, `image/webp`.
+- Dimensão máxima recomendada: 2000px no maior lado (redimensionado automaticamente na compressão — passo 7).
+- Feedback: barra de progresso, toast de erro claro em caso de rejeição.
+
+---
+
+### 7. Compressão automática
+
+- Executada **no navegador antes do upload**, via `browser-image-compression` (leve, ~15KB gzip) ou `Canvas API` puro.
+- Regras:
+  - Se arquivo > 500KB → redimensiona para no máx. 2000px e re-encoda como JPEG q=0.85 (ou WebP se suportado).
+  - Se ≤ 500KB → sobe original.
+- Resultado: economia de banda + PDF mais leve + upload mais rápido, **sem perda visual perceptível** no A4.
+
+---
+
+### 8. Remoção de imagens não utilizadas
+
+Risco real: usuário troca a imagem de um bloco várias vezes → arquivos órfãos no Storage.
+
+Estratégia em camadas:
+
+1. **Imediata (síncrona):** ao substituir/remover uma imagem cuja URL pertence ao bucket, chamar `supabase.storage.remove()` do arquivo antigo antes de gravar o novo `content`.
+2. **Ao deletar o bloco:** mesmo tratamento.
+3. **Ao descartar a notícia** sem salvar: manter set em memória de "uploads desta sessão ainda não commitados" e limpar no unload.
+4. **Garbage collector (futuro, opcional):** Edge Function agendada que compara arquivos do bucket com URLs referenciadas em notícias salvas e remove órfãos > 7 dias. Fora do escopo desta entrega, apenas documentar.
+
+URLs externas (não-Supabase) **nunca** são deletadas.
+
+---
+
+### 9. Experiência do usuário
+
+- Duas pílulas no topo do editor do bloco: **Upload** (default) | **URL**.
+- Modo Upload: drop zone + click-to-select, preview com nome/tamanho, botão remover.
+- Modo URL: campo de texto atual, inalterado.
+- Estados: idle → uploading (progress) → success (thumb) → error (toast + retry).
+- Preview do artigo atualiza em tempo real assim que a URL é gravada — igual hoje.
+- Acessibilidade: drop zone com `role="button"`, `aria-label`, foco visível, suporte a teclado.
+
+---
+
+### 10. Arquivos que serão tocados na implementação
+
+- `src/pages/NewsGeneratorPage.tsx` — trocar o `<Input>` atual do editor do bloco imagem por um novo `<ImageBlockField>` (single component, contido).
+- `src/components/news/ImageBlockField.tsx` — **novo**, encapsula Upload+URL+compressão+cleanup.
+- `package.json` — adicionar `browser-image-compression` (opcional, se aprovado).
+- **Não altera:** renderers, PDF pipeline, JSON schema, tipos de módulo, migrations.
+
+---
+
+### 11. Riscos e mitigações
+
+| Risco | Mitigação |
+|---|---|
+| Bucket `event-attachments` mistura eventos e notícias | Prefixo de path `news/…` isola visualmente; criar bucket dedicado se necessário |
+| Vazamento de arquivos órfãos | Cleanup síncrono em troca/remoção + roadmap de GC |
+| html2canvas + imagens cross-origin | URLs do Storage são same-origin via CDN pública com CORS permissivo — já funciona hoje com Unsplash |
+| Compressão degrada qualidade | q=0.85 e limite 2000px são conservadores; usuário pode desativar via modo URL |
+
+---
+
+### 12. Fora do escopo desta entrega
+
+- Biblioteca/galeria de imagens já enviadas.
+- Edição de imagem (crop, filtros).
+- Garbage collector agendado (documentado, não implementado).
+
+---
+
+### Mockup da interface proposta
+
+Mockup renderizado em alta fidelidade mostrando os dois estados do bloco (Upload ativo com progress + URL ativo com preview) exibido abaixo desta mensagem.
+
+---
+
+**Aguardando aprovação** para implementar. Pontos de decisão:
+
+1. Bucket: usar `event-attachments` (rápido) ou criar `news-images` dedicado?
+2. Compressão: incluir `browser-image-compression` ou usar Canvas puro (zero dependência)?
+3. Limite de 5MB e 2000px estão OK?
