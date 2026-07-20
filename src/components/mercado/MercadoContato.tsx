@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { z } from 'zod';
-import { User, Phone, Mail, Globe, Send, Loader2 } from 'lucide-react';
+import { User, Phone, Mail, Globe, Send } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 
 const schema = z.object({
   name: z.string().trim().min(2, 'Informe seu nome').max(100),
@@ -29,18 +28,18 @@ const contacts = [
   { icon: Globe, label: 'Site Oficial', value: 'anabrasil.org', href: 'https://anabrasil.org' },
 ];
 
+const WHATSAPP_NUMBER = '5519997278118';
+
 export function MercadoContato() {
-  const { toast } = useToast();
   const [values, setValues] = useState<FormValues>(initial);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [submitting, setSubmitting] = useState(false);
 
   const setField = <K extends keyof FormValues>(key: K, value: FormValues[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(values);
     if (!parsed.success) {
@@ -52,15 +51,32 @@ export function MercadoContato() {
       setErrors(fieldErrors);
       return;
     }
-    setSubmitting(true);
-    // Preparado para integração futura (endpoint / edge function).
-    await new Promise((r) => setTimeout(r, 600));
-    setSubmitting(false);
-    setValues(initial);
-    toast({
-      title: 'Mensagem enviada',
-      description: 'Recebemos seu contato. Retornaremos em breve.',
-    });
+
+    const data = parsed.data;
+    const text = [
+      'Olá! Gostaria de saber mais sobre o Mercado Solidário.',
+      '',
+      '*Nome:*',
+      data.name,
+      '',
+      '*Empresa:*',
+      data.company || '—',
+      '',
+      '*Telefone:*',
+      data.phone,
+      '',
+      '*E-mail:*',
+      data.email,
+      '',
+      '*Cidade:*',
+      data.city || '—',
+      '',
+      '*Mensagem:*',
+      data.message,
+    ].join('\n');
+
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -188,9 +204,9 @@ export function MercadoContato() {
               {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
             </div>
 
-            <Button type="submit" disabled={submitting} className="w-full gap-2">
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              {submitting ? 'Enviando...' : 'Enviar mensagem'}
+            <Button type="submit" className="w-full gap-2">
+              <Send className="h-4 w-4" />
+              Enviar mensagem
             </Button>
           </form>
         </CardContent>
