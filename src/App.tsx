@@ -23,6 +23,7 @@ import NewsGeneratorPage from "./pages/NewsGeneratorPage";
 import MarketingHubPage from "./pages/MarketingHubPage";
 import EventsHubPage from "./pages/EventsHubPage";
 import TransparencyPage from "./pages/TransparencyPage";
+import MercadoSolidarioPage from "./pages/MercadoSolidarioPage";
 import NotFound from "./pages/NotFound";
 import EmailPreview from "./pages/EmailPreview";
 import AdminToolboxPage from "./pages/AdminToolboxPage";
@@ -106,6 +107,9 @@ const App = () => (
                   } />
                   <Route path="/marketing" element={
                     <ProtectedRoute><MarketingHubPage /></ProtectedRoute>
+                  } />
+                  <Route path="/mercado-solidario" element={
+                    <ProtectedRoute><MercadoSolidarioPage /></ProtectedRoute>
                   } />
                   <Route path="/portal-transparencia" element={
                     <MarketingRoute><TransparencyPage /></MarketingRoute>
