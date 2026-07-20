@@ -24,6 +24,7 @@ import MarketingHubPage from "./pages/MarketingHubPage";
 import EventsHubPage from "./pages/EventsHubPage";
 import TransparencyPage from "./pages/TransparencyPage";
 import MercadoSolidarioPage from "./pages/MercadoSolidarioPage";
+import MercadoSolidarioPublicPage from "./pages/MercadoSolidarioPublicPage";
 import NotFound from "./pages/NotFound";
 import EmailPreview from "./pages/EmailPreview";
 import AdminToolboxPage from "./pages/AdminToolboxPage";
@@ -84,6 +85,7 @@ const App = () => (
                 <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
                 <Route path="/email-preview" element={<EmailPreview />} />
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+                <Route path="/mercado-solidario-publico" element={<MercadoSolidarioPublicPage />} />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<EventsHubPage />} />
                   <Route path="/visao-geral" element={
