@@ -206,7 +206,7 @@ export function MercadoContato() {
 
             <Button type="submit" className="w-full gap-2">
               <Send className="h-4 w-4" />
-              Enviar mensagem
+              Enviar mensagem via WhatsApp
             </Button>
           </form>
         </CardContent>
