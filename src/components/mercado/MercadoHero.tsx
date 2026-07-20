@@ -1,6 +1,8 @@
 import { Heart, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import impactoSocialImg from '@/assets/impacto-social-cozinha.png.asset.json';
+
 
 interface MercadoHeroProps {
   onPartnerClick: () => void;
@@ -46,21 +48,14 @@ export function MercadoHero({ onPartnerClick, onLearnClick }: MercadoHeroProps) 
         </div>
 
         <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-          <div
-            className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border shadow-md"
-            style={{ background: 'hsl(var(--news-brand-4) / 0.15)' }}
-          >
-            <div
-              className="absolute inset-0 flex items-center justify-center text-center"
-              aria-hidden
-            >
-              <Heart
-                className="h-24 w-24 opacity-40"
-                style={{ color: 'hsl(var(--news-brand-4))' }}
-                strokeWidth={1.2}
-              />
-            </div>
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border shadow-md">
+            <img
+              src={impactoSocialImg.url}
+              alt="Cozinha de uma família em situação de vulnerabilidade social, ilustrando o impacto do Mercado Solidário"
+              className="h-full w-full object-cover"
+            />
           </div>
+
           <div className="absolute -bottom-4 -left-4 flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-md">
             <div
               className="flex h-10 w-10 items-center justify-center rounded-full"
