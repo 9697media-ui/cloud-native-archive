@@ -5,10 +5,13 @@ import { MercadoProposito } from '@/components/mercado/MercadoProposito';
 import { MercadoComoAjudar } from '@/components/mercado/MercadoComoAjudar';
 import { MercadoAtuacao } from '@/components/mercado/MercadoAtuacao';
 import { MercadoContato } from '@/components/mercado/MercadoContato';
+import { useIframeHeightReporter } from '@/hooks/useIframeHeightReporter';
 
 export default function MercadoSolidarioPublicPage() {
   const contatoRef = useRef<HTMLDivElement>(null);
   const propositoRef = useRef<HTMLDivElement>(null);
+
+  useIframeHeightReporter('mercado-solidario-height');
 
   const scrollTo = (ref: React.RefObject<HTMLDivElement>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
