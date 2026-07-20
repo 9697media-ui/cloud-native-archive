@@ -1,6 +1,8 @@
 import { Heart, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import impactoSocialImg from '@/assets/impacto-social-cozinha.png.asset.json';
+
 
 interface MercadoHeroProps {
   onPartnerClick: () => void;
