@@ -115,6 +115,19 @@
     max-width: 100vw;
   }
 
+  /* Public embed mode: page grows naturally, only window scrolls */
+  html.mercado-embed,
+  html.mercado-embed body,
+  html.mercado-embed #root {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+  html.mercado-embed .min-h-screen {
+    min-height: 0 !important;
+  }
+
+
   body {
     @apply bg-background text-foreground font-sans;
     -webkit-text-size-adjust: 100%;
