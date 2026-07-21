@@ -1,10 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Reports the document height to the parent window via postMessage.
  * Used when this app is embedded as an iframe (e.g., in WordPress).
+ *
+ * Dampening rules to avoid infinite resize loops:
+ * - 150 ms debounce
+ * - Only sends when the height changes by more than 5 px
+ * - Ignores small height changes caused by the iframe being resized horizontally
+ * - Never sends the same height twice
  */
 export function useIframeHeightReporter(messageType: string) {
+  const lastSentHeightRef = useRef<number>(0);
+  const lastSentWidthRef = useRef<number>(0);
+
   useEffect(() => {
     let rafId: number | null = null;
     let timeoutId: number | null = null;
@@ -19,9 +28,30 @@ export function useIframeHeightReporter(messageType: string) {
         document.documentElement.clientHeight,
       );
 
+    const computeWidth = () =>
+      window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
     const sendHeight = () => {
       try {
         const height = computeHeight();
+        const width = computeWidth();
+        const heightDelta = Math.abs(height - lastSentHeightRef.current);
+        const widthChanged = width !== lastSentWidthRef.current;
+
+        // Avoid re-sending the same height and ignore tiny oscillations.
+        if (heightDelta <= 5) {
+          return;
+        }
+
+        // If only the iframe width changed (e.g. parent resized the iframe) and the
+        // height barely moved, ignore the event to break the feedback loop.
+        if (widthChanged && heightDelta <= 20) {
+          lastSentWidthRef.current = width;
+          return;
+        }
+
+        lastSentHeightRef.current = height;
+        lastSentWidthRef.current = width;
         window.parent.postMessage({ type: messageType, height }, '*');
       } catch {
         /* noop */
@@ -33,19 +63,21 @@ export function useIframeHeightReporter(messageType: string) {
       timeoutId = window.setTimeout(() => {
         if (rafId !== null) cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(sendHeight);
-      }, 100);
+      }, 150);
     };
 
-    // Initial dispatches
+    // Initial dispatch
     sendHeight();
+
     window.addEventListener('load', scheduleSend);
     window.addEventListener('resize', scheduleSend);
 
-    // Observe layout & DOM changes
+    // Observe layout changes
     const resizeObserver = new ResizeObserver(scheduleSend);
     resizeObserver.observe(document.documentElement);
     resizeObserver.observe(document.body);
 
+    // Observe DOM changes
     const mutationObserver = new MutationObserver(scheduleSend);
     mutationObserver.observe(document.body, {
       childList: true,
