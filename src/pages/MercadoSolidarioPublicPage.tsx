@@ -19,22 +19,28 @@ export default function MercadoSolidarioPublicPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-8">
+      <main className="w-full px-4 py-6 lg:px-8">
         <div className="space-y-10">
-          <MercadoHero
-            onPartnerClick={() => scrollTo(contatoRef)}
-            onLearnClick={() => scrollTo(propositoRef)}
-          />
-          <div ref={propositoRef}>
+          <div className="mx-auto max-w-7xl">
+            <MercadoHero
+              onPartnerClick={() => scrollTo(contatoRef)}
+              onLearnClick={() => scrollTo(propositoRef)}
+            />
+          </div>
+          <div ref={propositoRef} className="mx-auto max-w-7xl">
             <MercadoProposito />
           </div>
-          <MercadoComoAjudar />
-          <MercadoAtuacao />
-          <div ref={contatoRef}>
+          <div className="mx-auto max-w-7xl">
+            <MercadoComoAjudar />
+          </div>
+          <div className="mx-auto max-w-7xl">
+            <MercadoAtuacao />
+          </div>
+          <div ref={contatoRef} className="mx-auto max-w-7xl">
             <MercadoContato />
           </div>
 
-          <div className="pt-4">
+          <div className="mx-auto max-w-7xl pt-4">
             <InstitutionalFooterBar className="rounded-md" />
             <p className="mt-3 text-center text-xs text-muted-foreground">
               Mercado Solidário — uma iniciativa do Grupo ANA Brasil.
