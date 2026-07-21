@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import { MercadoHero } from '@/components/mercado/MercadoHero';
 import { MercadoProposito } from '@/components/mercado/MercadoProposito';
@@ -13,12 +13,18 @@ export default function MercadoSolidarioPublicPage() {
 
   useIframeHeightReporter('mercado-solidario-height');
 
+  useEffect(() => {
+    document.documentElement.classList.add('mercado-embed');
+    return () => document.documentElement.classList.remove('mercado-embed');
+  }, []);
+
   const scrollTo = (ref: React.RefObject<HTMLDivElement>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
+
       <main className="w-full px-4 py-6 lg:px-8">
         <div className="space-y-10">
           <div className="mx-auto max-w-7xl">
