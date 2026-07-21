@@ -24,11 +24,11 @@ export function MercadoHero({ onPartnerClick, onLearnClick }: MercadoHeroProps) 
 
       <div className="relative flex flex-col items-center text-center">
         <div className="w-full max-w-5xl">
-          <div className="relative aspect-[16/7] w-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <div className="relative aspect-[16/7] w-full overflow-hidden rounded-2xl">
             <img
               src={bannerAsset.url}
               alt="Banner institucional do Mercado Solidário"
-              className="h-full w-full object-contain"
+              className="absolute inset-0 h-full w-full object-cover"
               loading="eager"
               decoding="async"
             />
