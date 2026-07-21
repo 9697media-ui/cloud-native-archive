@@ -3,6 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import bannerAsset from '@/assets/mercado-solidario-banner.svg.asset.json';
 
+const BANNER_URL = /^https?:\/\//.test(bannerAsset.url)
+  ? bannerAsset.url
+  : `https://r2-vault-craft.lovable.app${bannerAsset.url}`;
+
 interface MercadoHeroProps {
   onPartnerClick: () => void;
   onLearnClick: () => void;
@@ -26,7 +30,7 @@ export function MercadoHero({ onPartnerClick, onLearnClick }: MercadoHeroProps) 
         <div className="w-full max-w-5xl">
           <div className="relative aspect-[2/1] w-full overflow-hidden rounded-2xl">
             <img
-              src={bannerAsset.url}
+              src={BANNER_URL}
               alt="Banner institucional do Mercado Solidário"
               className="absolute inset-0 h-full w-full object-contain"
               loading="eager"
