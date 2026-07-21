@@ -3,9 +3,22 @@ import { z } from 'zod';
 import { User, Phone, Mail, Globe, Send } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+const helpOptions = [
+  'Doação de Alimentos',
+  'Doação de Produtos de Higiene',
+  'Campanha Conjunta',
+  'Outros',
+];
 
 const schema = z.object({
   name: z.string().trim().min(2, 'Informe seu nome').max(100),
@@ -13,13 +26,13 @@ const schema = z.object({
   phone: z.string().trim().min(8, 'Telefone inválido').max(20),
   email: z.string().trim().email('E-mail inválido').max(160),
   city: z.string().trim().max(80).optional().or(z.literal('')),
-  message: z.string().trim().min(5, 'Mensagem muito curta').max(1000),
+  helpType: z.string().min(1, 'Selecione uma opção'),
 });
 
 type FormValues = z.infer<typeof schema>;
 type FieldErrors = Partial<Record<keyof FormValues, string>>;
 
-const initial: FormValues = { name: '', company: '', phone: '', email: '', city: '', message: '' };
+const initial: FormValues = { name: '', company: '', phone: '', email: '', city: '', helpType: '' };
 
 const contacts = [
   { icon: User, label: 'Responsável', value: 'Ricardo', href: null },
@@ -71,8 +84,8 @@ export function MercadoContato() {
       '*Cidade:*',
       data.city || '—',
       '',
-      '*Mensagem:*',
-      data.message,
+      '*Como deseja ajudar?:*',
+      data.helpType,
     ].join('\n');
 
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
@@ -192,16 +205,27 @@ export function MercadoContato() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ms-message">Mensagem</Label>
-              <Textarea
-                id="ms-message"
-                rows={4}
-                value={values.message}
-                onChange={(e) => setField('message', e.target.value)}
-                maxLength={1000}
-                aria-invalid={!!errors.message}
-              />
-              {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
+              <Label htmlFor="ms-help-type">Como deseja ajudar?</Label>
+              <Select
+                value={values.helpType}
+                onValueChange={(value) => setField('helpType', value)}
+              >
+                <SelectTrigger
+                  id="ms-help-type"
+                  aria-invalid={!!errors.helpType}
+                  className={errors.helpType ? 'border-destructive' : ''}
+                >
+                  <SelectValue placeholder="Selecione uma opção" />
+                </SelectTrigger>
+                <SelectContent>
+                  {helpOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.helpType && <p className="text-xs text-destructive">{errors.helpType}</p>}
             </div>
 
             <Button type="submit" className="w-full gap-2">
