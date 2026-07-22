@@ -3573,9 +3573,94 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     return css + "\n" + html;
   };
 
+  const generateBannerSliderCode = () => {
+    const c = bannerSliderConfig;
+    const slides = (c.slides || []).filter((s: any) => s.active !== false);
+    const uid = 'abs-' + Math.random().toString(36).slice(2, 8);
+    const interval = Math.max(2000, Math.min(10000, Number(c.intervalMs) || 5000));
+    const transition = Math.max(200, Math.min(1500, Number(c.transitionMs) || 600));
+    const effect = c.effect === 'fade' ? 'fade' : 'slide';
+    const loading = c.lazyLoad ? 'lazy' : 'eager';
+
+    const css = `<style>
+  .${uid}{position:relative;width:100%;overflow:hidden;background:#000;}
+  .${uid} .abs-track{position:relative;width:100%;}
+  .${uid} .abs-slide{position:absolute;inset:0;opacity:0;transition:opacity ${transition}ms ease;}
+  .${uid}[data-effect="slide"] .abs-track{display:flex;width:100%;transition:transform ${transition}ms ease;}
+  .${uid}[data-effect="slide"] .abs-slide{position:relative;flex:0 0 100%;opacity:1;}
+  .${uid}[data-effect="fade"] .abs-slide.is-active{opacity:1;z-index:1;}
+  .${uid} picture,.${uid} img{display:block;width:100%;height:100%;object-fit:cover;}
+  .${uid} .abs-link{display:block;width:100%;height:100%;}
+  .${uid} .abs-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;background:rgba(0,0,0,.45);color:#fff;border:0;width:40px;height:40px;border-radius:999px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+  .${uid} .abs-arrow:hover{background:rgba(0,0,0,.7);}
+  .${uid} .abs-arrow.prev{left:12px;} .${uid} .abs-arrow.next{right:12px;}
+  .${uid} .abs-dots{position:absolute;bottom:14px;left:0;right:0;display:flex;gap:6px;justify-content:center;z-index:5;}
+  .${uid} .abs-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.5);border:0;cursor:pointer;padding:0;transition:background .2s,width .2s;}
+  .${uid} .abs-dot.is-active{background:#fff;width:22px;}
+  .${uid} .abs-ratio{aspect-ratio:1916/821;}
+  @media (max-width:640px){.${uid} .abs-ratio{aspect-ratio:1080/1440;}}
+  @media (prefers-reduced-motion:reduce){.${uid} .abs-track,.${uid} .abs-slide{transition:none!important;}}
+</style>`;
+
+    const slidesHtml = slides.map((s: any, i: number) => {
+      const alt = (s.alt || '').replace(/"/g, '&quot;');
+      const desktop = s.imageDesktop || s.imageTablet || s.imageMobile || '';
+      const tablet = s.imageTablet || desktop;
+      const mobile = s.imageMobile || desktop;
+      const picture = `<picture>
+        <source media="(min-width:1024px)" srcset="${desktop}">
+        <source media="(min-width:641px)" srcset="${tablet}">
+        <img src="${mobile}" alt="${alt}" loading="${i === 0 ? 'eager' : loading}" decoding="async">
+      </picture>`;
+      const inner = s.href
+        ? `<a class="abs-link" href="${s.href}"${s.newTab ? ' target="_blank" rel="noopener"' : ''} aria-label="${alt || 'Slide ' + (i + 1)}">${picture}</a>`
+        : picture;
+      return `<div class="abs-slide abs-ratio${i === 0 ? ' is-active' : ''}" role="group" aria-roledescription="slide" aria-label="${i + 1} de ${slides.length}">${inner}</div>`;
+    }).join('');
+
+    const html = `
+<!-- Início: Banner Slider Nativo -->
+<div class="${uid}" data-effect="${effect}" aria-roledescription="carousel" aria-label="Banner">
+  <div class="abs-track abs-ratio">${slidesHtml}</div>
+  ${c.showArrows && slides.length > 1 ? `<button class="abs-arrow prev" type="button" aria-label="Anterior">‹</button><button class="abs-arrow next" type="button" aria-label="Próximo">›</button>` : ''}
+  ${c.showPagination && slides.length > 1 ? `<div class="abs-dots">${slides.map((_: any, i: number) => `<button class="abs-dot${i === 0 ? ' is-active' : ''}" type="button" aria-label="Ir para slide ${i + 1}"></button>`).join('')}</div>` : ''}
+</div>
+<!-- Fim: Banner Slider Nativo -->`;
+
+    const script = `<script>(function(){
+  var root=document.currentScript.previousElementSibling;while(root&&!root.classList.contains('${uid}'))root=root.previousElementSibling;
+  if(!root)return;
+  var slides=root.querySelectorAll('.abs-slide'),dots=root.querySelectorAll('.abs-dot'),track=root.querySelector('.abs-track');
+  var i=0,n=slides.length,timer=null,effect=root.getAttribute('data-effect');
+  var loop=${c.loop ? 'true' : 'false'},autoplay=${c.autoplay ? 'true' : 'false'},pauseHover=${c.pauseOnHover ? 'true' : 'false'};
+  function render(){
+    if(effect==='slide'){track.style.transform='translateX(-'+(i*100)+'%)';}
+    slides.forEach(function(s,k){s.classList.toggle('is-active',k===i);});
+    dots.forEach(function(d,k){d.classList.toggle('is-active',k===i);});
+  }
+  function go(k){if(k<0)k=loop?n-1:0;if(k>=n)k=loop?0:n-1;i=k;render();}
+  function next(){go(i+1);} function prev(){go(i-1);}
+  var pv=root.querySelector('.abs-arrow.prev'),nx=root.querySelector('.abs-arrow.next');
+  if(pv)pv.addEventListener('click',function(e){e.preventDefault();prev();reset();});
+  if(nx)nx.addEventListener('click',function(e){e.preventDefault();next();reset();});
+  dots.forEach(function(d,k){d.addEventListener('click',function(e){e.preventDefault();go(k);reset();});});
+  root.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'){prev();reset();}if(e.key==='ArrowRight'){next();reset();}});
+  root.setAttribute('tabindex','0');
+  function start(){if(!autoplay||n<2)return;stop();timer=setInterval(next,${interval});}
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  function reset(){stop();start();}
+  if(pauseHover){root.addEventListener('mouseenter',stop);root.addEventListener('mouseleave',start);root.addEventListener('focusin',stop);root.addEventListener('focusout',start);}
+  if(!window.matchMedia||!window.matchMedia('(prefers-reduced-motion: reduce)').matches){start();}
+  render();
+})();</script>`;
+
+    return css + "\n" + html + "\n" + script;
+  };
+
   const getGeneratedCode = () => {
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
     if (activeWidgetType === 'banner') return generateBannerCode();
+    if (activeWidgetType === 'banner-slider') return generateBannerSliderCode();
     if (activeWidgetType === 'gateway') return generateGatewayCode();
     if (activeWidgetType === 'sidetab') return generateSidetabCode();
     return generateMenuCode();
@@ -3739,6 +3824,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     { type: 'menu', icon: MenuIcon, label: 'Menu', hint: 'Responsivo' },
                     { type: 'gateway', icon: LayoutGrid, label: 'Gateway', hint: 'Navegação' },
                     { type: 'sidetab', icon: PanelRight, label: 'Aba Lateral', hint: 'Lateral fixa' },
+                    { type: 'banner-slider', icon: Images, label: 'Banner Slider', hint: 'Slider responsivo' },
                   ] as const).map(({ type, icon: Icon, label, hint }) => {
                     const active = activeWidgetType === type;
                     return (
