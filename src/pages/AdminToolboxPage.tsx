@@ -1266,6 +1266,10 @@ export default function AdminToolboxPage() {
 
   const [sidetabConfig, setSidetabConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_SIDETAB_CONFIG)));
 
+  const [sliderConfig, setSliderConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_SLIDER_CONFIG)));
+  const [selectedSlideId, setSelectedSlideId] = useState<string | null>(() => DEFAULT_SLIDER_CONFIG.slides[0]?.id ?? null);
+  const [dragSlideId, setDragSlideId] = useState<string | null>(null);
+
 
 
   // ===== Preview "demo" orientado pelo código final =====
