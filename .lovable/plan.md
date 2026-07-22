@@ -33,9 +33,9 @@ type BannerSliderConfig = {
     id: string;               // uuid local
     name: string;             // nome interno
     active: boolean;
-    imageDesktop: string;     // 1916x821 (wide desktop)
-    imageTablet: string;      // 1536x1024 (tablet 3:2)
-    imageMobile: string;      // 1080x1440 (mobile 3:4)
+    imageDesktop: string;     // 1916x821
+    imageTablet: string;      // 1916x821
+    imageMobile: string;      // 1080x1440
     alt: string;              // SEO
     href: string;
     newTab: boolean;
@@ -92,7 +92,7 @@ Alternativa autocontida (padrão dos demais): bloco único `<style>+<div>+<scrip
 
 ## 7. Riscos técnicos
 
-- **Peso das imagens.** 1916×821 (desktop), 1536×1024 (tablet) e 1080×1440 (mobile) podem gerar arquivos grandes → aplicar mesma compressão já usada em `ImageBlockField` (>500KB → 2000px, JPEG 0.85) antes do upload.
+- **Peso das imagens.** 1916×821 e 1080×1440 podem gerar arquivos grandes → aplicar mesma compressão já usada em `ImageBlockField` (>500KB → 2000px, JPEG 0.85) antes do upload.
 - **Layout shift (CLS).** Renderizar `<picture>` com `aspect-ratio` fixo por breakpoint para reservar espaço.
 - **Autoplay + acessibilidade.** Respeitar `prefers-reduced-motion` e pausar em `:hover`/`:focus-within`.
 - **Preview vs. produção.** Como cada breakpoint tem imagem própria, o preview precisa forçar a media-query correta via `width` do contêiner (não `min-width` da janela). Testar nos 3 devices.
