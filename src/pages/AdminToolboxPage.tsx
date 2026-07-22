@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown, History, RotateCcw } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown, History, RotateCcw, Images, ArrowUp, ArrowDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import PageHeader from '@/components/PageHeader';
@@ -302,6 +302,36 @@ const DEFAULT_BANNER_CONFIG = {
   isDismissible: true,
 };
 
+const makeSlideId = () =>
+  (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+    ? crypto.randomUUID()
+    : `slide-${Math.random().toString(36).slice(2, 10)}`;
+
+const DEFAULT_BANNER_SLIDER_CONFIG = {
+  slides: [
+    {
+      id: 'slide-1',
+      name: 'Slide 1',
+      active: true,
+      imageDesktop: '',
+      imageTablet: '',
+      imageMobile: '',
+      alt: 'Banner institucional',
+      href: '',
+      newTab: false,
+    },
+  ],
+  autoplay: true,
+  intervalMs: 5000,
+  transitionMs: 600,
+  loop: true,
+  showArrows: true,
+  showPagination: true,
+  effect: 'slide' as 'slide' | 'fade',
+  lazyLoad: true,
+  pauseOnHover: true,
+};
+
 const DEFAULT_MENU_CONFIG = {
   logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
   logoUrlMobile: '',
@@ -575,6 +605,7 @@ const DEFAULT_SIDETAB_CONFIG = {
 const getDefaultConfig = (type: string) =>
   type === 'whatsapp' ? DEFAULT_WHATSAPP_CONFIG :
   type === 'banner' ? DEFAULT_BANNER_CONFIG :
+  type === 'banner-slider' ? DEFAULT_BANNER_SLIDER_CONFIG :
   type === 'gateway' ? DEFAULT_GATEWAY_CONFIG :
   type === 'sidetab' ? DEFAULT_SIDETAB_CONFIG : DEFAULT_MENU_CONFIG;
 
@@ -862,12 +893,14 @@ export default function AdminToolboxPage() {
 
   const currentConfig = () => activeWidgetType === 'whatsapp' ? whatsappConfig :
     activeWidgetType === 'banner' ? bannerConfig :
+    activeWidgetType === 'banner-slider' ? bannerSliderConfig :
     activeWidgetType === 'gateway' ? gatewayConfig :
     activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
 
   const applyConfig = (type: string, config: any) => {
     if (type === 'whatsapp') setWhatsappConfig(config);
     else if (type === 'banner') setBannerConfig(config);
+    else if (type === 'banner-slider') setBannerSliderConfig(config);
     else if (type === 'gateway') setGatewayConfig(config);
     else if (type === 'sidetab') setSidetabConfig(config);
     else setMenuConfig(prev => ({
@@ -898,6 +931,7 @@ export default function AdminToolboxPage() {
 
       const rawConfig = activeWidgetType === 'whatsapp' ? whatsappConfig : 
                      activeWidgetType === 'banner' ? bannerConfig :
+                     activeWidgetType === 'banner-slider' ? bannerSliderConfig :
                      activeWidgetType === 'gateway' ? gatewayConfig :
                      activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
       // Deep clone para evitar referências compartilhadas/mutações em items.activePaths
@@ -1197,16 +1231,44 @@ export default function AdminToolboxPage() {
       testUrl: 'https://anabrasil.org/ana/'
     },
     gateway: DEFAULT_GATEWAY_CONFIG,
-    sidetab: DEFAULT_SIDETAB_CONFIG
+    sidetab: DEFAULT_SIDETAB_CONFIG,
+    'banner-slider': {
+      ...DEFAULT_BANNER_SLIDER_CONFIG,
+      slides: [
+        {
+          id: 'demo-slide-1',
+          name: 'Campanha 1',
+          active: true,
+          imageDesktop: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1916&h=821&fit=crop',
+          imageTablet: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1916&h=821&fit=crop',
+          imageMobile: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1080&h=1440&fit=crop',
+          alt: 'Campanha de destaque',
+          href: '#',
+          newTab: false,
+        },
+        {
+          id: 'demo-slide-2',
+          name: 'Campanha 2',
+          active: true,
+          imageDesktop: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1916&h=821&fit=crop',
+          imageTablet: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1916&h=821&fit=crop',
+          imageMobile: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1080&h=1440&fit=crop',
+          alt: 'Segunda campanha',
+          href: '#',
+          newTab: false,
+        },
+      ],
+    },
   };
 
-  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab') => {
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab' | 'banner-slider') => {
     setActiveWidgetType(type);
     if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
     else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
     else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
     else if (type === 'gateway') setGatewayConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.gateway)));
     else if (type === 'sidetab') setSidetabConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.sidetab)));
+    else if (type === 'banner-slider') setBannerSliderConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS['banner-slider'])));
     
     toast({
       title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
@@ -1232,6 +1294,8 @@ export default function AdminToolboxPage() {
 
   const [sidetabConfig, setSidetabConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_SIDETAB_CONFIG)));
 
+  const [bannerSliderConfig, setBannerSliderConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_BANNER_SLIDER_CONFIG)));
+
 
 
   // ===== Preview "demo" orientado pelo código final =====
@@ -1251,7 +1315,7 @@ export default function AdminToolboxPage() {
     setDemoDoc(getGeneratedCode() + previewBg + demoScript);
     setDemoVersion((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig]);
+  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, bannerSliderConfig]);
 
 
   // A demo não altera CSS. Este efeito só espelha classe de dispositivo para o
@@ -1310,6 +1374,7 @@ export default function AdminToolboxPage() {
     if (skipDraftRef.current) { skipDraftRef.current = false; return; }
     const config = activeWidgetType === 'whatsapp' ? whatsappConfig :
       activeWidgetType === 'banner' ? bannerConfig :
+      activeWidgetType === 'banner-slider' ? bannerSliderConfig :
       activeWidgetType === 'gateway' ? gatewayConfig :
       activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
     const t = setTimeout(() => {
@@ -1328,7 +1393,7 @@ export default function AdminToolboxPage() {
     }, 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, activeWidgetType, currentTemplateId]);
+  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, bannerSliderConfig, activeWidgetType, currentTemplateId]);
 
 
 
