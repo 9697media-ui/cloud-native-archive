@@ -622,6 +622,7 @@ const upgradeConfig = (type: string, saved: any) => {
       ...it,
       children: Array.isArray(it.children) ? it.children : [],
     }));
+  }
   if (type === 'slider' && Array.isArray(merged.slides)) {
     const itemBase = makeSliderSlide(1);
     merged.slides = merged.slides.map((s: any, i: number) => ({ ...itemBase, ...s, id: s?.id || makeSliderSlide(i + 1).id, name: s?.name || `Slide ${i + 1}` }));
