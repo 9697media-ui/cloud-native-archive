@@ -33,9 +33,9 @@ type BannerSliderConfig = {
     id: string;               // uuid local
     name: string;             // nome interno
     active: boolean;
-    imageDesktop: string;     // 1916x821
-    imageTablet: string;      // 1916x821
-    imageMobile: string;      // 1080x1440
+    imageDesktop: string;     // 1916x821 (wide desktop)
+    imageTablet: string;      // 1536x1024 (tablet 3:2)
+    imageMobile: string;      // 1080x1440 (mobile 3:4)
     alt: string;              // SEO
     href: string;
     newTab: boolean;
