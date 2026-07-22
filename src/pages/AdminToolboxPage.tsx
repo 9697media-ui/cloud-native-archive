@@ -4683,6 +4683,175 @@ ${script}
                   </div>
                 )}
 
+                {/* CONFIG: SLIDER */}
+                {activeWidgetType === 'slider' && (() => {
+                  const selected = sliderConfig.slides.find((s: any) => s.id === selectedSlideId) || sliderConfig.slides[0];
+                  const updateSlide = (id: string, patch: any) =>
+                    setSliderConfig({ ...sliderConfig, slides: sliderConfig.slides.map((s: any) => s.id === id ? { ...s, ...patch } : s) });
+                  const addSlide = () => {
+                    const n = sliderConfig.slides.length + 1;
+                    const ns = makeSliderSlide(n);
+                    setSliderConfig({ ...sliderConfig, slides: [...sliderConfig.slides, ns] });
+                    setSelectedSlideId(ns.id);
+                  };
+                  const removeSlide = (id: string) => {
+                    const next = sliderConfig.slides.filter((s: any) => s.id !== id);
+                    setSliderConfig({ ...sliderConfig, slides: next.length ? next : [makeSliderSlide(1)] });
+                    if (selectedSlideId === id) setSelectedSlideId(next[0]?.id ?? null);
+                  };
+                  const duplicateSlide = (id: string) => {
+                    const src = sliderConfig.slides.find((s: any) => s.id === id);
+                    if (!src) return;
+                    const copy = { ...src, id: makeSliderSlide(1).id, name: `${src.name} (cópia)` };
+                    const i = sliderConfig.slides.findIndex((s: any) => s.id === id);
+                    const next = [...sliderConfig.slides];
+                    next.splice(i + 1, 0, copy);
+                    setSliderConfig({ ...sliderConfig, slides: next });
+                    setSelectedSlideId(copy.id);
+                  };
+                  const onDragStart = (id: string) => setDragSlideId(id);
+                  const onDrop = (targetId: string) => {
+                    if (!dragSlideId || dragSlideId === targetId) return;
+                    const list = [...sliderConfig.slides];
+                    const from = list.findIndex((s) => s.id === dragSlideId);
+                    const to = list.findIndex((s) => s.id === targetId);
+                    if (from < 0 || to < 0) return;
+                    const [moved] = list.splice(from, 1);
+                    list.splice(to, 0, moved);
+                    setSliderConfig({ ...sliderConfig, slides: list });
+                    setDragSlideId(null);
+                  };
+
+                  return (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Slides ({sliderConfig.slides.length})</Label>
+                          <Button type="button" size="sm" variant="outline" className="h-7 gap-1" onClick={addSlide}>
+                            <Plus className="h-3.5 w-3.5" /> Adicionar
+                          </Button>
+                        </div>
+                        <div className="space-y-1.5 max-h-[280px] overflow-y-auto pr-1">
+                          {sliderConfig.slides.map((s: any) => {
+                            const active = s.id === selectedSlideId;
+                            const thumb = s.desktopUrl || s.tabletUrl || s.mobileUrl;
+                            return (
+                              <div
+                                key={s.id}
+                                draggable
+                                onDragStart={() => onDragStart(s.id)}
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={() => onDrop(s.id)}
+                                onClick={() => setSelectedSlideId(s.id)}
+                                className={cn(
+                                  "flex items-center gap-2 rounded-md border p-1.5 cursor-pointer transition-colors",
+                                  active ? "border-primary bg-primary/10" : "border-border bg-background hover:bg-muted/50",
+                                  !s.enabled && "opacity-50"
+                                )}
+                              >
+                                <GripVertical className="h-3.5 w-3.5 text-muted-foreground shrink-0 cursor-grab" />
+                                <div className="h-8 w-12 shrink-0 rounded overflow-hidden bg-muted flex items-center justify-center">
+                                  {thumb ? <img src={thumb} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="h-3.5 w-3.5 text-muted-foreground/50" />}
+                                </div>
+                                <span className="flex-1 truncate text-xs">{s.name}</span>
+                                <button type="button" onClick={(e) => { e.stopPropagation(); updateSlide(s.id, { enabled: !s.enabled }); }} className="p-1 text-muted-foreground hover:text-foreground" aria-label={s.enabled ? 'Desativar' : 'Ativar'}>
+                                  {s.enabled ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                                </button>
+                                <button type="button" onClick={(e) => { e.stopPropagation(); duplicateSlide(s.id); }} className="p-1 text-muted-foreground hover:text-foreground" aria-label="Duplicar">
+                                  <CopyIcon className="h-3.5 w-3.5" />
+                                </button>
+                                <button type="button" onClick={(e) => { e.stopPropagation(); removeSlide(s.id); }} className="p-1 text-muted-foreground hover:text-destructive" aria-label="Remover">
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {selected && (
+                        <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-3">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Editando: {selected.name}</div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Nome interno</Label>
+                            <Input value={selected.name} onChange={(e) => updateSlide(selected.id, { name: e.target.value })} />
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                            <div>
+                              <Label className="text-xs mb-1 block">Imagem Desktop (1916×821)</Label>
+                              <ImageBlockField value={selected.desktopUrl} onChange={(url) => updateSlide(selected.id, { desktopUrl: url })} />
+                            </div>
+                            <div>
+                              <Label className="text-xs mb-1 block">Imagem Tablet (1916×821)</Label>
+                              <ImageBlockField value={selected.tabletUrl} onChange={(url) => updateSlide(selected.id, { tabletUrl: url })} />
+                            </div>
+                            <div>
+                              <Label className="text-xs mb-1 block">Imagem Mobile (1080×1440)</Label>
+                              <ImageBlockField value={selected.mobileUrl} onChange={(url) => updateSlide(selected.id, { mobileUrl: url })} />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Link de destino</Label>
+                            <Input value={selected.link} onChange={(e) => updateSlide(selected.id, { link: e.target.value })} placeholder="https://..." />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs cursor-pointer">Abrir em nova aba</Label>
+                            <Switch checked={selected.newTab} onCheckedChange={(v) => updateSlide(selected.id, { newTab: v })} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Texto alternativo (SEO)</Label>
+                            <Input value={selected.alt} onChange={(e) => updateSlide(selected.id, { alt: e.target.value })} placeholder="Descreva a imagem" />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="space-y-3 rounded-lg border border-border p-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Comportamento do slider</div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs cursor-pointer">Autoplay</Label>
+                          <Switch checked={sliderConfig.autoplay} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, autoplay: v })} />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between"><Label className="text-xs">Tempo entre slides</Label><span className="text-xs text-muted-foreground">{sliderConfig.interval} ms</span></div>
+                          <Slider min={1000} max={15000} step={500} value={[sliderConfig.interval]} onValueChange={([v]) => setSliderConfig({ ...sliderConfig, interval: v })} />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between"><Label className="text-xs">Velocidade da transição</Label><span className="text-xs text-muted-foreground">{sliderConfig.transitionSpeed} ms</span></div>
+                          <Slider min={100} max={2000} step={50} value={[sliderConfig.transitionSpeed]} onValueChange={([v]) => setSliderConfig({ ...sliderConfig, transitionSpeed: v })} />
+                        </div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Loop infinito</Label><Switch checked={sliderConfig.loop} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, loop: v })} /></div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Pausar ao passar o mouse</Label><Switch checked={sliderConfig.pauseOnHover} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, pauseOnHover: v })} /></div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Navegação por setas</Label><Switch checked={sliderConfig.showArrows} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, showArrows: v })} /></div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Indicadores (bullets)</Label><Switch checked={sliderConfig.showBullets} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, showBullets: v })} /></div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Efeito de transição</Label>
+                          <Select value={sliderConfig.effect} onValueChange={(v) => setSliderConfig({ ...sliderConfig, effect: v })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="slide">Slide (deslizar)</SelectItem>
+                              <SelectItem value="fade">Fade (esmaecer)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Ajuste da imagem</Label>
+                          <Select value={sliderConfig.objectFit} onValueChange={(v) => setSliderConfig({ ...sliderConfig, objectFit: v })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="cover">Preencher (cover)</SelectItem>
+                              <SelectItem value="contain">Conter (contain)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Lazy loading</Label><Switch checked={sliderConfig.lazyLoad} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, lazyLoad: v })} /></div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+
+
+
 
 
 
