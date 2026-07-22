@@ -4150,6 +4150,162 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                   </>
                 ) : null}
 
+                {/* CONFIG: BANNER SLIDER */}
+                {activeWidgetType === 'banner-slider' && (
+                  <div className="space-y-4">
+                    <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-semibold flex items-center gap-2"><Images className="h-4 w-4" /> Slides</Label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="h-7 gap-1 text-xs"
+                          onClick={() => {
+                            const n = bannerSliderConfig.slides.length + 1;
+                            setBannerSliderConfig({
+                              ...bannerSliderConfig,
+                              slides: [...bannerSliderConfig.slides, {
+                                id: makeSlideId(),
+                                name: `Slide ${n}`,
+                                active: true,
+                                imageDesktop: '', imageTablet: '', imageMobile: '',
+                                alt: '', href: '', newTab: false,
+                              }],
+                            });
+                          }}
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Adicionar slide
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {bannerSliderConfig.slides.map((slide: any, idx: number) => {
+                          const update = (patch: any) => {
+                            const slides = [...bannerSliderConfig.slides];
+                            slides[idx] = { ...slides[idx], ...patch };
+                            setBannerSliderConfig({ ...bannerSliderConfig, slides });
+                          };
+                          const move = (dir: -1 | 1) => {
+                            const j = idx + dir;
+                            if (j < 0 || j >= bannerSliderConfig.slides.length) return;
+                            const slides = [...bannerSliderConfig.slides];
+                            [slides[idx], slides[j]] = [slides[j], slides[idx]];
+                            setBannerSliderConfig({ ...bannerSliderConfig, slides });
+                          };
+                          const remove = () => {
+                            if (bannerSliderConfig.slides.length <= 1) {
+                              toast({ title: 'Ao menos 1 slide', description: 'O slider precisa ter pelo menos um slide.', variant: 'destructive' });
+                              return;
+                            }
+                            setBannerSliderConfig({
+                              ...bannerSliderConfig,
+                              slides: bannerSliderConfig.slides.filter((_: any, i: number) => i !== idx),
+                            });
+                          };
+                          const duplicate = () => {
+                            const clone = { ...slide, id: makeSlideId(), name: `${slide.name} (cópia)` };
+                            const slides = [...bannerSliderConfig.slides];
+                            slides.splice(idx + 1, 0, clone);
+                            setBannerSliderConfig({ ...bannerSliderConfig, slides });
+                          };
+                          const thumb = slide.imageDesktop || slide.imageTablet || slide.imageMobile;
+                          return (
+                            <details key={slide.id} className="group rounded-md border border-border bg-background overflow-hidden">
+                              <summary className="flex items-center gap-2 p-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-muted/40">
+                                <div className="h-10 w-16 rounded bg-muted overflow-hidden shrink-0 border border-border">
+                                  {thumb ? <img src={thumb} alt="" className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center text-muted-foreground"><Images className="h-4 w-4" /></div>}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-semibold truncate">{slide.name || `Slide ${idx + 1}`}</div>
+                                  <div className="text-[10px] text-muted-foreground">{slide.active ? 'Ativo' : 'Inativo'} · {idx + 1}/{bannerSliderConfig.slides.length}</div>
+                                </div>
+                                <button type="button" onClick={(e) => { e.preventDefault(); move(-1); }} className="p-1 rounded hover:bg-muted" aria-label="Mover para cima"><ArrowUp className="h-3.5 w-3.5" /></button>
+                                <button type="button" onClick={(e) => { e.preventDefault(); move(1); }} className="p-1 rounded hover:bg-muted" aria-label="Mover para baixo"><ArrowDown className="h-3.5 w-3.5" /></button>
+                                <Switch checked={!!slide.active} onCheckedChange={(v) => update({ active: v })} onClick={(e) => e.stopPropagation()} />
+                                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
+                              </summary>
+                              <div className="p-3 border-t border-border space-y-3 bg-muted/20">
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs">Nome interno</Label>
+                                  <Input value={slide.name} onChange={(e) => update({ name: e.target.value })} className="h-8 text-xs" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-3">
+                                  <div>
+                                    <Label className="text-[11px] text-muted-foreground">Imagem Desktop (1916×821)</Label>
+                                    <FileUpload mode="single" label="" url={slide.imageDesktop} onChange={(v: any) => update({ imageDesktop: v })} />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[11px] text-muted-foreground">Imagem Tablet (1916×821)</Label>
+                                    <FileUpload mode="single" label="" url={slide.imageTablet} onChange={(v: any) => update({ imageTablet: v })} />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[11px] text-muted-foreground">Imagem Mobile (1080×1440)</Label>
+                                    <FileUpload mode="single" label="" url={slide.imageMobile} onChange={(v: any) => update({ imageMobile: v })} />
+                                  </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs">Texto alternativo (alt)</Label>
+                                  <Input value={slide.alt} onChange={(e) => update({ alt: e.target.value })} placeholder="Descreva a imagem" className="h-8 text-xs" />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs">Link ao clicar</Label>
+                                  <Input value={slide.href} onChange={(e) => update({ href: e.target.value })} placeholder="https://..." className="h-8 text-xs" />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <Label className="text-xs cursor-pointer">Abrir em nova aba</Label>
+                                  <Switch checked={!!slide.newTab} onCheckedChange={(v) => update({ newTab: v })} />
+                                </div>
+                                <div className="flex gap-2 pt-1">
+                                  <Button type="button" size="sm" variant="outline" className="h-7 text-xs flex-1" onClick={duplicate}><Copy className="h-3 w-3 mr-1" /> Duplicar</Button>
+                                  <Button type="button" size="sm" variant="outline" className="h-7 text-xs text-destructive hover:text-destructive flex-1" onClick={remove}><Trash2 className="h-3 w-3 mr-1" /> Excluir</Button>
+                                </div>
+                              </div>
+                            </details>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+                      <Label className="text-sm font-semibold flex items-center gap-2"><Settings className="h-4 w-4" /> Configurações Gerais</Label>
+
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs cursor-pointer">Autoplay</Label>
+                        <Switch checked={bannerSliderConfig.autoplay} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, autoplay: v })} />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-xs"><Label>Intervalo entre slides</Label><span className="text-muted-foreground">{bannerSliderConfig.intervalMs}ms</span></div>
+                        <Slider value={[bannerSliderConfig.intervalMs]} min={2000} max={10000} step={500} onValueChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, intervalMs: v[0] })} />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-xs"><Label>Velocidade da transição</Label><span className="text-muted-foreground">{bannerSliderConfig.transitionMs}ms</span></div>
+                        <Slider value={[bannerSliderConfig.transitionMs]} min={200} max={1500} step={50} onValueChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, transitionMs: v[0] })} />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Efeito</Label>
+                        <Select value={bannerSliderConfig.effect} onValueChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, effect: v as any })}>
+                          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="slide">Deslizar</SelectItem>
+                            <SelectItem value="fade">Fade</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Loop infinito</Label><Switch checked={bannerSliderConfig.loop} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, loop: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Setas de navegação</Label><Switch checked={bannerSliderConfig.showArrows} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, showArrows: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Indicadores (dots)</Label><Switch checked={bannerSliderConfig.showPagination} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, showPagination: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Lazy load das imagens</Label><Switch checked={bannerSliderConfig.lazyLoad} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, lazyLoad: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Pausar ao passar o mouse</Label><Switch checked={bannerSliderConfig.pauseOnHover} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, pauseOnHover: v })} /></div>
+                    </div>
+                  </div>
+                )}
+
+
                 {/* CONFIG: GATEWAY */}
                 {activeWidgetType === 'gateway' && (
                   <div className="space-y-4">
