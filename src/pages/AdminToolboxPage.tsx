@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown, History, RotateCcw } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown, History, RotateCcw, Images, ArrowUp, ArrowDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import PageHeader from '@/components/PageHeader';
@@ -17,6 +17,7 @@ import { navItems } from '@/config/navigation';
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ColorField } from "@/components/ColorField";
+import { FileUpload } from "@/components/FileUpload";
 
 type DeviceView = 'desktop' | 'tablet' | 'mobile';
 
@@ -302,6 +303,36 @@ const DEFAULT_BANNER_CONFIG = {
   isDismissible: true,
 };
 
+const makeSlideId = () =>
+  (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+    ? crypto.randomUUID()
+    : `slide-${Math.random().toString(36).slice(2, 10)}`;
+
+const DEFAULT_BANNER_SLIDER_CONFIG = {
+  slides: [
+    {
+      id: 'slide-1',
+      name: 'Slide 1',
+      active: true,
+      imageDesktop: '',
+      imageTablet: '',
+      imageMobile: '',
+      alt: 'Banner institucional',
+      href: '',
+      newTab: false,
+    },
+  ],
+  autoplay: true,
+  intervalMs: 5000,
+  transitionMs: 600,
+  loop: true,
+  showArrows: true,
+  showPagination: true,
+  effect: 'slide' as 'slide' | 'fade',
+  lazyLoad: true,
+  pauseOnHover: true,
+};
+
 const DEFAULT_MENU_CONFIG = {
   logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
   logoUrlMobile: '',
@@ -575,6 +606,7 @@ const DEFAULT_SIDETAB_CONFIG = {
 const getDefaultConfig = (type: string) =>
   type === 'whatsapp' ? DEFAULT_WHATSAPP_CONFIG :
   type === 'banner' ? DEFAULT_BANNER_CONFIG :
+  type === 'banner-slider' ? DEFAULT_BANNER_SLIDER_CONFIG :
   type === 'gateway' ? DEFAULT_GATEWAY_CONFIG :
   type === 'sidetab' ? DEFAULT_SIDETAB_CONFIG : DEFAULT_MENU_CONFIG;
 
@@ -862,12 +894,14 @@ export default function AdminToolboxPage() {
 
   const currentConfig = () => activeWidgetType === 'whatsapp' ? whatsappConfig :
     activeWidgetType === 'banner' ? bannerConfig :
+    activeWidgetType === 'banner-slider' ? bannerSliderConfig :
     activeWidgetType === 'gateway' ? gatewayConfig :
     activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
 
   const applyConfig = (type: string, config: any) => {
     if (type === 'whatsapp') setWhatsappConfig(config);
     else if (type === 'banner') setBannerConfig(config);
+    else if (type === 'banner-slider') setBannerSliderConfig(config);
     else if (type === 'gateway') setGatewayConfig(config);
     else if (type === 'sidetab') setSidetabConfig(config);
     else setMenuConfig(prev => ({
@@ -898,6 +932,7 @@ export default function AdminToolboxPage() {
 
       const rawConfig = activeWidgetType === 'whatsapp' ? whatsappConfig : 
                      activeWidgetType === 'banner' ? bannerConfig :
+                     activeWidgetType === 'banner-slider' ? bannerSliderConfig :
                      activeWidgetType === 'gateway' ? gatewayConfig :
                      activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
       // Deep clone para evitar referências compartilhadas/mutações em items.activePaths
@@ -1197,16 +1232,44 @@ export default function AdminToolboxPage() {
       testUrl: 'https://anabrasil.org/ana/'
     },
     gateway: DEFAULT_GATEWAY_CONFIG,
-    sidetab: DEFAULT_SIDETAB_CONFIG
+    sidetab: DEFAULT_SIDETAB_CONFIG,
+    'banner-slider': {
+      ...DEFAULT_BANNER_SLIDER_CONFIG,
+      slides: [
+        {
+          id: 'demo-slide-1',
+          name: 'Campanha 1',
+          active: true,
+          imageDesktop: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1916&h=821&fit=crop',
+          imageTablet: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1916&h=821&fit=crop',
+          imageMobile: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1080&h=1440&fit=crop',
+          alt: 'Campanha de destaque',
+          href: '#',
+          newTab: false,
+        },
+        {
+          id: 'demo-slide-2',
+          name: 'Campanha 2',
+          active: true,
+          imageDesktop: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1916&h=821&fit=crop',
+          imageTablet: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1916&h=821&fit=crop',
+          imageMobile: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1080&h=1440&fit=crop',
+          alt: 'Segunda campanha',
+          href: '#',
+          newTab: false,
+        },
+      ],
+    },
   };
 
-  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab') => {
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab' | 'banner-slider') => {
     setActiveWidgetType(type);
     if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
     else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
     else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
     else if (type === 'gateway') setGatewayConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.gateway)));
     else if (type === 'sidetab') setSidetabConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.sidetab)));
+    else if (type === 'banner-slider') setBannerSliderConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS['banner-slider'])));
     
     toast({
       title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
@@ -1232,6 +1295,8 @@ export default function AdminToolboxPage() {
 
   const [sidetabConfig, setSidetabConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_SIDETAB_CONFIG)));
 
+  const [bannerSliderConfig, setBannerSliderConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_BANNER_SLIDER_CONFIG)));
+
 
 
   // ===== Preview "demo" orientado pelo código final =====
@@ -1251,7 +1316,7 @@ export default function AdminToolboxPage() {
     setDemoDoc(getGeneratedCode() + previewBg + demoScript);
     setDemoVersion((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig]);
+  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, bannerSliderConfig]);
 
 
   // A demo não altera CSS. Este efeito só espelha classe de dispositivo para o
@@ -1310,6 +1375,7 @@ export default function AdminToolboxPage() {
     if (skipDraftRef.current) { skipDraftRef.current = false; return; }
     const config = activeWidgetType === 'whatsapp' ? whatsappConfig :
       activeWidgetType === 'banner' ? bannerConfig :
+      activeWidgetType === 'banner-slider' ? bannerSliderConfig :
       activeWidgetType === 'gateway' ? gatewayConfig :
       activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
     const t = setTimeout(() => {
@@ -1328,7 +1394,7 @@ export default function AdminToolboxPage() {
     }, 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, activeWidgetType, currentTemplateId]);
+  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, bannerSliderConfig, activeWidgetType, currentTemplateId]);
 
 
 
@@ -3508,9 +3574,94 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     return css + "\n" + html;
   };
 
+  const generateBannerSliderCode = () => {
+    const c = bannerSliderConfig;
+    const slides = (c.slides || []).filter((s: any) => s.active !== false);
+    const uid = 'abs-' + Math.random().toString(36).slice(2, 8);
+    const interval = Math.max(2000, Math.min(10000, Number(c.intervalMs) || 5000));
+    const transition = Math.max(200, Math.min(1500, Number(c.transitionMs) || 600));
+    const effect = c.effect === 'fade' ? 'fade' : 'slide';
+    const loading = c.lazyLoad ? 'lazy' : 'eager';
+
+    const css = `<style>
+  .${uid}{position:relative;width:100%;overflow:hidden;background:#000;}
+  .${uid} .abs-track{position:relative;width:100%;}
+  .${uid} .abs-slide{position:absolute;inset:0;opacity:0;transition:opacity ${transition}ms ease;}
+  .${uid}[data-effect="slide"] .abs-track{display:flex;width:100%;transition:transform ${transition}ms ease;}
+  .${uid}[data-effect="slide"] .abs-slide{position:relative;flex:0 0 100%;opacity:1;}
+  .${uid}[data-effect="fade"] .abs-slide.is-active{opacity:1;z-index:1;}
+  .${uid} picture,.${uid} img{display:block;width:100%;height:100%;object-fit:cover;}
+  .${uid} .abs-link{display:block;width:100%;height:100%;}
+  .${uid} .abs-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;background:rgba(0,0,0,.45);color:#fff;border:0;width:40px;height:40px;border-radius:999px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+  .${uid} .abs-arrow:hover{background:rgba(0,0,0,.7);}
+  .${uid} .abs-arrow.prev{left:12px;} .${uid} .abs-arrow.next{right:12px;}
+  .${uid} .abs-dots{position:absolute;bottom:14px;left:0;right:0;display:flex;gap:6px;justify-content:center;z-index:5;}
+  .${uid} .abs-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.5);border:0;cursor:pointer;padding:0;transition:background .2s,width .2s;}
+  .${uid} .abs-dot.is-active{background:#fff;width:22px;}
+  .${uid} .abs-ratio{aspect-ratio:1916/821;}
+  @media (max-width:640px){.${uid} .abs-ratio{aspect-ratio:1080/1440;}}
+  @media (prefers-reduced-motion:reduce){.${uid} .abs-track,.${uid} .abs-slide{transition:none!important;}}
+</style>`;
+
+    const slidesHtml = slides.map((s: any, i: number) => {
+      const alt = (s.alt || '').replace(/"/g, '&quot;');
+      const desktop = s.imageDesktop || s.imageTablet || s.imageMobile || '';
+      const tablet = s.imageTablet || desktop;
+      const mobile = s.imageMobile || desktop;
+      const picture = `<picture>
+        <source media="(min-width:1024px)" srcset="${desktop}">
+        <source media="(min-width:641px)" srcset="${tablet}">
+        <img src="${mobile}" alt="${alt}" loading="${i === 0 ? 'eager' : loading}" decoding="async">
+      </picture>`;
+      const inner = s.href
+        ? `<a class="abs-link" href="${s.href}"${s.newTab ? ' target="_blank" rel="noopener"' : ''} aria-label="${alt || 'Slide ' + (i + 1)}">${picture}</a>`
+        : picture;
+      return `<div class="abs-slide abs-ratio${i === 0 ? ' is-active' : ''}" role="group" aria-roledescription="slide" aria-label="${i + 1} de ${slides.length}">${inner}</div>`;
+    }).join('');
+
+    const html = `
+<!-- Início: Banner Slider Nativo -->
+<div class="${uid}" data-effect="${effect}" aria-roledescription="carousel" aria-label="Banner">
+  <div class="abs-track abs-ratio">${slidesHtml}</div>
+  ${c.showArrows && slides.length > 1 ? `<button class="abs-arrow prev" type="button" aria-label="Anterior">‹</button><button class="abs-arrow next" type="button" aria-label="Próximo">›</button>` : ''}
+  ${c.showPagination && slides.length > 1 ? `<div class="abs-dots">${slides.map((_: any, i: number) => `<button class="abs-dot${i === 0 ? ' is-active' : ''}" type="button" aria-label="Ir para slide ${i + 1}"></button>`).join('')}</div>` : ''}
+</div>
+<!-- Fim: Banner Slider Nativo -->`;
+
+    const script = `<script>(function(){
+  var root=document.currentScript.previousElementSibling;while(root&&!root.classList.contains('${uid}'))root=root.previousElementSibling;
+  if(!root)return;
+  var slides=root.querySelectorAll('.abs-slide'),dots=root.querySelectorAll('.abs-dot'),track=root.querySelector('.abs-track');
+  var i=0,n=slides.length,timer=null,effect=root.getAttribute('data-effect');
+  var loop=${c.loop ? 'true' : 'false'},autoplay=${c.autoplay ? 'true' : 'false'},pauseHover=${c.pauseOnHover ? 'true' : 'false'};
+  function render(){
+    if(effect==='slide'){track.style.transform='translateX(-'+(i*100)+'%)';}
+    slides.forEach(function(s,k){s.classList.toggle('is-active',k===i);});
+    dots.forEach(function(d,k){d.classList.toggle('is-active',k===i);});
+  }
+  function go(k){if(k<0)k=loop?n-1:0;if(k>=n)k=loop?0:n-1;i=k;render();}
+  function next(){go(i+1);} function prev(){go(i-1);}
+  var pv=root.querySelector('.abs-arrow.prev'),nx=root.querySelector('.abs-arrow.next');
+  if(pv)pv.addEventListener('click',function(e){e.preventDefault();prev();reset();});
+  if(nx)nx.addEventListener('click',function(e){e.preventDefault();next();reset();});
+  dots.forEach(function(d,k){d.addEventListener('click',function(e){e.preventDefault();go(k);reset();});});
+  root.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'){prev();reset();}if(e.key==='ArrowRight'){next();reset();}});
+  root.setAttribute('tabindex','0');
+  function start(){if(!autoplay||n<2)return;stop();timer=setInterval(next,${interval});}
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  function reset(){stop();start();}
+  if(pauseHover){root.addEventListener('mouseenter',stop);root.addEventListener('mouseleave',start);root.addEventListener('focusin',stop);root.addEventListener('focusout',start);}
+  if(!window.matchMedia||!window.matchMedia('(prefers-reduced-motion: reduce)').matches){start();}
+  render();
+})();</script>`;
+
+    return css + "\n" + html + "\n" + script;
+  };
+
   const getGeneratedCode = () => {
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
     if (activeWidgetType === 'banner') return generateBannerCode();
+    if (activeWidgetType === 'banner-slider') return generateBannerSliderCode();
     if (activeWidgetType === 'gateway') return generateGatewayCode();
     if (activeWidgetType === 'sidetab') return generateSidetabCode();
     return generateMenuCode();
@@ -3674,6 +3825,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     { type: 'menu', icon: MenuIcon, label: 'Menu', hint: 'Responsivo' },
                     { type: 'gateway', icon: LayoutGrid, label: 'Gateway', hint: 'Navegação' },
                     { type: 'sidetab', icon: PanelRight, label: 'Aba Lateral', hint: 'Lateral fixa' },
+                    { type: 'banner-slider', icon: Images, label: 'Banner Slider', hint: 'Slider responsivo' },
                   ] as const).map(({ type, icon: Icon, label, hint }) => {
                     const active = activeWidgetType === type;
                     return (
@@ -3998,6 +4150,162 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                   </>
                 ) : null}
+
+                {/* CONFIG: BANNER SLIDER */}
+                {activeWidgetType === 'banner-slider' && (
+                  <div className="space-y-4">
+                    <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-semibold flex items-center gap-2"><Images className="h-4 w-4" /> Slides</Label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="h-7 gap-1 text-xs"
+                          onClick={() => {
+                            const n = bannerSliderConfig.slides.length + 1;
+                            setBannerSliderConfig({
+                              ...bannerSliderConfig,
+                              slides: [...bannerSliderConfig.slides, {
+                                id: makeSlideId(),
+                                name: `Slide ${n}`,
+                                active: true,
+                                imageDesktop: '', imageTablet: '', imageMobile: '',
+                                alt: '', href: '', newTab: false,
+                              }],
+                            });
+                          }}
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Adicionar slide
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {bannerSliderConfig.slides.map((slide: any, idx: number) => {
+                          const update = (patch: any) => {
+                            const slides = [...bannerSliderConfig.slides];
+                            slides[idx] = { ...slides[idx], ...patch };
+                            setBannerSliderConfig({ ...bannerSliderConfig, slides });
+                          };
+                          const move = (dir: -1 | 1) => {
+                            const j = idx + dir;
+                            if (j < 0 || j >= bannerSliderConfig.slides.length) return;
+                            const slides = [...bannerSliderConfig.slides];
+                            [slides[idx], slides[j]] = [slides[j], slides[idx]];
+                            setBannerSliderConfig({ ...bannerSliderConfig, slides });
+                          };
+                          const remove = () => {
+                            if (bannerSliderConfig.slides.length <= 1) {
+                              toast({ title: 'Ao menos 1 slide', description: 'O slider precisa ter pelo menos um slide.', variant: 'destructive' });
+                              return;
+                            }
+                            setBannerSliderConfig({
+                              ...bannerSliderConfig,
+                              slides: bannerSliderConfig.slides.filter((_: any, i: number) => i !== idx),
+                            });
+                          };
+                          const duplicate = () => {
+                            const clone = { ...slide, id: makeSlideId(), name: `${slide.name} (cópia)` };
+                            const slides = [...bannerSliderConfig.slides];
+                            slides.splice(idx + 1, 0, clone);
+                            setBannerSliderConfig({ ...bannerSliderConfig, slides });
+                          };
+                          const thumb = slide.imageDesktop || slide.imageTablet || slide.imageMobile;
+                          return (
+                            <details key={slide.id} className="group rounded-md border border-border bg-background overflow-hidden">
+                              <summary className="flex items-center gap-2 p-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-muted/40">
+                                <div className="h-10 w-16 rounded bg-muted overflow-hidden shrink-0 border border-border">
+                                  {thumb ? <img src={thumb} alt="" className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center text-muted-foreground"><Images className="h-4 w-4" /></div>}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-semibold truncate">{slide.name || `Slide ${idx + 1}`}</div>
+                                  <div className="text-[10px] text-muted-foreground">{slide.active ? 'Ativo' : 'Inativo'} · {idx + 1}/{bannerSliderConfig.slides.length}</div>
+                                </div>
+                                <button type="button" onClick={(e) => { e.preventDefault(); move(-1); }} className="p-1 rounded hover:bg-muted" aria-label="Mover para cima"><ArrowUp className="h-3.5 w-3.5" /></button>
+                                <button type="button" onClick={(e) => { e.preventDefault(); move(1); }} className="p-1 rounded hover:bg-muted" aria-label="Mover para baixo"><ArrowDown className="h-3.5 w-3.5" /></button>
+                                <Switch checked={!!slide.active} onCheckedChange={(v) => update({ active: v })} onClick={(e) => e.stopPropagation()} />
+                                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
+                              </summary>
+                              <div className="p-3 border-t border-border space-y-3 bg-muted/20">
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs">Nome interno</Label>
+                                  <Input value={slide.name} onChange={(e) => update({ name: e.target.value })} className="h-8 text-xs" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-3">
+                                  <div>
+                                    <Label className="text-[11px] text-muted-foreground">Imagem Desktop (1916×821)</Label>
+                                    <FileUpload mode="single" label="" url={slide.imageDesktop} onChange={(v: any) => update({ imageDesktop: v })} />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[11px] text-muted-foreground">Imagem Tablet (1916×821)</Label>
+                                    <FileUpload mode="single" label="" url={slide.imageTablet} onChange={(v: any) => update({ imageTablet: v })} />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[11px] text-muted-foreground">Imagem Mobile (1080×1440)</Label>
+                                    <FileUpload mode="single" label="" url={slide.imageMobile} onChange={(v: any) => update({ imageMobile: v })} />
+                                  </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs">Texto alternativo (alt)</Label>
+                                  <Input value={slide.alt} onChange={(e) => update({ alt: e.target.value })} placeholder="Descreva a imagem" className="h-8 text-xs" />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs">Link ao clicar</Label>
+                                  <Input value={slide.href} onChange={(e) => update({ href: e.target.value })} placeholder="https://..." className="h-8 text-xs" />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <Label className="text-xs cursor-pointer">Abrir em nova aba</Label>
+                                  <Switch checked={!!slide.newTab} onCheckedChange={(v) => update({ newTab: v })} />
+                                </div>
+                                <div className="flex gap-2 pt-1">
+                                  <Button type="button" size="sm" variant="outline" className="h-7 text-xs flex-1" onClick={duplicate}><Copy className="h-3 w-3 mr-1" /> Duplicar</Button>
+                                  <Button type="button" size="sm" variant="outline" className="h-7 text-xs text-destructive hover:text-destructive flex-1" onClick={remove}><Trash2 className="h-3 w-3 mr-1" /> Excluir</Button>
+                                </div>
+                              </div>
+                            </details>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+                      <Label className="text-sm font-semibold flex items-center gap-2"><Settings className="h-4 w-4" /> Configurações Gerais</Label>
+
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs cursor-pointer">Autoplay</Label>
+                        <Switch checked={bannerSliderConfig.autoplay} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, autoplay: v })} />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-xs"><Label>Intervalo entre slides</Label><span className="text-muted-foreground">{bannerSliderConfig.intervalMs}ms</span></div>
+                        <Slider value={[bannerSliderConfig.intervalMs]} min={2000} max={10000} step={500} onValueChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, intervalMs: v[0] })} />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-xs"><Label>Velocidade da transição</Label><span className="text-muted-foreground">{bannerSliderConfig.transitionMs}ms</span></div>
+                        <Slider value={[bannerSliderConfig.transitionMs]} min={200} max={1500} step={50} onValueChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, transitionMs: v[0] })} />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Efeito</Label>
+                        <Select value={bannerSliderConfig.effect} onValueChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, effect: v as any })}>
+                          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="slide">Deslizar</SelectItem>
+                            <SelectItem value="fade">Fade</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Loop infinito</Label><Switch checked={bannerSliderConfig.loop} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, loop: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Setas de navegação</Label><Switch checked={bannerSliderConfig.showArrows} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, showArrows: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Indicadores (dots)</Label><Switch checked={bannerSliderConfig.showPagination} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, showPagination: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Lazy load das imagens</Label><Switch checked={bannerSliderConfig.lazyLoad} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, lazyLoad: v })} /></div>
+                      <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Pausar ao passar o mouse</Label><Switch checked={bannerSliderConfig.pauseOnHover} onCheckedChange={(v) => setBannerSliderConfig({ ...bannerSliderConfig, pauseOnHover: v })} /></div>
+                    </div>
+                  </div>
+                )}
+
 
                 {/* CONFIG: GATEWAY */}
                 {activeWidgetType === 'gateway' && (
