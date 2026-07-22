@@ -603,7 +603,8 @@ const getDefaultConfig = (type: string) =>
   type === 'whatsapp' ? DEFAULT_WHATSAPP_CONFIG :
   type === 'banner' ? DEFAULT_BANNER_CONFIG :
   type === 'gateway' ? DEFAULT_GATEWAY_CONFIG :
-  type === 'sidetab' ? DEFAULT_SIDETAB_CONFIG : DEFAULT_MENU_CONFIG;
+  type === 'sidetab' ? DEFAULT_SIDETAB_CONFIG :
+  type === 'slider' ? DEFAULT_SLIDER_CONFIG : DEFAULT_MENU_CONFIG;
 
 
 // Mescla a config padrão atual com a config salva: novas propriedades de
