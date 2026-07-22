@@ -1291,7 +1291,7 @@ export default function AdminToolboxPage() {
     setDemoDoc(getGeneratedCode() + previewBg + demoScript);
     setDemoVersion((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig]);
+  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, sliderConfig]);
 
 
   // A demo não altera CSS. Este efeito só espelha classe de dispositivo para o
