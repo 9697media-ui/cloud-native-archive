@@ -1241,7 +1241,7 @@ export default function AdminToolboxPage() {
           name: 'Campanha 1',
           active: true,
           imageDesktop: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1916&h=821&fit=crop',
-          imageTablet: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1916&h=821&fit=crop',
+          imageTablet: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1536&h=1024&fit=crop',
           imageMobile: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1080&h=1440&fit=crop',
           alt: 'Campanha de destaque',
           href: '#',
@@ -1252,7 +1252,7 @@ export default function AdminToolboxPage() {
           name: 'Campanha 2',
           active: true,
           imageDesktop: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1916&h=821&fit=crop',
-          imageTablet: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1916&h=821&fit=crop',
+          imageTablet: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1536&h=1024&fit=crop',
           imageMobile: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1080&h=1440&fit=crop',
           alt: 'Segunda campanha',
           href: '#',
@@ -3599,6 +3599,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
   .${uid} .abs-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.5);border:0;cursor:pointer;padding:0;transition:background .2s,width .2s;}
   .${uid} .abs-dot.is-active{background:#fff;width:22px;}
   .${uid} .abs-ratio{aspect-ratio:1916/821;}
+  @media (max-width:1024px) and (min-width:641px){.${uid} .abs-ratio{aspect-ratio:1536/1024;}}
   @media (max-width:640px){.${uid} .abs-ratio{aspect-ratio:1080/1440;}}
   @media (prefers-reduced-motion:reduce){.${uid} .abs-track,.${uid} .abs-slide{transition:none!important;}}
 </style>`;
@@ -4237,7 +4238,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                                     <FileUpload mode="single" label="" url={slide.imageDesktop} onChange={(v: any) => update({ imageDesktop: v })} />
                                   </div>
                                   <div>
-                                    <Label className="text-[11px] text-muted-foreground">Imagem Tablet (1916×821)</Label>
+                                    <Label className="text-[11px] text-muted-foreground">Imagem Tablet (1536×1024)</Label>
                                     <FileUpload mode="single" label="" url={slide.imageTablet} onChange={(v: any) => update({ imageTablet: v })} />
                                   </div>
                                   <div>
