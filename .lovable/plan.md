@@ -1,140 +1,122 @@
-## Plano — Upload de Imagens no Bloco "Imagem"
+# Plano — Widget Banner (Slider Responsivo)
 
-Adicionar suporte a upload no bloco `type: 'image'` da página Notícias, **sem quebrar** o modelo atual baseado em `content: string` (URL).
+Nova modalidade dentro de **Marketing → Ferramentas do Widget**, seguindo integralmente o padrão dos widgets atuais (WhatsApp, Banner simples, Menu, Gateway, Sidetab). Nada é duplicado nem quebrado: entra como mais um `activeWidgetType`.
 
 ---
 
-### 1. Princípio arquitetural
+## 1. Arquitetura proposta
 
-O upload é apenas um **atalho para gerar uma URL**. Após o upload no Supabase Storage, o retorno é uma URL pública que é gravada exatamente no mesmo campo `module.content` usado hoje. Preview, PDF, gallery-grouping e serialização JSON permanecem intocados.
+Todo o módulo vive em `src/pages/AdminToolboxPage.tsx` com uma máquina de estados por `activeWidgetType`. A adição é uma **expansão lateral**: novo tipo `'banner-slider'` convivendo com os demais.
 
-```text
-[Usuário] → [Upload | URL]
-              ↓         ↓
-        Supabase    (input atual)
-         Storage        ↓
-              ↓         ↓
-         URL pública ───┘
-              ↓
-        module.content (igual hoje)
+Pontos de extensão já existentes que serão apenas estendidos (padrão espelhado do que já existe para `banner`, `gateway`, etc.):
+
+- `DEFAULT_BANNER_SLIDER_CONFIG` (novo objeto).
+- `getDefaultConfig(type)` — adicionar branch.
+- `currentConfig()` e `saveTemplate()` — adicionar branch.
+- `loadDemo()` + `WIDGET_DEMOS` — adicionar branch com 2 slides de exemplo.
+- Estado `const [bannerSliderConfig, setBannerSliderConfig] = useState(...)` ao lado dos outros configs.
+- Deps dos `useEffect` de preview e autosave — incluir `bannerSliderConfig`.
+- `generateBannerSliderCode()` — novo gerador de embed HTML/CSS/JS.
+- Novo `TabsTrigger` no seletor de tipo de widget.
+- Novo bloco no painel de edição: `activeWidgetType === 'banner-slider' ? (...) : ...`.
+- Preview: nova render function usando o próprio HTML gerado (mesma técnica dos outros — `iframe` / `dangerouslySetInnerHTML` já usada).
+
+Banco (`widget_templates`) **não muda**: reaproveita a coluna `type` (string) e `config` (jsonb). Apenas passa a aceitar `type = 'banner-slider'`.
+
+Storage: as imagens dos slides vão para o bucket `event-attachments` (mesmo já usado por `FileUpload`), pasta `widgets/banners/YYYY/MM/`. Sem nova migração.
+
+## 2. Modelo de dados (config JSON)
+
+```ts
+type BannerSliderConfig = {
+  slides: Array<{
+    id: string;               // uuid local
+    name: string;             // nome interno
+    active: boolean;
+    imageDesktop: string;     // 1916x821
+    imageTablet: string;      // 1916x821
+    imageMobile: string;      // 1080x1440
+    alt: string;              // SEO
+    href: string;
+    newTab: boolean;
+  }>;
+  autoplay: boolean;
+  intervalMs: number;         // tempo entre slides (2000–10000)
+  transitionMs: number;       // velocidade (200–1500)
+  loop: boolean;
+  showArrows: boolean;
+  showPagination: boolean;
+  effect: 'slide' | 'fade';
+  lazyLoad: boolean;          // carregamento otimizado
+  pauseOnHover: boolean;
+};
 ```
 
----
+## 3. Fluxo do usuário
 
-### 2. Reutilização do bloco atual
+1. Marketing → aba **Widgets** → clica no chip **Banner Slider** (novo `TabsTrigger`).
+2. Painel esquerdo mostra lista de slides (drag-and-drop) + card "Configurações Gerais".
+3. "Adicionar slide" abre um card expandido com 3 uploads (Desktop/Tablet/Mobile) reutilizando `FileUpload` em `mode="single"`, mais os campos alt, link, nova aba, nome interno, switch ativo.
+4. Preview à direita atualiza em tempo real; pílula Desktop/Tablet/Mobile já existente troca a imagem exibida.
+5. "Salvar" grava em `widget_templates`. "Modelos" lista templates salvos filtrados por `type === 'banner-slider'` (o filtro já existe genericamente).
+6. "Código de incorporação" gera snippet copiável, mesmo padrão dos demais widgets.
 
-- **Zero alterações** na estrutura do módulo (`{ id, type: 'image', content, cols, rows }`).
-- **Zero alterações** no renderer do preview e do PDF (linhas ~1145 e ~1337 de `NewsGeneratorPage.tsx`).
-- **Zero alterações** no agrupamento automático de galeria (`preventGallery`, `cols === 3`).
-- Apenas o **editor lateral** do bloco ganha um seletor de modo (Upload | URL). O campo URL continua existindo e funcional.
+## 4. Organização de componentes
 
----
+**Reutilizados (sem alteração):**
+- `FileUpload` (upload + Supabase Storage).
+- `ColorField`, `Slider`, `Switch`, `Select`, `Tabs`, `Card`, `Button`, `Input`, `Label` do shadcn.
+- Sistema de templates, autosave (`localStorage widget_draft_*`), histórico e demos.
+- Device switcher (`deviceView`).
+- Painel de preview e área de código.
 
-### 3. Supabase Storage
+**Novos (pequenos, dentro do próprio `AdminToolboxPage.tsx` para manter o padrão do arquivo):**
+- `SlideListItem` — linha da lista com drag handle, thumb, nome, switch ativo, duplicar, excluir.
+- `SlideEditor` — bloco expansível com os 3 uploads e metadados.
+- `BannerSliderPreview` — renderiza o HTML gerado em um contêiner escalado ao device.
+- `generateBannerSliderCode()` — gera CSS + HTML + JS vanilla (sem dependências) usando `<picture>` com `<source media>` para responsividade nativa e `loading="lazy"` para lazy load.
 
-- Reutilizar o bucket **público** já existente `event-attachments` (evita nova migration e nova policy).
-  - Alternativa: criar bucket dedicado `news-images` se o time preferir isolamento — decisão do usuário.
-- Path padronizado: `news/{yyyy}/{mm}/{uuid}.{ext}`.
-- Componente base: reaproveitar `src/components/FileUpload.tsx` (modo `single`) — já cobre upload, progress, toast e getPublicUrl.
+O embed gerado será autocontido (um `<style>` + `<div>` + `<script>` IIFE), no mesmo formato dos widgets existentes, com `aria-roledescription="carousel"`, `aria-label` por slide, foco visível e navegação por teclado (←/→).
 
----
+## 5. Preview
 
-### 4. Impacto no JSON das notícias
+Mesma abordagem já em uso: injeção do HTML/CSS/JS gerado dentro de um contêiner com classes auxiliares de dispositivo (`preview-desktop`, `preview-tablet`, `preview-mobile`). O `<picture>` respeita a largura simulada, então o preview reflete fielmente o comportamento real.
 
-- **Nenhum campo novo.** `content` continua sendo uma string URL.
-- Notícias antigas (URLs externas Unsplash, etc.) continuam abrindo, editando e exportando normalmente.
-- Diferença única: URLs vindas de upload apontam para `…supabase.co/storage/v1/object/public/event-attachments/news/…`.
+## 6. Código de incorporação
 
----
+```html
+<div class="ana-banner-slider" data-id="..."></div>
+<script src="https://.../banner-slider.js" defer></script>
+```
+Alternativa autocontida (padrão dos demais): bloco único `<style>+<div>+<script>` inline, sem dependência externa. Manteremos o mesmo padrão do widget WhatsApp e Banner atuais.
 
-### 5. Compatibilidade com notícias existentes
+## 7. Riscos técnicos
 
-- 100%. O campo persistido é idêntico.
-- Ao abrir uma notícia antiga, o editor detecta se `content` começa com o domínio do Storage → abre a aba **Upload** com a miniatura; caso contrário abre a aba **URL** com o link. Ambos os modos escrevem no mesmo `content`.
+- **Peso das imagens.** 1916×821 e 1080×1440 podem gerar arquivos grandes → aplicar mesma compressão já usada em `ImageBlockField` (>500KB → 2000px, JPEG 0.85) antes do upload.
+- **Layout shift (CLS).** Renderizar `<picture>` com `aspect-ratio` fixo por breakpoint para reservar espaço.
+- **Autoplay + acessibilidade.** Respeitar `prefers-reduced-motion` e pausar em `:hover`/`:focus-within`.
+- **Preview vs. produção.** Como cada breakpoint tem imagem própria, o preview precisa forçar a media-query correta via `width` do contêiner (não `min-width` da janela). Testar nos 3 devices.
+- **Ordenação drag-and-drop.** Usar `@dnd-kit/sortable` só se já estiver no bundle; caso contrário, botões ↑/↓ para não introduzir dependência nova.
 
----
+## 8. Pontos de atenção
 
-### 6. Tratamento de imagens grandes
+- Não alterar assinatura de `saveTemplate`, `loadTemplate` nem schema do banco.
+- Preservar autosave: incluir `bannerSliderConfig` nas deps do efeito de rascunho.
+- Filtro de "Modelos" por tipo já é genérico — nada a mudar.
+- Chip do novo tipo deve entrar por último na `TabsList` para não reordenar a UX atual.
 
-- Limite duro no cliente: **5 MB** (bloqueia antes de subir, evita custo).
-- Validação de MIME: `image/png`, `image/jpeg`, `image/webp`.
-- Dimensão máxima recomendada: 2000px no maior lado (redimensionado automaticamente na compressão — passo 7).
-- Feedback: barra de progresso, toast de erro claro em caso de rejeição.
+## 9. Oportunidades de melhoria (opcionais, fora do escopo mínimo)
 
----
-
-### 7. Compressão automática
-
-- Executada **no navegador antes do upload**, via `browser-image-compression` (leve, ~15KB gzip) ou `Canvas API` puro.
-- Regras:
-  - Se arquivo > 500KB → redimensiona para no máx. 2000px e re-encoda como JPEG q=0.85 (ou WebP se suportado).
-  - Se ≤ 500KB → sobe original.
-- Resultado: economia de banda + PDF mais leve + upload mais rápido, **sem perda visual perceptível** no A4.
-
----
-
-### 8. Remoção de imagens não utilizadas
-
-Risco real: usuário troca a imagem de um bloco várias vezes → arquivos órfãos no Storage.
-
-Estratégia em camadas:
-
-1. **Imediata (síncrona):** ao substituir/remover uma imagem cuja URL pertence ao bucket, chamar `supabase.storage.remove()` do arquivo antigo antes de gravar o novo `content`.
-2. **Ao deletar o bloco:** mesmo tratamento.
-3. **Ao descartar a notícia** sem salvar: manter set em memória de "uploads desta sessão ainda não commitados" e limpar no unload.
-4. **Garbage collector (futuro, opcional):** Edge Function agendada que compara arquivos do bucket com URLs referenciadas em notícias salvas e remove órfãos > 7 dias. Fora do escopo desta entrega, apenas documentar.
-
-URLs externas (não-Supabase) **nunca** são deletadas.
+- Agendamento por slide (data início/fim).
+- Métricas simples (clique por slide) via endpoint próprio.
+- Presets de efeito (ken-burns, parallax leve).
 
 ---
 
-### 9. Experiência do usuário
+## Mockup de alta fidelidade
 
-- Duas pílulas no topo do editor do bloco: **Upload** (default) | **URL**.
-- Modo Upload: drop zone + click-to-select, preview com nome/tamanho, botão remover.
-- Modo URL: campo de texto atual, inalterado.
-- Estados: idle → uploading (progress) → success (thumb) → error (toast + retry).
-- Preview do artigo atualiza em tempo real assim que a URL é gravada — igual hoje.
-- Acessibilidade: drop zone com `role="button"`, `aria-label`, foco visível, suporte a teclado.
+Layout final proposto para a nova aba, dentro do padrão visual atual da plataforma.
 
----
+<presentation-artifact path="widget-banner-slider-mockup.jpg" mime_type="image/jpeg"></presentation-artifact>
 
-### 10. Arquivos que serão tocados na implementação
-
-- `src/pages/NewsGeneratorPage.tsx` — trocar o `<Input>` atual do editor do bloco imagem por um novo `<ImageBlockField>` (single component, contido).
-- `src/components/news/ImageBlockField.tsx` — **novo**, encapsula Upload+URL+compressão+cleanup.
-- `package.json` — adicionar `browser-image-compression` (opcional, se aprovado).
-- **Não altera:** renderers, PDF pipeline, JSON schema, tipos de módulo, migrations.
-
----
-
-### 11. Riscos e mitigações
-
-| Risco | Mitigação |
-|---|---|
-| Bucket `event-attachments` mistura eventos e notícias | Prefixo de path `news/…` isola visualmente; criar bucket dedicado se necessário |
-| Vazamento de arquivos órfãos | Cleanup síncrono em troca/remoção + roadmap de GC |
-| html2canvas + imagens cross-origin | URLs do Storage são same-origin via CDN pública com CORS permissivo — já funciona hoje com Unsplash |
-| Compressão degrada qualidade | q=0.85 e limite 2000px são conservadores; usuário pode desativar via modo URL |
-
----
-
-### 12. Fora do escopo desta entrega
-
-- Biblioteca/galeria de imagens já enviadas.
-- Edição de imagem (crop, filtros).
-- Garbage collector agendado (documentado, não implementado).
-
----
-
-### Mockup da interface proposta
-
-Mockup renderizado em alta fidelidade mostrando os dois estados do bloco (Upload ativo com progress + URL ativo com preview) exibido abaixo desta mensagem.
-
----
-
-**Aguardando aprovação** para implementar. Pontos de decisão:
-
-1. Bucket: usar `event-attachments` (rápido) ou criar `news-images` dedicado?
-2. Compressão: incluir `browser-image-compression` ou usar Canvas puro (zero dependência)?
-3. Limite de 5MB e 2000px estão OK?
+Aprove para eu iniciar a implementação.
