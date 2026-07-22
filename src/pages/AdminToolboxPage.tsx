@@ -3549,11 +3549,111 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     return css + "\n" + html;
   };
 
+  const generateSliderCode = () => {
+    const c = sliderConfig;
+    const slides = (c.slides || []).filter((s: any) => s.enabled && (s.desktopUrl || s.tabletUrl || s.mobileUrl));
+    const interval = Math.max(1000, Number(c.interval) || 5000);
+    const speed = Math.max(100, Number(c.transitionSpeed) || 600);
+    const fit = c.objectFit === 'contain' ? 'contain' : 'cover';
+    const effect = c.effect === 'fade' ? 'fade' : 'slide';
+
+    const css = `<style>
+  .lv-slider-991 { position: relative; width: 100%; overflow: hidden; background: #000; --lv-fit: ${fit}; }
+  .lv-slider-991 .lv-track { position: relative; width: 100%; aspect-ratio: 1916 / 821; }
+  @media (max-width: 767px) { .lv-slider-991 .lv-track { aspect-ratio: 1080 / 1440; } }
+  .lv-slider-991 .lv-slide { position: absolute; inset: 0; opacity: 0; transition: opacity ${speed}ms ease, transform ${speed}ms ease; pointer-events: none; }
+  .lv-slider-991 .lv-slide.is-active { opacity: 1; pointer-events: auto; z-index: 2; }
+  .lv-slider-991[data-effect="slide"] .lv-slide { transform: translateX(100%); opacity: 1; }
+  .lv-slider-991[data-effect="slide"] .lv-slide.is-active { transform: translateX(0); }
+  .lv-slider-991[data-effect="slide"] .lv-slide.is-prev { transform: translateX(-100%); }
+  .lv-slider-991 .lv-slide a, .lv-slider-991 .lv-slide .lv-media { display: block; width: 100%; height: 100%; }
+  .lv-slider-991 picture, .lv-slider-991 img { width: 100%; height: 100%; object-fit: var(--lv-fit); display: block; }
+  .lv-slider-991 .lv-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; background: rgba(0,0,0,.45); color: #fff; border: 0; width: 44px; height: 44px; border-radius: 999px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+  .lv-slider-991 .lv-arrow:hover { background: rgba(0,0,0,.7); }
+  .lv-slider-991 .lv-arrow.prev { left: 16px; } .lv-slider-991 .lv-arrow.next { right: 16px; }
+  .lv-slider-991 .lv-bullets { position: absolute; bottom: 16px; left: 0; right: 0; display: flex; gap: 8px; justify-content: center; z-index: 5; }
+  .lv-slider-991 .lv-bullet { width: 10px; height: 10px; border-radius: 999px; border: 0; background: rgba(255,255,255,.5); cursor: pointer; padding: 0; transition: background .2s, transform .2s; }
+  .lv-slider-991 .lv-bullet.is-active { background: #fff; transform: scale(1.2); }
+  @media (prefers-reduced-motion: reduce) { .lv-slider-991 .lv-slide { transition: none !important; } }
+</style>`;
+
+    const slidesHtml = slides.map((s: any, i: number) => {
+      const desktop = s.desktopUrl || s.tabletUrl || s.mobileUrl;
+      const tablet = s.tabletUrl || desktop;
+      const mobile = s.mobileUrl || tablet || desktop;
+      const alt = (s.alt || '').replace(/"/g, '&quot;');
+      const loading = c.lazyLoad && i > 0 ? ' loading="lazy"' : ' loading="eager"';
+      const picture = `<picture class="lv-media">
+        <source media="(max-width: 767px)" srcset="${mobile}">
+        <source media="(max-width: 1279px)" srcset="${tablet}">
+        <img src="${desktop}" alt="${alt}"${loading} decoding="async">
+      </picture>`;
+      const inner = s.link
+        ? `<a href="${s.link}"${s.newTab ? ' target="_blank" rel="noopener"' : ''} aria-label="${alt || s.name}">${picture}</a>`
+        : picture;
+      return `<div class="lv-slide${i === 0 ? ' is-active' : ''}" role="group" aria-roledescription="slide" aria-label="${i + 1} de ${slides.length}">${inner}</div>`;
+    }).join('\n');
+
+    const bullets = c.showBullets && slides.length > 1
+      ? `<div class="lv-bullets" role="tablist">${slides.map((_: any, i: number) => `<button type="button" class="lv-bullet${i === 0 ? ' is-active' : ''}" role="tab" aria-label="Ir para slide ${i + 1}" data-idx="${i}"></button>`).join('')}</div>`
+      : '';
+    const arrows = c.showArrows && slides.length > 1
+      ? `<button type="button" class="lv-arrow prev" aria-label="Slide anterior">‹</button><button type="button" class="lv-arrow next" aria-label="Próximo slide">›</button>`
+      : '';
+
+    const script = `<script>
+(function(){
+  var root = document.currentScript.previousElementSibling;
+  while (root && !root.classList.contains('lv-slider-991')) root = root.previousElementSibling;
+  if (!root) return;
+  var slides = root.querySelectorAll('.lv-slide');
+  var bullets = root.querySelectorAll('.lv-bullet');
+  var total = slides.length;
+  if (total < 2) return;
+  var idx = 0, timer = null, paused = false;
+  var loop = ${!!c.loop}, autoplay = ${!!c.autoplay}, interval = ${interval}, pauseOnHover = ${!!c.pauseOnHover};
+  function go(n) {
+    var prev = idx;
+    if (n < 0) n = loop ? total - 1 : 0;
+    if (n >= total) n = loop ? 0 : total - 1;
+    idx = n;
+    slides.forEach(function(s, i){ s.classList.remove('is-active','is-prev'); if(i===idx) s.classList.add('is-active'); else if(i===prev && prev!==idx) s.classList.add('is-prev'); });
+    bullets.forEach(function(b, i){ b.classList.toggle('is-active', i===idx); });
+  }
+  function start(){ if(!autoplay||paused) return; stop(); timer = setInterval(function(){ go(idx+1); }, interval); }
+  function stop(){ if(timer){ clearInterval(timer); timer=null; } }
+  var prevBtn = root.querySelector('.lv-arrow.prev'), nextBtn = root.querySelector('.lv-arrow.next');
+  if (prevBtn) prevBtn.addEventListener('click', function(){ go(idx-1); start(); });
+  if (nextBtn) nextBtn.addEventListener('click', function(){ go(idx+1); start(); });
+  bullets.forEach(function(b){ b.addEventListener('click', function(){ go(parseInt(b.dataset.idx,10)); start(); }); });
+  if (pauseOnHover) { root.addEventListener('mouseenter', function(){ paused=true; stop(); }); root.addEventListener('mouseleave', function(){ paused=false; start(); }); }
+  root.setAttribute('tabindex','0');
+  root.addEventListener('keydown', function(e){ if(e.key==='ArrowLeft'){ go(idx-1); start(); } else if(e.key==='ArrowRight'){ go(idx+1); start(); } });
+  start();
+})();
+</scr` + `ipt>`;
+
+    const html = `
+<!-- Início: Slider Responsivo -->
+<div class="lv-slider-991" data-effect="${effect}" role="region" aria-roledescription="carousel" aria-label="Banner">
+  <div class="lv-track">
+    ${slidesHtml || '<div class="lv-slide is-active"></div>'}
+  </div>
+  ${arrows}
+  ${bullets}
+</div>
+${script}
+<!-- Fim: Slider Responsivo -->`;
+
+    return css + "\n" + html;
+  };
+
   const getGeneratedCode = () => {
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
     if (activeWidgetType === 'banner') return generateBannerCode();
     if (activeWidgetType === 'gateway') return generateGatewayCode();
     if (activeWidgetType === 'sidetab') return generateSidetabCode();
+    if (activeWidgetType === 'slider') return generateSliderCode();
     return generateMenuCode();
   };
 
