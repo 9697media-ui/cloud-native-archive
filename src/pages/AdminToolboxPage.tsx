@@ -17,6 +17,7 @@ import { navItems } from '@/config/navigation';
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ColorField } from "@/components/ColorField";
+import { FileUpload } from "@/components/FileUpload";
 
 type DeviceView = 'desktop' | 'tablet' | 'mobile';
 
