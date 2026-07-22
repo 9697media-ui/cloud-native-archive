@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown, History, RotateCcw } from 'lucide-react';
+import { Settings, Code, Eye, Copy, Check, MessageCircle, AlertTriangle, Monitor, Smartphone, Tablet, ShieldAlert, Lock, Terminal, Menu as MenuIcon, RefreshCw, Globe, LayoutDashboard, Save, FolderOpen, Trash2, Edit, LayoutGrid, Plus, PanelRight, ChevronDown, History, RotateCcw, GalleryHorizontal, GripVertical, ImageIcon, EyeOff, Copy as CopyIcon, ExternalLink } from 'lucide-react';
+import { ImageBlockField } from '@/components/news/ImageBlockField';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import PageHeader from '@/components/PageHeader';
@@ -302,6 +303,32 @@ const DEFAULT_BANNER_CONFIG = {
   isDismissible: true,
 };
 
+const makeSliderSlide = (n = 1) => ({
+  id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `slide-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  name: `Slide ${n}`,
+  enabled: true,
+  desktopUrl: '',
+  tabletUrl: '',
+  mobileUrl: '',
+  link: '',
+  newTab: true,
+  alt: '',
+});
+
+const DEFAULT_SLIDER_CONFIG = {
+  autoplay: true,
+  interval: 5000,
+  transitionSpeed: 600,
+  loop: true,
+  pauseOnHover: true,
+  showArrows: true,
+  showBullets: true,
+  effect: 'slide' as 'slide' | 'fade',
+  lazyLoad: true,
+  objectFit: 'cover' as 'cover' | 'contain',
+  slides: [makeSliderSlide(1), makeSliderSlide(2)],
+};
+
 const DEFAULT_MENU_CONFIG = {
   logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
   logoUrlMobile: '',
@@ -576,7 +603,8 @@ const getDefaultConfig = (type: string) =>
   type === 'whatsapp' ? DEFAULT_WHATSAPP_CONFIG :
   type === 'banner' ? DEFAULT_BANNER_CONFIG :
   type === 'gateway' ? DEFAULT_GATEWAY_CONFIG :
-  type === 'sidetab' ? DEFAULT_SIDETAB_CONFIG : DEFAULT_MENU_CONFIG;
+  type === 'sidetab' ? DEFAULT_SIDETAB_CONFIG :
+  type === 'slider' ? DEFAULT_SLIDER_CONFIG : DEFAULT_MENU_CONFIG;
 
 
 // Mescla a config padrão atual com a config salva: novas propriedades de
@@ -594,6 +622,10 @@ const upgradeConfig = (type: string, saved: any) => {
       ...it,
       children: Array.isArray(it.children) ? it.children : [],
     }));
+  }
+  if (type === 'slider' && Array.isArray(merged.slides)) {
+    const itemBase = makeSliderSlide(1);
+    merged.slides = merged.slides.map((s: any, i: number) => ({ ...itemBase, ...s, id: s?.id || makeSliderSlide(i + 1).id, name: s?.name || `Slide ${i + 1}` }));
   }
   return merged;
 };
@@ -863,13 +895,15 @@ export default function AdminToolboxPage() {
   const currentConfig = () => activeWidgetType === 'whatsapp' ? whatsappConfig :
     activeWidgetType === 'banner' ? bannerConfig :
     activeWidgetType === 'gateway' ? gatewayConfig :
-    activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
+    activeWidgetType === 'sidetab' ? sidetabConfig :
+    activeWidgetType === 'slider' ? sliderConfig : menuConfig;
 
   const applyConfig = (type: string, config: any) => {
     if (type === 'whatsapp') setWhatsappConfig(config);
     else if (type === 'banner') setBannerConfig(config);
     else if (type === 'gateway') setGatewayConfig(config);
     else if (type === 'sidetab') setSidetabConfig(config);
+    else if (type === 'slider') setSliderConfig(upgradeConfig('slider', config));
     else setMenuConfig(prev => ({
       ...prev,
       ...config,
@@ -899,7 +933,8 @@ export default function AdminToolboxPage() {
       const rawConfig = activeWidgetType === 'whatsapp' ? whatsappConfig : 
                      activeWidgetType === 'banner' ? bannerConfig :
                      activeWidgetType === 'gateway' ? gatewayConfig :
-                     activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
+                     activeWidgetType === 'sidetab' ? sidetabConfig :
+                     activeWidgetType === 'slider' ? sliderConfig : menuConfig;
       // Deep clone para evitar referências compartilhadas/mutações em items.activePaths
       const config = JSON.parse(JSON.stringify(rawConfig));
 
@@ -1200,14 +1235,15 @@ export default function AdminToolboxPage() {
     sidetab: DEFAULT_SIDETAB_CONFIG
   };
 
-  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab') => {
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab' | 'slider') => {
     setActiveWidgetType(type);
     if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
     else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
     else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
     else if (type === 'gateway') setGatewayConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.gateway)));
     else if (type === 'sidetab') setSidetabConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.sidetab)));
-    
+    else if (type === 'slider') setSliderConfig(JSON.parse(JSON.stringify(DEFAULT_SLIDER_CONFIG)));
+
     toast({
       title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
       description: "Você já pode ver o resultado no preview ao lado.",
@@ -1232,6 +1268,10 @@ export default function AdminToolboxPage() {
 
   const [sidetabConfig, setSidetabConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_SIDETAB_CONFIG)));
 
+  const [sliderConfig, setSliderConfig] = useState(() => JSON.parse(JSON.stringify(DEFAULT_SLIDER_CONFIG)));
+  const [selectedSlideId, setSelectedSlideId] = useState<string | null>(() => DEFAULT_SLIDER_CONFIG.slides[0]?.id ?? null);
+  const [dragSlideId, setDragSlideId] = useState<string | null>(null);
+
 
 
   // ===== Preview "demo" orientado pelo código final =====
@@ -1251,7 +1291,7 @@ export default function AdminToolboxPage() {
     setDemoDoc(getGeneratedCode() + previewBg + demoScript);
     setDemoVersion((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig]);
+  }, [deviceView, activeWidgetType, whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, sliderConfig]);
 
 
   // A demo não altera CSS. Este efeito só espelha classe de dispositivo para o
@@ -1311,7 +1351,8 @@ export default function AdminToolboxPage() {
     const config = activeWidgetType === 'whatsapp' ? whatsappConfig :
       activeWidgetType === 'banner' ? bannerConfig :
       activeWidgetType === 'gateway' ? gatewayConfig :
-      activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
+      activeWidgetType === 'sidetab' ? sidetabConfig :
+      activeWidgetType === 'slider' ? sliderConfig : menuConfig;
     const t = setTimeout(() => {
       // Só registra rascunho se houver alteração real em relação ao modelo carregado.
       if (baselineRef.current !== null &&
@@ -1328,7 +1369,7 @@ export default function AdminToolboxPage() {
     }, 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, activeWidgetType, currentTemplateId]);
+  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, sliderConfig, activeWidgetType, currentTemplateId]);
 
 
 
@@ -3508,11 +3549,111 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
     return css + "\n" + html;
   };
 
+  const generateSliderCode = () => {
+    const c = sliderConfig;
+    const slides = (c.slides || []).filter((s: any) => s.enabled && (s.desktopUrl || s.tabletUrl || s.mobileUrl));
+    const interval = Math.max(1000, Number(c.interval) || 5000);
+    const speed = Math.max(100, Number(c.transitionSpeed) || 600);
+    const fit = c.objectFit === 'contain' ? 'contain' : 'cover';
+    const effect = c.effect === 'fade' ? 'fade' : 'slide';
+
+    const css = `<style>
+  .lv-slider-991 { position: relative; width: 100%; overflow: hidden; background: #000; --lv-fit: ${fit}; }
+  .lv-slider-991 .lv-track { position: relative; width: 100%; aspect-ratio: 1916 / 821; }
+  @media (max-width: 767px) { .lv-slider-991 .lv-track { aspect-ratio: 1080 / 1440; } }
+  .lv-slider-991 .lv-slide { position: absolute; inset: 0; opacity: 0; transition: opacity ${speed}ms ease, transform ${speed}ms ease; pointer-events: none; }
+  .lv-slider-991 .lv-slide.is-active { opacity: 1; pointer-events: auto; z-index: 2; }
+  .lv-slider-991[data-effect="slide"] .lv-slide { transform: translateX(100%); opacity: 1; }
+  .lv-slider-991[data-effect="slide"] .lv-slide.is-active { transform: translateX(0); }
+  .lv-slider-991[data-effect="slide"] .lv-slide.is-prev { transform: translateX(-100%); }
+  .lv-slider-991 .lv-slide a, .lv-slider-991 .lv-slide .lv-media { display: block; width: 100%; height: 100%; }
+  .lv-slider-991 picture, .lv-slider-991 img { width: 100%; height: 100%; object-fit: var(--lv-fit); display: block; }
+  .lv-slider-991 .lv-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; background: rgba(0,0,0,.45); color: #fff; border: 0; width: 44px; height: 44px; border-radius: 999px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+  .lv-slider-991 .lv-arrow:hover { background: rgba(0,0,0,.7); }
+  .lv-slider-991 .lv-arrow.prev { left: 16px; } .lv-slider-991 .lv-arrow.next { right: 16px; }
+  .lv-slider-991 .lv-bullets { position: absolute; bottom: 16px; left: 0; right: 0; display: flex; gap: 8px; justify-content: center; z-index: 5; }
+  .lv-slider-991 .lv-bullet { width: 10px; height: 10px; border-radius: 999px; border: 0; background: rgba(255,255,255,.5); cursor: pointer; padding: 0; transition: background .2s, transform .2s; }
+  .lv-slider-991 .lv-bullet.is-active { background: #fff; transform: scale(1.2); }
+  @media (prefers-reduced-motion: reduce) { .lv-slider-991 .lv-slide { transition: none !important; } }
+</style>`;
+
+    const slidesHtml = slides.map((s: any, i: number) => {
+      const desktop = s.desktopUrl || s.tabletUrl || s.mobileUrl;
+      const tablet = s.tabletUrl || desktop;
+      const mobile = s.mobileUrl || tablet || desktop;
+      const alt = (s.alt || '').replace(/"/g, '&quot;');
+      const loading = c.lazyLoad && i > 0 ? ' loading="lazy"' : ' loading="eager"';
+      const picture = `<picture class="lv-media">
+        <source media="(max-width: 767px)" srcset="${mobile}">
+        <source media="(max-width: 1279px)" srcset="${tablet}">
+        <img src="${desktop}" alt="${alt}"${loading} decoding="async">
+      </picture>`;
+      const inner = s.link
+        ? `<a href="${s.link}"${s.newTab ? ' target="_blank" rel="noopener"' : ''} aria-label="${alt || s.name}">${picture}</a>`
+        : picture;
+      return `<div class="lv-slide${i === 0 ? ' is-active' : ''}" role="group" aria-roledescription="slide" aria-label="${i + 1} de ${slides.length}">${inner}</div>`;
+    }).join('\n');
+
+    const bullets = c.showBullets && slides.length > 1
+      ? `<div class="lv-bullets" role="tablist">${slides.map((_: any, i: number) => `<button type="button" class="lv-bullet${i === 0 ? ' is-active' : ''}" role="tab" aria-label="Ir para slide ${i + 1}" data-idx="${i}"></button>`).join('')}</div>`
+      : '';
+    const arrows = c.showArrows && slides.length > 1
+      ? `<button type="button" class="lv-arrow prev" aria-label="Slide anterior">‹</button><button type="button" class="lv-arrow next" aria-label="Próximo slide">›</button>`
+      : '';
+
+    const script = `<script>
+(function(){
+  var root = document.currentScript.previousElementSibling;
+  while (root && !root.classList.contains('lv-slider-991')) root = root.previousElementSibling;
+  if (!root) return;
+  var slides = root.querySelectorAll('.lv-slide');
+  var bullets = root.querySelectorAll('.lv-bullet');
+  var total = slides.length;
+  if (total < 2) return;
+  var idx = 0, timer = null, paused = false;
+  var loop = ${!!c.loop}, autoplay = ${!!c.autoplay}, interval = ${interval}, pauseOnHover = ${!!c.pauseOnHover};
+  function go(n) {
+    var prev = idx;
+    if (n < 0) n = loop ? total - 1 : 0;
+    if (n >= total) n = loop ? 0 : total - 1;
+    idx = n;
+    slides.forEach(function(s, i){ s.classList.remove('is-active','is-prev'); if(i===idx) s.classList.add('is-active'); else if(i===prev && prev!==idx) s.classList.add('is-prev'); });
+    bullets.forEach(function(b, i){ b.classList.toggle('is-active', i===idx); });
+  }
+  function start(){ if(!autoplay||paused) return; stop(); timer = setInterval(function(){ go(idx+1); }, interval); }
+  function stop(){ if(timer){ clearInterval(timer); timer=null; } }
+  var prevBtn = root.querySelector('.lv-arrow.prev'), nextBtn = root.querySelector('.lv-arrow.next');
+  if (prevBtn) prevBtn.addEventListener('click', function(){ go(idx-1); start(); });
+  if (nextBtn) nextBtn.addEventListener('click', function(){ go(idx+1); start(); });
+  bullets.forEach(function(b){ b.addEventListener('click', function(){ go(parseInt(b.dataset.idx,10)); start(); }); });
+  if (pauseOnHover) { root.addEventListener('mouseenter', function(){ paused=true; stop(); }); root.addEventListener('mouseleave', function(){ paused=false; start(); }); }
+  root.setAttribute('tabindex','0');
+  root.addEventListener('keydown', function(e){ if(e.key==='ArrowLeft'){ go(idx-1); start(); } else if(e.key==='ArrowRight'){ go(idx+1); start(); } });
+  start();
+})();
+</scr` + `ipt>`;
+
+    const html = `
+<!-- Início: Slider Responsivo -->
+<div class="lv-slider-991" data-effect="${effect}" role="region" aria-roledescription="carousel" aria-label="Banner">
+  <div class="lv-track">
+    ${slidesHtml || '<div class="lv-slide is-active"></div>'}
+  </div>
+  ${arrows}
+  ${bullets}
+</div>
+${script}
+<!-- Fim: Slider Responsivo -->`;
+
+    return css + "\n" + html;
+  };
+
   const getGeneratedCode = () => {
     if (activeWidgetType === 'whatsapp') return generateWhatsappCode();
     if (activeWidgetType === 'banner') return generateBannerCode();
     if (activeWidgetType === 'gateway') return generateGatewayCode();
     if (activeWidgetType === 'sidetab') return generateSidetabCode();
+    if (activeWidgetType === 'slider') return generateSliderCode();
     return generateMenuCode();
   };
 
@@ -3674,6 +3815,7 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     { type: 'menu', icon: MenuIcon, label: 'Menu', hint: 'Responsivo' },
                     { type: 'gateway', icon: LayoutGrid, label: 'Gateway', hint: 'Navegação' },
                     { type: 'sidetab', icon: PanelRight, label: 'Aba Lateral', hint: 'Lateral fixa' },
+                    { type: 'slider', icon: GalleryHorizontal, label: 'Banner (Slider)', hint: 'Carrossel responsivo' },
                   ] as const).map(({ type, icon: Icon, label, hint }) => {
                     const active = activeWidgetType === type;
                     return (
@@ -4540,6 +4682,175 @@ ${menuConfig.searchEnabled ? `<div class="custom-spotlight-9982" onclick="if(eve
                     </div>
                   </div>
                 )}
+
+                {/* CONFIG: SLIDER */}
+                {activeWidgetType === 'slider' && (() => {
+                  const selected = sliderConfig.slides.find((s: any) => s.id === selectedSlideId) || sliderConfig.slides[0];
+                  const updateSlide = (id: string, patch: any) =>
+                    setSliderConfig({ ...sliderConfig, slides: sliderConfig.slides.map((s: any) => s.id === id ? { ...s, ...patch } : s) });
+                  const addSlide = () => {
+                    const n = sliderConfig.slides.length + 1;
+                    const ns = makeSliderSlide(n);
+                    setSliderConfig({ ...sliderConfig, slides: [...sliderConfig.slides, ns] });
+                    setSelectedSlideId(ns.id);
+                  };
+                  const removeSlide = (id: string) => {
+                    const next = sliderConfig.slides.filter((s: any) => s.id !== id);
+                    setSliderConfig({ ...sliderConfig, slides: next.length ? next : [makeSliderSlide(1)] });
+                    if (selectedSlideId === id) setSelectedSlideId(next[0]?.id ?? null);
+                  };
+                  const duplicateSlide = (id: string) => {
+                    const src = sliderConfig.slides.find((s: any) => s.id === id);
+                    if (!src) return;
+                    const copy = { ...src, id: makeSliderSlide(1).id, name: `${src.name} (cópia)` };
+                    const i = sliderConfig.slides.findIndex((s: any) => s.id === id);
+                    const next = [...sliderConfig.slides];
+                    next.splice(i + 1, 0, copy);
+                    setSliderConfig({ ...sliderConfig, slides: next });
+                    setSelectedSlideId(copy.id);
+                  };
+                  const onDragStart = (id: string) => setDragSlideId(id);
+                  const onDrop = (targetId: string) => {
+                    if (!dragSlideId || dragSlideId === targetId) return;
+                    const list = [...sliderConfig.slides];
+                    const from = list.findIndex((s) => s.id === dragSlideId);
+                    const to = list.findIndex((s) => s.id === targetId);
+                    if (from < 0 || to < 0) return;
+                    const [moved] = list.splice(from, 1);
+                    list.splice(to, 0, moved);
+                    setSliderConfig({ ...sliderConfig, slides: list });
+                    setDragSlideId(null);
+                  };
+
+                  return (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label>Slides ({sliderConfig.slides.length})</Label>
+                          <Button type="button" size="sm" variant="outline" className="h-7 gap-1" onClick={addSlide}>
+                            <Plus className="h-3.5 w-3.5" /> Adicionar
+                          </Button>
+                        </div>
+                        <div className="space-y-1.5 max-h-[280px] overflow-y-auto pr-1">
+                          {sliderConfig.slides.map((s: any) => {
+                            const active = s.id === selectedSlideId;
+                            const thumb = s.desktopUrl || s.tabletUrl || s.mobileUrl;
+                            return (
+                              <div
+                                key={s.id}
+                                draggable
+                                onDragStart={() => onDragStart(s.id)}
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={() => onDrop(s.id)}
+                                onClick={() => setSelectedSlideId(s.id)}
+                                className={cn(
+                                  "flex items-center gap-2 rounded-md border p-1.5 cursor-pointer transition-colors",
+                                  active ? "border-primary bg-primary/10" : "border-border bg-background hover:bg-muted/50",
+                                  !s.enabled && "opacity-50"
+                                )}
+                              >
+                                <GripVertical className="h-3.5 w-3.5 text-muted-foreground shrink-0 cursor-grab" />
+                                <div className="h-8 w-12 shrink-0 rounded overflow-hidden bg-muted flex items-center justify-center">
+                                  {thumb ? <img src={thumb} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="h-3.5 w-3.5 text-muted-foreground/50" />}
+                                </div>
+                                <span className="flex-1 truncate text-xs">{s.name}</span>
+                                <button type="button" onClick={(e) => { e.stopPropagation(); updateSlide(s.id, { enabled: !s.enabled }); }} className="p-1 text-muted-foreground hover:text-foreground" aria-label={s.enabled ? 'Desativar' : 'Ativar'}>
+                                  {s.enabled ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                                </button>
+                                <button type="button" onClick={(e) => { e.stopPropagation(); duplicateSlide(s.id); }} className="p-1 text-muted-foreground hover:text-foreground" aria-label="Duplicar">
+                                  <CopyIcon className="h-3.5 w-3.5" />
+                                </button>
+                                <button type="button" onClick={(e) => { e.stopPropagation(); removeSlide(s.id); }} className="p-1 text-muted-foreground hover:text-destructive" aria-label="Remover">
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {selected && (
+                        <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-3">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Editando: {selected.name}</div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Nome interno</Label>
+                            <Input value={selected.name} onChange={(e) => updateSlide(selected.id, { name: e.target.value })} />
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                            <div>
+                              <Label className="text-xs mb-1 block">Imagem Desktop (1916×821)</Label>
+                              <ImageBlockField value={selected.desktopUrl} onChange={(url) => updateSlide(selected.id, { desktopUrl: url })} />
+                            </div>
+                            <div>
+                              <Label className="text-xs mb-1 block">Imagem Tablet (1916×821)</Label>
+                              <ImageBlockField value={selected.tabletUrl} onChange={(url) => updateSlide(selected.id, { tabletUrl: url })} />
+                            </div>
+                            <div>
+                              <Label className="text-xs mb-1 block">Imagem Mobile (1080×1440)</Label>
+                              <ImageBlockField value={selected.mobileUrl} onChange={(url) => updateSlide(selected.id, { mobileUrl: url })} />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Link de destino</Label>
+                            <Input value={selected.link} onChange={(e) => updateSlide(selected.id, { link: e.target.value })} placeholder="https://..." />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs cursor-pointer">Abrir em nova aba</Label>
+                            <Switch checked={selected.newTab} onCheckedChange={(v) => updateSlide(selected.id, { newTab: v })} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Texto alternativo (SEO)</Label>
+                            <Input value={selected.alt} onChange={(e) => updateSlide(selected.id, { alt: e.target.value })} placeholder="Descreva a imagem" />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="space-y-3 rounded-lg border border-border p-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Comportamento do slider</div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs cursor-pointer">Autoplay</Label>
+                          <Switch checked={sliderConfig.autoplay} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, autoplay: v })} />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between"><Label className="text-xs">Tempo entre slides</Label><span className="text-xs text-muted-foreground">{sliderConfig.interval} ms</span></div>
+                          <Slider min={1000} max={15000} step={500} value={[sliderConfig.interval]} onValueChange={([v]) => setSliderConfig({ ...sliderConfig, interval: v })} />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between"><Label className="text-xs">Velocidade da transição</Label><span className="text-xs text-muted-foreground">{sliderConfig.transitionSpeed} ms</span></div>
+                          <Slider min={100} max={2000} step={50} value={[sliderConfig.transitionSpeed]} onValueChange={([v]) => setSliderConfig({ ...sliderConfig, transitionSpeed: v })} />
+                        </div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Loop infinito</Label><Switch checked={sliderConfig.loop} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, loop: v })} /></div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Pausar ao passar o mouse</Label><Switch checked={sliderConfig.pauseOnHover} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, pauseOnHover: v })} /></div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Navegação por setas</Label><Switch checked={sliderConfig.showArrows} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, showArrows: v })} /></div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Indicadores (bullets)</Label><Switch checked={sliderConfig.showBullets} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, showBullets: v })} /></div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Efeito de transição</Label>
+                          <Select value={sliderConfig.effect} onValueChange={(v) => setSliderConfig({ ...sliderConfig, effect: v })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="slide">Slide (deslizar)</SelectItem>
+                              <SelectItem value="fade">Fade (esmaecer)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Ajuste da imagem</Label>
+                          <Select value={sliderConfig.objectFit} onValueChange={(v) => setSliderConfig({ ...sliderConfig, objectFit: v })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="cover">Preencher (cover)</SelectItem>
+                              <SelectItem value="contain">Conter (contain)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex items-center justify-between"><Label className="text-xs cursor-pointer">Lazy loading</Label><Switch checked={sliderConfig.lazyLoad} onCheckedChange={(v) => setSliderConfig({ ...sliderConfig, lazyLoad: v })} /></div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+
+
 
 
 
