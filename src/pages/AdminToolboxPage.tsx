@@ -1234,14 +1234,15 @@ export default function AdminToolboxPage() {
     sidetab: DEFAULT_SIDETAB_CONFIG
   };
 
-  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab') => {
+  const loadDemo = (type: 'whatsapp' | 'banner' | 'menu' | 'gateway' | 'sidetab' | 'slider') => {
     setActiveWidgetType(type);
     if (type === 'whatsapp') setWhatsappConfig(WIDGET_DEMOS.whatsapp);
     else if (type === 'banner') setBannerConfig(WIDGET_DEMOS.banner);
     else if (type === 'menu') setMenuConfig(WIDGET_DEMOS.menu);
     else if (type === 'gateway') setGatewayConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.gateway)));
     else if (type === 'sidetab') setSidetabConfig(JSON.parse(JSON.stringify(WIDGET_DEMOS.sidetab)));
-    
+    else if (type === 'slider') setSliderConfig(JSON.parse(JSON.stringify(DEFAULT_SLIDER_CONFIG)));
+
     toast({
       title: `Demo de ${type === 'menu' ? 'Menu' : type} carregada`,
       description: "Você já pode ver o resultado no preview ao lado.",
