@@ -1,140 +1,177 @@
-## Plano — Upload de Imagens no Bloco "Imagem"
+## Plano — Novo widget "Banner (Slider Responsivo)"
 
-Adicionar suporte a upload no bloco `type: 'image'` da página Notícias, **sem quebrar** o modelo atual baseado em `content: string` (URL).
+Adicionar mais um `type` ao sistema atual de widgets em `src/pages/AdminToolboxPage.tsx`, sem criar página, rota ou fluxo paralelo. Ele passa a conviver com `whatsapp | banner | menu | gateway | sidetab` como um sexto tipo: `slider`.
 
 ---
 
-### 1. Princípio arquitetural
+### 1. Arquitetura proposta
 
-O upload é apenas um **atalho para gerar uma URL**. Após o upload no Supabase Storage, o retorno é uma URL pública que é gravada exatamente no mesmo campo `module.content` usado hoje. Preview, PDF, gallery-grouping e serialização JSON permanecem intocados.
+O módulo atual segue um padrão claro e replicável:
 
 ```text
-[Usuário] → [Upload | URL]
-              ↓         ↓
-        Supabase    (input atual)
-         Storage        ↓
-              ↓         ↓
-         URL pública ───┘
-              ↓
-        module.content (igual hoje)
+activeWidgetType ──► [xxxConfig, setXxxConfig] ──► painel esquerdo (Widget/Modelos/Editor)
+        │                    │
+        │                    └──► preview central (Preview/Site/Código) + device toggle
+        │
+        └──► generateXxxCode() ──► botão "Gerar Código para Copiar"
+                                        │
+                                        └──► persistência em `widget_templates` (type = 'slider')
 ```
 
----
-
-### 2. Reutilização do bloco atual
-
-- **Zero alterações** na estrutura do módulo (`{ id, type: 'image', content, cols, rows }`).
-- **Zero alterações** no renderer do preview e do PDF (linhas ~1145 e ~1337 de `NewsGeneratorPage.tsx`).
-- **Zero alterações** no agrupamento automático de galeria (`preventGallery`, `cols === 3`).
-- Apenas o **editor lateral** do bloco ganha um seletor de modo (Upload | URL). O campo URL continua existindo e funcional.
+O novo widget entra exatamente nesses cinco pontos, sem tocar em nada dos outros cinco tipos.
 
 ---
 
-### 3. Supabase Storage
+### 2. Integração com a interface existente
 
-- Reutilizar o bucket **público** já existente `event-attachments` (evita nova migration e nova policy).
-  - Alternativa: criar bucket dedicado `news-images` se o time preferir isolamento — decisão do usuário.
-- Path padronizado: `news/{yyyy}/{mm}/{uuid}.{ext}`.
-- Componente base: reaproveitar `src/components/FileUpload.tsx` (modo `single`) — já cobre upload, progress, toast e getPublicUrl.
-
----
-
-### 4. Impacto no JSON das notícias
-
-- **Nenhum campo novo.** `content` continua sendo uma string URL.
-- Notícias antigas (URLs externas Unsplash, etc.) continuam abrindo, editando e exportando normalmente.
-- Diferença única: URLs vindas de upload apontam para `…supabase.co/storage/v1/object/public/event-attachments/news/…`.
+- **Card no seletor "Tipo de Widget"** (linhas ~3671-3703): adicionar a 6ª entrada
+  `{ type: 'slider', icon: GalleryHorizontal, label: 'Banner (Slider)', hint: 'Carrossel responsivo' }`.
+  Reaproveita 100% do estilo do grid, animação, estado `active`, ring do `primary`.
+- **Painel esquerdo — aba Editor**: novo bloco `activeWidgetType === 'slider' && (...)` ao lado dos blocos já existentes (linhas ~3896/3957/4003/4493/4548).
+- **Preview central**: `<SliderPreview config={sliderConfig} device={deviceView} />` renderizado no mesmo container já usado pelos demais, respeitando o toggle Desktop/Tablet/Mobile já existente.
+- **Aba Código**: `generateSliderCode()` chamado no switch de `getCurrentCode()` (linha 3512-3515).
+- **Modelos / Histórico / Draft autosave**: nada muda — a lógica já é agnóstica ao tipo (usa `activeWidgetType` + `currentConfig()`), basta incluir `'slider'` nos switches em `currentConfig`, `setConfigByType`, effects de baseline/draft (linhas 863-871, 899-902, 1311-1331).
 
 ---
 
-### 5. Compatibilidade com notícias existentes
+### 3. Estrutura de dados (`sliderConfig`)
 
-- 100%. O campo persistido é idêntico.
-- Ao abrir uma notícia antiga, o editor detecta se `content` começa com o domínio do Storage → abre a aba **Upload** com a miniatura; caso contrário abre a aba **URL** com o link. Ambos os modos escrevem no mesmo `content`.
+```ts
+DEFAULT_SLIDER_CONFIG = {
+  autoplay: true,
+  interval: 5000,          // ms entre slides
+  transitionSpeed: 600,    // ms da animação
+  loop: true,
+  pauseOnHover: true,
+  showArrows: true,
+  showBullets: true,
+  effect: 'slide',         // 'slide' | 'fade' | 'zoom'
+  lazyLoad: true,
+  slides: [
+    {
+      id: uuid,
+      name: 'Slide 1',
+      enabled: true,
+      desktopUrl: '', tabletUrl: '', mobileUrl: '',
+      link: '', newTab: true, alt: '',
+    },
+  ],
+}
+```
 
----
-
-### 6. Tratamento de imagens grandes
-
-- Limite duro no cliente: **5 MB** (bloqueia antes de subir, evita custo).
-- Validação de MIME: `image/png`, `image/jpeg`, `image/webp`.
-- Dimensão máxima recomendada: 2000px no maior lado (redimensionado automaticamente na compressão — passo 7).
-- Feedback: barra de progresso, toast de erro claro em caso de rejeição.
-
----
-
-### 7. Compressão automática
-
-- Executada **no navegador antes do upload**, via `browser-image-compression` (leve, ~15KB gzip) ou `Canvas API` puro.
-- Regras:
-  - Se arquivo > 500KB → redimensiona para no máx. 2000px e re-encoda como JPEG q=0.85 (ou WebP se suportado).
-  - Se ≤ 500KB → sobe original.
-- Resultado: economia de banda + PDF mais leve + upload mais rápido, **sem perda visual perceptível** no A4.
-
----
-
-### 8. Remoção de imagens não utilizadas
-
-Risco real: usuário troca a imagem de um bloco várias vezes → arquivos órfãos no Storage.
-
-Estratégia em camadas:
-
-1. **Imediata (síncrona):** ao substituir/remover uma imagem cuja URL pertence ao bucket, chamar `supabase.storage.remove()` do arquivo antigo antes de gravar o novo `content`.
-2. **Ao deletar o bloco:** mesmo tratamento.
-3. **Ao descartar a notícia** sem salvar: manter set em memória de "uploads desta sessão ainda não commitados" e limpar no unload.
-4. **Garbage collector (futuro, opcional):** Edge Function agendada que compara arquivos do bucket com URLs referenciadas em notícias salvas e remove órfãos > 7 dias. Fora do escopo desta entrega, apenas documentar.
-
-URLs externas (não-Supabase) **nunca** são deletadas.
+Persistido em `widget_templates.config` como JSON — coluna já existe, tipo genérico, **sem migration**.
 
 ---
 
-### 9. Experiência do usuário
+### 4. Componentes reutilizáveis já existentes
 
-- Duas pílulas no topo do editor do bloco: **Upload** (default) | **URL**.
-- Modo Upload: drop zone + click-to-select, preview com nome/tamanho, botão remover.
-- Modo URL: campo de texto atual, inalterado.
-- Estados: idle → uploading (progress) → success (thumb) → error (toast + retry).
-- Preview do artigo atualiza em tempo real assim que a URL é gravada — igual hoje.
-- Acessibilidade: drop zone com `role="button"`, `aria-label`, foco visível, suporte a teclado.
-
----
-
-### 10. Arquivos que serão tocados na implementação
-
-- `src/pages/NewsGeneratorPage.tsx` — trocar o `<Input>` atual do editor do bloco imagem por um novo `<ImageBlockField>` (single component, contido).
-- `src/components/news/ImageBlockField.tsx` — **novo**, encapsula Upload+URL+compressão+cleanup.
-- `package.json` — adicionar `browser-image-compression` (opcional, se aprovado).
-- **Não altera:** renderers, PDF pipeline, JSON schema, tipos de módulo, migrations.
+| Reuso | Origem |
+|---|---|
+| Upload de imagem (3 por slide) | `src/components/news/ImageBlockField.tsx` — já faz upload, compressão, cleanup no bucket `event-attachments` (path prefix `widgets/slider/…`) |
+| Toggle de dispositivo | pills Desktop/Tablet/Mobile atuais do preview |
+| Painel de abas Preview/Site/Código | `Tabs` já montado |
+| Salvar / Modelos / Histórico / Draft | Fluxo genérico já existente |
+| Botão "Gerar Código para Copiar" | `getCurrentCode()` |
+| `Switch`, `Slider`, `Select`, `Input`, `Label`, `Tooltip` | shadcn já em uso |
 
 ---
 
-### 11. Riscos e mitigações
+### 5. Novos componentes / funções
+
+Todos em `AdminToolboxPage.tsx` (mesmo arquivo dos outros widgets, mantendo o padrão) ou extraídos para `src/components/widgets/slider/` se preferirem modularizar:
+
+1. **`<SliderConfigPanel>`** — painel esquerdo com:
+   - Lista de slides drag-and-drop (`@dnd-kit/sortable` — nova dep leve, ~15KB) com handle, thumb, nome, ações (👁 ativar, ⧉ duplicar, 🗑 remover).
+   - Botão "+ Adicionar Slide".
+   - Editor do slide selecionado: 3 `ImageBlockField` (desktop/tablet/mobile) + link + novaAba + alt + nome.
+   - Bloco global: autoplay, intervalo, velocidade, loop, hover, setas, bullets, efeito, lazy.
+
+2. **`<SliderPreview>`** — carrossel real (não simulado) para o preview central:
+   - Baseado em `embla-carousel-react` (leve, já usado em vários projetos shadcn) **ou** implementação nativa com CSS transforms para evitar nova dep. Recomendo Embla por acessibilidade nativa (ARIA, teclado).
+   - Escolhe automaticamente `desktopUrl | tabletUrl | mobileUrl` conforme `deviceView`.
+   - Container respeita as dimensões oficiais (1916×821 desktop/tablet, 1080×1440 mobile) via `aspect-ratio` + `object-contain` para não deformar.
+
+3. **`generateSliderCode()`** — devolve HTML+CSS+JS **standalone e sem dependências externas** para o cliente colar em qualquer site:
+   - `<picture>` com `<source media="(max-width: 767px)" srcset={mobile}>` + `<source media="(max-width: 1279px)" srcset={tablet}>` + `<img src={desktop}>` — a responsividade é feita pelo browser, sem JS extra.
+   - JS mínimo (~2KB) para autoplay, arrows, bullets, pause-on-hover, loop, efeito. Sem libs externas.
+   - `loading="lazy"` + `decoding="async"` nas imagens fora do primeiro slide.
+   - `role="region"`, `aria-roledescription="carousel"`, `aria-label`, controles com `aria-label`.
+
+---
+
+### 6. Responsividade e dimensões oficiais
+
+- Container do slide: `width: 100%`, `aspect-ratio` dinâmico por breakpoint:
+  - `≥1280px`: `1916 / 821`
+  - `768-1279px`: `1916 / 821`
+  - `<768px`: `1080 / 1440`
+- `object-fit: contain` por padrão para respeitar a proporção (opção "cover" pode virar toggle futuro).
+- Preview central aplica o mesmo aspect-ratio conforme `deviceView` para o cliente ver exatamente o resultado final.
+
+---
+
+### 7. Persistência e compatibilidade
+
+- **Zero alterações** em `widget_templates` (schema, RLS, grants).
+- **Zero alterações** nos outros 5 widgets, seus configs, generators ou modelos salvos.
+- **Zero alterações** no bucket `event-attachments` (só um novo prefixo `widgets/slider/`).
+- Draft autosave (`widget_draft_${id}`) e histórico (`widget_history_${id}`) funcionam automaticamente porque são keyed por template id.
+
+---
+
+### 8. Riscos técnicos e mitigações
 
 | Risco | Mitigação |
 |---|---|
-| Bucket `event-attachments` mistura eventos e notícias | Prefixo de path `news/…` isola visualmente; criar bucket dedicado se necessário |
-| Vazamento de arquivos órfãos | Cleanup síncrono em troca/remoção + roadmap de GC |
-| html2canvas + imagens cross-origin | URLs do Storage são same-origin via CDN pública com CORS permissivo — já funciona hoje com Unsplash |
-| Compressão degrada qualidade | q=0.85 e limite 2000px são conservadores; usuário pode desativar via modo URL |
+| Arquivo `AdminToolboxPage.tsx` já tem 5.7k linhas | Extrair `<SliderConfigPanel>` e `<SliderPreview>` para `src/components/widgets/slider/` (opcional mas recomendado) |
+| Uploads órfãos ao trocar/remover slide | `ImageBlockField` já faz `removeIfOwned()` — reutilizar tal qual |
+| Peso do bundle com Embla + dnd-kit | Ambas leves (~15KB gz cada). Alternativa zero-dep: transform CSS + HTML5 DnD nativo |
+| Código exportado tem que rodar sem framework no site do cliente | Gerar HTML+CSS+JS vanilla, sem imports; testar em página estática |
+| html2canvas / iframe no cliente | Não aplicável — código exportado é HTML puro |
+| Muitos slides pesados no preview | `lazyLoad` liga `loading="lazy"` no `<img>` a partir do 2º slide |
 
 ---
 
-### 12. Fora do escopo desta entrega
+### 9. Pontos de atenção
 
-- Biblioteca/galeria de imagens já enviadas.
-- Edição de imagem (crop, filtros).
-- Garbage collector agendado (documentado, não implementado).
-
----
-
-### Mockup da interface proposta
-
-Mockup renderizado em alta fidelidade mostrando os dois estados do bloco (Upload ativo com progress + URL ativo com preview) exibido abaixo desta mensagem.
+- Validar que todos os 3 uploads (desktop/tablet/mobile) existem antes de habilitar o botão "Gerar Código"; caso falte, fallback para o desktop com aviso amarelo.
+- No preview central manter proporção fixa via `aspect-ratio` para não "pular" ao trocar de dispositivo.
+- Manter i18n PT-BR consistente com o restante do módulo.
+- Acessibilidade: navegação por Tab, Setas ← →, Home/End, `prefers-reduced-motion` respeitado (desliga autoplay/animações).
 
 ---
 
-**Aguardando aprovação** para implementar. Pontos de decisão:
+### 10. Fora do escopo desta entrega
 
-1. Bucket: usar `event-attachments` (rápido) ou criar `news-images` dedicado?
-2. Compressão: incluir `browser-image-compression` ou usar Canvas puro (zero dependência)?
-3. Limite de 5MB e 2000px estão OK?
+- Agendamento de slides (data início/fim).
+- A/B testing entre variações.
+- Analytics de cliques por slide.
+- Vídeos como slide.
+- Garbage collector agendado para imagens órfãs.
+
+---
+
+### 11. Arquivos tocados
+
+- `src/pages/AdminToolboxPage.tsx` — novo card no seletor, novo bloco no editor, novo case nos switches, `generateSliderCode()`.
+- `src/components/widgets/slider/SliderConfigPanel.tsx` — **novo**.
+- `src/components/widgets/slider/SliderPreview.tsx` — **novo**.
+- `src/components/widgets/slider/generateSliderCode.ts` — **novo**.
+- `package.json` — `@dnd-kit/core`, `@dnd-kit/sortable`, `embla-carousel-react` (a confirmar).
+- **Não altera**: outros widgets, migrations, RLS, buckets, sistema de exportação existente.
+
+---
+
+### Mockup
+
+Mockup de alta fidelidade abaixo mostra o novo card **Banner (Slider)** já selecionado no grid de tipos, o preview central com carrossel real + toggle de dispositivo, e o painel direito com lista de slides drag-and-drop e todos os controles previstos.
+
+<presentation-artifact path="widget-banner-slider-mockup.jpg" mime_type="image/jpeg"></presentation-artifact>
+
+---
+
+**Aguardando aprovação.** Decisões abertas:
+
+1. Extrair para `src/components/widgets/slider/` ou manter tudo em `AdminToolboxPage.tsx` como os outros?
+2. Embla (acessibilidade pronta) ou implementação vanilla zero-dep?
+3. `object-fit` padrão: `contain` (respeita proporção, pode ter tarjas) ou `cover` (preenche, pode cortar)?
