@@ -1351,7 +1351,8 @@ export default function AdminToolboxPage() {
     const config = activeWidgetType === 'whatsapp' ? whatsappConfig :
       activeWidgetType === 'banner' ? bannerConfig :
       activeWidgetType === 'gateway' ? gatewayConfig :
-      activeWidgetType === 'sidetab' ? sidetabConfig : menuConfig;
+      activeWidgetType === 'sidetab' ? sidetabConfig :
+      activeWidgetType === 'slider' ? sliderConfig : menuConfig;
     const t = setTimeout(() => {
       // Só registra rascunho se houver alteração real em relação ao modelo carregado.
       if (baselineRef.current !== null &&
@@ -1368,7 +1369,7 @@ export default function AdminToolboxPage() {
     }, 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, activeWidgetType, currentTemplateId]);
+  }, [whatsappConfig, bannerConfig, menuConfig, gatewayConfig, sidetabConfig, sliderConfig, activeWidgetType, currentTemplateId]);
 
 
 
