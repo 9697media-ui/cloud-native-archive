@@ -3815,6 +3815,7 @@ ${script}
                     { type: 'menu', icon: MenuIcon, label: 'Menu', hint: 'Responsivo' },
                     { type: 'gateway', icon: LayoutGrid, label: 'Gateway', hint: 'Navegação' },
                     { type: 'sidetab', icon: PanelRight, label: 'Aba Lateral', hint: 'Lateral fixa' },
+                    { type: 'slider', icon: GalleryHorizontal, label: 'Banner (Slider)', hint: 'Carrossel responsivo' },
                   ] as const).map(({ type, icon: Icon, label, hint }) => {
                     const active = activeWidgetType === type;
                     return (
