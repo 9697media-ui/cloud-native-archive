@@ -303,6 +303,32 @@ const DEFAULT_BANNER_CONFIG = {
   isDismissible: true,
 };
 
+const makeSliderSlide = (n = 1) => ({
+  id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `slide-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  name: `Slide ${n}`,
+  enabled: true,
+  desktopUrl: '',
+  tabletUrl: '',
+  mobileUrl: '',
+  link: '',
+  newTab: true,
+  alt: '',
+});
+
+const DEFAULT_SLIDER_CONFIG = {
+  autoplay: true,
+  interval: 5000,
+  transitionSpeed: 600,
+  loop: true,
+  pauseOnHover: true,
+  showArrows: true,
+  showBullets: true,
+  effect: 'slide' as 'slide' | 'fade',
+  lazyLoad: true,
+  objectFit: 'cover' as 'cover' | 'contain',
+  slides: [makeSliderSlide(1), makeSliderSlide(2)],
+};
+
 const DEFAULT_MENU_CONFIG = {
   logoUrl: 'https://anabrasil.org/wp-content/uploads/2023/04/Ativo-3.webp',
   logoUrlMobile: '',
