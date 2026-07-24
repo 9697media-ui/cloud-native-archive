@@ -626,8 +626,9 @@ const TransparencyPage = () => {
             </DialogDescription>
           </DialogHeader>
           {publicUrlConfig && (() => {
-            const publicUrl = `${window.location.origin}/portal-transparencia-publico?id=${publicUrlConfig.id}`;
-            const wpHtml = `<iframe src="${publicUrl}?embed=true" width="100%" style="border:0;min-height:600px" loading="lazy" title="${publicUrlConfig.label}"></iframe>`;
+            const publicOrigin = 'https://r2-vault-craft.lovable.app';
+            const publicUrl = `${publicOrigin}/portal-transparencia-publico?id=${publicUrlConfig.id}&v=2`;
+            const wpHtml = `<iframe src="${publicUrl}&embed=true" width="100%" style="border:0;min-height:600px" loading="lazy" title="${publicUrlConfig.label}"></iframe>`;
             const copy = (text: string, kind: 'url' | 'html') => {
               navigator.clipboard.writeText(text);
               setPublicUrlCopied(kind);
