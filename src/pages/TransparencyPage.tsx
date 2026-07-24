@@ -938,7 +938,7 @@ const FileIcon = ({ mimeType, className }: { mimeType: string, className?: strin
   return <File className={cn("text-slate-400", className)} />;
 };
 
-const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName: string }) => {
+export const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName: string }) => {
   const [items, setItems] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
