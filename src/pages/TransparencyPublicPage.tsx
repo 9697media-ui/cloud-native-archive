@@ -65,7 +65,9 @@ export default function TransparencyPublicPage() {
   }
 
   const isV2 = searchParams.get('v') === '2';
-  const unitName = config.original_folder_name || config.label;
+  const rawUnitName = config.original_folder_name || config.label;
+  const unitName = rawUnitName.replace(/^\d+[\.\-\)\s]*\s*/, '').trim();
+
 
   if (isV2) {
     return (
