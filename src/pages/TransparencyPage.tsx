@@ -358,7 +358,8 @@ const TransparencyPage = () => {
   };
 
   const copyEmbedCode = (id: string) => {
-    const embedUrl = `${window.location.origin}/portal-transparencia-publico?id=${id}&embed=true`;
+    const publicOrigin = 'https://r2-vault-craft.lovable.app';
+    const embedUrl = `${publicOrigin}/portal-transparencia-publico?id=${id}&embed=true`;
     const embedCode = `<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden; transition: height 0.1s ease-out; border: none;" allow="fullscreen; clipboard-write"></iframe>
 <script>
 (function() {
