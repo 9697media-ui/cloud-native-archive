@@ -25,6 +25,7 @@ import EventsHubPage from "./pages/EventsHubPage";
 import TransparencyPage from "./pages/TransparencyPage";
 import MercadoSolidarioPage from "./pages/MercadoSolidarioPage";
 import MercadoSolidarioPublicPage from "./pages/MercadoSolidarioPublicPage";
+import TransparencyPublicPage from "./pages/TransparencyPublicPage";
 import NotFound from "./pages/NotFound";
 import EmailPreview from "./pages/EmailPreview";
 import AdminToolboxPage from "./pages/AdminToolboxPage";
