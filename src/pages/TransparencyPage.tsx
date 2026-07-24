@@ -586,6 +586,7 @@ const TransparencyPage = () => {
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="sm" onClick={() => setEditingConfig({ id: config.id, label: config.label })}><Edit2 className="h-4 w-4" /></Button>
                       <Button variant="outline" size="sm" onClick={() => copyEmbedCode(config.id)}>{copiedId === config.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Embed</Button>
+                      <Button variant="outline" size="sm" onClick={() => copyEmbedCodeV2(config.id)}>{copiedId === config.id + '-v2' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Embed v2</Button>
                       <Button variant="outline" size="sm" onClick={() => setPublicUrlConfig({ id: config.id, label: config.label })}><Globe className="h-4 w-4" /> URL Pública</Button>
                       <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(config.id)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
