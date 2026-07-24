@@ -73,6 +73,8 @@ const TransparencyPage = () => {
   const [originalFolderName, setOriginalFolderName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [publicUrlConfig, setPublicUrlConfig] = useState<{ id: string; label: string } | null>(null);
+  const [publicUrlCopied, setPublicUrlCopied] = useState<'url' | 'html' | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
   const [googleAccount, setGoogleAccount] = useState<string | null>(null);
