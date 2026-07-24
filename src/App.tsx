@@ -87,6 +87,7 @@ const App = () => (
                 <Route path="/email-preview" element={<EmailPreview />} />
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/mercado-solidario-publico" element={<MercadoSolidarioPublicPage />} />
+                <Route path="/portal-transparencia-publico" element={<TransparencyPublicPage />} />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<EventsHubPage />} />
                   <Route path="/visao-geral" element={
