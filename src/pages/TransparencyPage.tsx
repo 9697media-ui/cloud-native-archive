@@ -662,7 +662,7 @@ const TransparencyPage = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => { setPublicUrlConfig(null); setPublicUrlCopied(null); }}>Fechar</Button>
             {publicUrlConfig && (
-              <Button onClick={() => window.open(`${window.location.origin}/portal-transparencia-publico?id=${publicUrlConfig.id}`, '_blank')} className="gap-1.5">
+              <Button onClick={() => window.open(`https://r2-vault-craft.lovable.app/portal-transparencia-publico?id=${publicUrlConfig.id}&v=2`, '_blank')} className="gap-1.5">
                 <ExternalLink className="h-4 w-4" /> Abrir Página Pública
               </Button>
             )}
