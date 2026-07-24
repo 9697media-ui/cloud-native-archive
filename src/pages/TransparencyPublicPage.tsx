@@ -64,6 +64,31 @@ export default function TransparencyPublicPage() {
     );
   }
 
+  const isV2 = searchParams.get('v') === '2';
+  const unitName = config.original_folder_name || config.label;
+
+  if (isV2) {
+    return (
+      <div className="bg-background min-h-screen">
+        <main className="w-full px-4 py-6 lg:px-8">
+          <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-card border rounded-lg overflow-hidden">
+              <div className="p-4 md:p-6 min-h-[200px] flex flex-col gap-1">
+                <DriveExplorer folderId={config.folder_id} folderName={config.label} />
+              </div>
+            </div>
+            <div className="pt-4">
+              <InstitutionalFooterBar className="rounded-md" />
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                Portal da Transparência — {unitName}.
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background min-h-screen">
       <main className="w-full px-4 py-6 lg:px-8">

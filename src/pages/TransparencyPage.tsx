@@ -401,6 +401,49 @@ const TransparencyPage = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const copyEmbedCodeV2 = (id: string) => {
+    const embedUrl = `${window.location.origin}/portal-transparencia-publico?id=${id}&embed=true&v=2`;
+    const embedCode = `<iframe id="iframe-${id}" src="${embedUrl}" width="100%" frameborder="0" scrolling="no" style="overflow:hidden; transition: height 0.1s ease-out; border: none;" allow="fullscreen; clipboard-write"></iframe>
+<script>
+(function() {
+  var iframe = document.getElementById('iframe-${id}');
+  var isFS = false;
+  window.addEventListener('message', function(e) {
+    if (e.data.type === 'resize-iframe' && e.data.height) {
+      if (e.data.isFullscreen) {
+        if (!isFS) {
+          isFS = true;
+          iframe.style.setProperty('position', 'fixed', 'important');
+          iframe.style.setProperty('top', '0', 'important');
+          iframe.style.setProperty('left', '0', 'important');
+          iframe.style.setProperty('width', '100vw', 'important');
+          iframe.style.setProperty('height', '100vh', 'important');
+          iframe.style.setProperty('z-index', '2147483647', 'important');
+          iframe.style.setProperty('margin', '0', 'important');
+          document.body.style.overflow = 'hidden';
+        }
+      } else if (isFS || !iframe.style.height) {
+        isFS = false;
+        iframe.style.position = 'relative';
+        iframe.style.width = '100%';
+        iframe.style.height = e.data.height + 'px';
+        iframe.style.zIndex = 'auto';
+        iframe.style.top = 'auto';
+        iframe.style.left = 'auto';
+        document.body.style.overflow = 'auto';
+      } else {
+        iframe.style.height = e.data.height + 'px';
+      }
+    }
+  }, false);
+})();
+</script>`;
+    navigator.clipboard.writeText(embedCode);
+    setCopiedId(id + '-v2');
+    toast.success('Novo código embed copiado!');
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   const isEmbed = searchParams.get('embed') === 'true';
   const embedId = searchParams.get('id');
 
@@ -543,6 +586,7 @@ const TransparencyPage = () => {
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="sm" onClick={() => setEditingConfig({ id: config.id, label: config.label })}><Edit2 className="h-4 w-4" /></Button>
                       <Button variant="outline" size="sm" onClick={() => copyEmbedCode(config.id)}>{copiedId === config.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Embed</Button>
+                      <Button variant="outline" size="sm" onClick={() => copyEmbedCodeV2(config.id)}>{copiedId === config.id + '-v2' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Embed v2</Button>
                       <Button variant="outline" size="sm" onClick={() => setPublicUrlConfig({ id: config.id, label: config.label })}><Globe className="h-4 w-4" /> URL Pública</Button>
                       <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(config.id)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
