@@ -22,7 +22,7 @@ export default function TransparencyPublicPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  useIframeHeightReporter('transparencia-height');
+  useIframeHeightReporter('resize-iframe');
 
   useEffect(() => {
     if (isEmbed) {
