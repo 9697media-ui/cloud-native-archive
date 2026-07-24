@@ -571,6 +571,57 @@ const TransparencyPage = () => {
           <DialogFooter><Button onClick={handleUpdateLabel}>Salvar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog open={!!publicUrlConfig} onOpenChange={(open) => { if (!open) { setPublicUrlConfig(null); setPublicUrlCopied(null); } }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Globe className="h-5 w-5" /> URL Pública</DialogTitle>
+            <DialogDescription>
+              Compartilhe esta unidade como uma página pública ou incorpore-a nativamente em um site WordPress.
+            </DialogDescription>
+          </DialogHeader>
+          {publicUrlConfig && (() => {
+            const publicUrl = `${window.location.origin}/portal-transparencia-publico?id=${publicUrlConfig.id}`;
+            const wpHtml = `<iframe src="${publicUrl}?embed=true" width="100%" style="border:0;min-height:600px" loading="lazy" title="${publicUrlConfig.label}"></iframe>`;
+            const copy = (text: string, kind: 'url' | 'html') => {
+              navigator.clipboard.writeText(text);
+              setPublicUrlCopied(kind);
+              toast.success(kind === 'url' ? 'URL copiada!' : 'HTML copiado!');
+              setTimeout(() => setPublicUrlCopied(null), 2000);
+            };
+            return (
+              <div className="space-y-5 py-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">URL Pública</label>
+                  <div className="flex gap-2">
+                    <Input readOnly value={publicUrl} className="font-mono text-xs" onFocus={(e) => e.currentTarget.select()} />
+                    <Button variant="outline" size="sm" onClick={() => copy(publicUrl, 'url')} className="shrink-0 gap-1.5">
+                      {publicUrlCopied === 'url' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Copiar URL
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Página pública standalone, sem login, com cabeçalho e rodapé institucionais.</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Código para WordPress</label>
+                  <textarea readOnly value={wpHtml} className="w-full h-24 font-mono text-xs p-3 rounded-md border bg-muted/30 resize-none" onFocus={(e) => e.currentTarget.select()} />
+                  <div className="flex justify-end">
+                    <Button variant="outline" size="sm" onClick={() => copy(wpHtml, 'html')} className="gap-1.5">
+                      {publicUrlCopied === 'html' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Copiar HTML
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setPublicUrlConfig(null); setPublicUrlCopied(null); }}>Fechar</Button>
+            {publicUrlConfig && (
+              <Button onClick={() => window.open(`${window.location.origin}/portal-transparencia-publico?id=${publicUrlConfig.id}`, '_blank')} className="gap-1.5">
+                <ExternalLink className="h-4 w-4" /> Abrir Página Pública
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <BatchAddDialog 
         isOpen={isBatchAdding} 
         onClose={() => setIsBatchAdding(false)} 
