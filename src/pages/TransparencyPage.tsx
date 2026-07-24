@@ -626,8 +626,9 @@ const TransparencyPage = () => {
             </DialogDescription>
           </DialogHeader>
           {publicUrlConfig && (() => {
-            const publicUrl = `${window.location.origin}/portal-transparencia-publico?id=${publicUrlConfig.id}`;
-            const wpHtml = `<iframe src="${publicUrl}?embed=true" width="100%" style="border:0;min-height:600px" loading="lazy" title="${publicUrlConfig.label}"></iframe>`;
+            const publicOrigin = 'https://r2-vault-craft.lovable.app';
+            const publicUrl = `${publicOrigin}/portal-transparencia-publico?id=${publicUrlConfig.id}&v=2`;
+            const wpHtml = `<iframe src="${publicUrl}&embed=true" width="100%" style="border:0;min-height:600px" loading="lazy" title="${publicUrlConfig.label}"></iframe>`;
             const copy = (text: string, kind: 'url' | 'html') => {
               navigator.clipboard.writeText(text);
               setPublicUrlCopied(kind);
@@ -644,7 +645,7 @@ const TransparencyPage = () => {
                       {publicUrlCopied === 'url' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Copiar URL
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">Página pública standalone, sem login, com cabeçalho e rodapé institucionais.</p>
+                  <p className="text-xs text-muted-foreground">Página pública sem login, layout enxuto (apenas pastas + rodapé com o nome da unidade).</p>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Código para WordPress</label>
@@ -661,7 +662,7 @@ const TransparencyPage = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => { setPublicUrlConfig(null); setPublicUrlCopied(null); }}>Fechar</Button>
             {publicUrlConfig && (
-              <Button onClick={() => window.open(`${window.location.origin}/portal-transparencia-publico?id=${publicUrlConfig.id}`, '_blank')} className="gap-1.5">
+              <Button onClick={() => window.open(`https://r2-vault-craft.lovable.app/portal-transparencia-publico?id=${publicUrlConfig.id}&v=2`, '_blank')} className="gap-1.5">
                 <ExternalLink className="h-4 w-4" /> Abrir Página Pública
               </Button>
             )}
