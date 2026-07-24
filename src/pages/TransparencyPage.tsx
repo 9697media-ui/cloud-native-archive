@@ -32,7 +32,8 @@ import {
   ArrowUp,
   ArrowDown,
   Layers,
-  CheckCircle2
+  CheckCircle2,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -73,6 +74,8 @@ const TransparencyPage = () => {
   const [originalFolderName, setOriginalFolderName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [publicUrlConfig, setPublicUrlConfig] = useState<{ id: string; label: string } | null>(null);
+  const [publicUrlCopied, setPublicUrlCopied] = useState<'url' | 'html' | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [hasGoogleAuth, setHasGoogleAuth] = useState<boolean | null>(null);
   const [googleAccount, setGoogleAccount] = useState<string | null>(null);
@@ -540,6 +543,7 @@ const TransparencyPage = () => {
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="sm" onClick={() => setEditingConfig({ id: config.id, label: config.label })}><Edit2 className="h-4 w-4" /></Button>
                       <Button variant="outline" size="sm" onClick={() => copyEmbedCode(config.id)}>{copiedId === config.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Embed</Button>
+                      <Button variant="outline" size="sm" onClick={() => setPublicUrlConfig({ id: config.id, label: config.label })}><Globe className="h-4 w-4" /> URL Pública</Button>
                       <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(config.id)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </div>
@@ -565,6 +569,57 @@ const TransparencyPage = () => {
           <DialogHeader><DialogTitle>Editar Nome</DialogTitle></DialogHeader>
           <div className="py-4"><Input value={editingConfig?.label || ''} onChange={(e) => setEditingConfig(prev => prev ? { ...prev, label: e.target.value } : null)} /></div>
           <DialogFooter><Button onClick={handleUpdateLabel}>Salvar</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={!!publicUrlConfig} onOpenChange={(open) => { if (!open) { setPublicUrlConfig(null); setPublicUrlCopied(null); } }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Globe className="h-5 w-5" /> URL Pública</DialogTitle>
+            <DialogDescription>
+              Compartilhe esta unidade como uma página pública ou incorpore-a nativamente em um site WordPress.
+            </DialogDescription>
+          </DialogHeader>
+          {publicUrlConfig && (() => {
+            const publicUrl = `${window.location.origin}/portal-transparencia-publico?id=${publicUrlConfig.id}`;
+            const wpHtml = `<iframe src="${publicUrl}?embed=true" width="100%" style="border:0;min-height:600px" loading="lazy" title="${publicUrlConfig.label}"></iframe>`;
+            const copy = (text: string, kind: 'url' | 'html') => {
+              navigator.clipboard.writeText(text);
+              setPublicUrlCopied(kind);
+              toast.success(kind === 'url' ? 'URL copiada!' : 'HTML copiado!');
+              setTimeout(() => setPublicUrlCopied(null), 2000);
+            };
+            return (
+              <div className="space-y-5 py-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">URL Pública</label>
+                  <div className="flex gap-2">
+                    <Input readOnly value={publicUrl} className="font-mono text-xs" onFocus={(e) => e.currentTarget.select()} />
+                    <Button variant="outline" size="sm" onClick={() => copy(publicUrl, 'url')} className="shrink-0 gap-1.5">
+                      {publicUrlCopied === 'url' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Copiar URL
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Página pública standalone, sem login, com cabeçalho e rodapé institucionais.</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Código para WordPress</label>
+                  <textarea readOnly value={wpHtml} className="w-full h-24 font-mono text-xs p-3 rounded-md border bg-muted/30 resize-none" onFocus={(e) => e.currentTarget.select()} />
+                  <div className="flex justify-end">
+                    <Button variant="outline" size="sm" onClick={() => copy(wpHtml, 'html')} className="gap-1.5">
+                      {publicUrlCopied === 'html' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Copiar HTML
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setPublicUrlConfig(null); setPublicUrlCopied(null); }}>Fechar</Button>
+            {publicUrlConfig && (
+              <Button onClick={() => window.open(`${window.location.origin}/portal-transparencia-publico?id=${publicUrlConfig.id}`, '_blank')} className="gap-1.5">
+                <ExternalLink className="h-4 w-4" /> Abrir Página Pública
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
       <BatchAddDialog 
@@ -938,7 +993,7 @@ const FileIcon = ({ mimeType, className }: { mimeType: string, className?: strin
   return <File className={cn("text-slate-400", className)} />;
 };
 
-const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName: string }) => {
+export const DriveExplorer = ({ folderId, folderName }: { folderId: string, folderName: string }) => {
   const [items, setItems] = useState<DriveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
