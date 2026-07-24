@@ -645,7 +645,7 @@ const TransparencyPage = () => {
                       {publicUrlCopied === 'url' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} Copiar URL
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">Página pública standalone, sem login, com cabeçalho e rodapé institucionais.</p>
+                  <p className="text-xs text-muted-foreground">Página pública sem login, layout enxuto (apenas pastas + rodapé com o nome da unidade).</p>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Código para WordPress</label>
