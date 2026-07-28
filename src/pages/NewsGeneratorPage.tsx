@@ -114,22 +114,12 @@ const BLOCK_PRESETS: BlockPreset[] = [
   },
   {
     id: 'image-text',
-    label: 'Imagem + texto lateral',
-    hint: 'Imagem à esquerda, texto à direita',
+    label: 'Imagem com texto',
+    hint: 'Imagem + texto lateral',
     icon: Rows3,
     create: () => [
       { id: newId(0), type: 'image', content: '', caption: '', cols: 3, rows: 2, preventGallery: true },
       { id: newId(1), type: 'paragraph', content: '', cols: 3, rows: 2 },
-    ],
-  },
-  {
-    id: 'text-image',
-    label: 'Texto + imagem lateral',
-    hint: 'Texto à esquerda, imagem à direita',
-    icon: Columns2,
-    create: () => [
-      { id: newId(0), type: 'paragraph', content: '', cols: 3, rows: 2 },
-      { id: newId(1), type: 'image', content: '', caption: '', cols: 3, rows: 2, preventGallery: true },
     ],
   },
 ];
