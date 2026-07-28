@@ -4,7 +4,9 @@ import { jsPDF } from 'jspdf';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import { InstitutionalHeader } from '@/components/news/InstitutionalHeader';
 import { ImageBlockField } from '@/components/news/ImageBlockField';
-import { NEWS_UNIT_GROUPS, newsUnitName } from '@/lib/news/units';
+import { NEWS_UNIT_GROUPS, newsUnitName, newsUnitForProfileUnit, profileUnitForNewsUnit } from '@/lib/news/units';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useNewsBulletins } from '@/hooks/useNewsBulletins';
 import {
   CATEGORY_OPTIONS,
   CATEGORY_LABELS,
@@ -39,6 +41,8 @@ import {
   Columns2,
   Rows3,
   Eye,
+  FolderOpen,
+  Lock,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ *
@@ -354,6 +358,28 @@ export default function NewsGeneratorPage() {
     ]),
   );
 
+  const { isAdmin, unit: profileUnit, delegatedUnits, loading: roleLoading } = useUserRole();
+  const {
+    bulletins,
+    saving,
+    savedAt: remoteSavedAt,
+    currentId,
+    setCurrent,
+    persist,
+    remove,
+    duplicate,
+  } = useNewsBulletins();
+
+  /** Unidades que o usuário pode usar. Admin geral escolhe livremente. */
+  const allowedUnits = useMemo(() => {
+    if (isAdmin) return null; // sem restrição
+    const raw = [profileUnit, ...(delegatedUnits || [])].filter(Boolean) as string[];
+    const resolved = raw.map((value) => newsUnitForProfileUnit(value)).filter(Boolean) as any[];
+    return resolved;
+  }, [isAdmin, profileUnit, delegatedUnits]);
+
+  const unitLocked = !isAdmin && !!allowedUnits && allowedUnits.length <= 1;
+
   const [openSection, setOpenSection] = useState<number>(1);
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
@@ -377,6 +403,17 @@ export default function NewsGeneratorPage() {
   const [fillPercent, setFillPercent] = useState(0);
 
   const previewRef = useRef<HTMLElement | null>(null);
+
+  /* ---------------- Vínculo de unidade ---------------- */
+
+  useEffect(() => {
+    if (roleLoading || isAdmin || !allowedUnits) return;
+    if (allowedUnits.length === 0) return;
+    const allowedIds = allowedUnits.map((u) => u.id);
+    if (!allowedIds.includes(headerData.unitId)) {
+      setHeaderData((prev) => ({ ...prev, unitId: allowedUnits[0].id }));
+    }
+  }, [roleLoading, isAdmin, allowedUnits, headerData.unitId]);
 
   /* ---------------- Rascunho local ---------------- */
 
