@@ -624,7 +624,16 @@ export default function NewsGeneratorPage() {
     );
   };
 
-  const confirmNewArticle = () => {
+  const confirmNewArticle = async () => {
+    // Antes de limpar, guarda o informativo atual para não perder o trabalho feito.
+    const hasContent = Boolean(headerData.title?.trim()) || modules.length > 0;
+    if (hasContent) {
+      try {
+        await persistBulletin();
+      } catch {
+        /* falha ao salvar não deve travar a criação do novo informativo */
+      }
+    }
     setHeaderData({
       unitId: headerData.unitId,
       category: '',
@@ -639,6 +648,7 @@ export default function NewsGeneratorPage() {
     setCurrent(null);
     localStorage.removeItem(DRAFT_KEY);
   };
+
 
   /** Abre um informativo salvo da unidade no editor. */
   const openBulletin = (bulletin: any) => {
@@ -2031,13 +2041,14 @@ export default function NewsGeneratorPage() {
       {showClearModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 print:hidden">
           <div className="bg-card rounded-xl shadow-2xl max-w-md w-full p-6 border border-border">
-            <div className="flex items-center gap-3 text-destructive mb-4">
+            <div className="flex items-center gap-3 text-primary mb-4">
               <AlertCircle size={28} />
               <h3 className="text-xl font-bold">Criar novo informativo?</h3>
             </div>
             <p className="text-muted-foreground mb-8 text-base">
-              Tem certeza que deseja começar um novo informativo? <br /><br />
-              <strong className="text-foreground">Todo o conteúdo atual será apagado e a página ficará em branco.</strong>
+              O informativo atual será <strong className="text-foreground">salvo automaticamente</strong> em
+              “Meus informativos” antes de abrir a folha em branco. <br /><br />
+              Você poderá reabri-lo ou duplicá-lo como modelo quando quiser.
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -2050,11 +2061,12 @@ export default function NewsGeneratorPage() {
               <button
                 type="button"
                 onClick={confirmNewArticle}
-                className="px-4 py-2 rounded-lg font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-md"
+                className="px-4 py-2 rounded-lg font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-md"
               >
-                Sim, folha em branco
+                Salvar e criar novo
               </button>
             </div>
+
           </div>
         </div>
       )}
