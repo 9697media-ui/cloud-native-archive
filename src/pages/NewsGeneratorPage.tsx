@@ -1200,7 +1200,7 @@ export default function NewsGeneratorPage() {
                 );
               })}
             </div>
-          </section>
+          </EditorStep>
         </div>
 
         {/* Footer da sidebar */}
