@@ -4,6 +4,9 @@ import { jsPDF } from 'jspdf';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import { InstitutionalHeader } from '@/components/news/InstitutionalHeader';
 import { ImageBlockField } from '@/components/news/ImageBlockField';
+import { EditorStep } from '@/components/news/EditorStep';
+import { Tag } from 'lucide-react';
+
 import {
   Trash2,
   Image as ImageIcon,
@@ -238,6 +241,8 @@ export default function NewsGeneratorPage() {
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [openStep, setOpenStep] = useState<number | null>(3);
+
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -943,81 +948,90 @@ export default function NewsGeneratorPage() {
         </div>
 
 
-        <div className="flex-1 overflow-y-auto p-5 space-y-6">
-          {/* Cabeçalho */}
-          <section className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Type size={14} className="text-muted-foreground" />
-                <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Cabeçalho
-                </h3>
-              </div>
-              <span className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wide">Ordem fixa</span>
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {/* PASSO 1 — Identificação */}
+          <EditorStep
+            step={1}
+            title="Identificação"
+            description="Categoria, autor e data"
+            icon={<Tag size={15} />}
+            open={openStep === 1}
+            onToggle={() => setOpenStep(openStep === 1 ? null : 1)}
+            complete={!!headerData.author.trim()}
+          >
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-muted-foreground">Categoria da Notícia</label>
+              <select
+                value={headerData.category}
+                onChange={(e) => setHeaderData({ ...headerData, category: e.target.value })}
+                className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+              >
+                {CATEGORY_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
             </div>
-
-            <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-3">
-              <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">1</span>
-                  Categoria da Notícia
-                </label>
-                <select
-                  value={headerData.category}
-                  onChange={(e) => setHeaderData({ ...headerData, category: e.target.value })}
-                  className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                >
-                  {CATEGORY_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">2</span>
-                  Autor e Data
-                </label>
-                <input
-                  type="text"
-                  value={headerData.author}
-                  onChange={(e) => setHeaderData({ ...headerData, author: e.target.value })}
-                  placeholder="Ex: Equipe de Jornalismo - 10/10/2026"
-                  className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">3</span>
-                  Título Principal
-                </label>
-                <input
-                  type="text"
-                  value={headerData.title}
-                  onChange={(e) => setHeaderData({ ...headerData, title: e.target.value })}
-                  placeholder="Digite o título da notícia..."
-                  className="w-full px-3 py-2 text-base font-bold border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-                  <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">4</span>
-                  Subtítulo
-                </label>
-                <input
-                  type="text"
-                  value={headerData.subtitle}
-                  onChange={(e) => setHeaderData({ ...headerData, subtitle: e.target.value })}
-                  placeholder="Linha fina de apoio..."
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-muted-foreground">Autor e Data</label>
+              <input
+                type="text"
+                value={headerData.author}
+                onChange={(e) => setHeaderData({ ...headerData, author: e.target.value })}
+                placeholder="Ex: Equipe de Jornalismo - 10/10/2026"
+                className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+              />
             </div>
-          </section>
+          </EditorStep>
 
-          {/* Caixa de ferramentas */}
-          <section className="space-y-3">
+          {/* PASSO 2 — Títulos */}
+          <EditorStep
+            step={2}
+            title="Títulos"
+            description="Título principal e linha fina"
+            icon={<Type size={15} />}
+            open={openStep === 2}
+            onToggle={() => setOpenStep(openStep === 2 ? null : 2)}
+            complete={!!headerData.title.trim()}
+          >
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-muted-foreground">Título Principal</label>
+              <input
+                type="text"
+                value={headerData.title}
+                onChange={(e) => setHeaderData({ ...headerData, title: e.target.value })}
+                placeholder="Digite o título da notícia..."
+                className="w-full px-3 py-2 text-base font-bold border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-muted-foreground">Subtítulo</label>
+              <input
+                type="text"
+                value={headerData.subtitle}
+                onChange={(e) => setHeaderData({ ...headerData, subtitle: e.target.value })}
+                placeholder="Linha fina de apoio..."
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+              />
+            </div>
+          </EditorStep>
+
+          {/* PASSO 3 — Conteúdo */}
+          <EditorStep
+            step={3}
+            title="Conteúdo"
+            description="Adicione e organize os blocos"
+            icon={<Layers size={15} />}
+            open={openStep === 3}
+            onToggle={() => setOpenStep(openStep === 3 ? null : 3)}
+            complete={modules.length > 0}
+            badge={
+              <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
+                {modules.length}
+              </span>
+            }
+          >
             <div className="flex items-center gap-2">
-              <Plus size={14} className="text-muted-foreground" />
+              <Plus size={13} className="text-muted-foreground" />
               <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 Adicionar Bloco
               </h3>
@@ -1044,19 +1058,14 @@ export default function NewsGeneratorPage() {
                 );
               })}
             </div>
-          </section>
 
-          {/* Blocos do corpo */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Layers size={14} className="text-muted-foreground" />
+            <div className="flex items-center gap-2 pt-2">
+              <Layers size={13} className="text-muted-foreground" />
               <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 Corpo da Notícia
               </h3>
-              <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
-                {modules.length}
-              </span>
             </div>
+
 
             {modules.length === 0 && (
               <div className="rounded-xl border-2 border-dashed border-border bg-muted/20 p-6 text-center">
@@ -1196,20 +1205,41 @@ export default function NewsGeneratorPage() {
                 );
               })}
             </div>
-          </section>
+          </EditorStep>
         </div>
 
         {/* Footer da sidebar */}
-        <div className="p-4 bg-card border-t border-border flex-shrink-0">
+        <div className="p-4 bg-card border-t border-border flex-shrink-0 space-y-2">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handlePrint}
+              disabled={isExportingPdf}
+              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-all disabled:opacity-50"
+            >
+              {isExportingPdf ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
+              {isExportingPdf ? 'Gerando...' : 'Salvar PDF'}
+            </button>
+            <button
+              type="button"
+              onClick={handleOpenDoc}
+              disabled={isExportingPdf}
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-background border border-border rounded-xl font-semibold text-sm hover:bg-muted transition-all disabled:opacity-50"
+            >
+              <FileText size={16} />
+              Abrir
+            </button>
+          </div>
           <button
             type="button"
             onClick={handleNewArticle}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-background hover:bg-destructive/5 text-foreground hover:text-destructive border border-border hover:border-destructive/30 rounded-xl font-semibold text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-background hover:bg-destructive/5 text-foreground hover:text-destructive border border-border hover:border-destructive/30 rounded-xl font-semibold text-sm transition-all"
           >
             <PlusCircle size={16} />
             Criar Nova Notícia
           </button>
         </div>
+
       </aside>
 
 
