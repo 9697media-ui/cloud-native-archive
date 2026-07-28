@@ -444,6 +444,39 @@ export default function NewsGeneratorPage() {
     }
   }, [headerData, modules]);
 
+  /** Persiste no banco, vinculando sempre à unidade autorizada do usuário. */
+  const persistBulletin = useCallback(async () => {
+    const targetUnitId = headerData.unitId;
+    const targetProfileUnit = profileUnitForNewsUnit(targetUnitId);
+    if (!targetProfileUnit) return;
+    await persist({
+      unitId: targetUnitId,
+      profileUnit: targetProfileUnit,
+      title: headerData.title,
+      category: headerData.category,
+      headerData,
+      modules,
+    });
+  }, [headerData, modules, persist]);
+
+  /* ---------------- Autosave (2s após parar de digitar) ---------------- */
+
+  const autosaveReady = useRef(false);
+
+  useEffect(() => {
+    if (roleLoading) return;
+    if (!autosaveReady.current) {
+      // Evita gravar o conteúdo de exemplo assim que a página monta.
+      autosaveReady.current = true;
+      return;
+    }
+    const timer = setTimeout(() => {
+      saveDraft();
+      persistBulletin();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [headerData, modules, roleLoading, saveDraft, persistBulletin]);
+
   /* ---------------- Responsividade ---------------- */
 
   useEffect(() => {
@@ -1406,20 +1439,42 @@ export default function NewsGeneratorPage() {
               <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
                 <Building2 size={12} /> Unidade
               </label>
-              <select
-                value={headerData.unitId}
-                onChange={(e) => setHeaderData({ ...headerData, unitId: e.target.value })}
-                className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all min-h-[44px]"
-              >
-                <option value="">Selecione a unidade…</option>
-                {NEWS_UNIT_GROUPS.map((group) => (
-                  <optgroup key={group.label} label={group.label}>
-                    {group.units.map((unit) => (
-                      <option key={unit.id} value={unit.id}>{unit.name}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+              {isAdmin ? (
+                <select
+                  value={headerData.unitId}
+                  onChange={(e) => setHeaderData({ ...headerData, unitId: e.target.value })}
+                  className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all min-h-[44px]"
+                >
+                  <option value="">Selecione a unidade…</option>
+                  {NEWS_UNIT_GROUPS.map((group) => (
+                    <optgroup key={group.label} label={group.label}>
+                      {group.units.map((unit) => (
+                        <option key={unit.id} value={unit.id}>{unit.name}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              ) : unitLocked ? (
+                <div className="w-full flex items-center gap-2 px-3 py-2 text-sm font-semibold border border-border rounded-lg bg-muted/50 text-foreground min-h-[44px]">
+                  <Lock size={13} className="text-muted-foreground flex-shrink-0" />
+                  <span className="truncate">{unitName || 'Unidade não vinculada ao seu perfil'}</span>
+                </div>
+              ) : (
+                <select
+                  value={headerData.unitId}
+                  onChange={(e) => setHeaderData({ ...headerData, unitId: e.target.value })}
+                  className="w-full px-3 py-2 text-sm font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all min-h-[44px]"
+                >
+                  {(allowedUnits || []).map((unit) => (
+                    <option key={unit.id} value={unit.id}>{unit.name}</option>
+                  ))}
+                </select>
+              )}
+              {!isAdmin && (
+                <p className="text-[10px] text-muted-foreground/80">
+                  A unidade é definida pelo seu perfil de acesso e não pode ser alterada aqui.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1743,13 +1798,22 @@ export default function NewsGeneratorPage() {
               </button>
               <button
                 type="button"
-                onClick={saveDraft}
-                className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-background font-semibold text-sm hover:bg-muted transition-colors min-h-[44px]"
+                onClick={() => { saveDraft(); persistBulletin(); }}
+                disabled={saving}
+                className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-background font-semibold text-sm hover:bg-muted transition-colors disabled:opacity-50 min-h-[44px]"
               >
-                <CheckCircle2 size={16} /> Salvar
+                {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />} Salvar
               </button>
             </div>
-            {savedAt && <p className="text-[10px] text-muted-foreground text-center">Rascunho salvo às {savedAt}.</p>}
+            <p className="text-[10px] text-muted-foreground text-center">
+              {saving
+                ? 'Salvando…'
+                : remoteSavedAt
+                  ? `Salvo automaticamente às ${remoteSavedAt}.`
+                  : savedAt
+                    ? `Rascunho local salvo às ${savedAt}.`
+                    : 'O rascunho é salvo automaticamente.'}
+            </p>
           </EditorSection>
         </div>
 
