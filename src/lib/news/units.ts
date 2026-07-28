@@ -51,11 +51,13 @@ export const NEWS_UNITS: NewsUnit[] = [
 /** Unidades disponíveis para criar novos informativos. */
 export const ACTIVE_NEWS_UNITS = NEWS_UNITS.filter((unit) => unit.active);
 
-/** Agrupamento para o seletor: exibe tipo + nome oficial (evita a colisão "Santana"). */
+/** Agrupamento para o seletor: dois grupos apenas — Social (NAVEs) e Educação (CEIs + Institucional). */
 export const NEWS_UNIT_GROUPS: { label: string; units: NewsUnit[] }[] = [
-  { label: 'Institucional', units: ACTIVE_NEWS_UNITS.filter((u) => u.type === 'Institucional') },
-  { label: 'NAVEs', units: ACTIVE_NEWS_UNITS.filter((u) => u.type === 'NAVE') },
-  { label: 'CEIs Bem Querer', units: ACTIVE_NEWS_UNITS.filter((u) => u.type === 'CEI') },
+  { label: 'Social', units: ACTIVE_NEWS_UNITS.filter((u) => u.type === 'NAVE') },
+  {
+    label: 'Educação',
+    units: ACTIVE_NEWS_UNITS.filter((u) => u.type === 'CEI' || u.type === 'Institucional'),
+  },
 ];
 
 export function findNewsUnit(id: string | undefined | null): NewsUnit | undefined {
