@@ -624,7 +624,16 @@ export default function NewsGeneratorPage() {
     );
   };
 
-  const confirmNewArticle = () => {
+  const confirmNewArticle = async () => {
+    // Antes de limpar, guarda o informativo atual para não perder o trabalho feito.
+    const hasContent = Boolean(headerData.title?.trim()) || modules.length > 0;
+    if (hasContent) {
+      try {
+        await persistBulletin();
+      } catch {
+        /* falha ao salvar não deve travar a criação do novo informativo */
+      }
+    }
     setHeaderData({
       unitId: headerData.unitId,
       category: '',
@@ -639,6 +648,7 @@ export default function NewsGeneratorPage() {
     setCurrent(null);
     localStorage.removeItem(DRAFT_KEY);
   };
+
 
   /** Abre um informativo salvo da unidade no editor. */
   const openBulletin = (bulletin: any) => {
