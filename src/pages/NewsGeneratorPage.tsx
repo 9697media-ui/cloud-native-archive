@@ -241,6 +241,8 @@ export default function NewsGeneratorPage() {
   const [sidebarWidth, setSidebarWidth] = useState(440);
   const [isResizing, setIsResizing] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [openStep, setOpenStep] = useState<number | null>(3);
+
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
