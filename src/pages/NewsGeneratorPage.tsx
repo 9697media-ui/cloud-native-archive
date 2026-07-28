@@ -1200,16 +1200,37 @@ export default function NewsGeneratorPage() {
         </div>
 
         {/* Footer da sidebar */}
-        <div className="p-4 bg-card border-t border-border flex-shrink-0">
+        <div className="p-4 bg-card border-t border-border flex-shrink-0 space-y-2">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handlePrint}
+              disabled={isExportingPdf}
+              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-all disabled:opacity-50"
+            >
+              {isExportingPdf ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
+              {isExportingPdf ? 'Gerando...' : 'Salvar PDF'}
+            </button>
+            <button
+              type="button"
+              onClick={handleOpenDoc}
+              disabled={isExportingPdf}
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-background border border-border rounded-xl font-semibold text-sm hover:bg-muted transition-all disabled:opacity-50"
+            >
+              <FileText size={16} />
+              Abrir
+            </button>
+          </div>
           <button
             type="button"
             onClick={handleNewArticle}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-background hover:bg-destructive/5 text-foreground hover:text-destructive border border-border hover:border-destructive/30 rounded-xl font-semibold text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-background hover:bg-destructive/5 text-foreground hover:text-destructive border border-border hover:border-destructive/30 rounded-xl font-semibold text-sm transition-all"
           >
             <PlusCircle size={16} />
             Criar Nova Notícia
           </button>
         </div>
+
       </aside>
 
 
