@@ -4,6 +4,9 @@ import { jsPDF } from 'jspdf';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import { InstitutionalHeader } from '@/components/news/InstitutionalHeader';
 import { ImageBlockField } from '@/components/news/ImageBlockField';
+import { EditorStep } from '@/components/news/EditorStep';
+import { Tag } from 'lucide-react';
+
 import {
   Trash2,
   Image as ImageIcon,
