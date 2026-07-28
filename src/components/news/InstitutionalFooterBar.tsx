@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
+import type { ComponentProps } from 'react';
 
-interface InstitutionalFooterBarProps {
+interface InstitutionalFooterBarProps extends ComponentProps<'div'> {
   className?: string;
 }
 
@@ -8,15 +9,17 @@ interface InstitutionalFooterBarProps {
  * Barra institucional de rodapé com 5 faixas iguais.
  * Cores vêm de tokens semânticos definidos em index.css.
  */
-export function InstitutionalFooterBar({ className }: InstitutionalFooterBarProps) {
+export function InstitutionalFooterBar({ className, ...rest }: InstitutionalFooterBarProps) {
   return (
     <div
+      {...rest}
       className={cn(
         'flex overflow-hidden h-3 md:h-4 print:h-[18px]',
         className
       )}
       aria-hidden="true"
     >
+
       <div className="flex-1 bg-news-brand-1" />
       <div className="flex-1 bg-news-brand-2" />
       <div className="flex-1 bg-news-brand-3" />
