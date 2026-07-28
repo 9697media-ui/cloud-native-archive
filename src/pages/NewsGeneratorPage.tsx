@@ -636,7 +636,24 @@ export default function NewsGeneratorPage() {
     setModules([]);
     setShowClearModal(false);
     setOpenSection(1);
+    setCurrent(null);
     localStorage.removeItem(DRAFT_KEY);
+  };
+
+  /** Abre um informativo salvo da unidade no editor. */
+  const openBulletin = (bulletin: any) => {
+    const stored = bulletin.header_data || {};
+    setHeaderData({
+      unitId: bulletin.unit_id,
+      category: normalizeCategory(stored.category ?? bulletin.category),
+      responsible: stored.responsible ?? '',
+      activityDate: stored.activityDate ?? '',
+      title: stored.title ?? bulletin.title ?? '',
+      subtitle: stored.subtitle ?? '',
+    });
+    setModules(migrateModules(Array.isArray(bulletin.blocks) ? bulletin.blocks : []));
+    setCurrent(bulletin.id);
+    setOpenSection(1);
   };
 
   const updateModuleGrid = (id: string, updates: { cols?: number; rows?: number | 'auto' }) => {
@@ -1814,6 +1831,68 @@ export default function NewsGeneratorPage() {
                     ? `Rascunho local salvo às ${savedAt}.`
                     : 'O rascunho é salvo automaticamente.'}
             </p>
+          </EditorSection>
+
+          {/* ⑤ Meus informativos */}
+          <EditorSection
+            step={5}
+            title="Meus informativos"
+            icon={FolderOpen}
+            badge={
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                {bulletins.length}
+              </span>
+            }
+            open={openSection === 5}
+            onToggle={() => setOpenSection(openSection === 5 ? 0 : 5)}
+          >
+            {bulletins.length === 0 ? (
+              <p className="text-[11px] text-muted-foreground leading-snug">
+                Nenhum informativo salvo ainda. Os rascunhos da sua unidade aparecem aqui automaticamente.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {bulletins.map((bulletin) => (
+                  <li
+                    key={bulletin.id}
+                    className={`rounded-lg border p-2.5 transition-colors ${bulletin.id === currentId ? 'border-primary bg-primary/5' : 'border-border bg-background hover:bg-muted/40'}`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => openBulletin(bulletin)}
+                      className="w-full text-left"
+                    >
+                      <p className="text-[12px] font-semibold text-foreground truncate">{bulletin.title || 'Sem título'}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">
+                        {newsUnitName(bulletin.unit_id)} · atualizado em{' '}
+                        {new Date(bulletin.updated_at).toLocaleString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </button>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => duplicate(bulletin)}
+                        className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded border border-border hover:bg-muted transition-colors"
+                      >
+                        <Copy size={11} /> Duplicar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => remove(bulletin.id)}
+                        className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded border border-border text-destructive hover:bg-destructive/5 transition-colors"
+                      >
+                        <Trash2 size={11} /> Excluir
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </EditorSection>
         </div>
 
