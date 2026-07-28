@@ -272,6 +272,51 @@ export type Database = {
         }
         Relationships: []
       }
+      news_bulletins: {
+        Row: {
+          blocks: Json
+          category: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          header_data: Json
+          id: string
+          profile_unit: string
+          status: string
+          title: string
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          blocks?: Json
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          header_data?: Json
+          id?: string
+          profile_unit: string
+          status?: string
+          title?: string
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          blocks?: Json
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          header_data?: Json
+          id?: string
+          profile_unit?: string
+          status?: string
+          title?: string
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bond_type: string | null
