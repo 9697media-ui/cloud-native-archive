@@ -1,180 +1,345 @@
+# Landing Page — Centro de Convivência Inclusivo e Intergeracional (CCII)
 
-# Plano técnico — API JSON pública do Portal da Transparência
-
-> Somente análise e plano. Nada será implementado até aprovação.
-
----
-
-## 1. Estrutura atual identificada
-
-- **Tabela `public.transparency_configs`** (Supabase) — fonte da verdade dos portais/unidades. Colunas em uso: `id` (uuid), `folder_id` (Google Drive folder), `label` (nome exibido), `original_folder_name` (nome real da pasta no Drive), timestamps. Hoje NÃO possui `slug`, `description`, `order`, nem `is_public`.
-- **RLS:** admins gerenciam; `anon` tem `SELECT` (leitura pública já habilitada via GRANT + policy "Public can view").
-- **Página administrativa/embed:** `src/pages/TransparencyPage.tsx` (~1106 linhas). Faz CRUD dos configs e renderiza o explorer via `DriveExplorer` / `BatchDriveExplorer` (mesma página serve como embed via querystring `?embed=true&id=...`).
-- **Tabela `public.global_settings`** — armazena o `refresh_token` do Google Drive sob a chave `google_drive_refresh_token` (valor JSONB). É a integração global, não por usuário.
-- **Edge Function:** `supabase/functions/google-drive-proxy/index.ts` — único ponto de contato com a API do Google. Ações: `get_auth_url`, `exchange_code`, `check_auth`, `disconnect`, `get_folder_name`, `list_files`. Está com `verify_jwt = false` (config.toml).
-- **Secrets já configurados:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_URL`.
-
-## 2. Fluxo atual da integração com o Google Drive
-
-```text
-Browser (TransparencyPage/DriveExplorer)
-   │  supabase.functions.invoke('google-drive-proxy', { action:'list_files', folderId })
-   ▼
-Edge Function google-drive-proxy  ← SERVICE ROLE
-   │  1. lê global_settings.google_drive_refresh_token
-   │  2. troca refresh_token → access_token em oauth2.googleapis.com/token
-   │  3. chama https://www.googleapis.com/drive/v3/files?q='<id>' in parents ...
-   ▼
-Retorna { files: [...] } cru do Google para o browser
-```
-
-- A consulta ao Google acontece **100% no back-end** (Edge Function). O browser nunca vê tokens.
-- Navegação em subpastas é **lazy**: cada expansão dispara nova `list_files`.
-- Nenhum cache. Cada render do embed = N chamadas à API do Google.
-
-## 3. Dados que podem ser disponibilizados publicamente
-
-Por portal (baseado em `transparency_configs` + Drive):
-- `slug`, `label` (nome do portal), `description` (novo campo opcional), `order`.
-- Árvore de pastas/subpastas: `name`, `path`, `modified_time`, `children_count`.
-- Documentos: `name`, `mime_type`, `size`, `modified_time`, `view_url` (`https://drive.google.com/file/d/<id>/view`), `download_url` (`https://drive.google.com/uc?export=download&id=<id>`), `icon_hint` (pdf/doc/sheet/etc.), posição de exibição.
-- Metadados de resposta: `generated_at`, `cache_ttl`, `source: "google-drive"`.
-
-## 4. Dados que devem permanecer privados
-
-- `refresh_token` / `access_token` do Google (em `global_settings`).
-- `GOOGLE_CLIENT_SECRET` e demais secrets da Edge Function.
-- `folder_id` cru do Google Drive (opcional — pode ser mascarado por um `id` hash/opaque para não expor a árvore raiz a scraping).
-- Coluna `original_folder_name` se ela expuser nomenclatura interna.
-- Qualquer campo administrativo futuro (auditoria, criador, notas internas).
-- Row do `transparency_configs` marcada como `is_public = false` (ex.: rascunhos).
-
-## 5. Proposta conceitual do endpoint
-
-Nova Edge Function dedicada, isolada da atual `google-drive-proxy`:
-
-- `supabase/functions/public-transparencia/index.ts`
-- `verify_jwt = false` (público), CORS liberado (`Access-Control-Allow-Origin: *` ou restrito ao domínio `anabrasil.org`).
-- Roteamento por path/query:
-
-```text
-GET /functions/v1/public-transparencia
-      → lista portais públicos (slug + label + description)
-GET /functions/v1/public-transparencia/<slug>
-      → metadados do portal + raiz (1 nível)
-GET /functions/v1/public-transparencia/<slug>/tree?path=/2024/Balancetes&depth=1
-      → conteúdo de uma pasta específica (lazy load no WordPress)
-```
-
-Alternativamente expor via Vercel-like rewrite no WordPress:
-`https://sistema.anabrasil.org/api/public/transparencia/<slug>` (mesmo endpoint).
-
-Regras internas:
-1. Ler `transparency_configs` filtrando `is_public = true` (novo bool).
-2. Resolver `slug → folder_id` server-side.
-3. Reusar internamente a mesma lógica de refresh_token da `google-drive-proxy` (extrair helper compartilhado em `_shared/drive.ts` para não duplicar).
-4. Sanitizar resposta (whitelist de campos).
-5. Retornar JSON + `Cache-Control` + `ETag`.
-
-## 6. Exemplo da resposta JSON
-
-`GET /public-transparencia/ana-brasil`
-
-```json
-{
-  "portal": {
-    "slug": "ana-brasil",
-    "name": "ANA Brasil — Sede",
-    "description": "Documentos institucionais e prestação de contas.",
-    "order": 1,
-    "updated_at": "2026-07-24T12:00:00Z"
-  },
-  "tree": [
-    {
-      "type": "folder",
-      "id": "f_9c1a",
-      "name": "2024",
-      "modified_time": "2026-06-30T18:22:11Z",
-      "children_count": 4,
-      "path": "/2024"
-    },
-    {
-      "type": "file",
-      "id": "d_2b77",
-      "name": "Estatuto Social.pdf",
-      "mime_type": "application/pdf",
-      "size": 482113,
-      "modified_time": "2026-05-11T10:05:00Z",
-      "view_url": "https://drive.google.com/file/d/<hash>/view",
-      "download_url": "https://drive.google.com/uc?export=download&id=<hash>",
-      "order": 2
-    }
-  ],
-  "meta": {
-    "generated_at": "2026-07-24T13:15:00Z",
-    "cache_ttl": 900,
-    "source": "google-drive"
-  }
-}
-```
-
-## 7. Estratégia de autenticação e segurança
-
-- **Sem auth para o cliente** (endpoint público read-only), mas:
-  - CORS restrito a `https://anabrasil.org` (+ preview/staging) em vez de `*`.
-  - Rate limit por IP na própria função (in-memory + KV/`global_settings` counter) — ex.: 60 req/min.
-  - Whitelist de campos + nunca vazar `refresh_token`, `client_secret`, `original_folder_name` sensível.
-  - Opcional: header `X-Api-Key` compartilhado com o WordPress (secret `WORDPRESS_API_KEY`) para bloquear scraping direto — mantém "somente leitura" mas evita abuso.
-  - Somente `GET` (rejeitar POST/PUT/DELETE explicitamente).
-  - Nunca aceitar `folder_id` cru na URL — apenas `slug` (evita usar o endpoint para varrer qualquer pasta do Drive conectado).
-- Manter `google-drive-proxy` **inalterada e privada** (admin only). A nova função é a única fachada pública.
-
-## 8. Estratégia de cache
-
-Três camadas complementares:
-1. **HTTP:** `Cache-Control: public, s-maxage=900, stale-while-revalidate=3600` + `ETag` baseado em hash da resposta. Cloudflare/Vercel na frente do WordPress cacheia.
-2. **Aplicação (Edge Function):** cache in-memory por instância (Map<slug+path, {expiresAt,payload}>), TTL 5–15 min. Como Edge Functions são efêmeras, complementar com:
-3. **Persistente (Supabase):** nova tabela `transparency_cache (key text pk, payload jsonb, expires_at timestamptz)` — leitura antes de bater no Google; escrita após consulta. Invalidação:
-   - por TTL;
-   - manual via botão "Revalidar cache" no admin;
-   - trigger opcional em `transparency_configs` UPDATE.
-
-## 9. Arquivos e componentes que precisariam ser alterados futuramente
-
-Somente lista prospectiva (não será tocado agora):
-
-- **Novo:** `supabase/functions/public-transparencia/index.ts`
-- **Novo:** `supabase/functions/_shared/drive.ts` (helper extraído do `google-drive-proxy` para reuso do refresh_token + `list_files`).
-- **Novo (opcional):** tabela `transparency_cache` + migration.
-- **Alteração leve:** `transparency_configs` ganha `slug` (unique), `description`, `display_order`, `is_public` (default false).
-- **Alteração:** `supabase/config.toml` — registrar a nova função com `verify_jwt = false`.
-- **Alteração UI (admin):** `src/pages/TransparencyPage.tsx` — editar slug/descrição/ordem/is_public e botão "Revalidar cache".
-- **WordPress:** template/plugin que consome o JSON (fora deste repositório).
-- **Nada** na `google-drive-proxy` atual, nada no fluxo OAuth, nada no embed atual.
-
-## 10. Riscos e cuidados
-
-- **Quota do Google Drive API:** sem cache adequado o endpoint público pode estourar a cota. Cache persistente é obrigatório antes do go-live.
-- **Refresh_token único e global:** se for revogado, a API pública quebra junto com o admin. Monitorar `check_auth` periodicamente.
-- **Vazamento indireto de estrutura interna:** listar recursivamente toda a árvore pode expor pastas não destinadas ao público. Solução: só publicar portais com `is_public = true` e permitir marcar subpastas como ocultas (prefixo `_` ou coluna futura).
-- **IDs do Drive nas URLs:** `view_url`/`download_url` expõem o `fileId`. Isso é aceitável (é o mecanismo padrão do Drive), mas as permissões do arquivo no Drive precisam ser "qualquer pessoa com o link" — validar antes de publicar.
-- **CORS mal configurado (`*`) permite embed hostil.** Restringir por origin.
-- **Rate limit em Edge Function stateless** é aproximado. Reforçar com Cloudflare no WordPress.
-- **Compatibilidade:** manter o embed atual funcionando em paralelo até o WordPress migrar 100%.
-
-## 11. Critérios de aceite para uma implementação futura
-
-1. `GET /public-transparencia` retorna 200 com lista de portais `is_public=true` em < 300 ms (cache hit).
-2. `GET /public-transparencia/<slug>` devolve árvore no formato do §6, sem nenhum campo sensível (auditar diff contra whitelist).
-3. Chamar `POST` no endpoint retorna 405.
-4. Nenhuma resposta contém `refresh_token`, `client_secret`, `folder_id` cru sensível, ou registros com `is_public=false`.
-5. Cache: 2ª chamada em < 60s não gera request ao `oauth2.googleapis.com` (verificado por log).
-6. Invalidar cache no admin reflete em ≤ 1 req seguinte.
-7. Fluxo OAuth atual (`get_auth_url`/`exchange_code`) e o embed continuam funcionando sem alteração.
-8. WordPress consegue renderizar o portal nativamente consumindo apenas o JSON público, sem iframe.
-9. Rate limit devolve 429 após o limite configurado.
-10. CORS bloqueia origens não listadas em pré-flight.
+Grupo ANA Brasil — Unidade DIC IV, Campinas/SP. Planejamento apenas; nenhum código será escrito nesta etapa.
 
 ---
 
-**Aguardando aprovação** para iniciar qualquer alteração de código, schema ou configuração.
+## 1. Arquitetura da Informação
+
+```text
+/ccii  (landing page pública, rolagem única)
+│
+├─ 01 Header fixo ......... logo ANA Brasil + menu âncora + CTA "Quero apoiar"
+├─ 02 Hero ................ nome do projeto, promessa, 2 CTAs, foto principal
+├─ 03 O que é o CCII ...... texto institucional + selo "Proteção Social Básica"
+├─ 04 Números do projeto .. 60 participantes | todas as idades | DIC IV | rede SUAS
+├─ 05 Eixos de atuação .... 6 cards de atividades
+├─ 06 Serviços de apoio ... acolhimento, orientação, atendimentos, visitas, rede
+├─ 07 Impacto social ...... 4 pilares (autonomia, protagonismo, inclusão, direitos)
+├─ 08 Galeria ............. fotos reais do dia a dia (placeholders)
+├─ 09 Como apoiar ......... parceiro | voluntário | doador (3 caminhos)
+├─ 10 Contato & Localização texto + formulário + mapa/endereço
+└─ 11 Rodapé .............. dados institucionais, redes, barra 5 faixas
+```
+
+Hierarquia de conteúdo: identidade → explicação → prova → impacto → ação → contato.
+
+## 2. Jornada do Usuário
+
+| Persona | Entrada | Percurso | Conversão |
+|---|---|---|---|
+| Empresa/parceiro | Busca ou indicação | Hero → Números → Impacto → Como apoiar | Formulário "Ser parceiro" |
+| Voluntário | Instagram | Hero → Eixos → Galeria → Como apoiar | WhatsApp / formulário |
+| Doador | Link compartilhado | Hero → Impacto → Como apoiar | Contato direto |
+| Família/usuário | Busca local | Hero → O que é → Serviços → Contato | Telefone / endereço |
+| Órgão público | Documento oficial | O que é → Serviços → Rodapé (CNPJ) | E-mail institucional |
+
+Fluxo emocional: acolhimento (hero humano) → confiança (dados e serviços) → pertencimento (galeria) → ação (CTA).
+
+## 3. Wireframe Desktop (≥1024px)
+
+```text
+┌───────────────────────────────────────────────────────────────┐
+│ [LOGO ANA]   O CCII  Atividades  Impacto  Apoiar  Contato  [CTA]│ fixo
+├───────────────────────────────────────────────────────────────┤
+│  ╔═══════════════════════════╗   ┌───────────────────────────┐ │
+│  ║ selo: Proteção Social     ║   │  [FOTO 1 — hero]          │ │
+│  ║ H1 Centro de Convivência  ║   │  roda de convivência      │ │
+│  ║ Inclusivo e Intergeracional│  │  intergeracional          │ │
+│  ║ subtítulo 2 linhas        ║   │  (retrato 4:5, cantos 24) │ │
+│  ║ [Quero apoiar] [Conheça]  ║   └───────────────────────────┘ │
+│  ╚═══════════════════════════╝                                 │
+├───────────────────────────────────────────────────────────────┤
+│  [60]        [Todas as]      [DIC IV]        [Rede]            │
+│  participantes  idades       Campinas/SP     socioassistencial │
+├───────────────────────────────────────────────────────────────┤
+│  ┌ FOTO 2 (16:10) ┐   O que é o CCII                           │
+│  │  oficina em     │   parágrafos institucionais                │
+│  │  andamento      │   • convivência • vínculos • autonomia     │
+│  └────────────────┘                                            │
+├───────────────────────────────────────────────────────────────┤
+│                Eixos de Atuação                                │
+│  [card][card][card]                                            │
+│  [card][card][card]                                            │
+├───────────────────────────────────────────────────────────────┤
+│  Serviços de apoio às famílias  (lista 2 col. com ícones)      │
+├───────────────────────────────────────────────────────────────┤
+│  Impacto Social — 4 pilares em faixa colorida                  │
+├───────────────────────────────────────────────────────────────┤
+│  Galeria: [F3 grande][F4][F5]                                  │
+│           [F6][F7 grande]                                      │
+├───────────────────────────────────────────────────────────────┤
+│  Como apoiar:  [Parceiro] [Voluntário] [Doador]                │
+├───────────────────────────────────────────────────────────────┤
+│  Contato (form 6 campos)      |   Endereço, e-mail, telefone   │
+├───────────────────────────────────────────────────────────────┤
+│  Rodapé institucional + redes + CNPJ                            │
+│  ▓▓▓▓ ▓▓▓▓ ▓▓▓▓ ▓▓▓▓ ▓▓▓▓  (barra 5 cores)                     │
+└───────────────────────────────────────────────────────────────┘
+```
+
+## 4. Wireframe Mobile (<640px)
+
+```text
+┌──────────────────┐
+│ [LOGO]      [☰]  │ fixo, 64px
+├──────────────────┤
+│ selo             │
+│ H1 (3 linhas)    │
+│ subtítulo        │
+│ [Quero apoiar]   │ full-width
+│ [Conheça]        │
+│ ┌──────────────┐ │
+│ │ FOTO 1 (4:3) │ │
+│ └──────────────┘ │
+├──────────────────┤
+│ 60 participantes │ cards
+│ Todas as idades  │ empilhados
+│ DIC IV           │ 2x2
+├──────────────────┤
+│ FOTO 2           │
+│ O que é o CCII   │
+├──────────────────┤
+│ Eixos (1 col.)   │
+├──────────────────┤
+│ Serviços (accord)│
+├──────────────────┤
+│ Impacto (1 col.) │
+├──────────────────┤
+│ Galeria (carrossel horizontal, snap) │
+├──────────────────┤
+│ Como apoiar 1col │
+├──────────────────┤
+│ Form + contatos  │
+├──────────────────┤
+│ Rodapé + barra   │
+└──────────────────┘
+[Botão flutuante WhatsApp — canto inferior direito]
+```
+
+## 5. Mockup Descritivo Completo
+
+**Header** — fundo `#F0EEE4` com blur ao rolar, altura 72px desktop. Logo à esquerda, navegação âncora em Poppins Medium 15px `#484848`, CTA sólido `#01ADFF` com texto branco, raio 12px.
+
+**Hero** — fundo `#F0EEE4` com duas manchas radiais suaves (`#81E2CF` 12%, `#FBCE00` 10%). Selo pill `#81E2CF`/texto `#1F2322`: "Serviço de Proteção Social Básica". H1 Poppins Bold 56px `#1F2322`, com "Intergeracional" em `#01ADFF`. Subtítulo 18px `#484848` máx. 60ch. Dois botões: primário `#01ADFF`, secundário outline `#484848`. À direita, **FOTO 1**: roda de convivência com pessoas de diferentes gerações, formato 4:5, raio 24px, sombra suave; moldura decorativa `#FBCE00` deslocada 12px.
+
+**Números** — 4 cards `#FFFFFF` sobre `#F0EEE4`, número em Poppins Bold 40px alternando `#01ADFF`, `#F37964`, `#81E2CF`, `#FBCE00`; rótulo 14px `#484848`.
+
+**O que é o CCII** — duas colunas. Esquerda: **FOTO 2** (oficina/atividade socioeducativa em andamento, 16:10). Direita: título "O que é o CCII", texto institucional do documento em 2–3 parágrafos e três bullets destacados com ícones em `#81E2CF`.
+
+**Eixos de Atuação** — 6 cards em fundo `#FFFFFF`, ícone em círculo colorido 48px, título 18px, descrição 14px:
+1. Atividades socioeducativas — `#01ADFF`
+2. Cultura e arte — `#F37964`
+3. Inclusão digital — `#01ADFF`
+4. Preparação para o mundo do trabalho — `#FBCE00`
+5. Ações comunitárias — `#81E2CF`
+6. Encontros intergeracionais — `#F5DFBB`
+
+**Serviços de apoio** — faixa `#F5DFBB` com lista em 2 colunas: acolhimento, orientação social, atendimentos individuais e familiares, visitas domiciliares, articulação com a rede socioassistencial.
+
+**Impacto Social** — 4 pilares (autonomia, protagonismo social, inclusão e acesso a direitos, participação cidadã) em cards escuros `#1F2322` com texto `#F0EEE4` e acento colorido no topo.
+
+**Galeria** — grid bento com 5 espaços: **FOTO 3** (sala de informática/inclusão digital), **FOTO 4** (grupo com mural "Nenhum de nós é tão bom quanto todos nós juntos"), **FOTO 5** (oficina de primeiros socorros/capacitação), **FOTO 6** (encontro comunitário com participantes sentados), **FOTO 7** (celebração/aniversariantes do mês). Cada uma com legenda curta em overlay ao hover.
+
+**Como apoiar** — 3 cards de ação com borda superior colorida e CTA próprio: Seja Parceiro (`#01ADFF`), Seja Voluntário (`#81E2CF`), Faça uma Doação (`#F37964`).
+
+**Contato** — formulário (nome, organização, e-mail, telefone, tipo de apoio, mensagem) enviando para WhatsApp/e-mail, ao lado do bloco institucional com endereço Rua Ibrantina Cardona, 386 – DIC IV, CEP 13054-513, Campinas/SP, dic@anabrasil.org, (19) 3367-4536.
+
+**Rodapé** — `#1F2322`, logo em versão clara, razão social completa, CNPJ 54.150.339/0004-46 – IE: Isento, links anabrasil.org, Instagram e Facebook @anabrasilorg. Fecha com a barra institucional de 5 faixas iguais.
+
+## 6. Moodboard
+
+- **Palavras-chave:** acolhimento, gerações, luz, comunidade, dignidade, movimento.
+- **Texturas:** papel off-white `#F0EEE4`, cantos generosos (16–24px), sombras baixas e difusas.
+- **Formas:** círculos e pills — remetem a roda de conversa e convivência.
+- **Fotografia:** luz natural, pessoas reais em interação, planos médios, sem poses corporativas.
+- **Ilustração/ícones:** linha 1.75px, arredondados, monocromáticos coloridos.
+- **Referências de tom:** relatórios de impacto de OSCs contemporâneas — sóbrio, mas caloroso; nada de gradientes roxos genéricos.
+
+## 7. Lista de Componentes
+
+| Componente | Uso |
+|---|---|
+| `CciiHeader` | Nav fixa + menu mobile |
+| `CciiHero` | Título, CTAs, foto principal |
+| `CciiStats` | 4 indicadores |
+| `CciiAbout` | Texto institucional + foto |
+| `CciiEixos` | Grid de 6 cards |
+| `CciiServicos` | Lista/accordion de serviços |
+| `CciiImpacto` | 4 pilares |
+| `CciiGaleria` | Bento desktop / carrossel mobile |
+| `CciiApoio` | 3 caminhos de apoio |
+| `CciiContato` | Formulário + dados |
+| `CciiFooter` | Institucional + barra 5 faixas |
+| `PhotoPlaceholder` | Marcador com descrição da foto pendente |
+
+## 8. Guia de Aplicação das Cores
+
+| Cor | Papel | Onde |
+|---|---|---|
+| `#F0EEE4` | Fundo base | Página, hero, seções claras |
+| `#1F2322` | Texto principal / fundo escuro | H1–H3, seção impacto, rodapé |
+| `#484848` | Texto secundário | Parágrafos, labels, nav |
+| `#01ADFF` | Ação primária | CTAs, links, destaques |
+| `#81E2CF` | Apoio / positivo | Selos, ícones, card voluntário |
+| `#F37964` | Ênfase emocional | Card doação, acentos |
+| `#FBCE00` | Atenção pontual | Molduras, números, ícone trabalho |
+| `#F5DFBB` | Fundo alternado | Faixa de serviços, blocos suaves |
+
+Regra: máximo 2 cores de acento por seção; amarelo nunca como fundo de texto pequeno.
+
+## 9. Estratégia de Responsividade
+
+- Mobile-first: 1 coluna → `sm` 2 col. → `lg` 3 col.
+- Breakpoints: 640 / 768 / 1024 / 1280 px.
+- Tipografia fluida: H1 32→56px, corpo 15→18px.
+- Espaçamento vertical entre seções: 64px mobile → 112px desktop.
+- Galeria vira carrossel com scroll-snap abaixo de 768px.
+- Imagens com `aspect-ratio` fixo para evitar CLS; `srcset` por breakpoint.
+- Área de toque mínima 44×44px; botões full-width no mobile.
+
+## 10. Estratégia de Acessibilidade (WCAG AA)
+
+- Contraste verificado: `#1F2322`/`#F0EEE4` ≈ 15:1; `#484848`/`#F0EEE4` ≈ 7,4:1; texto sobre `#01ADFF` e `#FBCE00` sempre em `#1F2322` (nunca branco sobre amarelo).
+- HTML semântico: um único `h1`, hierarquia sem saltos, `main`, `section`, `nav`, `footer`.
+- Todas as fotos com `alt` descritivo; imagens decorativas com `alt=""`.
+- Navegação por teclado completa, `focus-visible` com anel `#01ADFF` de 2px e offset.
+- Formulário com `label` visível, erros em texto + ícone (não só cor), `aria-live` para status.
+- Skip link "Ir para o conteúdo".
+- `prefers-reduced-motion` desativa animações.
+- `lang="pt-BR"`, `h-dvh` em vez de `h-screen`.
+
+## 11. Estratégia de SEO
+
+- Title: "CCII — Centro de Convivência Inclusivo e Intergeracional | ANA Brasil" (≤60 ch.)
+- Meta description: "Serviço de Proteção Social Básica em Campinas/SP que promove convivência, vínculos e desenvolvimento social para todas as idades." (≤160 ch.)
+- URL: `/ccii`; canonical definido.
+- JSON-LD `NGO` + `LocalBusiness` com endereço, telefone, e-mail e `sameAs` das redes.
+- H1 único com o nome completo do projeto; H2 por seção com termos locais ("Campinas", "DIC IV", "convivência intergeracional").
+- Imagens em WebP, `loading="lazy"` fora do hero, `alt` descritivos.
+- OG/Twitter tags; sitemap atualizado.
+
+## 12. Estratégia de Animações Suaves
+
+- Entrada por seção: `opacity 0 → 1`, `y 16px → 0`, 500ms, easing `cubic-bezier(.22,.61,.36,1)`, disparo em 20% de visibilidade, uma única vez.
+- Stagger de 60ms entre cards de um mesmo grid.
+- Contadores dos números animam de 0 ao valor em 1,2s ao entrar em viewport.
+- Hover em cards: elevação 2px + sombra, 200ms.
+- Header: sombra e blur aparecem após 24px de scroll.
+- Scroll suave nas âncoras com offset do header.
+- Tudo suprimido sob `prefers-reduced-motion: reduce`.
+
+---
+
+## Mockup Visual (ASCII) — Aparência Final
+
+```text
+════════════════════════════════════════════════════════════════════
+ ANA BRASIL │ O CCII · Atividades · Impacto · Apoiar · Contato │[Apoiar]
+════════════════════════════════════════════════════════════════════
+
+  ( Proteção Social Básica )                 ┌─────────────────────┐
+                                             │                     │
+  Centro de Convivência                      │   FOTO 1            │
+  Inclusivo e                                │   roda de conversa  │
+  ✦Intergeracional✦                          │   intergeracional   │
+                                             │   (4:5, luz natural)│
+  Convivência, vínculos e                    │                     │
+  desenvolvimento social para                │                     │
+  todas as fases da vida, na                 └─────────────────────┘
+  região Sudoeste de Campinas.                 ▂▂ moldura amarela ▂▂
+
+  [ Quero apoiar → ]  [ Conheça o projeto ]
+
+────────────────────────────────────────────────────────────────────
+   ╭─────────╮  ╭─────────╮  ╭─────────╮  ╭─────────╮
+   │   60    │  │  Todas  │  │  DIC IV │  │  Rede   │
+   │ partici-│  │   as    │  │Campinas │  │ socio-  │
+   │ pantes  │  │ idades  │  │   /SP   │  │assist.  │
+   ╰─────────╯  ╰─────────╯  ╰─────────╯  ╰─────────╯
+────────────────────────────────────────────────────────────────────
+
+ ┌──────────────────────┐    O QUE É O CCII
+ │  FOTO 2              │    ─────
+ │  oficina socio-      │    Serviço da Proteção Social Básica que
+ │  educativa em        │    promove convivência, fortalecimento de
+ │  andamento (16:10)   │    vínculos familiares e comunitários e o
+ └──────────────────────┘    desenvolvimento social de crianças,
+                             adolescentes, jovens, adultos e idosos
+                             em situação de vulnerabilidade.
+                             ✓ Até 60 participantes
+                             ✓ Encontros entre gerações
+                             ✓ Articulação com a rede do município
+
+────────────────────────────────────────────────────────────────────
+                        EIXOS DE ATUAÇÃO
+  ┌────────────┐ ┌────────────┐ ┌────────────┐
+  │ ◉ Socio-   │ │ ◉ Cultura  │ │ ◉ Inclusão │
+  │  educativas│ │   e arte   │ │   digital  │
+  └────────────┘ └────────────┘ └────────────┘
+  ┌────────────┐ ┌────────────┐ ┌────────────┐
+  │ ◉ Mundo do │ │ ◉ Ações    │ │ ◉ Encontros│
+  │  trabalho  │ │ comunitár. │ │ intergerac.│
+  └────────────┘ └────────────┘ └────────────┘
+
+──────────────── faixa #F5DFBB ────────────────────────────────────
+   APOIO ÀS FAMÍLIAS
+   • Acolhimento              • Atendimentos individuais/familiares
+   • Orientação social        • Visitas domiciliares
+   • Articulação com a rede socioassistencial do município
+────────────────────────────────────────────────────────────────────
+
+──────────────── faixa escura #1F2322 ─────────────────────────────
+   IMPACTO SOCIAL
+   ▌Autonomia   ▌Protagonismo   ▌Inclusão e     ▌Participação
+                  social          direitos        cidadã
+────────────────────────────────────────────────────────────────────
+
+                         NOSSO DIA A DIA
+  ┌───────────────────────┐ ┌──────────┐ ┌──────────┐
+  │ FOTO 3  informática   │ │ FOTO 4   │ │ FOTO 5   │
+  │ inclusão digital      │ │ mural    │ │ oficina  │
+  └───────────────────────┘ └──────────┘ └──────────┘
+  ┌──────────┐ ┌───────────────────────────────────┐
+  │ FOTO 6   │ │ FOTO 7  celebração / aniversários │
+  └──────────┘ └───────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────
+                          COMO APOIAR
+  ┏━━━━━━━━━━━━━┓ ┏━━━━━━━━━━━━━┓ ┏━━━━━━━━━━━━━┓
+  ┃▔▔ azul ▔▔   ┃ ┃▔▔ verde ▔▔  ┃ ┃▔▔ coral ▔▔  ┃
+  ┃ Seja        ┃ ┃ Seja        ┃ ┃ Faça uma    ┃
+  ┃ Parceiro    ┃ ┃ Voluntário  ┃ ┃ Doação      ┃
+  ┃ [Falar →]   ┃ ┃ [Falar →]   ┃ ┃ [Falar →]   ┃
+  ┗━━━━━━━━━━━━━┛ ┗━━━━━━━━━━━━━┛ ┗━━━━━━━━━━━━━┛
+
+────────────────────────────────────────────────────────────────────
+  FALE CONOSCO                    │  UNIDADE DIC IV
+  [ Nome            ]             │  ⌂ Rua Ibrantina Cardona, 386
+  [ Organização     ]             │    DIC IV — CEP 13054-513
+  [ E-mail ][ Tel   ]             │    Campinas/SP
+  [ Como deseja apoiar ▾ ]        │  ✉ dic@anabrasil.org
+  [ Mensagem                    ] │  ☎ (19) 3367-4536
+  [ Enviar mensagem → ]           │  ⚑ CNPJ 54.150.339/0004-46
+════════════════════════════════════════════════════════════════════
+  ANA BRASIL · Associação Nazarena Assistencial Beneficente
+  anabrasil.org · @anabrasilorg · facebook/anabrasilorg
+  ▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓
+════════════════════════════════════════════════════════════════════
+```
+
+## Fotos pendentes (placeholders)
+
+| ID | Seção | Tipo de foto esperada | Proporção |
+|---|---|---|---|
+| FOTO 1 | Hero | Roda de convivência com diferentes gerações, luz natural | 4:5 |
+| FOTO 2 | O que é | Oficina socioeducativa em andamento | 16:10 |
+| FOTO 3 | Galeria | Sala de informática / inclusão digital | 3:2 |
+| FOTO 4 | Galeria | Grupo diante do mural "Nenhum de nós é tão bom quanto todos nós juntos" | 1:1 |
+| FOTO 5 | Galeria | Oficina de capacitação (ex.: primeiros socorros) | 1:1 |
+| FOTO 6 | Galeria | Encontro comunitário com participantes sentados | 1:1 |
+| FOTO 7 | Galeria | Celebração / aniversariantes do mês | 3:2 |
+
+---
+
+Aguardo sua aprovação para iniciar a implementação.
