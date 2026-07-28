@@ -19,33 +19,35 @@ export interface NewsUnit {
   type: NewsUnitType;
   /** Unidades inativas não aparecem no seletor, mas continuam legíveis. */
   active: boolean;
+  /** Valor equivalente em `profiles.unit`, usado para vincular o usuário à unidade. */
+  profileUnit: string;
 }
 
 export const NEWS_UNITS: NewsUnit[] = [
-  { id: 'goe', name: 'Grupo de Oração Esperança', short: 'GOE', type: 'Institucional', active: true },
+  { id: 'goe', name: 'Grupo de Oração Esperança', short: 'GOE', type: 'Institucional', active: true, profileUnit: 'GOE' },
 
-  { id: 'ana-nilopolis', name: 'ANA Jardim Nilópolis', short: 'Nilópolis', type: 'NAVE', active: true },
-  { id: 'ana-dic', name: 'ANA DIC', short: 'DIC', type: 'NAVE', active: true },
-  { id: 'ana-santana', name: 'ANA Jardim Santana', short: 'Santana', type: 'NAVE', active: true },
-  { id: 'ana-piaui', name: 'ANA Piauí', short: 'Piauí', type: 'NAVE', active: true },
-  { id: 'ana-oziel', name: 'ANA Oziel', short: 'Oziel', type: 'NAVE', active: true },
+  { id: 'ana-nilopolis', name: 'ANA Jardim Nilópolis', short: 'Nilópolis', type: 'NAVE', active: true, profileUnit: 'Nilópolis' },
+  { id: 'ana-dic', name: 'ANA DIC', short: 'DIC', type: 'NAVE', active: true, profileUnit: 'DIC' },
+  { id: 'ana-santana', name: 'ANA Jardim Santana', short: 'Santana', type: 'NAVE', active: true, profileUnit: 'Santana' },
+  { id: 'ana-piaui', name: 'ANA Piauí', short: 'Piauí', type: 'NAVE', active: true, profileUnit: 'Piauí' },
+  { id: 'ana-oziel', name: 'ANA Oziel', short: 'Oziel', type: 'NAVE', active: true, profileUnit: 'Oziel' },
 
-  { id: 'cei-pierre-weil', name: 'CEI Bem Querer Prof. Pierre Weil', short: 'Pierre Weil', type: 'CEI', active: true },
-  { id: 'cei-calmon', name: 'CEI Bem Querer Sen. João de Medeiros Calmon', short: 'Calmon', type: 'CEI', active: true },
-  { id: 'cei-velardi-gaspar', name: 'CEI Bem Querer Célia A. J. Velardi Gaspar', short: 'Porto', type: 'CEI', active: true },
-  { id: 'cei-portela-santana', name: 'CEI Bem Querer Rogério L. P. Santana', short: 'São José', type: 'CEI', active: true },
-  { id: 'cei-anisio-spinola', name: 'CEI Bem Querer Prof. Anísio Spínola', short: 'Anísio', type: 'CEI', active: true },
-  { id: 'cei-capanema', name: 'CEI Bem Querer Min. Gustavo Capanema', short: 'Capanema', type: 'CEI', active: true },
-  { id: 'cei-brizola', name: 'CEI Bem Querer Gov. Leonel de Moura Brizola', short: 'Leonel', type: 'CEI', active: true },
-  { id: 'cei-paulo-freire', name: 'CEI Bem Querer Paulo Reglus Neves Freire', short: 'Paulo Freire', type: 'CEI', active: true },
-  { id: 'cei-mayara-masson', name: 'CEI Bem Querer Mayara Masson Christofoletti', short: 'Mayara Masson', type: 'CEI', active: true },
-  { id: 'cei-ferramola', name: 'CEI Bem Querer Profa. Renata Ferramola', short: 'Ferramola', type: 'CEI', active: true },
-  { id: 'cei-vandir', name: 'CEI Bem Querer Vandir Justino da Costa Dias', short: 'Vandir', type: 'CEI', active: true },
+  { id: 'cei-pierre-weil', name: 'CEI Bem Querer Prof. Pierre Weil', short: 'Pierre Weil', type: 'CEI', active: true, profileUnit: 'Pierre Weil' },
+  { id: 'cei-calmon', name: 'CEI Bem Querer Sen. João de Medeiros Calmon', short: 'Calmon', type: 'CEI', active: true, profileUnit: 'Calmon' },
+  { id: 'cei-velardi-gaspar', name: 'CEI Bem Querer Célia A. J. Velardi Gaspar', short: 'Porto', type: 'CEI', active: true, profileUnit: 'Porto' },
+  { id: 'cei-portela-santana', name: 'CEI Bem Querer Rogério L. P. Santana', short: 'São José', type: 'CEI', active: true, profileUnit: 'São José' },
+  { id: 'cei-anisio-spinola', name: 'CEI Bem Querer Prof. Anísio Spínola', short: 'Anísio', type: 'CEI', active: true, profileUnit: 'Anísio' },
+  { id: 'cei-capanema', name: 'CEI Bem Querer Min. Gustavo Capanema', short: 'Capanema', type: 'CEI', active: true, profileUnit: 'Capanema' },
+  { id: 'cei-brizola', name: 'CEI Bem Querer Gov. Leonel de Moura Brizola', short: 'Leonel', type: 'CEI', active: true, profileUnit: 'Leonel' },
+  { id: 'cei-paulo-freire', name: 'CEI Bem Querer Paulo Reglus Neves Freire', short: 'Paulo Freire', type: 'CEI', active: true, profileUnit: 'Paulo Freire' },
+  { id: 'cei-mayara-masson', name: 'CEI Bem Querer Mayara Masson Christofoletti', short: 'Mayara Masson', type: 'CEI', active: true, profileUnit: 'Mayara Masson' },
+  { id: 'cei-ferramola', name: 'CEI Bem Querer Profa. Renata Ferramola', short: 'Ferramola', type: 'CEI', active: true, profileUnit: 'Ferramola' },
+  { id: 'cei-vandir', name: 'CEI Bem Querer Vandir Justino da Costa Dias', short: 'Vandir', type: 'CEI', active: true, profileUnit: 'Vandir' },
 
   // Parcerias finalizadas — fora do seletor (decisão #3), mantidas para leitura de informativos históricos.
-  { id: 'cei-midori', name: 'CEI Bem Querer Midori Hamamoto', short: 'Midori', type: 'CEI', active: false },
-  { id: 'cei-bernhard-johnson', name: 'CEI Bem Querer Rev. Bernhard Johnson Jr.', short: 'Eldorado', type: 'CEI', active: false },
-  { id: 'cei-nardi-neto', name: 'CEI Bem Querer João Batista Nardi Neto', short: 'João Batista', type: 'CEI', active: false },
+  { id: 'cei-midori', name: 'CEI Bem Querer Midori Hamamoto', short: 'Midori', type: 'CEI', active: false, profileUnit: 'Midori' },
+  { id: 'cei-bernhard-johnson', name: 'CEI Bem Querer Rev. Bernhard Johnson Jr.', short: 'Eldorado', type: 'CEI', active: false, profileUnit: 'Eldorado' },
+  { id: 'cei-nardi-neto', name: 'CEI Bem Querer João Batista Nardi Neto', short: 'João Batista', type: 'CEI', active: false, profileUnit: 'João Batista' },
 ];
 
 /** Unidades disponíveis para criar novos informativos. */
@@ -67,4 +69,18 @@ export function findNewsUnit(id: string | undefined | null): NewsUnit | undefine
 
 export function newsUnitName(id: string | undefined | null): string {
   return findNewsUnit(id)?.name ?? '';
+}
+
+/** Resolve a unidade do catálogo a partir do valor gravado em `profiles.unit`. */
+export function newsUnitForProfileUnit(profileUnit: string | null | undefined): NewsUnit | undefined {
+  if (!profileUnit) return undefined;
+  const target = profileUnit.trim().toLowerCase();
+  return NEWS_UNITS.find(
+    (unit) => unit.profileUnit.toLowerCase() === target || unit.short.toLowerCase() === target || unit.name.toLowerCase() === target,
+  );
+}
+
+/** Valor de `profiles.unit` correspondente a um id do catálogo. */
+export function profileUnitForNewsUnit(id: string | null | undefined): string {
+  return findNewsUnit(id)?.profileUnit ?? '';
 }
