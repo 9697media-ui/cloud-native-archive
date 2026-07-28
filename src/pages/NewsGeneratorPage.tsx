@@ -1595,7 +1595,7 @@ export default function NewsGeneratorPage() {
               </button>
 
               {showAddMenu && (
-                <div className="absolute z-30 mt-2 left-0 right-0 rounded-xl border border-border bg-popover shadow-xl p-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                <div className="absolute z-30 mt-2 left-0 right-0 rounded-xl border border-border bg-popover shadow-xl p-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-64 overflow-y-auto overscroll-contain">
                   {BLOCK_PRESETS.map((preset) => {
                     const Icon = preset.icon;
                     return (
