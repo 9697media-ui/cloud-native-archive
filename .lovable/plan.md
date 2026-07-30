@@ -91,9 +91,9 @@ Variante secundária para busca sem resultado: "Nenhuma edição encontrada com 
 ┌── Criar jornal da unidade ─────────────────────────┐
 │ Sua edição já nasce vinculada à sua unidade.       │
 │                                                    │
-│ ▣ Unidade                              🔒          │
+│ ▣ Unidade                  [ Trocar unidade ▾ ]    │
 │   CEI Bem Querer Professor Pierre Weil             │
-│   definida automaticamente                         │
+│   preenchida automaticamente                       │
 │                                                    │
 │ Nome da edição                                     │
 │ [ Jornal Pierre Weil — Julho/2026 ]                │
@@ -107,7 +107,24 @@ Variante secundária para busca sem resultado: "Nenhuma edição encontrada com 
 └────────────────────────────────────────────────────┘
 ```
 
-Unidade vira bloco somente-leitura (substitui o `Select`) para diretoras; admin mantém o seletor atual. Nome sugerido automaticamente a partir de unidade + mês. Modelo inicial com 3 opções (Padrão, Enxuto, Em branco). Páginas iniciais com stepper.
+**Popup de confirmação de troca de unidade**
+
+```text
+        ┌────────────────────────────────────────────┐
+        │  Trocar a unidade deste jornal?            │
+        │                                            │
+        │  De:  CEI Bem Querer Pierre Weil           │
+        │  Para: CEI Social DIC                      │
+        │                                            │
+        │  O jornal passará a pertencer à unidade    │
+        │  escolhida e a listagem mostrará os        │
+        │  jornais dessa unidade.                    │
+        │                                            │
+        │      [ Cancelar ]   [ Sim, trocar ]        │
+        └────────────────────────────────────────────┘
+```
+
+A unidade vem preenchida automaticamente, mas continua trocável: o seletor abre a lista de unidades e, ao escolher uma diferente da atual, dispara o popup acima. "Cancelar" reverte a seleção; "Sim, trocar" aplica. Nome sugerido automaticamente a partir de unidade + mês (re-sugerido após a troca). Modelo inicial com 3 opções (Padrão, Enxuto, Em branco). Páginas iniciais com stepper.
 
 ## 9. Nova estrutura do editor
 
