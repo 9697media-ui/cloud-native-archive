@@ -194,31 +194,52 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
   return (
     <div className="flex h-[calc(100vh-7rem)] flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="mr-1.5 h-4 w-4" /> Voltar
-        </Button>
-        <Input
-          value={name}
-          onChange={(event) => {
-            dirtyRef.current = true;
-            setName(event.target.value);
-          }}
-          className="h-9 w-56"
-        />
-        <span className="text-xs text-muted-foreground">
-          {saving ? 'Salvando…' : savedAt ? `Salvo às ${savedAt}` : 'Alterações salvas automaticamente'}
-        </span>
-        <div className="ml-auto flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => exportPdf('digital')} disabled={exporting}>
-            {exporting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
-            PDF digital
+      <div className="flex flex-col gap-2 border-b border-border pb-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="mr-1.5 h-4 w-4" /> Voltar
           </Button>
-          <Button size="sm" onClick={() => exportPdf('impressao')} disabled={exporting}>
-            <Download className="mr-1.5 h-4 w-4" /> PDF impressão
-          </Button>
+          <Input
+            value={name}
+            onChange={(event) => {
+              dirtyRef.current = true;
+              setName(event.target.value);
+            }}
+            className="h-9 w-56 text-base font-semibold"
+          />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-accent-foreground">
+            {saving ? (
+              <>
+                <Loader2 className="h-3 w-3 animate-spin" /> Salvando…
+              </>
+            ) : (
+              <>
+                <Check className="h-3 w-3" /> {savedAt ? `Tudo salvo · ${savedAt}` : 'Tudo salvo'}
+              </>
+            )}
+          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => exportPdf('digital')} disabled={exporting}>
+              {exporting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
+              PDF digital
+            </Button>
+            <Button size="sm" onClick={() => exportPdf('impressao')} disabled={exporting}>
+              <Download className="mr-1.5 h-4 w-4" /> PDF impressão
+            </Button>
+          </div>
         </div>
+
+        <UnitBadge
+          variant="line"
+          unitId={journal.unit_id}
+          label="Jornal da unidade"
+          onChangeUnit={(unitId) =>
+            onSave(journal.id, { unitId, profileUnit: profileUnitForNewsUnit(unitId) })
+          }
+        />
       </div>
+
+
 
       <div className="grid flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[180px_1fr_300px]">
         {/* Miniaturas */}
