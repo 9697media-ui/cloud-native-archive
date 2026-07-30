@@ -13,6 +13,7 @@ import {
   Type,
   Hash,
   CalendarDays,
+  Check,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -46,14 +47,24 @@ import {
   textBlock,
   uid,
 } from '@/lib/journal/templates';
-import { newsUnitName } from '@/lib/news/units';
+import { newsUnitName, profileUnitForNewsUnit } from '@/lib/news/units';
+import { UnitBadge } from './UnitBadge';
 
 interface Props {
   journal: JournalRecord;
   saving: boolean;
   savedAt: string | null;
   onBack: () => void;
-  onSave: (id: string, draft: { name?: string; pages?: JournalPage[]; status?: JournalRecord['status'] }) => Promise<boolean>;
+  onSave: (
+    id: string,
+    draft: {
+      name?: string;
+      pages?: JournalPage[];
+      status?: JournalRecord['status'];
+      unitId?: string | null;
+      profileUnit?: string | null;
+    },
+  ) => Promise<boolean>;
 }
 
 export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Props) {
@@ -194,31 +205,52 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
   return (
     <div className="flex h-[calc(100vh-7rem)] flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="mr-1.5 h-4 w-4" /> Voltar
-        </Button>
-        <Input
-          value={name}
-          onChange={(event) => {
-            dirtyRef.current = true;
-            setName(event.target.value);
-          }}
-          className="h-9 w-56"
-        />
-        <span className="text-xs text-muted-foreground">
-          {saving ? 'Salvando…' : savedAt ? `Salvo às ${savedAt}` : 'Alterações salvas automaticamente'}
-        </span>
-        <div className="ml-auto flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => exportPdf('digital')} disabled={exporting}>
-            {exporting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
-            PDF digital
+      <div className="flex flex-col gap-2 border-b border-border pb-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="mr-1.5 h-4 w-4" /> Voltar
           </Button>
-          <Button size="sm" onClick={() => exportPdf('impressao')} disabled={exporting}>
-            <Download className="mr-1.5 h-4 w-4" /> PDF impressão
-          </Button>
+          <Input
+            value={name}
+            onChange={(event) => {
+              dirtyRef.current = true;
+              setName(event.target.value);
+            }}
+            className="h-9 w-56 text-base font-semibold"
+          />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-accent-foreground">
+            {saving ? (
+              <>
+                <Loader2 className="h-3 w-3 animate-spin" /> Salvando…
+              </>
+            ) : (
+              <>
+                <Check className="h-3 w-3" /> {savedAt ? `Tudo salvo · ${savedAt}` : 'Tudo salvo'}
+              </>
+            )}
+          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => exportPdf('digital')} disabled={exporting}>
+              {exporting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
+              PDF digital
+            </Button>
+            <Button size="sm" onClick={() => exportPdf('impressao')} disabled={exporting}>
+              <Download className="mr-1.5 h-4 w-4" /> PDF impressão
+            </Button>
+          </div>
         </div>
+
+        <UnitBadge
+          variant="line"
+          unitId={journal.unit_id}
+          label="Jornal da unidade"
+          onChangeUnit={(unitId) =>
+            onSave(journal.id, { unitId, profileUnit: profileUnitForNewsUnit(unitId) })
+          }
+        />
       </div>
+
+
 
       <div className="grid flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[180px_1fr_300px]">
         {/* Miniaturas */}
@@ -314,10 +346,10 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
           </div>
         </section>
 
-        {/* Propriedades */}
+        {/* Conteúdo da página */}
         <aside className="flex flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-card p-3">
           <div>
-            <Label className="text-xs text-muted-foreground">Adicionar bloco</Label>
+            <Label className="text-xs text-muted-foreground">Adicionar ao jornal</Label>
             <div className="mt-1.5 grid grid-cols-2 gap-1.5">
               <Button variant="outline" size="sm" onClick={() => addBlock(textBlock('corpo', 'Novo texto.'))}>
                 <Type className="mr-1.5 h-3.5 w-3.5" /> Texto
