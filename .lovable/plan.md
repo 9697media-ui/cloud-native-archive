@@ -43,7 +43,7 @@ Regra de exibição: todos os perfis veem o selo com a unidade atual e podem abr
 │ Olá, Diretora                       [ + Criar jornal da       │
 │ Aqui ficam os jornais da sua unidade.   unidade ]             │
 ├───────────────────────────────────────────────────────────────┤
-│ ▣ MINHA UNIDADE                                    🔒 fixa    │
+│ ▣ MINHA UNIDADE                        [ Trocar unidade ▾ ]   │
 │   CEI Bem Querer Professor Pierre Weil                        │
 │   Todos os jornais desta página pertencem a esta unidade.     │
 ├───────────────────────────────────────────────────────────────┤
