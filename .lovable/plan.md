@@ -30,11 +30,11 @@ Unidade sempre visível; vinculação percebida como fixa e segura; listagem lid
 ## 5. Proposta de experiência centrada na unidade
 
 Um componente único e reutilizável, o **Selo de Unidade**, com três tamanhos:
-- **Banner** (listagem): faixa em `bg-card` com borda, ícone de prédio, rótulo "Minha unidade", nome oficial em destaque, chip "Vinculação fixa" com ícone de cadeado.
-- **Linha** (modal e editor): ícone + nome + chip "definida automaticamente".
+- **Banner** (listagem): faixa em `bg-card` com borda, ícone de prédio, rótulo "Minha unidade", nome oficial em destaque e botão discreto "Trocar unidade ▾".
+- **Linha** (modal e editor): ícone + nome + seletor "Trocar unidade".
 - **Chip** (cards e mobile): nome curto da unidade com ícone.
 
-Regra de exibição: diretora de unidade vê o selo travado; admin/marketing geral vê o mesmo selo com opção "Trocar unidade", preservando o fluxo atual.
+Regra de exibição: todos os perfis veem o selo com a unidade atual e podem abrir o seletor. Ao escolher outra unidade, abre um **popup de confirmação** ("Deseja realmente trocar a unidade?") explicando que o contexto da tela (jornais listados / vínculo do novo jornal) passará a ser da unidade escolhida. Confirmar aplica; cancelar mantém a unidade anterior. Nenhum cadeado é exibido em nenhuma tela.
 
 ## 6. Nova estrutura da página inicial
 
