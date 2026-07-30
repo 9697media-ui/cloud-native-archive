@@ -32,7 +32,9 @@ import {
   findNewsUnit,
 } from '@/lib/news/units';
 import { createJournalPages, createPage } from '@/lib/journal/templates';
-import { STATUS_LABELS, type JournalRecord, type JournalStatus } from '@/lib/journal/types';
+import { STATUS_LABELS, type JournalRecord } from '@/lib/journal/types';
+
+type JournalStatus = JournalRecord['status'];
 
 const STATUS_VARIANT: Record<string, string> = {
   rascunho: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200',
