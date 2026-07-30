@@ -33,7 +33,7 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
   if (!block) {
     return (
       <div className="space-y-3 text-sm">
-        <p className="font-semibold text-foreground">Propriedades da página</p>
+        <p className="font-semibold text-foreground">Conteúdo da página</p>
         <p className="text-muted-foreground">
           Modelo: <strong>{page ? TEMPLATE_LABELS[page.template] : '—'}</strong>
         </p>

@@ -346,7 +346,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
           </div>
         </section>
 
-        {/* Propriedades */}
+        {/* Conteúdo da página */}
         <aside className="flex flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-card p-3">
           <div>
             <Label className="text-xs text-muted-foreground">Adicionar ao jornal</Label>
