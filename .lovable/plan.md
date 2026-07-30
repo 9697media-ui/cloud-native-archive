@@ -25,16 +25,16 @@ Genérico demais:
 
 ## 4. Objetivos da melhoria
 
-Unidade sempre visível; vinculação percebida como fixa e segura; listagem lida como "minha área"; criação sem decisão de unidade; editor com âncora institucional permanente; zero complexidade nova.
+Unidade sempre visível; troca possível, porém consciente (confirmada em popup); listagem lida como "minha área"; criação sem decisão de unidade; editor com âncora institucional permanente; zero complexidade nova.
 
 ## 5. Proposta de experiência centrada na unidade
 
 Um componente único e reutilizável, o **Selo de Unidade**, com três tamanhos:
-- **Banner** (listagem): faixa em `bg-card` com borda, ícone de prédio, rótulo "Minha unidade", nome oficial em destaque, chip "Vinculação fixa" com ícone de cadeado.
-- **Linha** (modal e editor): ícone + nome + chip "definida automaticamente".
+- **Banner** (listagem): faixa em `bg-card` com borda, ícone de prédio, rótulo "Minha unidade", nome oficial em destaque e botão discreto "Trocar unidade ▾".
+- **Linha** (modal e editor): ícone + nome + seletor "Trocar unidade".
 - **Chip** (cards e mobile): nome curto da unidade com ícone.
 
-Regra de exibição: diretora de unidade vê o selo travado; admin/marketing geral vê o mesmo selo com opção "Trocar unidade", preservando o fluxo atual.
+Regra de exibição: todos os perfis veem o selo com a unidade atual e podem abrir o seletor. Ao escolher outra unidade, abre um **popup de confirmação** ("Deseja realmente trocar a unidade?") explicando que o contexto da tela (jornais listados / vínculo do novo jornal) passará a ser da unidade escolhida. Confirmar aplica; cancelar mantém a unidade anterior. Nenhum cadeado é exibido em nenhuma tela.
 
 ## 6. Nova estrutura da página inicial
 
@@ -43,7 +43,7 @@ Regra de exibição: diretora de unidade vê o selo travado; admin/marketing ger
 │ Olá, Diretora                       [ + Criar jornal da       │
 │ Aqui ficam os jornais da sua unidade.   unidade ]             │
 ├───────────────────────────────────────────────────────────────┤
-│ ▣ MINHA UNIDADE                                    🔒 fixa    │
+│ ▣ MINHA UNIDADE                        [ Trocar unidade ▾ ]   │
 │   CEI Bem Querer Professor Pierre Weil                        │
 │   Todos os jornais desta página pertencem a esta unidade.     │
 ├───────────────────────────────────────────────────────────────┤
@@ -91,9 +91,9 @@ Variante secundária para busca sem resultado: "Nenhuma edição encontrada com 
 ┌── Criar jornal da unidade ─────────────────────────┐
 │ Sua edição já nasce vinculada à sua unidade.       │
 │                                                    │
-│ ▣ Unidade                              🔒          │
+│ ▣ Unidade                  [ Trocar unidade ▾ ]    │
 │   CEI Bem Querer Professor Pierre Weil             │
-│   definida automaticamente                         │
+│   preenchida automaticamente                       │
 │                                                    │
 │ Nome da edição                                     │
 │ [ Jornal Pierre Weil — Julho/2026 ]                │
@@ -107,14 +107,31 @@ Variante secundária para busca sem resultado: "Nenhuma edição encontrada com 
 └────────────────────────────────────────────────────┘
 ```
 
-Unidade vira bloco somente-leitura (substitui o `Select`) para diretoras; admin mantém o seletor atual. Nome sugerido automaticamente a partir de unidade + mês. Modelo inicial com 3 opções (Padrão, Enxuto, Em branco). Páginas iniciais com stepper.
+**Popup de confirmação de troca de unidade**
+
+```text
+        ┌────────────────────────────────────────────┐
+        │  Trocar a unidade deste jornal?            │
+        │                                            │
+        │  De:  CEI Bem Querer Pierre Weil           │
+        │  Para: CEI Social DIC                      │
+        │                                            │
+        │  O jornal passará a pertencer à unidade    │
+        │  escolhida e a listagem mostrará os        │
+        │  jornais dessa unidade.                    │
+        │                                            │
+        │      [ Cancelar ]   [ Sim, trocar ]        │
+        └────────────────────────────────────────────┘
+```
+
+A unidade vem preenchida automaticamente, mas continua trocável: o seletor abre a lista de unidades e, ao escolher uma diferente da atual, dispara o popup acima. "Cancelar" reverte a seleção; "Sim, trocar" aplica. Nome sugerido automaticamente a partir de unidade + mês (re-sugerido após a troca). Modelo inicial com 3 opções (Padrão, Enxuto, Em branco). Páginas iniciais com stepper.
 
 ## 9. Nova estrutura do editor
 
 ```text
 ┌────────────────────────────────────────────────────────────────┐
 │ ← Voltar │ [Jornal Pierre Weil — Julho/2026]   ✓ Salvo 14:32   │
-│           🏢 Jornal da unidade CEI Bem Querer Pierre Weil 🔒    │
+│           🏢 Jornal da unidade CEI Bem Querer Pierre Weil ▾    │
 │                                   [PDF digital] [PDF impressão]│
 ├──────────┬─────────────────────────────────┬───────────────────┤
 │ PÁGINAS  │  Página 1 de 8      − 70% +     │ CONTEÚDO DA PÁGINA│
@@ -126,7 +143,7 @@ Unidade vira bloco somente-leitura (substitui o `Select`) para diretoras; admin 
 └──────────┴─────────────────────────────────┴───────────────────┘
 ```
 
-Refinamentos: segunda linha fixa na barra superior com o selo da unidade + cadeado; hierarquia clara entre nome do jornal (input grande), unidade (subtítulo) e salvamento (chip com ícone de check); renomear "Propriedades" → "Conteúdo da página"; "Adicionar bloco" → "Adicionar ao jornal"; miniaturas com rótulo humano ("Capa", "Matéria", "Galeria") em vez de nomes de template.
+Refinamentos: segunda linha fixa na barra superior com o selo da unidade + seletor "Trocar unidade" (com popup de confirmação antes de aplicar); hierarquia clara entre nome do jornal (input grande), unidade (subtítulo) e salvamento (chip com ícone de check); renomear "Propriedades" → "Conteúdo da página"; "Adicionar bloco" → "Adicionar ao jornal"; miniaturas com rótulo humano ("Capa", "Matéria", "Galeria") em vez de nomes de template.
 
 ## 10. Melhorias de usabilidade e linguagem
 
@@ -155,7 +172,7 @@ Mantidos integralmente: tokens semânticos atuais (`bg-card`, `text-muted-foregr
 
 ## 13. Critérios de aceite
 
-Unidade visível em listagem, estado vazio, modal e editor; nenhuma tela permite à diretora escolher unidade; contadores refletem os status reais; cards mostram miniatura, status, páginas e data; identidade visual inalterada; nenhuma funcionalidade nova além de filtros e contadores.
+Unidade visível em listagem, estado vazio, modal e editor; troca de unidade sempre passa por popup de confirmação; contadores refletem os status reais; cards mostram miniatura, status, páginas e data; identidade visual inalterada; nenhuma funcionalidade nova além de filtros e contadores.
 
 ## 14. PROPOSTA VISUAL — SEM IMPLEMENTAÇÃO
 
@@ -167,7 +184,7 @@ Os diagramas das seções 6 a 9 são os mockups 1 a 7. Abaixo, os mockups mobile
 ```text
 ┌──────────────────┐
 │ Jornal da unidade│
-│ ▣ Pierre Weil 🔒 │
+│ ▣ Pierre Weil ▾  │
 │ [3][5][1] status │
 │ 🔎 Buscar        │
 │ ┌──────────────┐ │
@@ -187,7 +204,7 @@ Os diagramas das seções 6 a 9 são os mockups 1 a 7. Abaixo, os mockups mobile
 ```text
 ┌──────────────────┐
 │ ← Julho/2026     │
-│ 🏢 Pierre Weil 🔒│
+│ 🏢 Pierre Weil ▾ │
 │ ◀ Página 2/8 ▶   │
 │ ┌──────────────┐ │
 │ │   A4 preview │ │
@@ -204,9 +221,9 @@ Os diagramas das seções 6 a 9 são os mockups 1 a 7. Abaixo, os mockups mobile
 | Área | Hoje | Proposto |
 |---|---|---|
 | Cabeçalho | Título de ferramenta | Saudação + selo de unidade |
-| Unidade | Texto cinza no card | Banner fixo + chip + cadeado |
+| Unidade | Texto cinza no card | Banner com nome + chip + "Trocar unidade" |
 | Estado vazio | "Nenhum jornal criado ainda" | Convite nominal à unidade |
-| Criação | Select de unidade aberto | Bloco travado "definida automaticamente" |
+| Criação | Select de unidade aberto | Unidade pré-preenchida + popup de confirmação ao trocar |
 | Editor | Sem unidade | Faixa "Jornal da unidade X" |
 | Filtros | Só busca | Busca + status + mês + contadores |
 | Cards | Texto puro | Miniatura da capa + metadados |
@@ -216,5 +233,5 @@ Os diagramas das seções 6 a 9 são os mockups 1 a 7. Abaixo, os mockups mobile
 1. Miniatura da capa nos cards: renderizar `JournalPageView` em escala (mais pesado) ou manter cards textuais?
 2. Filtro por mês/ano: campo hoje é texto livre ("Julho/2026") — vale padronizar em seletor?
 3. Editor mobile: preview + exportação apenas, ou permitir edição de texto?
-4. Admin/marketing geral mantém o seletor de unidade no modal — confirma?
+4. O popup de confirmação deve aparecer também ao trocar a unidade na listagem, ou só no modal de criação/editor?
 5. "Modelo inicial" e "páginas iniciais" no modal: incluir agora ou manter criação padrão?
