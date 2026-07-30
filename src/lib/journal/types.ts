@@ -1,0 +1,134 @@
+/**
+ * Modelo de dados do Jornal Institucional.
+ *
+ * Um jornal é uma lista de páginas A4; cada página é uma grade de 6 colunas
+ * preenchida por blocos. Os estilos são travados pela identidade — a pessoa
+ * escolhe apenas a *função* do texto, nunca fonte/cor/tamanho.
+ */
+
+export type JournalTemplate =
+  | 'capa'
+  | 'materias'
+  | 'materia'
+  | 'galeria'
+  | 'agenda'
+  | 'numeros'
+  | 'contracapa'
+  | 'branco';
+
+export type TextStyleKey =
+  | 'titulo_capa'
+  | 'titulo_materia'
+  | 'subtitulo'
+  | 'corpo'
+  | 'destaque'
+  | 'chamada'
+  | 'legenda';
+
+export type BlockSpan = 1 | 2 | 3 | 4 | 5 | 6;
+
+export interface JournalTextBlock {
+  id: string;
+  kind: 'text';
+  style: TextStyleKey;
+  content: string;
+  align: 'left' | 'center' | 'right';
+  span: BlockSpan;
+}
+
+export interface JournalImageBlock {
+  id: string;
+  kind: 'image';
+  url: string;
+  caption: string;
+  span: BlockSpan;
+  ratio: '16/9' | '4/3' | '1/1' | '3/4';
+  fit: 'cover' | 'contain';
+}
+
+export interface JournalAgendaItem {
+  id: string;
+  date: string;
+  title: string;
+  time: string;
+  place: string;
+}
+
+export interface JournalAgendaBlock {
+  id: string;
+  kind: 'agenda';
+  items: JournalAgendaItem[];
+  span: BlockSpan;
+}
+
+export interface JournalStatBlock {
+  id: string;
+  kind: 'stat';
+  value: string;
+  label: string;
+  span: BlockSpan;
+}
+
+export type JournalBlock =
+  | JournalTextBlock
+  | JournalImageBlock
+  | JournalAgendaBlock
+  | JournalStatBlock;
+
+export interface JournalPage {
+  id: string;
+  template: JournalTemplate;
+  blocks: JournalBlock[];
+}
+
+export interface JournalRecord {
+  id: string;
+  name: string;
+  unit_id: string | null;
+  profile_unit: string | null;
+  reference_month: string | null;
+  status: 'rascunho' | 'finalizado' | 'arquivado';
+  pages: JournalPage[];
+  cover_url: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export const TEXT_STYLE_LABELS: Record<TextStyleKey, string> = {
+  titulo_capa: 'Título de capa',
+  titulo_materia: 'Título de matéria',
+  subtitulo: 'Subtítulo',
+  corpo: 'Texto corrido',
+  destaque: 'Frase de destaque',
+  chamada: 'Chamada curta',
+  legenda: 'Legenda',
+};
+
+/** Classes tipográficas travadas — usadas no canvas, no preview e no PDF. */
+export const TEXT_STYLE_CLASSES: Record<TextStyleKey, string> = {
+  titulo_capa: 'text-[30px] font-extrabold uppercase leading-[1.05] tracking-tight',
+  titulo_materia: 'text-[19px] font-bold leading-[1.15]',
+  subtitulo: 'text-[13px] font-semibold uppercase tracking-[0.14em]',
+  corpo: 'text-[11px] leading-[1.65] text-justify',
+  destaque: 'text-[15px] font-semibold italic leading-[1.4] border-l-4 pl-3',
+  chamada: 'text-[12px] font-medium leading-[1.4]',
+  legenda: 'text-[9px] italic leading-[1.3]',
+};
+
+export const STATUS_LABELS: Record<string, string> = {
+  rascunho: 'Rascunho',
+  finalizado: 'Finalizado',
+  arquivado: 'Arquivado',
+};
+
+export const TEMPLATE_LABELS: Record<JournalTemplate, string> = {
+  capa: 'Capa',
+  materias: 'Matérias',
+  materia: 'Matéria completa',
+  galeria: 'Galeria',
+  agenda: 'Agenda',
+  numeros: 'Resultados e números',
+  contracapa: 'Contracapa',
+  branco: 'Em branco',
+};

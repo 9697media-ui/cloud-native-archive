@@ -272,6 +272,51 @@ export type Database = {
         }
         Relationships: []
       }
+      journals: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          name: string
+          pages: Json
+          profile_unit: string | null
+          reference_month: string | null
+          status: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          pages?: Json
+          profile_unit?: string | null
+          reference_month?: string | null
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          pages?: Json
+          profile_unit?: string | null
+          reference_month?: string | null
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       news_bulletins: {
         Row: {
           blocks: Json
@@ -630,6 +675,7 @@ export type Database = {
         Args: { _unit: string; _user_id: string }
         Returns: boolean
       }
+      is_marketing_user: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "editor" | "viewer" | "usuario_padrao" | "criador"
