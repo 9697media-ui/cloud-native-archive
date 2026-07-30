@@ -25,7 +25,7 @@ Genérico demais:
 
 ## 4. Objetivos da melhoria
 
-Unidade sempre visível; vinculação percebida como fixa e segura; listagem lida como "minha área"; criação sem decisão de unidade; editor com âncora institucional permanente; zero complexidade nova.
+Unidade sempre visível; troca possível, porém consciente (confirmada em popup); listagem lida como "minha área"; criação sem decisão de unidade; editor com âncora institucional permanente; zero complexidade nova.
 
 ## 5. Proposta de experiência centrada na unidade
 
@@ -172,7 +172,7 @@ Mantidos integralmente: tokens semânticos atuais (`bg-card`, `text-muted-foregr
 
 ## 13. Critérios de aceite
 
-Unidade visível em listagem, estado vazio, modal e editor; nenhuma tela permite à diretora escolher unidade; contadores refletem os status reais; cards mostram miniatura, status, páginas e data; identidade visual inalterada; nenhuma funcionalidade nova além de filtros e contadores.
+Unidade visível em listagem, estado vazio, modal e editor; troca de unidade sempre passa por popup de confirmação; contadores refletem os status reais; cards mostram miniatura, status, páginas e data; identidade visual inalterada; nenhuma funcionalidade nova além de filtros e contadores.
 
 ## 14. PROPOSTA VISUAL — SEM IMPLEMENTAÇÃO
 
@@ -233,5 +233,5 @@ Os diagramas das seções 6 a 9 são os mockups 1 a 7. Abaixo, os mockups mobile
 1. Miniatura da capa nos cards: renderizar `JournalPageView` em escala (mais pesado) ou manter cards textuais?
 2. Filtro por mês/ano: campo hoje é texto livre ("Julho/2026") — vale padronizar em seletor?
 3. Editor mobile: preview + exportação apenas, ou permitir edição de texto?
-4. Admin/marketing geral mantém o seletor de unidade no modal — confirma?
+4. O popup de confirmação deve aparecer também ao trocar a unidade na listagem, ou só no modal de criação/editor?
 5. "Modelo inicial" e "páginas iniciais" no modal: incluir agora ou manter criação padrão?
