@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Plus, Copy, Trash2, Pencil, Lock, Loader2, Newspaper } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
+import { useEffect, useMemo, useState } from 'react';
+import { Plus, Copy, Trash2, Pencil, Lock, Loader2, Newspaper, Search, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,18 +15,24 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useJournals } from '@/hooks/useJournals';
 import { JournalEditor } from '@/components/journal/JournalEditor';
-import { NEWS_UNIT_GROUPS, newsUnitName, profileUnitForNewsUnit } from '@/lib/news/units';
-import { createJournalPages } from '@/lib/journal/templates';
-import { STATUS_LABELS, type JournalRecord } from '@/lib/journal/types';
+import { JournalPageView, A4_W, A4_H } from '@/components/journal/JournalPageView';
+import { UnitBadge } from '@/components/journal/UnitBadge';
+import {
+  newsUnitName,
+  newsUnitForProfileUnit,
+  profileUnitForNewsUnit,
+  findNewsUnit,
+} from '@/lib/news/units';
+import { createJournalPages, createPage } from '@/lib/journal/templates';
+import { STATUS_LABELS, type JournalRecord, type JournalStatus } from '@/lib/journal/types';
 
 const STATUS_VARIANT: Record<string, string> = {
   rascunho: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200',
@@ -35,26 +40,93 @@ const STATUS_VARIANT: Record<string, string> = {
   arquivado: 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200',
 };
 
+const COUNTER_ORDER: JournalStatus[] = ['rascunho', 'finalizado', 'arquivado'];
+const COUNTER_LABELS: Record<JournalStatus, string> = {
+  rascunho: 'Rascunhos',
+  finalizado: 'Finalizados',
+  arquivado: 'Arquivados',
+};
+
+const THUMB_W = 260;
+const THUMB_SCALE = THUMB_W / A4_W;
+
+type StartingTemplate = 'padrao' | 'enxuto' | 'branco';
+
+/** Data relativa curta ("há 2 dias"), com fallback para data absoluta. */
+function relativeDate(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diff / 86_400_000);
+  if (days <= 0) return 'hoje';
+  if (days === 1) return 'ontem';
+  if (days < 30) return `há ${days} dias`;
+  return new Date(iso).toLocaleDateString('pt-BR');
+}
+
+function suggestName(unitId: string | null, month: string): string {
+  const short = findNewsUnit(unitId)?.short ?? 'ANA';
+  return `Jornal ${short}${month ? ` — ${month}` : ''}`;
+}
+
 export default function JournalPage() {
-  const { isMarketing, loading: roleLoading } = useUserRole();
+  const { isMarketing, loading: roleLoading, unit: profileUnit, userName } = useUserRole();
   const { journals, loading, saving, savedAt, create, save, remove, duplicate } = useJournals();
+
+  const defaultUnitId = useMemo(
+    () => newsUnitForProfileUnit(profileUnit)?.id ?? null,
+    [profileUnit],
+  );
+  const [activeUnitId, setActiveUnitId] = useState<string | null>(defaultUnitId);
+  useEffect(() => setActiveUnitId(defaultUnitId), [defaultUnitId]);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [search, setSearch] = useState('');
-  const [form, setForm] = useState({ name: '', unitId: '', referenceMonth: '' });
+  const [statusFilter, setStatusFilter] = useState<JournalStatus | 'todos'>('todos');
+  const [monthFilter, setMonthFilter] = useState<string>('todos');
+  const [form, setForm] = useState<{
+    name: string;
+    unitId: string | null;
+    referenceMonth: string;
+    template: StartingTemplate;
+    pageCount: number;
+  }>({ name: '', unitId: null, referenceMonth: '', template: 'padrao', pageCount: 4 });
 
   const editing = useMemo(
     () => journals.find((journal) => journal.id === editingId) ?? null,
     [journals, editingId],
   );
 
+  /** Jornais da unidade selecionada — base para contadores e filtros. */
+  const unitJournals = useMemo(
+    () => journals.filter((journal) => (journal.unit_id ?? null) === activeUnitId),
+    [journals, activeUnitId],
+  );
+
+  const counters = useMemo(() => {
+    const base: Record<JournalStatus, number> = { rascunho: 0, finalizado: 0, arquivado: 0 };
+    unitJournals.forEach((journal) => {
+      base[journal.status] = (base[journal.status] ?? 0) + 1;
+    });
+    return base;
+  }, [unitJournals]);
+
+  const months = useMemo(
+    () => Array.from(new Set(unitJournals.map((j) => j.reference_month).filter(Boolean) as string[])),
+    [unitJournals],
+  );
+
   const filtered = useMemo(
     () =>
-      journals.filter((journal) =>
-        journal.name.toLowerCase().includes(search.trim().toLowerCase()),
-      ),
-    [journals, search],
+      unitJournals.filter((journal) => {
+        const matchesSearch = journal.name.toLowerCase().includes(search.trim().toLowerCase());
+        const matchesStatus = statusFilter === 'todos' || journal.status === statusFilter;
+        const matchesMonth = monthFilter === 'todos' || journal.reference_month === monthFilter;
+        return matchesSearch && matchesStatus && matchesMonth;
+      }),
+    [unitJournals, search, statusFilter, monthFilter],
   );
+
+  const hasActiveFilters = search.trim() !== '' || statusFilter !== 'todos' || monthFilter !== 'todos';
 
   if (roleLoading) return null;
 
@@ -62,25 +134,50 @@ export default function JournalPage() {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-4 px-4 py-24 text-center">
         <Lock className="h-12 w-12 text-muted-foreground" />
-        <h1 className="text-xl font-semibold text-foreground">Acesso restrito</h1>
+        <h1 className="text-xl font-semibold text-foreground">Área da comunicação</h1>
         <p className="text-sm text-muted-foreground">
-          O Jornal Institucional é exclusivo para o setor de Marketing e a Administração Geral.
+          Esta área é da equipe de comunicação da sua unidade. Fale com a coordenação para liberar
+          seu acesso.
         </p>
       </div>
     );
   }
 
+  const openCreate = () => {
+    setForm({
+      name: suggestName(activeUnitId, ''),
+      unitId: activeUnitId,
+      referenceMonth: '',
+      template: 'padrao',
+      pageCount: 4,
+    });
+    setCreating(true);
+  };
+
+  const buildPages = (template: StartingTemplate, count: number) => {
+    if (template === 'padrao') {
+      const base = createJournalPages();
+      while (base.length < count) base.push(createPage('materia'));
+      return base.slice(0, Math.max(1, count));
+    }
+    if (template === 'enxuto') {
+      const base = [createPage('capa'), createPage('materia')];
+      while (base.length < count) base.push(createPage('materia'));
+      return base.slice(0, Math.max(1, count));
+    }
+    return Array.from({ length: Math.max(1, count) }, () => createPage('branco'));
+  };
+
   const handleCreate = async () => {
     const created = await create({
-      name: form.name || 'Nova edição',
-      unitId: form.unitId || null,
+      name: form.name || suggestName(form.unitId, form.referenceMonth),
+      unitId: form.unitId,
       profileUnit: form.unitId ? profileUnitForNewsUnit(form.unitId) : null,
       referenceMonth: form.referenceMonth || null,
       status: 'rascunho',
-      pages: createJournalPages(),
+      pages: buildPages(form.template, form.pageCount),
     });
     setCreating(false);
-    setForm({ name: '', unitId: '', referenceMonth: '' });
     if (created) setEditingId(created.id);
   };
 
@@ -100,83 +197,229 @@ export default function JournalPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-8">
-      <PageHeader
-        title="Jornal Institucional"
-        description="Crie edições A4 multipágina padronizadas e exporte em PDF."
-        actions={
-          <Button onClick={() => setCreating(true)}>
-            <Plus className="mr-1.5 h-4 w-4" /> Criar novo jornal
-          </Button>
-        }
+      <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Olá{userName ? `, ${userName.split(' ')[0]}` : ''}
+          </h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Aqui ficam os jornais da sua unidade.
+          </p>
+        </div>
+        <Button onClick={openCreate} className="shrink-0">
+          <Plus className="mr-1.5 h-4 w-4" /> Criar jornal da unidade
+        </Button>
+      </header>
+
+      <UnitBadge
+        variant="banner"
+        unitId={activeUnitId}
+        label="Minha unidade"
+        hint="Todos os jornais desta página pertencem a esta unidade."
+        onChangeUnit={setActiveUnitId}
       />
 
-      <div className="mb-4 max-w-sm">
-        <Input
-          placeholder="Buscar por nome da edição…"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
+      <div className="mt-4 flex flex-wrap gap-2">
+        {COUNTER_ORDER.map((status) => {
+          const active = statusFilter === status;
+          return (
+            <button
+              key={status}
+              type="button"
+              onClick={() => setStatusFilter(active ? 'todos' : status)}
+              className={cn(
+                'rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                active
+                  ? 'border-primary bg-accent text-accent-foreground'
+                  : 'border-border bg-card text-muted-foreground hover:bg-accent/50',
+              )}
+              aria-pressed={active}
+            >
+              {counters[status]} {COUNTER_LABELS[status]}
+            </button>
+          );
+        })}
       </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder="Buscar edição…"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as JournalStatus | 'todos')}>
+          <SelectTrigger>
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os status</SelectItem>
+            {COUNTER_ORDER.map((status) => (
+              <SelectItem key={status} value={status}>
+                {STATUS_LABELS[status]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={monthFilter} onValueChange={setMonthFilter}>
+          <SelectTrigger>
+            <SelectValue placeholder="Mês / Ano" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os meses</SelectItem>
+            {months.map((month) => (
+              <SelectItem key={month} value={month}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <h2 className="mt-7 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Seus jornais
+      </h2>
 
       {loading ? (
         <div className="flex items-center gap-2 py-16 text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" /> Carregando jornais…
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border py-20 text-center">
+        <div className="mt-3 flex flex-col items-center gap-3 rounded-lg border border-dashed border-border py-20 text-center">
           <Newspaper className="h-10 w-10 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Nenhum jornal criado ainda.</p>
-          <Button onClick={() => setCreating(true)}>
-            <Plus className="mr-1.5 h-4 w-4" /> Criar novo jornal
-          </Button>
+          {hasActiveFilters ? (
+            <>
+              <p className="text-sm font-semibold text-foreground">Nenhuma edição encontrada</p>
+              <p className="text-xs text-muted-foreground">Ajuste a busca ou os filtros aplicados.</p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearch('');
+                  setStatusFilter('todos');
+                  setMonthFilter('todos');
+                }}
+              >
+                Limpar busca
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-semibold text-foreground">
+                Nenhum jornal criado para esta unidade
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Comece o primeiro jornal de
+                <br />
+                <span className="font-medium text-foreground">
+                  {newsUnitName(activeUnitId) || 'Institucional geral'}
+                </span>
+              </p>
+              <Button onClick={openCreate}>
+                <Plus className="mr-1.5 h-4 w-4" /> Criar jornal da unidade
+              </Button>
+              <p className="text-[11px] text-muted-foreground">
+                A unidade já está definida — é só dar um nome à edição.
+              </p>
+            </>
+          )}
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((journal) => (
-            <article key={journal.id} className="rounded-lg border border-border bg-card p-4">
-              <div className="flex items-start justify-between gap-2">
-                <h2 className="text-base font-semibold text-foreground">{journal.name}</h2>
-                <Badge className={STATUS_VARIANT[journal.status]} variant="secondary">
-                  {STATUS_LABELS[journal.status]}
-                </Badge>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {[newsUnitName(journal.unit_id), journal.reference_month].filter(Boolean).join(' · ') || 'Sem unidade'}
-              </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                {(journal.pages?.length ?? 0)} página(s) · atualizado em{' '}
-                {new Date(journal.updated_at).toLocaleDateString('pt-BR')}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                <Button size="sm" onClick={() => setEditingId(journal.id)}>
-                  <Pencil className="mr-1.5 h-3.5 w-3.5" /> Editar
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => duplicate(journal)}>
-                  <Copy className="mr-1.5 h-3.5 w-3.5" /> Duplicar
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-destructive"
-                  onClick={() => remove(journal.id)}
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((journal) => {
+            const cover = journal.pages?.[0];
+            return (
+              <article
+                key={journal.id}
+                className="overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md"
+              >
+                <button
+                  type="button"
+                  onClick={() => setEditingId(journal.id)}
+                  className="block w-full bg-muted/40 p-3 text-left"
+                  aria-label={`Abrir ${journal.name}`}
                 >
-                  <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Excluir
-                </Button>
-              </div>
-            </article>
-          ))}
+                  <div
+                    className="mx-auto overflow-hidden rounded-sm border border-border bg-news-paper"
+                    style={{ width: THUMB_W, height: A4_H * THUMB_SCALE }}
+                  >
+                    {cover && (
+                      <div style={{ transform: `scale(${THUMB_SCALE})`, transformOrigin: 'top left' }}>
+                        <JournalPageView
+                          page={cover}
+                          index={0}
+                          total={journal.pages?.length ?? 1}
+                          edition={journal.reference_month || ''}
+                          unitName={newsUnitName(journal.unit_id)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </button>
+
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="min-w-0 truncate text-base font-semibold text-foreground">
+                      {journal.name}
+                    </h3>
+                    <Badge className={STATUS_VARIANT[journal.status]} variant="secondary">
+                      {STATUS_LABELS[journal.status]}
+                    </Badge>
+                  </div>
+                  <div className="mt-1">
+                    <UnitBadge variant="chip" unitId={journal.unit_id} />
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {journal.pages?.length ?? 0} páginas · {relativeDate(journal.updated_at)}
+                    {journal.reference_month ? ` · ${journal.reference_month}` : ''}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    <Button size="sm" onClick={() => setEditingId(journal.id)}>
+                      <Pencil className="mr-1.5 h-3.5 w-3.5" /> Abrir
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => duplicate(journal)}>
+                      <Copy className="mr-1.5 h-3.5 w-3.5" /> Duplicar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive"
+                      onClick={() => remove(journal.id)}
+                    >
+                      <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Excluir
+                    </Button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
 
       <Dialog open={creating} onOpenChange={setCreating}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Criar novo jornal</DialogTitle>
-            <DialogDescription>
-              A edição nasce com capa, matérias, galeria e contracapa — você ajusta as páginas depois.
-            </DialogDescription>
+            <DialogTitle>Criar jornal da unidade</DialogTitle>
+            <DialogDescription>Sua edição já nasce vinculada à sua unidade.</DialogDescription>
           </DialogHeader>
+
           <div className="space-y-3">
+            <UnitBadge
+              variant="banner"
+              unitId={form.unitId}
+              label="Unidade"
+              hint="preenchida automaticamente"
+              onChangeUnit={(unitId) =>
+                setForm((prev) => ({
+                  ...prev,
+                  unitId,
+                  name: suggestName(unitId, prev.referenceMonth),
+                }))
+              }
+            />
+
             <div className="space-y-1.5">
               <Label>Nome da edição</Label>
               <Input
@@ -185,35 +428,74 @@ export default function JournalPage() {
                 onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label>Unidade (opcional)</Label>
-              <Select value={form.unitId} onValueChange={(value) => setForm((prev) => ({ ...prev, unitId: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Institucional geral" />
-                </SelectTrigger>
-                <SelectContent>
-                  {NEWS_UNIT_GROUPS.map((group) => (
-                    <SelectGroup key={group.label}>
-                      <SelectLabel>{group.label}</SelectLabel>
-                      {group.units.map((unit) => (
-                        <SelectItem key={unit.id} value={unit.id}>
-                          {unit.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  ))}
-                </SelectContent>
-              </Select>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Mês/Ano de referência</Label>
+                <Input
+                  value={form.referenceMonth}
+                  placeholder="Julho/2026"
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      referenceMonth: event.target.value,
+                      name: suggestName(prev.unitId, event.target.value),
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Modelo inicial</Label>
+                <Select
+                  value={form.template}
+                  onValueChange={(value) =>
+                    setForm((prev) => ({ ...prev, template: value as StartingTemplate }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="padrao">Padrão (capa + matérias)</SelectItem>
+                    <SelectItem value="enxuto">Enxuto (capa + matéria)</SelectItem>
+                    <SelectItem value="branco">Em branco</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+
             <div className="space-y-1.5">
-              <Label>Mês/Ano de referência</Label>
-              <Input
-                value={form.referenceMonth}
-                placeholder="Julho/2026"
-                onChange={(event) => setForm((prev) => ({ ...prev, referenceMonth: event.target.value }))}
-              />
+              <Label>Páginas iniciais</Label>
+              <div className="inline-flex items-center gap-2 rounded-md border border-border px-2 py-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  aria-label="Menos uma página"
+                  onClick={() =>
+                    setForm((prev) => ({ ...prev, pageCount: Math.max(1, prev.pageCount - 1) }))
+                  }
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </Button>
+                <span className="w-6 text-center text-sm font-semibold">{form.pageCount}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  aria-label="Mais uma página"
+                  onClick={() =>
+                    setForm((prev) => ({ ...prev, pageCount: Math.min(24, prev.pageCount + 1) }))
+                  }
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreating(false)}>
               Cancelar
