@@ -73,7 +73,7 @@ export function useJournals() {
       if (draft.status !== undefined) row.status = draft.status;
       if (draft.pages !== undefined) row.pages = draft.pages;
 
-      const { error } = await supabase.from('journals').update(row).eq('id', id);
+      const { error } = await supabase.from('journals').update(row as any).eq('id', id);
       setSaving(false);
       if (!error) {
         setSavedAt(
