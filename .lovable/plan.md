@@ -131,7 +131,7 @@ A unidade vem preenchida automaticamente, mas continua trocável: o seletor abre
 ```text
 ┌────────────────────────────────────────────────────────────────┐
 │ ← Voltar │ [Jornal Pierre Weil — Julho/2026]   ✓ Salvo 14:32   │
-│           🏢 Jornal da unidade CEI Bem Querer Pierre Weil 🔒    │
+│           🏢 Jornal da unidade CEI Bem Querer Pierre Weil ▾    │
 │                                   [PDF digital] [PDF impressão]│
 ├──────────┬─────────────────────────────────┬───────────────────┤
 │ PÁGINAS  │  Página 1 de 8      − 70% +     │ CONTEÚDO DA PÁGINA│
@@ -143,7 +143,7 @@ A unidade vem preenchida automaticamente, mas continua trocável: o seletor abre
 └──────────┴─────────────────────────────────┴───────────────────┘
 ```
 
-Refinamentos: segunda linha fixa na barra superior com o selo da unidade + cadeado; hierarquia clara entre nome do jornal (input grande), unidade (subtítulo) e salvamento (chip com ícone de check); renomear "Propriedades" → "Conteúdo da página"; "Adicionar bloco" → "Adicionar ao jornal"; miniaturas com rótulo humano ("Capa", "Matéria", "Galeria") em vez de nomes de template.
+Refinamentos: segunda linha fixa na barra superior com o selo da unidade + seletor "Trocar unidade" (com popup de confirmação antes de aplicar); hierarquia clara entre nome do jornal (input grande), unidade (subtítulo) e salvamento (chip com ícone de check); renomear "Propriedades" → "Conteúdo da página"; "Adicionar bloco" → "Adicionar ao jornal"; miniaturas com rótulo humano ("Capa", "Matéria", "Galeria") em vez de nomes de template.
 
 ## 10. Melhorias de usabilidade e linguagem
 
@@ -184,7 +184,7 @@ Os diagramas das seções 6 a 9 são os mockups 1 a 7. Abaixo, os mockups mobile
 ```text
 ┌──────────────────┐
 │ Jornal da unidade│
-│ ▣ Pierre Weil 🔒 │
+│ ▣ Pierre Weil ▾  │
 │ [3][5][1] status │
 │ 🔎 Buscar        │
 │ ┌──────────────┐ │
@@ -204,7 +204,7 @@ Os diagramas das seções 6 a 9 são os mockups 1 a 7. Abaixo, os mockups mobile
 ```text
 ┌──────────────────┐
 │ ← Julho/2026     │
-│ 🏢 Pierre Weil 🔒│
+│ 🏢 Pierre Weil ▾ │
 │ ◀ Página 2/8 ▶   │
 │ ┌──────────────┐ │
 │ │   A4 preview │ │
@@ -221,9 +221,9 @@ Os diagramas das seções 6 a 9 são os mockups 1 a 7. Abaixo, os mockups mobile
 | Área | Hoje | Proposto |
 |---|---|---|
 | Cabeçalho | Título de ferramenta | Saudação + selo de unidade |
-| Unidade | Texto cinza no card | Banner fixo + chip + cadeado |
+| Unidade | Texto cinza no card | Banner com nome + chip + "Trocar unidade" |
 | Estado vazio | "Nenhum jornal criado ainda" | Convite nominal à unidade |
-| Criação | Select de unidade aberto | Bloco travado "definida automaticamente" |
+| Criação | Select de unidade aberto | Unidade pré-preenchida + popup de confirmação ao trocar |
 | Editor | Sem unidade | Faixa "Jornal da unidade X" |
 | Filtros | Só busca | Busca + status + mês + contadores |
 | Cards | Texto puro | Miniatura da capa + metadados |
