@@ -18,6 +18,7 @@ export const navItems: NavItem[] = [
   { to: '/visao-geral', label: 'Visão Geral', icon: LayoutDashboard, requireAuth: true, hidden: true },
   { to: '/calendario', label: 'Calendário', icon: Calendar, requireAuth: true, hidden: true },
   { to: '/noticias', label: 'Notícias (Informativo)', icon: Newspaper, requireAuth: true },
+  { to: '/jornal-institucional', label: 'Jornal Institucional', icon: BookOpen, requireAuth: true, marketingOnly: true },
   { to: '/mercado-solidario', label: 'Mercado Solidário', icon: ShoppingBasket },
   { to: '/marketing', label: 'Marketing', icon: Megaphone, requireAuth: true, marketingOnly: true },
   { to: '/usuarios', label: 'Painel', icon: Users, requireAuth: true, managerOnly: true },
