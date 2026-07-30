@@ -110,6 +110,10 @@ const App = () => (
                   <Route path="/noticias" element={
                     <ProtectedRoute><NewsGeneratorPage /></ProtectedRoute>
                   } />
+                  <Route path="/jornal-institucional" element={
+                    <MarketingRoute><JournalPage /></MarketingRoute>
+                  } />
+
                   <Route path="/marketing" element={
                     <ProtectedRoute><MarketingHubPage /></ProtectedRoute>
                   } />
