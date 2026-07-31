@@ -115,8 +115,16 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
 
   return (
     <div className={wrapper} onClick={handleClick}>
-      <div className="border-t-2 border-news-brand-2 pt-2">
-        <p className="text-[26px] font-extrabold leading-none text-[#1F211F]">{block.value}</p>
+      <div
+        className="border-t-2 pt-2"
+        style={{ borderTopColor: block.color ? journalColor(block.color) : '#FACC00' }}
+      >
+        <p
+          className="text-[26px] font-extrabold leading-none"
+          style={{ color: journalColor(block.color) }}
+        >
+          {block.value}
+        </p>
         <p className="mt-1 text-[9px] uppercase tracking-[0.14em] text-[#5C5A50]">{block.label}</p>
       </div>
     </div>
