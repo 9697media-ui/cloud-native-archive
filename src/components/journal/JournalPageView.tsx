@@ -50,11 +50,14 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
         <p
           className={cn(
             TEXT_STYLE_CLASSES[block.style],
-            'whitespace-pre-wrap text-[#1F211F]',
-            block.style === 'destaque' && 'border-news-brand-3',
+            'whitespace-pre-wrap',
             block.align === 'center' && 'text-center',
             block.align === 'right' && 'text-right',
           )}
+          style={{
+            color: journalColor(block.color),
+            ...(block.style === 'destaque' ? { borderLeftColor: journalColor(block.color) } : {}),
+          }}
         >
           {block.content || ' '}
         </p>
