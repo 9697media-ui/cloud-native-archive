@@ -11,9 +11,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ImageBlockField } from '@/components/news/ImageBlockField';
+import { ColorSwatchPicker } from '@/components/journal/ColorSwatchPicker';
 import { TEMPLATE_LABELS, TEXT_STYLE_LABELS } from '@/lib/journal/types';
 import type {
   BlockSpan,
+  JournalColorKey,
   JournalBlock,
   JournalPage,
   TextStyleKey,
@@ -120,6 +122,11 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
             </Select>
           </div>
 
+          <ColorSwatchPicker
+            value={block.color}
+            onChange={(color) => onChangeBlock({ color } as Partial<JournalBlock>)}
+          />
+
           <div className="space-y-1.5">
             <Label className="text-xs">Conteúdo</Label>
             <Textarea
@@ -179,6 +186,11 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
               onChange={(event) => onChangeBlock({ caption: event.target.value } as Partial<JournalBlock>)}
             />
           </div>
+          <ColorSwatchPicker
+            label="Cor da legenda"
+            value={block.color}
+            onChange={(color: JournalColorKey) => onChangeBlock({ color } as Partial<JournalBlock>)}
+          />
         </>
       )}
 
@@ -196,6 +208,13 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
             <Input
               value={block.label}
               onChange={(event) => onChangeBlock({ label: event.target.value } as Partial<JournalBlock>)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <ColorSwatchPicker
+              label="Cor do número"
+              value={block.color}
+              onChange={(color: JournalColorKey) => onChangeBlock({ color } as Partial<JournalBlock>)}
             />
           </div>
         </>
