@@ -56,7 +56,9 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
           )}
           style={{
             color: journalColor(block.color),
-            ...(block.style === 'destaque' ? { borderLeftColor: journalColor(block.color) } : {}),
+            ...(block.style === 'destaque'
+              ? { borderLeftColor: block.color ? journalColor(block.color) : '#F5705B' }
+              : {}),
           }}
         >
           {block.content || ' '}
