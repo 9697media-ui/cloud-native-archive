@@ -79,6 +79,8 @@ export interface JournalImageBlock {
   span: BlockSpan;
   ratio: '16/9' | '4/3' | '1/1' | '3/4';
   fit: 'cover' | 'contain';
+  /** Cor da legenda — ausente usa o cinza institucional padrão. */
+  color?: JournalColorKey;
 }
 
 export interface JournalAgendaItem {
@@ -102,6 +104,8 @@ export interface JournalStatBlock {
   value: string;
   label: string;
   span: BlockSpan;
+  /** Cor do número — ausente significa tinta institucional. */
+  color?: JournalColorKey;
 }
 
 export type JournalBlock =
