@@ -1,7 +1,12 @@
 import { cn } from '@/lib/utils';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import anaLogo from '@/assets/ana-brasil-logo.svg';
-import { TEXT_STYLE_CLASSES, type JournalBlock, type JournalPage } from '@/lib/journal/types';
+import {
+  TEXT_STYLE_CLASSES,
+  journalColor,
+  type JournalBlock,
+  type JournalPage,
+} from '@/lib/journal/types';
 
 export const A4_W = 794;
 export const A4_H = 1123;
