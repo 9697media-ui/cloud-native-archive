@@ -85,7 +85,10 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
           )}
         </div>
         {block.caption && (
-          <figcaption className={cn(TEXT_STYLE_CLASSES.legenda, 'mt-1 text-[#5C5A50]')}>
+          <figcaption
+            className={cn(TEXT_STYLE_CLASSES.legenda, 'mt-1')}
+            style={{ color: block.color ? journalColor(block.color) : '#5C5A50' }}
+          >
             {block.caption}
           </figcaption>
         )}
