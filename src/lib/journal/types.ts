@@ -27,6 +27,39 @@ export type TextStyleKey =
 
 export type BlockSpan = 1 | 2 | 3 | 4 | 5 | 6;
 
+/** Cores autorizadas da identidade — nenhuma cor livre é permitida. */
+export type JournalColorKey =
+  | 'tinta'
+  | 'areia'
+  | 'amarelo'
+  | 'coral'
+  | 'verde_agua'
+  | 'azul';
+
+export const JOURNAL_COLOR_LABELS: Record<JournalColorKey, string> = {
+  tinta: 'Tinta institucional',
+  areia: 'Areia',
+  amarelo: 'Amarelo ANA',
+  coral: 'Coral',
+  verde_agua: 'Verde-água',
+  azul: 'Azul ANA',
+};
+
+/** Hex fixo (não usa var CSS) para garantir paridade preview = PDF no html2canvas. */
+export const JOURNAL_COLOR_HEX: Record<JournalColorKey, string> = {
+  tinta: '#1F211F',
+  areia: '#F2DBBB',
+  amarelo: '#FACC00',
+  coral: '#F5705B',
+  verde_agua: '#87E0CB',
+  azul: '#00A6FF',
+};
+
+export const JOURNAL_COLOR_KEYS = Object.keys(JOURNAL_COLOR_LABELS) as JournalColorKey[];
+
+export const journalColor = (key?: JournalColorKey): string =>
+  JOURNAL_COLOR_HEX[key ?? 'tinta'] ?? JOURNAL_COLOR_HEX.tinta;
+
 export interface JournalTextBlock {
   id: string;
   kind: 'text';
@@ -34,6 +67,8 @@ export interface JournalTextBlock {
   content: string;
   align: 'left' | 'center' | 'right';
   span: BlockSpan;
+  /** Opcional — ausente significa tinta institucional. */
+  color?: JournalColorKey;
 }
 
 export interface JournalImageBlock {
@@ -44,6 +79,8 @@ export interface JournalImageBlock {
   span: BlockSpan;
   ratio: '16/9' | '4/3' | '1/1' | '3/4';
   fit: 'cover' | 'contain';
+  /** Cor da legenda — ausente usa o cinza institucional padrão. */
+  color?: JournalColorKey;
 }
 
 export interface JournalAgendaItem {
@@ -67,6 +104,8 @@ export interface JournalStatBlock {
   value: string;
   label: string;
   span: BlockSpan;
+  /** Cor do número — ausente significa tinta institucional. */
+  color?: JournalColorKey;
 }
 
 export type JournalBlock =

@@ -1,7 +1,12 @@
 import { cn } from '@/lib/utils';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import anaLogo from '@/assets/ana-brasil-logo.svg';
-import { TEXT_STYLE_CLASSES, type JournalBlock, type JournalPage } from '@/lib/journal/types';
+import {
+  TEXT_STYLE_CLASSES,
+  journalColor,
+  type JournalBlock,
+  type JournalPage,
+} from '@/lib/journal/types';
 
 export const A4_W = 794;
 export const A4_H = 1123;
@@ -45,11 +50,16 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
         <p
           className={cn(
             TEXT_STYLE_CLASSES[block.style],
-            'whitespace-pre-wrap text-[#1F211F]',
-            block.style === 'destaque' && 'border-news-brand-3',
+            'whitespace-pre-wrap',
             block.align === 'center' && 'text-center',
             block.align === 'right' && 'text-right',
           )}
+          style={{
+            color: journalColor(block.color),
+            ...(block.style === 'destaque'
+              ? { borderLeftColor: block.color ? journalColor(block.color) : '#F5705B' }
+              : {}),
+          }}
         >
           {block.content || ' '}
         </p>
@@ -75,7 +85,10 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
           )}
         </div>
         {block.caption && (
-          <figcaption className={cn(TEXT_STYLE_CLASSES.legenda, 'mt-1 text-[#5C5A50]')}>
+          <figcaption
+            className={cn(TEXT_STYLE_CLASSES.legenda, 'mt-1')}
+            style={{ color: block.color ? journalColor(block.color) : '#5C5A50' }}
+          >
             {block.caption}
           </figcaption>
         )}
@@ -102,8 +115,16 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
 
   return (
     <div className={wrapper} onClick={handleClick}>
-      <div className="border-t-2 border-news-brand-2 pt-2">
-        <p className="text-[26px] font-extrabold leading-none text-[#1F211F]">{block.value}</p>
+      <div
+        className="border-t-2 pt-2"
+        style={{ borderTopColor: block.color ? journalColor(block.color) : '#FACC00' }}
+      >
+        <p
+          className="text-[26px] font-extrabold leading-none"
+          style={{ color: journalColor(block.color) }}
+        >
+          {block.value}
+        </p>
         <p className="mt-1 text-[9px] uppercase tracking-[0.14em] text-[#5C5A50]">{block.label}</p>
       </div>
     </div>
