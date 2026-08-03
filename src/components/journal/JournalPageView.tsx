@@ -79,32 +79,20 @@ export function JournalBlockView({
 
   if (block.kind === 'image') {
     return (
-      <figure className={wrapper} onClick={handleClick}>
-        <div className={cn('w-full overflow-hidden bg-[#E4E0D2]', RATIO_CLASS[block.ratio])}>
-          {block.url ? (
-            <img
-              src={block.url}
-              alt={block.caption || 'Imagem do jornal'}
-              className={cn('h-full w-full', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
-              crossOrigin="anonymous"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-[10px] uppercase tracking-widest text-[#8B8778]">
-              Imagem
-            </div>
-          )}
-        </div>
-        {block.caption && (
-          <figcaption
-            className={cn(TEXT_STYLE_CLASSES.legenda, 'mt-1')}
-            style={{ color: block.color ? journalColor(block.color) : '#5C5A50' }}
-          >
-            {block.caption}
-          </figcaption>
-        )}
-      </figure>
+      <JournalImageBlockView
+        block={block}
+        wrapperClass={wrapper}
+        selected={selected}
+        interactive={interactive}
+        scale={scale}
+        onSelect={onSelect}
+        onChange={(patch: Partial<JournalImageBlock>) => onChangeBlock?.(block.id, patch as Partial<JournalBlock>)}
+        frameMode={frameModeId === block.id}
+        onToggleFrameMode={onToggleFrameMode}
+      />
     );
   }
+
 
   if (block.kind === 'agenda') {
     return (
