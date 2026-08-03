@@ -172,6 +172,18 @@ export const TEXT_STYLE_CLASSES: Record<TextStyleKey, string> = {
   legenda: 'text-[11px] italic leading-[1.3]',
 };
 
+/** Tamanho padrão (px) de cada função tipográfica — usado no controle de fonte. */
+export const TEXT_STYLE_DEFAULT_SIZES: Record<TextStyleKey, number> = {
+  titulo_capa: 35,
+  titulo_materia: 25,
+  subtitulo: 15,
+  corpo: 13,
+  destaque: 14,
+  chamada: 12,
+  legenda: 11,
+};
+
+
 export const STATUS_LABELS: Record<string, string> = {
   rascunho: 'Rascunho',
   finalizado: 'Finalizado',
