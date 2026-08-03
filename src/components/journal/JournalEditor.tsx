@@ -184,12 +184,35 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     setSelectedBlockId(null);
   };
 
+  /** Move um bloco uma posição para cima/baixo na ordem da página. */
+  const moveBlock = (blockId: string, direction: -1 | 1) => {
+    mutatePages((prev) =>
+      prev.map((page) => {
+        if (page.id !== activePage.id) return page;
+        const index = page.blocks.findIndex((block) => block.id === blockId);
+        const target = index + direction;
+        if (index < 0 || target < 0 || target >= page.blocks.length) return page;
+        const blocks = [...page.blocks];
+        [blocks[index], blocks[target]] = [blocks[target], blocks[index]];
+        return { ...page, blocks };
+      }),
+    );
+  };
+
+  /** Insere logo após o bloco selecionado (ou no fim, se nada estiver selecionado). */
   const addBlock = (block: JournalBlock) => {
     mutatePages((prev) =>
-      prev.map((page) => (page.id === activePage.id ? { ...page, blocks: [...page.blocks, block] } : page)),
+      prev.map((page) => {
+        if (page.id !== activePage.id) return page;
+        const at = page.blocks.findIndex((entry) => entry.id === selectedBlockId);
+        const blocks = [...page.blocks];
+        blocks.splice(at < 0 ? blocks.length : at + 1, 0, block);
+        return { ...page, blocks };
+      }),
     );
     setSelectedBlockId(block.id);
   };
+
 
   const addPage = (template: JournalTemplate) => {
     const page = createPage(template);
