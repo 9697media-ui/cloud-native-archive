@@ -32,7 +32,7 @@ interface Props {
   onClose?: () => void;
 }
 
-const SPANS: BlockSpan[] = [1, 2, 3, 4, 5, 6];
+
 
 export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlock, onClose }: Props) {
   if (!block) {
