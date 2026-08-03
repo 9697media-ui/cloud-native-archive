@@ -225,12 +225,14 @@ export function JournalBlockView({
     );
     const textStyle = {
       color: journalColor(block.color),
+      ...(block.fontSize ? { fontSize: `${block.fontSize}px` } : {}),
       ...(block.lineHeight ? { lineHeight: block.lineHeight } : {}),
       ...(block.style === 'destaque'
         ? { borderLeftColor: block.color ? journalColor(block.color) : '#F5705B' }
         : {}),
     };
     const lines = block.content.split('\n').filter((line) => line.trim().length > 0);
+
 
     content = block.list ? (
       <ul className={cn(textClasses, 'list-disc pl-4')} style={textStyle}>
