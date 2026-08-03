@@ -1,10 +1,12 @@
 import { cn } from '@/lib/utils';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
+import { JournalImageBlockView } from '@/components/journal/JournalImageBlockView';
 import anaLogo from '@/assets/ana-brasil-logo.svg';
 import {
   TEXT_STYLE_CLASSES,
   journalColor,
   type JournalBlock,
+  type JournalImageBlock,
   type JournalPage,
 } from '@/lib/journal/types';
 
@@ -20,26 +22,32 @@ const SPAN_CLASS: Record<number, string> = {
   6: 'col-span-6',
 };
 
-const RATIO_CLASS: Record<string, string> = {
-  '16/9': 'aspect-[16/9]',
-  '4/3': 'aspect-[4/3]',
-  '1/1': 'aspect-square',
-  '3/4': 'aspect-[3/4]',
-};
-
 interface BlockViewProps {
   block: JournalBlock;
   selected?: boolean;
   interactive?: boolean;
+  scale?: number;
   onSelect?: (id: string) => void;
+  onChangeBlock?: (id: string, patch: Partial<JournalBlock>) => void;
+  frameModeId?: string | null;
+  onToggleFrameMode?: (id: string | null) => void;
 }
 
-export function JournalBlockView({ block, selected, interactive, onSelect }: BlockViewProps) {
+export function JournalBlockView({
+  block,
+  selected,
+  interactive,
+  scale,
+  onSelect,
+  onChangeBlock,
+  frameModeId,
+  onToggleFrameMode,
+}: BlockViewProps) {
   const wrapper = cn(
     SPAN_CLASS[block.span] ?? 'col-span-6',
     interactive && 'cursor-pointer rounded-sm transition-[box-shadow]',
     interactive && !selected && 'hover:shadow-[0_0_0_1.5px_hsl(var(--ring))]',
-    selected && 'shadow-[0_0_0_2px_hsl(var(--primary))]',
+    selected && block.kind !== 'image' && 'shadow-[0_0_0_2px_hsl(var(--primary))]',
   );
 
   const handleClick = interactive ? () => onSelect?.(block.id) : undefined;
