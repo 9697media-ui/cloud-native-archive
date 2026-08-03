@@ -146,13 +146,13 @@ export const TEXT_STYLE_LABELS: Record<TextStyleKey, string> = {
 
 /** Classes tipográficas travadas — usadas no canvas, no preview e no PDF. */
 export const TEXT_STYLE_CLASSES: Record<TextStyleKey, string> = {
-  titulo_capa: 'text-[30px] font-extrabold uppercase leading-[1.05] tracking-tight',
-  titulo_materia: 'text-[19px] font-bold leading-[1.15]',
-  subtitulo: 'text-[13px] font-semibold uppercase tracking-[0.14em]',
-  corpo: 'text-[11px] leading-[1.65] text-justify',
-  destaque: 'text-[15px] font-semibold italic leading-[1.4] border-l-4 pl-3',
+  titulo_capa: 'text-[35px] font-extrabold uppercase leading-[1.05] tracking-tight',
+  titulo_materia: 'text-[25px] font-bold leading-[1.15]',
+  subtitulo: 'text-[15px] font-semibold uppercase tracking-[0.14em]',
+  corpo: 'text-[13px] leading-[1.65] text-justify',
+  destaque: 'text-[14px] font-semibold italic leading-[1.4] border-l-4 pl-3',
   chamada: 'text-[12px] font-medium leading-[1.4]',
-  legenda: 'text-[9px] italic leading-[1.3]',
+  legenda: 'text-[11px] italic leading-[1.3]',
 };
 
 export const STATUS_LABELS: Record<string, string> = {
