@@ -6,10 +6,15 @@ import {
   Bold,
   Italic,
   List,
+  Minus,
+  Plus,
+  RotateCcw,
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -19,12 +24,13 @@ import {
 } from '@/components/ui/select';
 import { ColorSwatchPicker } from '@/components/journal/ColorSwatchPicker';
 import { cn } from '@/lib/utils';
-import { TEXT_STYLE_LABELS } from '@/lib/journal/types';
+import { TEXT_STYLE_LABELS, TEXT_STYLE_DEFAULT_SIZES } from '@/lib/journal/types';
 import type {
   JournalBlock,
   JournalTextBlock,
   TextStyleKey,
 } from '@/lib/journal/types';
+
 
 export interface TextBlockPanelProps {
   block: JournalTextBlock;
@@ -53,6 +59,17 @@ const PLACEHOLDERS: Record<TextStyleKey, string> = {
 /** Painel contextual de um bloco de texto: todos os controles visíveis. */
 export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
   const lineHeight = block.lineHeight ?? 1.5;
+  const defaultSize = TEXT_STYLE_DEFAULT_SIZES[block.style];
+  const currentSize = block.fontSize ?? defaultSize;
+
+  const setFontSize = (next: number | undefined) => {
+    if (next === undefined || next === defaultSize) {
+      onChange({ fontSize: undefined } as Partial<JournalBlock>);
+      return;
+    }
+    const clamped = Math.max(8, Math.min(72, Math.round(next)));
+    onChange({ fontSize: clamped } as Partial<JournalBlock>);
+  };
 
   return (
     <div className="space-y-4">
@@ -77,7 +94,11 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
         </Label>
         <Select
           value={block.style}
-          onValueChange={(value) => onChange({ style: value as TextStyleKey } as Partial<JournalBlock>)}
+          onValueChange={(value) => {
+            const nextStyle = value as TextStyleKey;
+            // Ao trocar de função, descarta o tamanho personalizado para adotar o padrão da nova função.
+            onChange({ style: nextStyle, fontSize: undefined } as Partial<JournalBlock>);
+          }}
         >
           <SelectTrigger className="h-9">
             <SelectValue />
@@ -91,9 +112,72 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
           </SelectContent>
         </Select>
         <p className="text-[10px] text-muted-foreground">
-          Fonte, tamanho e cor são aplicados automaticamente.
+          Fonte e cor são aplicadas automaticamente. O tamanho pode ser ajustado abaixo.
         </p>
       </section>
+
+      <section className="space-y-2 border-t border-border pt-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Tamanho da fonte
+          </Label>
+          <span className="text-xs font-semibold tabular-nums text-foreground">
+            {currentSize}px
+            {block.fontSize !== undefined && block.fontSize !== defaultSize && (
+              <span className="ml-1 text-[10px] font-normal text-muted-foreground">
+                (padrão {defaultSize}px)
+              </span>
+            )}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 shrink-0"
+            onClick={() => setFontSize(currentSize - 1)}
+            aria-label="Diminuir tamanho da fonte"
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </Button>
+          <Input
+            type="number"
+            min={8}
+            max={72}
+            value={currentSize}
+            onChange={(event) => setFontSize(Number(event.target.value))}
+            className="h-8 text-center tabular-nums"
+            aria-label="Tamanho da fonte em pixels"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 shrink-0"
+            onClick={() => setFontSize(currentSize + 1)}
+            aria-label="Aumentar tamanho da fonte"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0"
+            title="Voltar ao tamanho padrão da função"
+            onClick={() => setFontSize(undefined)}
+            aria-label="Voltar ao tamanho padrão"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+        <div className="flex justify-between text-[10px] text-muted-foreground">
+          <span>Mínimo 8px</span>
+          <span>Máximo 72px</span>
+        </div>
+      </section>
+
 
       <section className="space-y-3 border-t border-border pt-3">
         <div className="space-y-1.5">

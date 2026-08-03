@@ -73,11 +73,14 @@ export interface JournalTextBlock {
   color?: JournalColorKey;
   /** Espaçamento entre linhas (1,0 a 2,0). Ausente usa o padrão da função. */
   lineHeight?: number;
+  /** Tamanho da fonte em px. Ausente usa o padrão da função. */
+  fontSize?: number;
   bold?: boolean;
   italic?: boolean;
   /** Renderiza cada linha do conteúdo como item de lista. */
   list?: boolean;
 }
+
 
 export interface JournalImageBlock {
   id: string;
@@ -168,6 +171,18 @@ export const TEXT_STYLE_CLASSES: Record<TextStyleKey, string> = {
   chamada: 'text-[12px] font-medium leading-[1.4]',
   legenda: 'text-[11px] italic leading-[1.3]',
 };
+
+/** Tamanho padrão (px) de cada função tipográfica — usado no controle de fonte. */
+export const TEXT_STYLE_DEFAULT_SIZES: Record<TextStyleKey, number> = {
+  titulo_capa: 35,
+  titulo_materia: 25,
+  subtitulo: 15,
+  corpo: 13,
+  destaque: 14,
+  chamada: 12,
+  legenda: 11,
+};
+
 
 export const STATUS_LABELS: Record<string, string> = {
   rascunho: 'Rascunho',
