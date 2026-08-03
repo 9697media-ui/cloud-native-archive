@@ -1,15 +1,12 @@
-import { useState } from 'react';
 import {
   AlignCenter,
   AlignJustify,
   AlignLeft,
   AlignRight,
   Bold,
-  ChevronDown,
   Italic,
   List,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,7 +21,6 @@ import { ColorSwatchPicker } from '@/components/journal/ColorSwatchPicker';
 import { cn } from '@/lib/utils';
 import { TEXT_STYLE_LABELS } from '@/lib/journal/types';
 import type {
-  BlockSpan,
   JournalBlock,
   JournalTextBlock,
   TextStyleKey,
