@@ -145,9 +145,8 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     if (dimension === 'height') {
       patchBlock(selectedBlockId, { height: Math.round(rect.height / zoom) } as Partial<JournalBlock>);
     } else {
-      const available = grid.getBoundingClientRect().width / zoom;
       patchBlock(selectedBlockId, {
-        widthPct: Math.min(100, Math.round(((rect.width / zoom) / available) * 100 * 6)),
+        widthPct: Math.min(100, Math.max(30, Math.round((rect.width / targetRect.width) * 100))),
       } as Partial<JournalBlock>);
     }
   };
