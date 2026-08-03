@@ -98,21 +98,60 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     setPages(updater);
   }, []);
 
+  const patchBlock = useCallback(
+    (blockId: string, patch: Partial<JournalBlock>) => {
+      mutatePages((prev) =>
+        prev.map((page) =>
+          page.id !== activePage.id
+            ? page
+            : {
+                ...page,
+                blocks: page.blocks.map((block) =>
+                  block.id === blockId ? ({ ...block, ...patch } as JournalBlock) : block,
+                ),
+              },
+        ),
+      );
+    },
+    [activePage.id, mutatePages],
+  );
+
   const updateBlock = (patch: Partial<JournalBlock>) => {
     if (!selectedBlockId) return;
-    mutatePages((prev) =>
-      prev.map((page) =>
-        page.id !== activePage.id
-          ? page
-          : {
-              ...page,
-              blocks: page.blocks.map((block) =>
-                block.id === selectedBlockId ? ({ ...block, ...patch } as JournalBlock) : block,
-              ),
-            },
-      ),
-    );
+    patchBlock(selectedBlockId, patch);
   };
+
+  /** Iguala altura/largura da imagem ao bloco vizinho renderizado na mesma linha. */
+  const matchSibling = (dimension: 'height' | 'width') => {
+    if (!selectedBlockId || !canvasRef.current) return;
+    const grid = canvasRef.current.querySelector<HTMLElement>('[data-journal-grid]');
+    const target = grid?.querySelector<HTMLElement>(`[data-block-id="${selectedBlockId}"]`);
+    if (!grid || !target) return;
+
+    const targetRect = target.getBoundingClientRect();
+    const siblings = Array.from(grid.querySelectorAll<HTMLElement>('[data-block-id]')).filter(
+      (node) => node.dataset.blockId !== selectedBlockId,
+    );
+    const neighbour = siblings.find((node) => {
+      const rect = node.getBoundingClientRect();
+      return Math.abs(rect.top - targetRect.top) < targetRect.height;
+    });
+    if (!neighbour) {
+      toast.error('Nenhum bloco ao lado nesta linha.');
+      return;
+    }
+
+    const rect = neighbour.getBoundingClientRect();
+    if (dimension === 'height') {
+      patchBlock(selectedBlockId, { height: Math.round(rect.height / zoom) } as Partial<JournalBlock>);
+    } else {
+      const available = grid.getBoundingClientRect().width / zoom;
+      patchBlock(selectedBlockId, {
+        widthPct: Math.min(100, Math.round(((rect.width / zoom) / available) * 100 * 6)),
+      } as Partial<JournalBlock>);
+    }
+  };
+
 
   const removeBlock = () => {
     if (!selectedBlockId) return;
