@@ -33,10 +33,22 @@ interface BlockViewProps {
   selected?: boolean;
   interactive?: boolean;
   onSelect?: (id: string) => void;
+  /** Grade da página — usada para converter arraste em colunas. */
+  gridRef?: RefObject<HTMLDivElement>;
+  /** Redimensionamento direto no canvas (colunas de 1 a 6). */
+  onResizeSpan?: (id: string, span: number) => void;
 }
 
-export function JournalBlockView({ block, selected, interactive, onSelect }: BlockViewProps) {
+export function JournalBlockView({
+  block,
+  selected,
+  interactive,
+  onSelect,
+  gridRef,
+  onResizeSpan,
+}: BlockViewProps) {
   const wrapper = cn(
+    'group/block relative',
     SPAN_CLASS[block.span] ?? 'col-span-6',
     interactive && 'cursor-pointer rounded-sm transition-[box-shadow]',
     interactive && !selected && 'hover:shadow-[0_0_0_1.5px_hsl(var(--ring))]',
@@ -44,6 +56,71 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
   );
 
   const handleClick = interactive ? () => onSelect?.(block.id) : undefined;
+
+  const startResize = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const grid = gridRef?.current;
+    if (!grid || !onResizeSpan) return;
+
+    onSelect?.(block.id);
+    const startX = event.clientX;
+    const startSpan = block.span;
+    // getBoundingClientRect já considera o zoom aplicado ao canvas.
+    const colWidth = grid.getBoundingClientRect().width / 6;
+    if (colWidth <= 0) return;
+
+    let lastSpan = startSpan;
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const delta = moveEvent.clientX - startX;
+      const next = Math.max(1, Math.min(6, startSpan + Math.round(delta / colWidth)));
+      if (next !== lastSpan) {
+        lastSpan = next;
+        onResizeSpan(block.id, next);
+      }
+    };
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'default';
+    };
+    document.body.style.cursor = 'col-resize';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  const resizeHandle =
+    interactive && onResizeSpan ? (
+      <div
+        role="presentation"
+        data-pdf-helper="true"
+        onMouseDown={startResize}
+        onClick={(event) => event.stopPropagation()}
+        className={cn(
+          'absolute -right-2 top-0 bottom-0 z-30 flex w-4 cursor-col-resize items-center justify-center',
+          'opacity-0 transition-opacity group-hover/block:opacity-100',
+          selected && 'opacity-100',
+        )}
+      >
+        <div className="h-10 w-1.5 rounded-full bg-primary/70 shadow-sm transition-colors hover:bg-primary" />
+      </div>
+    ) : null;
+
+  const spanBadge =
+    interactive && onResizeSpan ? (
+      <span
+        data-pdf-helper="true"
+        className={cn(
+          'pointer-events-none absolute -top-2 right-1 z-30 rounded bg-primary px-1 text-[9px] font-bold text-primary-foreground',
+          'opacity-0 transition-opacity group-hover/block:opacity-100',
+          selected && 'opacity-100',
+        )}
+      >
+        {block.span}/6
+      </span>
+    ) : null;
+
+  let content: React.ReactNode = null;
 
   if (block.kind === 'text') {
     const textClasses = cn(
@@ -65,27 +142,20 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
     };
     const lines = block.content.split('\n').filter((line) => line.trim().length > 0);
 
-    return (
-      <div className={wrapper} onClick={handleClick}>
-        {block.list ? (
-          <ul className={cn(textClasses, 'list-disc pl-4')} style={textStyle}>
-            {(lines.length ? lines : [' ']).map((line, index) => (
-              <li key={index}>{line}</li>
-            ))}
-          </ul>
-        ) : (
-          <p className={textClasses} style={textStyle}>
-            {block.content || ' '}
-          </p>
-        )}
-      </div>
+    content = block.list ? (
+      <ul className={cn(textClasses, 'list-disc pl-4')} style={textStyle}>
+        {(lines.length ? lines : [' ']).map((line, index) => (
+          <li key={index}>{line}</li>
+        ))}
+      </ul>
+    ) : (
+      <p className={textClasses} style={textStyle}>
+        {block.content || ' '}
+      </p>
     );
-  }
-
-
-  if (block.kind === 'image') {
-    return (
-      <figure className={wrapper} onClick={handleClick}>
+  } else if (block.kind === 'image') {
+    content = (
+      <figure className="m-0">
         <div className={cn('w-full overflow-hidden bg-[#E4E0D2]', RATIO_CLASS[block.ratio])}>
           {block.url ? (
             <img
@@ -110,27 +180,21 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
         )}
       </figure>
     );
-  }
-
-  if (block.kind === 'agenda') {
-    return (
-      <div className={wrapper} onClick={handleClick}>
-        <ul className="divide-y divide-[#D9D4C4]">
-          {block.items.map((item) => (
-            <li key={item.id} className="flex gap-3 py-1.5">
-              <span className="w-14 shrink-0 text-[11px] font-bold text-news-brand-1">{item.date}</span>
-              <span className="flex-1 text-[11px] font-semibold text-[#1F211F]">{item.title}</span>
-              <span className="w-12 text-right text-[10px] text-[#5C5A50]">{item.time}</span>
-              <span className="w-32 text-right text-[10px] text-[#5C5A50]">{item.place}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+  } else if (block.kind === 'agenda') {
+    content = (
+      <ul className="divide-y divide-[#D9D4C4]">
+        {block.items.map((item) => (
+          <li key={item.id} className="flex gap-3 py-1.5">
+            <span className="w-14 shrink-0 text-[11px] font-bold text-news-brand-1">{item.date}</span>
+            <span className="flex-1 text-[11px] font-semibold text-[#1F211F]">{item.title}</span>
+            <span className="w-12 text-right text-[10px] text-[#5C5A50]">{item.time}</span>
+            <span className="w-32 text-right text-[10px] text-[#5C5A50]">{item.place}</span>
+          </li>
+        ))}
+      </ul>
     );
-  }
-
-  return (
-    <div className={wrapper} onClick={handleClick}>
+  } else {
+    content = (
       <div
         className="border-t-2 pt-2"
         style={{ borderTopColor: block.color ? journalColor(block.color) : '#FACC00' }}
@@ -143,9 +207,18 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
         </p>
         <p className="mt-1 text-[9px] uppercase tracking-[0.14em] text-[#5C5A50]">{block.label}</p>
       </div>
+    );
+  }
+
+  return (
+    <div className={wrapper} onClick={handleClick}>
+      {content}
+      {spanBadge}
+      {resizeHandle}
     </div>
   );
 }
+
 
 interface JournalPageViewProps {
   page: JournalPage;
