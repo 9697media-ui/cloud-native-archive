@@ -1,4 +1,4 @@
-import { useRef, type RefObject } from 'react';
+import { useRef, useState, type RefObject } from 'react';
 import { cn } from '@/lib/utils';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import anaLogo from '@/assets/ana-brasil-logo.svg';
@@ -37,6 +37,10 @@ interface BlockViewProps {
   gridRef?: RefObject<HTMLDivElement>;
   /** Redimensionamento direto no canvas (colunas de 1 a 6). */
   onResizeSpan?: (id: string, span: number) => void;
+  /** Altura fixa em px (ou undefined para automática). */
+  onResizeHeight?: (id: string, height: number | undefined) => void;
+  /** Reordenação por arraste: move o bloco arrastado para a posição do alvo. */
+  onReorder?: (draggedId: string, targetId: string) => void;
 }
 
 export function JournalBlockView({
@@ -46,13 +50,19 @@ export function JournalBlockView({
   onSelect,
   gridRef,
   onResizeSpan,
+  onResizeHeight,
+  onReorder,
 }: BlockViewProps) {
+  const [dropSide, setDropSide] = useState<'before' | 'after' | null>(null);
+  const canDrag = Boolean(interactive && onReorder);
+
   const wrapper = cn(
     'group/block relative',
     SPAN_CLASS[block.span] ?? 'col-span-6',
     interactive && 'cursor-pointer rounded-sm transition-[box-shadow]',
     interactive && !selected && 'hover:shadow-[0_0_0_1.5px_hsl(var(--ring))]',
     selected && 'shadow-[0_0_0_2px_hsl(var(--primary))]',
+    block.height ? 'overflow-hidden' : undefined,
   );
 
   const handleClick = interactive ? () => onSelect?.(block.id) : undefined;
@@ -90,6 +100,39 @@ export function JournalBlockView({
     document.addEventListener('mouseup', onMouseUp);
   };
 
+  /** Alça inferior — define altura fixa do bloco em px do canvas (compensa o zoom). */
+  const startResizeHeight = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const blockEl = (event.currentTarget as HTMLElement).parentElement;
+    if (!blockEl || !onResizeHeight) return;
+
+    onSelect?.(block.id);
+    const rect = blockEl.getBoundingClientRect();
+    const startY = event.clientY;
+    const startHeight = block.height ?? rect.height;
+    // Escala aplicada ao canvas (zoom) — converte px de tela em px do documento.
+    const scale = rect.height > 0 ? rect.height / blockEl.offsetHeight : 1;
+
+    let lastHeight = startHeight;
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const delta = (moveEvent.clientY - startY) / (scale || 1);
+      const next = Math.max(24, Math.round(startHeight + delta));
+      if (next !== lastHeight) {
+        lastHeight = next;
+        onResizeHeight(block.id, next);
+      }
+    };
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'default';
+    };
+    document.body.style.cursor = 'row-resize';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
   const resizeHandle =
     interactive && onResizeSpan ? (
       <div
@@ -107,6 +150,51 @@ export function JournalBlockView({
       </div>
     ) : null;
 
+  const heightHandle =
+    interactive && onResizeHeight ? (
+      <div
+        role="presentation"
+        data-pdf-helper="true"
+        onMouseDown={startResizeHeight}
+        onDoubleClick={(event) => {
+          event.stopPropagation();
+          onResizeHeight(block.id, undefined);
+        }}
+        onClick={(event) => event.stopPropagation()}
+        title="Arraste para ajustar a altura · clique duplo para altura automática"
+        className={cn(
+          'absolute -bottom-2 left-0 right-0 z-30 flex h-4 cursor-row-resize items-center justify-center',
+          'opacity-0 transition-opacity group-hover/block:opacity-100',
+          selected && 'opacity-100',
+        )}
+      >
+        <div className="h-1.5 w-10 rounded-full bg-primary/70 shadow-sm transition-colors hover:bg-primary" />
+      </div>
+    ) : null;
+
+  const dragHandle = canDrag ? (
+    <div
+      role="presentation"
+      data-pdf-helper="true"
+      draggable
+      onDragStart={(event) => {
+        event.stopPropagation();
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/journal-block', block.id);
+        onSelect?.(block.id);
+      }}
+      onClick={(event) => event.stopPropagation()}
+      title="Arraste para reordenar o bloco"
+      className={cn(
+        'absolute -left-2 top-0 bottom-0 z-30 flex w-4 cursor-grab items-center justify-center active:cursor-grabbing',
+        'opacity-0 transition-opacity group-hover/block:opacity-100',
+        selected && 'opacity-100',
+      )}
+    >
+      <div className="h-10 w-1.5 rounded-full bg-primary/40 shadow-sm transition-colors hover:bg-primary" />
+    </div>
+  ) : null;
+
   const spanBadge =
     interactive && onResizeSpan ? (
       <span
@@ -120,6 +208,7 @@ export function JournalBlockView({
         {block.span}/6
       </span>
     ) : null;
+
 
   let content: React.ReactNode = null;
 
@@ -212,10 +301,48 @@ export function JournalBlockView({
   }
 
   return (
-    <div className={wrapper} onClick={handleClick}>
+    <div
+      className={wrapper}
+      onClick={handleClick}
+      style={block.height ? { height: block.height } : undefined}
+      onDragOver={
+        canDrag
+          ? (event) => {
+              if (!event.dataTransfer.types.includes('text/journal-block')) return;
+              event.preventDefault();
+              const rect = event.currentTarget.getBoundingClientRect();
+              setDropSide(event.clientX - rect.left < rect.width / 2 ? 'before' : 'after');
+            }
+          : undefined
+      }
+      onDragLeave={canDrag ? () => setDropSide(null) : undefined}
+      onDrop={
+        canDrag
+          ? (event) => {
+              const draggedId = event.dataTransfer.getData('text/journal-block');
+              event.preventDefault();
+              event.stopPropagation();
+              setDropSide(null);
+              if (draggedId && draggedId !== block.id) onReorder?.(draggedId, block.id);
+            }
+          : undefined
+      }
+    >
       {content}
+      {dropSide && (
+        <div
+          data-pdf-helper="true"
+          aria-hidden="true"
+          className={cn(
+            'pointer-events-none absolute top-0 bottom-0 z-40 w-1 rounded bg-primary',
+            dropSide === 'before' ? '-left-1' : '-right-1',
+          )}
+        />
+      )}
       {spanBadge}
+      {dragHandle}
       {resizeHandle}
+      {heightHandle}
     </div>
   );
 }
@@ -233,6 +360,10 @@ interface JournalPageViewProps {
   onSelectPageArea?: () => void;
   /** Redimensionamento por arraste direto no canvas. */
   onResizeBlockSpan?: (id: string, span: number) => void;
+  /** Altura fixa por arraste na alça inferior. */
+  onResizeBlockHeight?: (id: string, height: number | undefined) => void;
+  /** Reordenação de blocos por arraste. */
+  onReorderBlocks?: (draggedId: string, targetId: string) => void;
   className?: string;
 }
 
@@ -248,6 +379,8 @@ export function JournalPageView({
   onSelectBlock,
   onSelectPageArea,
   onResizeBlockSpan,
+  onResizeBlockHeight,
+  onReorderBlocks,
   className,
 }: JournalPageViewProps) {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -301,6 +434,8 @@ export function JournalPageView({
               onSelect={onSelectBlock}
               gridRef={gridRef}
               onResizeSpan={onResizeBlockSpan}
+              onResizeHeight={onResizeBlockHeight}
+              onReorder={onReorderBlocks}
             />
           ))}
         </div>

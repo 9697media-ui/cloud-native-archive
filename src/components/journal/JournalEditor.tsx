@@ -133,6 +133,45 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     [activePage.id, mutatePages],
   );
 
+  /** Alça inferior — altura fixa em px (undefined volta para automática). */
+  const resizeBlockHeight = useCallback(
+    (blockId: string, height: number | undefined) => {
+      mutatePages((prev) =>
+        prev.map((page) =>
+          page.id !== activePage.id
+            ? page
+            : {
+                ...page,
+                blocks: page.blocks.map((block) =>
+                  block.id === blockId ? ({ ...block, height } as JournalBlock) : block,
+                ),
+              },
+        ),
+      );
+    },
+    [activePage.id, mutatePages],
+  );
+
+  /** Reordenação por arraste — move o bloco arrastado para a posição do alvo. */
+  const reorderBlocks = useCallback(
+    (draggedId: string, targetId: string) => {
+      if (draggedId === targetId) return;
+      mutatePages((prev) =>
+        prev.map((page) => {
+          if (page.id !== activePage.id) return page;
+          const from = page.blocks.findIndex((block) => block.id === draggedId);
+          const to = page.blocks.findIndex((block) => block.id === targetId);
+          if (from < 0 || to < 0) return page;
+          const blocks = [...page.blocks];
+          const [moved] = blocks.splice(from, 1);
+          blocks.splice(to, 0, moved);
+          return { ...page, blocks };
+        }),
+      );
+    },
+    [activePage.id, mutatePages],
+  );
+
   const removeBlock = () => {
     if (!selectedBlockId) return;
     mutatePages((prev) =>
@@ -360,6 +399,8 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   selectedBlockId={selectedBlockId}
                   onSelectBlock={setSelectedBlockId}
                   onResizeBlockSpan={resizeBlockSpan}
+                  onResizeBlockHeight={resizeBlockHeight}
+                  onReorderBlocks={reorderBlocks}
                   onSelectPageArea={() => setSelectedBlockId(null)}
                   className="shadow-lg"
                 />
