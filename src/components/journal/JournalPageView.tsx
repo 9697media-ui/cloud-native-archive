@@ -244,9 +244,17 @@ export function JournalBlockView({
       </p>
     );
   } else if (block.kind === 'image') {
+    // Com altura definida pela alça inferior, a imagem preenche todo o espaço
+    // disponível; sem altura, mantém a proporção padrão do bloco.
+    const hasFixedHeight = Boolean(block.height);
     content = (
-      <figure className="m-0">
-        <div className={cn('w-full overflow-hidden bg-[#E4E0D2]', RATIO_CLASS[block.ratio])}>
+      <figure className={cn('m-0', hasFixedHeight && 'flex h-full flex-col')}>
+        <div
+          className={cn(
+            'w-full overflow-hidden bg-[#E4E0D2]',
+            hasFixedHeight ? 'min-h-0 flex-1' : RATIO_CLASS[block.ratio],
+          )}
+        >
           {block.url ? (
             <img
               src={block.url}
