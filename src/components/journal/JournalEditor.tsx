@@ -348,29 +348,34 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
         {/* Conteúdo da página */}
         <aside className="flex flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-card p-3">
-          <div>
-            <Label className="text-xs text-muted-foreground">Adicionar ao jornal</Label>
-            <div className="mt-1.5 grid grid-cols-2 gap-1.5">
-              <Button variant="outline" size="sm" onClick={() => addBlock(textBlock('corpo', 'Novo texto.'))}>
-                <Type className="mr-1.5 h-3.5 w-3.5" /> Texto
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => addBlock(imageBlock(6, '16/9'))}>
-                <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Imagem
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => addBlock(statBlock())}>
-                <Hash className="mr-1.5 h-3.5 w-3.5" /> Número
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => addBlock(agendaBlock())}>
-                <CalendarDays className="mr-1.5 h-3.5 w-3.5" /> Agenda
-              </Button>
-            </div>
-          </div>
-          <div className="h-px bg-border" />
+          {!selectedBlock && (
+            <>
+              <div>
+                <Label className="text-xs text-muted-foreground">Adicionar ao jornal</Label>
+                <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+                  <Button variant="outline" size="sm" onClick={() => addBlock(textBlock('corpo', 'Novo texto.'))}>
+                    <Type className="mr-1.5 h-3.5 w-3.5" /> Texto
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => addBlock(imageBlock(6, '16/9'))}>
+                    <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Imagem
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => addBlock(statBlock())}>
+                    <Hash className="mr-1.5 h-3.5 w-3.5" /> Número
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => addBlock(agendaBlock())}>
+                    <CalendarDays className="mr-1.5 h-3.5 w-3.5" /> Agenda
+                  </Button>
+                </div>
+              </div>
+              <div className="h-px bg-border" />
+            </>
+          )}
           <JournalPropertiesPanel
             page={activePage}
             block={selectedBlock}
             onChangeBlock={updateBlock}
             onRemoveBlock={removeBlock}
+            onClose={() => setSelectedBlockId(null)}
           />
         </aside>
       </div>
