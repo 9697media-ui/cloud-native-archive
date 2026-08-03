@@ -183,6 +183,24 @@ export function JournalImageBlockView({
     return () => window.removeEventListener('keydown', onKey);
   }, [frameMode, onToggleFrameMode]);
 
+  // Mede o quadro para exibir as dimensões em mm com fidelidade ao render.
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setBox((prev) =>
+        Math.abs(prev.width - width) < 0.5 && Math.abs(prev.height - height) < 0.5
+          ? prev
+          : { width: width / scale, height: height / scale },
+      );
+    });
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, [scale]);
+
+
+
   const frameStyle: CSSProperties = {
     height: live?.height ?? block.height,
     width: live ? `${live.width}px` : block.widthPct ? `${block.widthPct}%` : undefined,
