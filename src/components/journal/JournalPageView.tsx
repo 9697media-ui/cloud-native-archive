@@ -137,7 +137,12 @@ interface JournalPageViewProps {
   unitName: string;
   selectedBlockId?: string | null;
   interactive?: boolean;
+  /** Escala aplicada ao canvas — necessária para o redimensionamento por alças. */
+  scale?: number;
   onSelectBlock?: (id: string) => void;
+  onChangeBlock?: (id: string, patch: Partial<JournalBlock>) => void;
+  frameModeId?: string | null;
+  onToggleFrameMode?: (id: string | null) => void;
   onSelectPageArea?: () => void;
   className?: string;
 }
@@ -151,7 +156,11 @@ export function JournalPageView({
   unitName,
   selectedBlockId,
   interactive,
+  scale,
   onSelectBlock,
+  onChangeBlock,
+  frameModeId,
+  onToggleFrameMode,
   onSelectPageArea,
   className,
 }: JournalPageViewProps) {
@@ -175,6 +184,7 @@ export function JournalPageView({
       <div className="mx-12 mt-3 h-px bg-[#D9D4C4]" />
 
       <div
+        data-journal-grid
         className="grid flex-1 grid-cols-6 content-start gap-x-4 gap-y-3 overflow-hidden px-12 py-6"
         onClick={(event) => event.stopPropagation()}
       >
@@ -183,11 +193,16 @@ export function JournalPageView({
             key={block.id}
             block={block}
             interactive={interactive}
+            scale={scale}
             selected={selectedBlockId === block.id}
             onSelect={onSelectBlock}
+            onChangeBlock={onChangeBlock}
+            frameModeId={frameModeId}
+            onToggleFrameMode={onToggleFrameMode}
           />
         ))}
       </div>
+
 
       <div className="px-12 pb-1 text-right text-[9px] text-[#5C5A50]">
         {index + 1} / {total}
