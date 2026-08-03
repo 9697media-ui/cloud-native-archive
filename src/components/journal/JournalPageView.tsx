@@ -54,7 +54,7 @@ export function JournalBlockView({
 
   if (block.kind === 'text') {
     return (
-      <div className={wrapper} onClick={handleClick}>
+      <div className={wrapper} data-block-id={block.id} onClick={handleClick}>
         <p
           className={cn(
             TEXT_STYLE_CLASSES[block.style],
@@ -96,7 +96,7 @@ export function JournalBlockView({
 
   if (block.kind === 'agenda') {
     return (
-      <div className={wrapper} onClick={handleClick}>
+      <div className={wrapper} data-block-id={block.id} onClick={handleClick}>
         <ul className="divide-y divide-[#D9D4C4]">
           {block.items.map((item) => (
             <li key={item.id} className="flex gap-3 py-1.5">
