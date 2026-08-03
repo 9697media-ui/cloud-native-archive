@@ -29,6 +29,7 @@ interface Props {
   block: JournalBlock | undefined;
   onChangeBlock: (patch: Partial<JournalBlock>) => void;
   onRemoveBlock: () => void;
+  onClose?: () => void;
 }
 
 const SPANS: BlockSpan[] = [1, 2, 3, 4, 5, 6];
