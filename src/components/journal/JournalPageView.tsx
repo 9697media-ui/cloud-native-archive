@@ -61,13 +61,14 @@ export function JournalBlockView({
     event.preventDefault();
     event.stopPropagation();
     const grid = gridRef?.current;
-    if (!grid || !onResizeSpan) return;
+    const blockEl = (event.currentTarget as HTMLElement).parentElement;
+    if (!grid || !blockEl || !onResizeSpan) return;
 
     onSelect?.(block.id);
     const startX = event.clientX;
     const startSpan = block.span;
-    // getBoundingClientRect já considera o zoom aplicado ao canvas.
-    const colWidth = grid.getBoundingClientRect().width / 6;
+    // Largura da coluna medida no próprio bloco (já considera zoom e gaps).
+    const colWidth = blockEl.getBoundingClientRect().width / startSpan;
     if (colWidth <= 0) return;
 
     let lastSpan: number = startSpan;
