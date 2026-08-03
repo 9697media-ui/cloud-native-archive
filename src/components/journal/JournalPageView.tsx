@@ -301,10 +301,48 @@ export function JournalBlockView({
   }
 
   return (
-    <div className={wrapper} onClick={handleClick}>
+    <div
+      className={wrapper}
+      onClick={handleClick}
+      style={block.height ? { height: block.height } : undefined}
+      onDragOver={
+        canDrag
+          ? (event) => {
+              if (!event.dataTransfer.types.includes('text/journal-block')) return;
+              event.preventDefault();
+              const rect = event.currentTarget.getBoundingClientRect();
+              setDropSide(event.clientX - rect.left < rect.width / 2 ? 'before' : 'after');
+            }
+          : undefined
+      }
+      onDragLeave={canDrag ? () => setDropSide(null) : undefined}
+      onDrop={
+        canDrag
+          ? (event) => {
+              const draggedId = event.dataTransfer.getData('text/journal-block');
+              event.preventDefault();
+              event.stopPropagation();
+              setDropSide(null);
+              if (draggedId && draggedId !== block.id) onReorder?.(draggedId, block.id);
+            }
+          : undefined
+      }
+    >
       {content}
+      {dropSide && (
+        <div
+          data-pdf-helper="true"
+          aria-hidden="true"
+          className={cn(
+            'pointer-events-none absolute top-0 bottom-0 z-40 w-1 rounded bg-primary',
+            dropSide === 'before' ? '-left-1' : '-right-1',
+          )}
+        />
+      )}
       {spanBadge}
+      {dragHandle}
       {resizeHandle}
+      {heightHandle}
     </div>
   );
 }
