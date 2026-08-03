@@ -31,6 +31,8 @@ import {
 import { cn } from '@/lib/utils';
 import { A4_H, A4_W, JournalPageView } from './JournalPageView';
 import { JournalPropertiesPanel } from './JournalPropertiesPanel';
+import { JournalBlockList } from './JournalBlockList';
+
 import {
   TEMPLATE_LABELS,
   type BlockSpan,
