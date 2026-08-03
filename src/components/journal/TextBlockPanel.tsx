@@ -50,9 +50,8 @@ const PLACEHOLDERS: Record<TextStyleKey, string> = {
   legenda: 'Escreva a legenda…',
 };
 
-/** Painel contextual de um bloco de texto: conteúdo primeiro, avançado recolhido. */
+/** Painel contextual de um bloco de texto: todos os controles visíveis. */
 export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const lineHeight = block.lineHeight ?? 1.5;
 
   return (
