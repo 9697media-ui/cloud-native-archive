@@ -230,6 +230,8 @@ interface JournalPageViewProps {
   interactive?: boolean;
   onSelectBlock?: (id: string) => void;
   onSelectPageArea?: () => void;
+  /** Redimensionamento por arraste direto no canvas. */
+  onResizeBlockSpan?: (id: string, span: number) => void;
   className?: string;
 }
 
@@ -244,8 +246,11 @@ export function JournalPageView({
   interactive,
   onSelectBlock,
   onSelectPageArea,
+  onResizeBlockSpan,
   className,
 }: JournalPageViewProps) {
+  const gridRef = useRef<HTMLDivElement>(null);
+
   return (
     <div
       className={cn('relative flex flex-col overflow-hidden bg-news-paper', className)}
@@ -266,6 +271,7 @@ export function JournalPageView({
       <div className="mx-12 mt-3 h-px bg-[#D9D4C4]" />
 
       <div
+        ref={gridRef}
         className="grid flex-1 grid-cols-6 content-start gap-x-4 gap-y-3 overflow-hidden px-12 py-6"
         onClick={(event) => event.stopPropagation()}
       >
@@ -276,9 +282,12 @@ export function JournalPageView({
             interactive={interactive}
             selected={selectedBlockId === block.id}
             onSelect={onSelectBlock}
+            gridRef={gridRef}
+            onResizeSpan={onResizeBlockSpan}
           />
         ))}
       </div>
+
 
       <div className="px-12 pb-1 text-right text-[9px] text-[#5C5A50]">
         {index + 1} / {total}
