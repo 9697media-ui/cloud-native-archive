@@ -112,6 +112,26 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     );
   };
 
+  /** Redimensionamento por arraste no canvas — altera apenas a largura em colunas. */
+  const resizeBlockSpan = useCallback(
+    (blockId: string, span: number) => {
+      const clamped = Math.max(1, Math.min(6, Math.round(span))) as BlockSpan;
+      mutatePages((prev) =>
+        prev.map((page) =>
+          page.id !== activePage.id
+            ? page
+            : {
+                ...page,
+                blocks: page.blocks.map((block) =>
+                  block.id === blockId ? ({ ...block, span: clamped } as JournalBlock) : block,
+                ),
+              },
+        ),
+      );
+    },
+    [activePage.id, mutatePages],
+  );
+
   const removeBlock = () => {
     if (!selectedBlockId) return;
     mutatePages((prev) =>
