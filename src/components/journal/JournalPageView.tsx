@@ -53,6 +53,8 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
             'whitespace-pre-wrap',
             block.align === 'center' && 'text-center',
             block.align === 'right' && 'text-right',
+            block.align === 'left' && 'text-left',
+            block.align === 'justify' && 'text-justify',
           )}
           style={{
             color: journalColor(block.color),
