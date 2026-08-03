@@ -360,6 +360,10 @@ interface JournalPageViewProps {
   onSelectPageArea?: () => void;
   /** Redimensionamento por arraste direto no canvas. */
   onResizeBlockSpan?: (id: string, span: number) => void;
+  /** Altura fixa por arraste na alça inferior. */
+  onResizeBlockHeight?: (id: string, height: number | undefined) => void;
+  /** Reordenação de blocos por arraste. */
+  onReorderBlocks?: (draggedId: string, targetId: string) => void;
   className?: string;
 }
 
@@ -375,6 +379,8 @@ export function JournalPageView({
   onSelectBlock,
   onSelectPageArea,
   onResizeBlockSpan,
+  onResizeBlockHeight,
+  onReorderBlocks,
   className,
 }: JournalPageViewProps) {
   const gridRef = useRef<HTMLDivElement>(null);
