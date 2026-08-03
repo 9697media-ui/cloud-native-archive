@@ -32,7 +32,7 @@ interface Props {
   onClose?: () => void;
 }
 
-const SPANS: BlockSpan[] = [1, 2, 3, 4, 5, 6];
+
 
 export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlock, onClose }: Props) {
   if (!block) {
@@ -71,27 +71,11 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
         )}
       </div>
 
-      <div className="space-y-1.5">
-        <Label className="text-xs">Largura (colunas)</Label>
-        <Select
-          value={String(block.span)}
-          onValueChange={(value) => onChangeBlock({ span: Number(value) as BlockSpan })}
-        >
-          <SelectTrigger className="h-9">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {SPANS.map((span) => (
-              <SelectItem key={span} value={String(span)}>
-                {span} de 6
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <p className="text-[11px] text-muted-foreground">
-          Dica: arraste a alça na borda direita do bloco no canvas para ajustar a largura.
-        </p>
-      </div>
+      <p className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px] text-muted-foreground">
+        Largura: <strong className="text-foreground">{block.span} de 6 colunas</strong>. Ajuste
+        arrastando a alça na borda direita do bloco, direto no canvas.
+      </p>
+
 
 
       {block.kind === 'text' && <TextBlockPanel block={block} onChange={onChangeBlock} />}
