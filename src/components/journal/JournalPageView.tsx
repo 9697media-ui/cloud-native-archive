@@ -271,23 +271,41 @@ export function JournalPageView({
       </div>
       <div className="mx-12 mt-3 h-px bg-[#D9D4C4]" />
 
-      <div
-        ref={gridRef}
-        className="grid flex-1 grid-cols-6 content-start gap-x-4 gap-y-3 overflow-hidden px-12 py-6"
-        onClick={(event) => event.stopPropagation()}
-      >
-        {page.blocks.map((block) => (
-          <JournalBlockView
-            key={block.id}
-            block={block}
-            interactive={interactive}
-            selected={selectedBlockId === block.id}
-            onSelect={onSelectBlock}
-            gridRef={gridRef}
-            onResizeSpan={onResizeBlockSpan}
-          />
-        ))}
+      <div className="relative flex-1">
+        {interactive && (
+          <div
+            data-pdf-helper="true"
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-0 grid grid-cols-6 gap-x-4 px-12 py-6"
+          >
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="h-full rounded-[2px] border border-dashed border-primary/25 bg-primary/[0.03]"
+              />
+            ))}
+          </div>
+        )}
+
+        <div
+          ref={gridRef}
+          className="relative z-10 grid h-full grid-cols-6 content-start gap-x-4 gap-y-3 overflow-hidden px-12 py-6"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {page.blocks.map((block) => (
+            <JournalBlockView
+              key={block.id}
+              block={block}
+              interactive={interactive}
+              selected={selectedBlockId === block.id}
+              onSelect={onSelectBlock}
+              gridRef={gridRef}
+              onResizeSpan={onResizeBlockSpan}
+            />
+          ))}
+        </div>
       </div>
+
 
 
       <div className="px-12 pb-1 text-right text-[9px] text-[#5C5A50]">
