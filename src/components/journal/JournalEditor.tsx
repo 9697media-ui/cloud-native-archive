@@ -33,6 +33,7 @@ import { A4_H, A4_W, JournalPageView } from './JournalPageView';
 import { JournalPropertiesPanel } from './JournalPropertiesPanel';
 import {
   TEMPLATE_LABELS,
+  type BlockSpan,
   type JournalBlock,
   type JournalPage,
   type JournalRecord,
