@@ -65,7 +65,7 @@ export interface JournalTextBlock {
   kind: 'text';
   style: TextStyleKey;
   content: string;
-  align: 'left' | 'center' | 'right';
+  align: 'left' | 'center' | 'right' | 'justify';
   span: BlockSpan;
   /** Opcional — ausente significa tinta institucional. */
   color?: JournalColorKey;
