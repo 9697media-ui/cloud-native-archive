@@ -195,10 +195,7 @@ export function JournalImageBlockView({
     transformOrigin: `${focal.x * 100}% ${focal.y * 100}%`,
   };
 
-  const measured = live ?? {
-    width: frameRef.current?.getBoundingClientRect().width ?? 0,
-    height: block.height ?? frameRef.current?.getBoundingClientRect().height ?? 0,
-  };
+  const measured = live ?? box;
 
   return (
     <figure
