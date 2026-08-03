@@ -434,6 +434,8 @@ export function JournalPageView({
               onSelect={onSelectBlock}
               gridRef={gridRef}
               onResizeSpan={onResizeBlockSpan}
+              onResizeHeight={onResizeBlockHeight}
+              onReorder={onReorderBlocks}
             />
           ))}
         </div>
