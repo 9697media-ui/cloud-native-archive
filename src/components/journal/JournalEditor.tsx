@@ -338,6 +338,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   interactive
                   selectedBlockId={selectedBlockId}
                   onSelectBlock={setSelectedBlockId}
+                  onResizeBlockSpan={resizeBlockSpan}
                   onSelectPageArea={() => setSelectedBlockId(null)}
                   className="shadow-lg"
                 />
