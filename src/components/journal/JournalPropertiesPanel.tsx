@@ -31,7 +31,7 @@ interface Props {
 
 const SPANS: BlockSpan[] = [1, 2, 3, 4, 5, 6];
 
-export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlock }: Props) {
+export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlock, onClose }: Props) {
   if (!block) {
     return (
       <div className="space-y-3 text-sm">
@@ -48,96 +48,49 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
     );
   }
 
+  const title =
+    block.kind === 'text'
+      ? 'Texto'
+      : block.kind === 'image'
+        ? 'Imagem'
+        : block.kind === 'agenda'
+          ? 'Agenda'
+          : 'Indicador';
+
   return (
     <div className="space-y-4 text-sm">
-      <div className="flex items-center justify-between">
-        <p className="font-semibold text-foreground">
-          {block.kind === 'text'
-            ? 'Texto'
-            : block.kind === 'image'
-              ? 'Imagem'
-              : block.kind === 'agenda'
-                ? 'Agenda'
-                : 'Indicador'}
-        </p>
-        <Button variant="ghost" size="sm" onClick={onRemoveBlock} className="text-destructive">
-          <Trash2 className="h-4 w-4" />
-        </Button>
+      <div className="-mx-3 -mt-3 flex items-center justify-between rounded-t-lg bg-accent px-3 py-2.5">
+        <p className="font-semibold text-accent-foreground">{title}</p>
+        {onClose && (
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose} aria-label="Fechar painel">
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
-      <div className="space-y-1.5">
-        <Label className="text-xs">Largura (colunas)</Label>
-        <Select
-          value={String(block.span)}
-          onValueChange={(value) => onChangeBlock({ span: Number(value) as BlockSpan })}
-        >
-          <SelectTrigger className="h-9">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {SPANS.map((span) => (
-              <SelectItem key={span} value={String(span)}>
-                {span} de 6
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {block.kind === 'text' && (
-        <>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Função do texto</Label>
-            <Select
-              value={block.style}
-              onValueChange={(value) => onChangeBlock({ style: value as TextStyleKey } as Partial<JournalBlock>)}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(TEXT_STYLE_LABELS).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs">Alinhamento</Label>
-            <Select
-              value={block.align}
-              onValueChange={(value) => onChangeBlock({ align: value } as Partial<JournalBlock>)}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="left">Esquerda</SelectItem>
-                <SelectItem value="center">Centro</SelectItem>
-                <SelectItem value="right">Direita</SelectItem>
-                <SelectItem value="justify">Justificado</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <ColorSwatchPicker
-            value={block.color}
-            onChange={(color) => onChangeBlock({ color } as Partial<JournalBlock>)}
-          />
-
-          <div className="space-y-1.5">
-            <Label className="text-xs">Conteúdo</Label>
-            <Textarea
-              value={block.content}
-              rows={8}
-              onChange={(event) => onChangeBlock({ content: event.target.value } as Partial<JournalBlock>)}
-            />
-          </div>
-        </>
+      {block.kind !== 'text' && (
+        <div className="space-y-1.5">
+          <Label className="text-xs">Largura (colunas)</Label>
+          <Select
+            value={String(block.span)}
+            onValueChange={(value) => onChangeBlock({ span: Number(value) as BlockSpan })}
+          >
+            <SelectTrigger className="h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SPANS.map((span) => (
+                <SelectItem key={span} value={String(span)}>
+                  {span} de 6
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       )}
+
+      {block.kind === 'text' && <TextBlockPanel block={block} onChange={onChangeBlock} />}
+
 
       {block.kind === 'image' && (
         <>
