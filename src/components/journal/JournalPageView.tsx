@@ -70,7 +70,7 @@ export function JournalBlockView({
     const colWidth = grid.getBoundingClientRect().width / 6;
     if (colWidth <= 0) return;
 
-    let lastSpan = startSpan;
+    let lastSpan: number = startSpan;
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientX - startX;
       const next = Math.max(1, Math.min(6, startSpan + Math.round(delta / colWidth)));
