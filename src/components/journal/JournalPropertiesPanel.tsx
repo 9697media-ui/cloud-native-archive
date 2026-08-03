@@ -253,6 +253,17 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
           </Button>
         </div>
       )}
+
+      <div className="border-t border-border pt-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onRemoveBlock}
+          className="w-full justify-start px-1 text-destructive hover:text-destructive"
+        >
+          <Trash2 className="mr-1.5 h-4 w-4" /> Remover bloco
+        </Button>
+      </div>
     </div>
   );
 }
