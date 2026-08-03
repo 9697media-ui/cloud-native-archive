@@ -368,7 +368,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                 margin: '0 auto',
               }}
             >
-              <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}>
+              <div ref={canvasRef} style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}>
                 <JournalPageView
                   page={activePage}
                   index={pages.findIndex((page) => page.id === activePage.id)}
@@ -376,9 +376,19 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   edition={journal.reference_month || ''}
                   unitName={unitName}
                   interactive
+                  scale={zoom}
                   selectedBlockId={selectedBlockId}
-                  onSelectBlock={setSelectedBlockId}
-                  onSelectPageArea={() => setSelectedBlockId(null)}
+                  onSelectBlock={(id) => {
+                    setSelectedBlockId(id);
+                    if (frameModeId && frameModeId !== id) setFrameModeId(null);
+                  }}
+                  onChangeBlock={patchBlock}
+                  frameModeId={frameModeId}
+                  onToggleFrameMode={setFrameModeId}
+                  onSelectPageArea={() => {
+                    setSelectedBlockId(null);
+                    setFrameModeId(null);
+                  }}
                   className="shadow-lg"
                 />
               </div>
