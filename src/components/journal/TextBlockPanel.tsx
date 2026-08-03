@@ -95,57 +95,65 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
         </p>
       </section>
 
-      <section className="space-y-2 border-t border-border pt-3">
-        <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Alinhamento
-        </Label>
-        <div className="flex gap-1.5">
-          {ALIGNMENTS.map(({ value, label, Icon }) => (
-            <button
-              key={value}
-              type="button"
-              title={label}
-              aria-label={label}
-              aria-pressed={block.align === value}
-              onClick={() => onChange({ align: value } as Partial<JournalBlock>)}
-              className={cn(
-                'grid h-9 flex-1 place-items-center rounded-md border border-border transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                block.align === value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-background hover:bg-accent',
-              )}
-            >
-              <Icon className="h-4 w-4" />
-            </button>
-          ))}
+      <section className="space-y-3 border-t border-border pt-3">
+        <div className="space-y-1.5">
+          <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Alinhamento
+          </Label>
+          <div className="grid grid-cols-4 gap-1.5">
+            {ALIGNMENTS.map(({ value, label, Icon }) => (
+              <button
+                key={value}
+                type="button"
+                title={label}
+                aria-label={label}
+                aria-pressed={block.align === value}
+                onClick={() => onChange({ align: value } as Partial<JournalBlock>)}
+                className={cn(
+                  'flex h-14 flex-col items-center justify-center gap-1 rounded-md border border-border transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  block.align === value
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'bg-background hover:bg-accent',
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="text-[9px] leading-none">{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <Label className="block pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Formatação
-        </Label>
-        <div className="flex gap-1.5">
-          {([
-            { key: 'bold', label: 'Negrito', Icon: Bold },
-            { key: 'italic', label: 'Itálico', Icon: Italic },
-            { key: 'list', label: 'Lista', Icon: List },
-          ] as const).map(({ key, label, Icon }) => (
-            <button
-              key={key}
-              type="button"
-              title={label}
-              aria-label={label}
-              aria-pressed={Boolean(block[key])}
-              onClick={() => onChange({ [key]: !block[key] } as Partial<JournalBlock>)}
-              className={cn(
-                'grid h-9 flex-1 place-items-center rounded-md border border-border transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                block[key] ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-accent',
-              )}
-            >
-              <Icon className="h-4 w-4" />
-            </button>
-          ))}
+        <div className="space-y-1.5">
+          <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Formatação
+          </Label>
+          <div className="grid grid-cols-3 gap-1.5">
+            {([
+              { key: 'bold', label: 'Negrito', Icon: Bold },
+              { key: 'italic', label: 'Itálico', Icon: Italic },
+              { key: 'list', label: 'Lista', Icon: List },
+            ] as const).map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                type="button"
+                title={label}
+                aria-label={label}
+                aria-pressed={Boolean(block[key])}
+                onClick={() => onChange({ [key]: !block[key] } as Partial<JournalBlock>)}
+                className={cn(
+                  'flex h-14 flex-col items-center justify-center gap-1 rounded-md border border-border transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  block[key]
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'bg-background hover:bg-accent',
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="text-[9px] leading-none">{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -161,23 +169,27 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
       </section>
 
       <section className="space-y-2 border-t border-border pt-3">
-        <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Espaçamento entre linhas
-        </Label>
-        <div className="flex items-center gap-3">
-          <Slider
-            value={[lineHeight]}
-            min={1}
-            max={2}
-            step={0.1}
-            onValueChange={([value]) => onChange({ lineHeight: value } as Partial<JournalBlock>)}
-            className="flex-1"
-          />
-          <span className="w-10 rounded-md border border-border px-2 py-1 text-center text-xs">
+        <div className="flex items-baseline justify-between">
+          <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Espaçamento entre linhas
+          </Label>
+          <span className="text-xs font-semibold tabular-nums text-foreground">
             {lineHeight.toFixed(1).replace('.', ',')}
           </span>
         </div>
+        <Slider
+          value={[lineHeight]}
+          min={1}
+          max={2}
+          step={0.1}
+          onValueChange={([value]) => onChange({ lineHeight: value } as Partial<JournalBlock>)}
+        />
+        <div className="flex justify-between text-[10px] text-muted-foreground">
+          <span>Compacto</span>
+          <span>Espaçado</span>
+        </div>
       </section>
+
     </div>
   );
 }
