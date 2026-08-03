@@ -249,6 +249,13 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
           height: A4_H,
           windowWidth: A4_W,
           windowHeight: A4_H,
+          onclone: (doc) => {
+            // html2canvas colapsa parte do espaçamento vertical do grid; reforçamos
+            // o respiro acima das imagens para o PDF ficar igual ao preview.
+            doc.querySelectorAll<HTMLElement>('[data-block-kind="image"]').forEach((el) => {
+              el.style.paddingTop = '8px';
+            });
+          },
         });
         if (index > 0) pdf.addPage();
         pdf.addImage(canvas.toDataURL('image/jpeg', quality === 'impressao' ? 0.98 : 0.9), 'JPEG', 0, 0, 210, 297);
