@@ -38,7 +38,7 @@ const ALIGNMENTS = [
   { value: 'justify', label: 'Justificado', Icon: AlignJustify },
 ] as const;
 
-const SPANS: BlockSpan[] = [1, 2, 3, 4, 5, 6];
+
 
 const PLACEHOLDERS: Record<TextStyleKey, string> = {
   titulo_capa: 'Escreva o título principal da capa…',
