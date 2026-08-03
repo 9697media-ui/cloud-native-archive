@@ -71,13 +71,6 @@ export interface JournalTextBlock {
   color?: JournalColorKey;
 }
 
-export interface JournalFocalPoint {
-  /** 0–1 no eixo horizontal. */
-  x: number;
-  /** 0–1 no eixo vertical. */
-  y: number;
-}
-
 export interface JournalImageBlock {
   id: string;
   kind: 'image';
@@ -88,31 +81,7 @@ export interface JournalImageBlock {
   fit: 'cover' | 'contain';
   /** Cor da legenda — ausente usa o cinza institucional padrão. */
   color?: JournalColorKey;
-  /** Altura explícita do quadro em px A4 — ausente usa `ratio`. */
-  height?: number;
-  /** Largura fina dentro do span (60–100%) — ausente usa 100%. */
-  widthPct?: number;
-  /** Proporção travada nas alças de canto. */
-  lockRatio?: boolean;
-  /** Ponto focal do recorte (0–1). Ausente = centro. */
-  focal?: JournalFocalPoint;
-  /** Escala da foto dentro do quadro (1–3). */
-  zoom?: number;
-  /** Alinhamento vertical do bloco na linha da grade. */
-  alignSelf?: 'start' | 'center' | 'end' | 'stretch';
-  /** Alinhamento horizontal do quadro dentro do span. */
-  justify?: 'start' | 'center' | 'end';
 }
-
-/** Largura útil (área segura) da página A4 em px, já descontadas as margens. */
-export const A4_SAFE_WIDTH = 794 - 96;
-/** Altura mínima e máxima permitidas para o quadro de imagem. */
-export const IMAGE_MIN_HEIGHT = 60;
-export const IMAGE_MAX_HEIGHT = 900;
-/** Distância (px) em que o encaixe magnético é aplicado. */
-export const SNAP_THRESHOLD = 4;
-/** Conversão px A4 → mm de impressão. */
-export const pxToMm = (px: number): number => Math.round((px * 210) / 794);
 
 export interface JournalAgendaItem {
   id: string;
