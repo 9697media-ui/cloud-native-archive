@@ -156,6 +156,17 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
 
       <section className="space-y-2 border-t border-border pt-3">
         <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Cor do texto
+        </Label>
+        <ColorSwatchPicker
+          label="Escolha a cor"
+          value={block.color}
+          onChange={(color) => onChange({ color } as Partial<JournalBlock>)}
+        />
+      </section>
+
+      <section className="space-y-2 border-t border-border pt-3">
+        <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Espaçamento entre linhas
         </Label>
         <div className="flex items-center gap-3">
@@ -172,47 +183,6 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
           </span>
         </div>
       </section>
-
-      <div className="border-t border-border pt-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-between px-1"
-          onClick={() => setAdvancedOpen((open) => !open)}
-        >
-          Mais opções
-          <ChevronDown className={cn('h-4 w-4 transition-transform', advancedOpen && 'rotate-180')} />
-        </Button>
-
-        {advancedOpen && (
-          <div className="space-y-3 pt-2">
-            <ColorSwatchPicker
-              value={block.color}
-              onChange={(color) => onChange({ color } as Partial<JournalBlock>)}
-            />
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Largura em colunas
-              </Label>
-              <Select
-                value={String(block.span)}
-                onValueChange={(value) => onChange({ span: Number(value) as BlockSpan })}
-              >
-                <SelectTrigger className="h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SPANS.map((span) => (
-                    <SelectItem key={span} value={String(span)}>
-                      {span} de 6
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
