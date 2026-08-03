@@ -1,7 +1,23 @@
-import { Trash2, Plus } from 'lucide-react';
+import {
+  Trash2,
+  Plus,
+  AlignStartVertical,
+  AlignCenterVertical,
+  AlignEndVertical,
+  AlignStartHorizontal,
+  AlignCenterHorizontal,
+  AlignEndHorizontal,
+  MoveVertical,
+  MoveHorizontal,
+  RotateCcw,
+  Lock,
+  Unlock,
+  Crop,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -12,7 +28,7 @@ import {
 } from '@/components/ui/select';
 import { ImageBlockField } from '@/components/news/ImageBlockField';
 import { ColorSwatchPicker } from '@/components/journal/ColorSwatchPicker';
-import { TEMPLATE_LABELS, TEXT_STYLE_LABELS } from '@/lib/journal/types';
+import { TEMPLATE_LABELS, TEXT_STYLE_LABELS, pxToMm } from '@/lib/journal/types';
 import type {
   BlockSpan,
   JournalColorKey,
@@ -27,7 +43,24 @@ interface Props {
   block: JournalBlock | undefined;
   onChangeBlock: (patch: Partial<JournalBlock>) => void;
   onRemoveBlock: () => void;
+  /** Iguala altura/largura ao bloco vizinho na mesma linha da grade. */
+  onMatchSibling?: (dimension: 'height' | 'width') => void;
+  frameMode?: boolean;
+  onToggleFrameMode?: (id: string | null) => void;
 }
+
+const ALIGN_V = [
+  { value: 'start' as const, label: 'Topo', Icon: AlignStartHorizontal },
+  { value: 'center' as const, label: 'Centro', Icon: AlignCenterHorizontal },
+  { value: 'end' as const, label: 'Base', Icon: AlignEndHorizontal },
+];
+
+const ALIGN_H = [
+  { value: 'start' as const, label: 'Esq.', Icon: AlignStartVertical },
+  { value: 'center' as const, label: 'Centro', Icon: AlignCenterVertical },
+  { value: 'end' as const, label: 'Dir.', Icon: AlignEndVertical },
+];
+
 
 const SPANS: BlockSpan[] = [1, 2, 3, 4, 5, 6];
 
