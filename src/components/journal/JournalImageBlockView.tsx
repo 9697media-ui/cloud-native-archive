@@ -60,6 +60,7 @@ export function JournalImageBlockView({
 }: ImageBlockViewProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [live, setLive] = useState<{ width: number; height: number } | null>(null);
+  const [box, setBox] = useState({ width: 0, height: 0 });
   const [guide, setGuide] = useState<'top' | 'bottom' | null>(null);
   const [overflow, setOverflow] = useState(false);
 
