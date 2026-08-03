@@ -71,26 +71,28 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
         )}
       </div>
 
-      {block.kind !== 'text' && (
-        <div className="space-y-1.5">
-          <Label className="text-xs">Largura (colunas)</Label>
-          <Select
-            value={String(block.span)}
-            onValueChange={(value) => onChangeBlock({ span: Number(value) as BlockSpan })}
-          >
-            <SelectTrigger className="h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SPANS.map((span) => (
-                <SelectItem key={span} value={String(span)}>
-                  {span} de 6
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+      <div className="space-y-1.5">
+        <Label className="text-xs">Largura (colunas)</Label>
+        <Select
+          value={String(block.span)}
+          onValueChange={(value) => onChangeBlock({ span: Number(value) as BlockSpan })}
+        >
+          <SelectTrigger className="h-9">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {SPANS.map((span) => (
+              <SelectItem key={span} value={String(span)}>
+                {span} de 6
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-[11px] text-muted-foreground">
+          Dica: arraste a alça na borda direita do bloco no canvas para ajustar a largura.
+        </p>
+      </div>
+
 
       {block.kind === 'text' && <TextBlockPanel block={block} onChange={onChangeBlock} />}
 
