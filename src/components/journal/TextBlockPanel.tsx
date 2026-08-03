@@ -6,10 +6,15 @@ import {
   Bold,
   Italic,
   List,
+  Minus,
+  Plus,
+  RotateCcw,
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -19,12 +24,13 @@ import {
 } from '@/components/ui/select';
 import { ColorSwatchPicker } from '@/components/journal/ColorSwatchPicker';
 import { cn } from '@/lib/utils';
-import { TEXT_STYLE_LABELS } from '@/lib/journal/types';
+import { TEXT_STYLE_LABELS, TEXT_STYLE_DEFAULT_SIZES } from '@/lib/journal/types';
 import type {
   JournalBlock,
   JournalTextBlock,
   TextStyleKey,
 } from '@/lib/journal/types';
+
 
 export interface TextBlockPanelProps {
   block: JournalTextBlock;
