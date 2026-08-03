@@ -73,11 +73,14 @@ export interface JournalTextBlock {
   color?: JournalColorKey;
   /** Espaçamento entre linhas (1,0 a 2,0). Ausente usa o padrão da função. */
   lineHeight?: number;
+  /** Tamanho da fonte em px. Ausente usa o padrão da função. */
+  fontSize?: number;
   bold?: boolean;
   italic?: boolean;
   /** Renderiza cada linha do conteúdo como item de lista. */
   list?: boolean;
 }
+
 
 export interface JournalImageBlock {
   id: string;
