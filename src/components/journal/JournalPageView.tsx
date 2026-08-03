@@ -45,29 +45,42 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
   const handleClick = interactive ? () => onSelect?.(block.id) : undefined;
 
   if (block.kind === 'text') {
+    const textClasses = cn(
+      TEXT_STYLE_CLASSES[block.style],
+      'whitespace-pre-wrap',
+      block.align === 'center' && 'text-center',
+      block.align === 'right' && 'text-right',
+      block.align === 'left' && 'text-left',
+      block.align === 'justify' && 'text-justify',
+      block.bold && 'font-bold',
+      block.italic && 'italic',
+    );
+    const textStyle = {
+      color: journalColor(block.color),
+      ...(block.lineHeight ? { lineHeight: block.lineHeight } : {}),
+      ...(block.style === 'destaque'
+        ? { borderLeftColor: block.color ? journalColor(block.color) : '#F5705B' }
+        : {}),
+    };
+    const lines = block.content.split('\n').filter((line) => line.trim().length > 0);
+
     return (
       <div className={wrapper} onClick={handleClick}>
-        <p
-          className={cn(
-            TEXT_STYLE_CLASSES[block.style],
-            'whitespace-pre-wrap',
-            block.align === 'center' && 'text-center',
-            block.align === 'right' && 'text-right',
-            block.align === 'left' && 'text-left',
-            block.align === 'justify' && 'text-justify',
-          )}
-          style={{
-            color: journalColor(block.color),
-            ...(block.style === 'destaque'
-              ? { borderLeftColor: block.color ? journalColor(block.color) : '#F5705B' }
-              : {}),
-          }}
-        >
-          {block.content || ' '}
-        </p>
+        {block.list ? (
+          <ul className={cn(textClasses, 'list-disc pl-4')} style={textStyle}>
+            {(lines.length ? lines : [' ']).map((line, index) => (
+              <li key={index}>{line}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className={textClasses} style={textStyle}>
+            {block.content || ' '}
+          </p>
+        )}
       </div>
     );
   }
+
 
   if (block.kind === 'image') {
     return (

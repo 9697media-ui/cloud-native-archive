@@ -69,6 +69,12 @@ export interface JournalTextBlock {
   span: BlockSpan;
   /** Opcional — ausente significa tinta institucional. */
   color?: JournalColorKey;
+  /** Espaçamento entre linhas (1,0 a 2,0). Ausente usa o padrão da função. */
+  lineHeight?: number;
+  bold?: boolean;
+  italic?: boolean;
+  /** Renderiza cada linha do conteúdo como item de lista. */
+  list?: boolean;
 }
 
 export interface JournalImageBlock {
