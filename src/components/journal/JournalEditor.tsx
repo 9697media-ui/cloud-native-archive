@@ -31,6 +31,8 @@ import {
 import { cn } from '@/lib/utils';
 import { A4_H, A4_W, JournalPageView } from './JournalPageView';
 import { JournalPropertiesPanel } from './JournalPropertiesPanel';
+import { JournalBlockList } from './JournalBlockList';
+
 import {
   TEMPLATE_LABELS,
   type BlockSpan,
@@ -184,12 +186,35 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     setSelectedBlockId(null);
   };
 
+  /** Move um bloco uma posição para cima/baixo na ordem da página. */
+  const moveBlock = (blockId: string, direction: -1 | 1) => {
+    mutatePages((prev) =>
+      prev.map((page) => {
+        if (page.id !== activePage.id) return page;
+        const index = page.blocks.findIndex((block) => block.id === blockId);
+        const target = index + direction;
+        if (index < 0 || target < 0 || target >= page.blocks.length) return page;
+        const blocks = [...page.blocks];
+        [blocks[index], blocks[target]] = [blocks[target], blocks[index]];
+        return { ...page, blocks };
+      }),
+    );
+  };
+
+  /** Insere logo após o bloco selecionado (ou no fim, se nada estiver selecionado). */
   const addBlock = (block: JournalBlock) => {
     mutatePages((prev) =>
-      prev.map((page) => (page.id === activePage.id ? { ...page, blocks: [...page.blocks, block] } : page)),
+      prev.map((page) => {
+        if (page.id !== activePage.id) return page;
+        const at = page.blocks.findIndex((entry) => entry.id === selectedBlockId);
+        const blocks = [...page.blocks];
+        blocks.splice(at < 0 ? blocks.length : at + 1, 0, block);
+        return { ...page, blocks };
+      }),
     );
     setSelectedBlockId(block.id);
   };
+
 
   const addPage = (template: JournalTemplate) => {
     const page = createPage(template);
@@ -418,28 +443,35 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
         {/* Conteúdo da página */}
         <aside className="flex flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-card p-3">
-          {!selectedBlock && (
-            <>
-              <div>
-                <Label className="text-xs text-muted-foreground">Adicionar ao jornal</Label>
-                <div className="mt-1.5 grid grid-cols-2 gap-1.5">
-                  <Button variant="outline" size="sm" onClick={() => addBlock(textBlock('corpo', 'Novo texto.'))}>
-                    <Type className="mr-1.5 h-3.5 w-3.5" /> Texto
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => addBlock(imageBlock(6, '16/9'))}>
-                    <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Imagem
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => addBlock(statBlock())}>
-                    <Hash className="mr-1.5 h-3.5 w-3.5" /> Número
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => addBlock(agendaBlock())}>
-                    <CalendarDays className="mr-1.5 h-3.5 w-3.5" /> Agenda
-                  </Button>
-                </div>
-              </div>
-              <div className="h-px bg-border" />
-            </>
-          )}
+          <div>
+            <Label className="text-xs text-muted-foreground">
+              {selectedBlock ? 'Adicionar abaixo do bloco selecionado' : 'Adicionar ao jornal'}
+            </Label>
+            <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+              <Button variant="outline" size="sm" onClick={() => addBlock(textBlock('corpo', 'Novo texto.'))}>
+                <Type className="mr-1.5 h-3.5 w-3.5" /> Texto
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => addBlock(imageBlock(6, '16/9'))}>
+                <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Imagem
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => addBlock(statBlock())}>
+                <Hash className="mr-1.5 h-3.5 w-3.5" /> Número
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => addBlock(agendaBlock())}>
+                <CalendarDays className="mr-1.5 h-3.5 w-3.5" /> Agenda
+              </Button>
+            </div>
+          </div>
+
+          <JournalBlockList
+            blocks={activePage?.blocks ?? []}
+            selectedBlockId={selectedBlockId}
+            onSelect={setSelectedBlockId}
+            onMove={moveBlock}
+          />
+
+          <div className="h-px bg-border" />
+
           <JournalPropertiesPanel
             page={activePage}
             block={selectedBlock}
