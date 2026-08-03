@@ -148,25 +148,122 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
               onChange={(url) => onChangeBlock({ url } as Partial<JournalBlock>)}
             />
           </div>
+
           <div className="space-y-1.5">
-            <Label className="text-xs">Proporção</Label>
-            <Select
-              value={block.ratio}
-              onValueChange={(value) => onChangeBlock({ ratio: value } as Partial<JournalBlock>)}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="16/9">Horizontal (16:9)</SelectItem>
-                <SelectItem value="4/3">Paisagem (4:3)</SelectItem>
-                <SelectItem value="1/1">Quadrada</SelectItem>
-                <SelectItem value="3/4">Vertical (3:4)</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label className="text-xs">Alinhamento</Label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {ALIGN_V.map(({ value, label, Icon }) => (
+                <Button
+                  key={value}
+                  variant={block.alignSelf === value ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-8 text-[11px]"
+                  onClick={() => onChangeBlock({ alignSelf: value } as Partial<JournalBlock>)}
+                >
+                  <Icon className="mr-1 h-3.5 w-3.5" /> {label}
+                </Button>
+              ))}
+              {ALIGN_H.map(({ value, label, Icon }) => (
+                <Button
+                  key={value}
+                  variant={block.justify === value ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-8 text-[11px]"
+                  onClick={() => onChangeBlock({ justify: value } as Partial<JournalBlock>)}
+                >
+                  <Icon className="mr-1 h-3.5 w-3.5" /> {label}
+                </Button>
+              ))}
+            </div>
           </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs">Dimensões</Label>
+            <Button
+              size="sm"
+              className="w-full bg-[#FACC00] text-[#1F211F] hover:bg-[#e5bb00]"
+              onClick={() => onMatchSibling?.('height')}
+            >
+              <MoveVertical className="mr-1.5 h-3.5 w-3.5" /> Igualar altura ao bloco de texto
+            </Button>
+            <Button variant="outline" size="sm" className="w-full" onClick={() => onMatchSibling?.('width')}>
+              <MoveHorizontal className="mr-1.5 h-3.5 w-3.5" /> Mesma largura do bloco ao lado
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() =>
+                onChangeBlock({
+                  height: undefined,
+                  widthPct: undefined,
+                  focal: undefined,
+                  zoom: undefined,
+                  justify: undefined,
+                  alignSelf: undefined,
+                } as Partial<JournalBlock>)
+              }
+            >
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Restaurar tamanho original
+            </Button>
+            <Button
+              variant={block.lockRatio === false ? 'outline' : 'secondary'}
+              size="sm"
+              className="w-full"
+              onClick={() => onChangeBlock({ lockRatio: block.lockRatio === false } as Partial<JournalBlock>)}
+            >
+              {block.lockRatio === false ? (
+                <>
+                  <Unlock className="mr-1.5 h-3.5 w-3.5" /> Proporção livre
+                </>
+              ) : (
+                <>
+                  <Lock className="mr-1.5 h-3.5 w-3.5" /> Proporção bloqueada
+                </>
+              )}
+            </Button>
+            <div className="grid grid-cols-2 gap-1.5">
+              <div>
+                <Label className="text-[10px] text-muted-foreground">Largura (%)</Label>
+                <Input
+                  type="number"
+                  className="h-8"
+                  value={block.widthPct ?? 100}
+                  onChange={(event) =>
+                    onChangeBlock({
+                      widthPct: Math.min(100, Math.max(30, Number(event.target.value) || 100)),
+                    } as Partial<JournalBlock>)
+                  }
+                />
+              </div>
+              <div>
+                <Label className="text-[10px] text-muted-foreground">Altura (mm)</Label>
+                <Input
+                  type="number"
+                  className="h-8"
+                  value={block.height ? pxToMm(block.height) : ''}
+                  placeholder="auto"
+                  onChange={(event) => {
+                    const mm = Number(event.target.value);
+                    onChangeBlock({
+                      height: mm ? Math.round((mm * 794) / 210) : undefined,
+                    } as Partial<JournalBlock>);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-1.5">
             <Label className="text-xs">Enquadramento</Label>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => onToggleFrameMode?.(frameMode ? null : block.id)}
+            >
+              <Crop className="mr-1.5 h-3.5 w-3.5" /> {frameMode ? 'Concluir enquadramento' : 'Ajustar enquadramento'}
+            </Button>
             <Select
               value={block.fit}
               onValueChange={(value) => onChangeBlock({ fit: value } as Partial<JournalBlock>)}
@@ -179,7 +276,48 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
                 <SelectItem value="contain">Imagem completa</SelectItem>
               </SelectContent>
             </Select>
+            <div>
+              <Label className="text-[10px] text-muted-foreground">Zoom da foto</Label>
+              <Slider
+                value={[block.zoom ?? 1]}
+                min={1}
+                max={3}
+                step={0.05}
+                onValueChange={([zoom]) => onChangeBlock({ zoom } as Partial<JournalBlock>)}
+              />
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full"
+              onClick={() =>
+                onChangeBlock({ focal: { x: 0.5, y: 0.5 }, zoom: 1 } as Partial<JournalBlock>)
+              }
+            >
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Restaurar enquadramento original
+            </Button>
           </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs">Proporção base</Label>
+            <Select
+              value={block.ratio}
+              onValueChange={(value) =>
+                onChangeBlock({ ratio: value, height: undefined } as Partial<JournalBlock>)
+              }
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="16/9">Horizontal (16:9)</SelectItem>
+                <SelectItem value="4/3">Paisagem (4:3)</SelectItem>
+                <SelectItem value="1/1">Quadrada</SelectItem>
+                <SelectItem value="3/4">Vertical (3:4)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-1.5">
             <Label className="text-xs">Legenda (opcional)</Label>
             <Input
@@ -194,6 +332,7 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
           />
         </>
       )}
+
 
       {block.kind === 'stat' && (
         <>
