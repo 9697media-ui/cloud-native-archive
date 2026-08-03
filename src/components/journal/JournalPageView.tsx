@@ -1,10 +1,12 @@
 import { cn } from '@/lib/utils';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
+import { JournalImageBlockView } from '@/components/journal/JournalImageBlockView';
 import anaLogo from '@/assets/ana-brasil-logo.svg';
 import {
   TEXT_STYLE_CLASSES,
   journalColor,
   type JournalBlock,
+  type JournalImageBlock,
   type JournalPage,
 } from '@/lib/journal/types';
 
@@ -20,33 +22,39 @@ const SPAN_CLASS: Record<number, string> = {
   6: 'col-span-6',
 };
 
-const RATIO_CLASS: Record<string, string> = {
-  '16/9': 'aspect-[16/9]',
-  '4/3': 'aspect-[4/3]',
-  '1/1': 'aspect-square',
-  '3/4': 'aspect-[3/4]',
-};
-
 interface BlockViewProps {
   block: JournalBlock;
   selected?: boolean;
   interactive?: boolean;
+  scale?: number;
   onSelect?: (id: string) => void;
+  onChangeBlock?: (id: string, patch: Partial<JournalBlock>) => void;
+  frameModeId?: string | null;
+  onToggleFrameMode?: (id: string | null) => void;
 }
 
-export function JournalBlockView({ block, selected, interactive, onSelect }: BlockViewProps) {
+export function JournalBlockView({
+  block,
+  selected,
+  interactive,
+  scale,
+  onSelect,
+  onChangeBlock,
+  frameModeId,
+  onToggleFrameMode,
+}: BlockViewProps) {
   const wrapper = cn(
     SPAN_CLASS[block.span] ?? 'col-span-6',
     interactive && 'cursor-pointer rounded-sm transition-[box-shadow]',
     interactive && !selected && 'hover:shadow-[0_0_0_1.5px_hsl(var(--ring))]',
-    selected && 'shadow-[0_0_0_2px_hsl(var(--primary))]',
+    selected && block.kind !== 'image' && 'shadow-[0_0_0_2px_hsl(var(--primary))]',
   );
 
   const handleClick = interactive ? () => onSelect?.(block.id) : undefined;
 
   if (block.kind === 'text') {
     return (
-      <div className={wrapper} onClick={handleClick}>
+      <div className={wrapper} data-block-id={block.id} onClick={handleClick}>
         <p
           className={cn(
             TEXT_STYLE_CLASSES[block.style],
@@ -71,36 +79,24 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
 
   if (block.kind === 'image') {
     return (
-      <figure className={wrapper} onClick={handleClick}>
-        <div className={cn('w-full overflow-hidden bg-[#E4E0D2]', RATIO_CLASS[block.ratio])}>
-          {block.url ? (
-            <img
-              src={block.url}
-              alt={block.caption || 'Imagem do jornal'}
-              className={cn('h-full w-full', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
-              crossOrigin="anonymous"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-[10px] uppercase tracking-widest text-[#8B8778]">
-              Imagem
-            </div>
-          )}
-        </div>
-        {block.caption && (
-          <figcaption
-            className={cn(TEXT_STYLE_CLASSES.legenda, 'mt-1')}
-            style={{ color: block.color ? journalColor(block.color) : '#5C5A50' }}
-          >
-            {block.caption}
-          </figcaption>
-        )}
-      </figure>
+      <JournalImageBlockView
+        block={block}
+        wrapperClass={wrapper}
+        selected={selected}
+        interactive={interactive}
+        scale={scale}
+        onSelect={onSelect}
+        onChange={(patch: Partial<JournalImageBlock>) => onChangeBlock?.(block.id, patch as Partial<JournalBlock>)}
+        frameMode={frameModeId === block.id}
+        onToggleFrameMode={onToggleFrameMode}
+      />
     );
   }
 
+
   if (block.kind === 'agenda') {
     return (
-      <div className={wrapper} onClick={handleClick}>
+      <div className={wrapper} data-block-id={block.id} onClick={handleClick}>
         <ul className="divide-y divide-[#D9D4C4]">
           {block.items.map((item) => (
             <li key={item.id} className="flex gap-3 py-1.5">
@@ -116,7 +112,7 @@ export function JournalBlockView({ block, selected, interactive, onSelect }: Blo
   }
 
   return (
-    <div className={wrapper} onClick={handleClick}>
+    <div className={wrapper} data-block-id={block.id} onClick={handleClick}>
       <div
         className="border-t-2 pt-2"
         style={{ borderTopColor: block.color ? journalColor(block.color) : '#FACC00' }}
@@ -141,7 +137,12 @@ interface JournalPageViewProps {
   unitName: string;
   selectedBlockId?: string | null;
   interactive?: boolean;
+  /** Escala aplicada ao canvas — necessária para o redimensionamento por alças. */
+  scale?: number;
   onSelectBlock?: (id: string) => void;
+  onChangeBlock?: (id: string, patch: Partial<JournalBlock>) => void;
+  frameModeId?: string | null;
+  onToggleFrameMode?: (id: string | null) => void;
   onSelectPageArea?: () => void;
   className?: string;
 }
@@ -155,7 +156,11 @@ export function JournalPageView({
   unitName,
   selectedBlockId,
   interactive,
+  scale,
   onSelectBlock,
+  onChangeBlock,
+  frameModeId,
+  onToggleFrameMode,
   onSelectPageArea,
   className,
 }: JournalPageViewProps) {
@@ -179,6 +184,7 @@ export function JournalPageView({
       <div className="mx-12 mt-3 h-px bg-[#D9D4C4]" />
 
       <div
+        data-journal-grid
         className="grid flex-1 grid-cols-6 content-start gap-x-4 gap-y-3 overflow-hidden px-12 py-6"
         onClick={(event) => event.stopPropagation()}
       >
@@ -187,11 +193,16 @@ export function JournalPageView({
             key={block.id}
             block={block}
             interactive={interactive}
+            scale={scale}
             selected={selectedBlockId === block.id}
             onSelect={onSelectBlock}
+            onChangeBlock={onChangeBlock}
+            frameModeId={frameModeId}
+            onToggleFrameMode={onToggleFrameMode}
           />
         ))}
       </div>
+
 
       <div className="px-12 pb-1 text-right text-[9px] text-[#5C5A50]">
         {index + 1} / {total}
