@@ -208,94 +208,86 @@ export function JournalImageBlockView({
       onClick={interactive ? () => onSelect?.(block.id) : undefined}
       onDoubleClick={interactive ? () => onToggleFrameMode?.(frameMode ? null : block.id) : undefined}
     >
-      <div
-        ref={frameRef}
-        className={cn(
-          'relative w-full overflow-hidden bg-[#E4E0D2]',
-          !block.height && !live && RATIO_CLASS[block.ratio],
-          frameMode && 'outline-2 outline-dashed outline-[#00A6FF]',
-        )}
-        style={frameStyle}
-        onPointerDown={startPan}
-      >
-        {block.url ? (
-          <img
-            src={block.url}
-            alt={block.caption || 'Imagem do jornal'}
-            className={cn('h-full w-full select-none', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
-            style={imgStyle}
-            crossOrigin="anonymous"
-            draggable={false}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-[10px] uppercase tracking-widest text-[#8B8778]">
-            Imagem
-          </div>
-        )}
+      <div className="relative" style={{ width: frameStyle.width, marginLeft: frameStyle.marginLeft, marginRight: frameStyle.marginRight }}>
+        <div
+          ref={frameRef}
+          className={cn(
+            'relative w-full overflow-hidden bg-[#E4E0D2]',
+            !block.height && !live && RATIO_CLASS[block.ratio],
+            frameMode && 'outline-2 outline-dashed outline-[#00A6FF]',
+          )}
+          style={{ height: frameStyle.height }}
+          onPointerDown={startPan}
+        >
+          {block.url ? (
+            <img
+              src={block.url}
+              alt={block.caption || 'Imagem do jornal'}
+              className={cn('h-full w-full select-none', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
+              style={imgStyle}
+              crossOrigin="anonymous"
+              draggable={false}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-[10px] uppercase tracking-widest text-[#8B8778]">
+              Imagem
+            </div>
+          )}
 
-        {frameMode && (
-          <>
-            <div className="pointer-events-none absolute inset-0 bg-[#1F211F]/25" />
-            <div className="pointer-events-none absolute inset-3 border border-white/90" />
-            <span className="pointer-events-none absolute left-1 top-1 rounded bg-[#00A6FF] px-1.5 py-0.5 text-[8px] font-bold text-white">
-              Arraste a foto · ESC para sair
-            </span>
-          </>
-        )}
+          {frameMode && (
+            <>
+              <div className="pointer-events-none absolute inset-0 bg-[#1F211F]/25" />
+              <div className="pointer-events-none absolute inset-3 border border-white/90" />
+              <span className="pointer-events-none absolute left-1 top-1 rounded bg-[#00A6FF] px-1.5 py-0.5 text-[8px] font-bold text-white">
+                Arraste a foto · ESC para sair
+              </span>
+            </>
+          )}
 
-        {showChrome && !frameMode && (
-          <div
-            className={cn(
-              'pointer-events-none absolute inset-0',
-              overflow ? 'shadow-[inset_0_0_0_2px_#F5705B]' : 'shadow-[inset_0_0_0_2px_#00A6FF]',
-            )}
-          />
-        )}
+          {showChrome && !frameMode && (
+            <div
+              className={cn(
+                'pointer-events-none absolute inset-0',
+                overflow ? 'shadow-[inset_0_0_0_2px_#F5705B]' : 'shadow-[inset_0_0_0_2px_#00A6FF]',
+              )}
+            />
+          )}
+        </div>
 
         {guide && (
           <div
             className="pointer-events-none absolute -left-[400px] -right-[400px] h-[1.5px] bg-[#F5705B]"
-            style={{ [guide === 'top' ? 'top' : 'bottom']: 0 } as CSSProperties}
+            style={guide === 'top' ? { top: 0 } : { top: measured.height }}
           />
         )}
-      </div>
 
-      {showChrome && !frameMode && (
-        <div className="pointer-events-none relative">
-          <div className="pointer-events-none absolute inset-x-0" style={{ bottom: 0 }}>
-            {[...CORNERS, ...SIDES].map((handle) => (
-              <span
-                key={handle}
-                onPointerDown={startResize(handle)}
-                className={cn(
-                  'pointer-events-auto absolute z-10 h-[9px] w-[9px] border-2 border-[#00A6FF] bg-white',
-                  SIDES.includes(handle) && 'rounded-full',
-                  HANDLE_POS[handle],
-                )}
-                style={{
-                  bottom: handle.startsWith('s') ? -4 : undefined,
-                  top: handle.startsWith('n')
-                    ? -(measured.height || 0) - 4
-                    : SIDES.includes(handle) && (handle === 'w' || handle === 'e')
-                      ? -(measured.height || 0) / 2 - 4
-                      : undefined,
-                }}
-              />
-            ))}
-          </div>
+        {showChrome && !frameMode &&
+          [...CORNERS, ...SIDES].map((handle) => (
+            <span
+              key={handle}
+              onPointerDown={startResize(handle)}
+              className={cn(
+                'absolute z-10 h-[9px] w-[9px] border-2 border-[#00A6FF] bg-white',
+                SIDES.includes(handle) && 'rounded-full',
+                HANDLE_POS[handle],
+              )}
+            />
+          ))}
+
+        {showChrome && !frameMode && (
           <span
             className={cn(
-              'absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded px-1.5 py-0.5 text-[8px] font-bold text-white',
+              'absolute left-1/2 top-full z-10 mt-1.5 -translate-x-1/2 whitespace-nowrap rounded px-1.5 py-0.5 text-[8px] font-bold text-white',
               overflow ? 'bg-[#F5705B]' : 'bg-[#00A6FF]',
             )}
-            style={{ top: 6 }}
           >
             {pxToMm(measured.width)} × {pxToMm(measured.height)} mm ·{' '}
             {block.lockRatio === false ? 'proporção livre' : 'proporção travada'}
             {overflow ? ' · fora da área segura' : ''}
           </span>
-        </div>
-      )}
+        )}
+      </div>
+
 
       {block.caption && (
         <figcaption
