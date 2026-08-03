@@ -311,6 +311,7 @@ export function JournalBlockView({
   return (
     <div
       className={wrapper}
+      data-block-kind={block.kind}
       onClick={handleClick}
       style={block.height ? { height: block.height } : undefined}
       onDragOver={
