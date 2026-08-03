@@ -63,6 +63,8 @@ export const journalColor = (key?: JournalColorKey): string =>
 export interface JournalTextBlock {
   id: string;
   kind: 'text';
+  /** Altura fixa em px definida pela alça inferior no canvas. Ausente = automática. */
+  height?: number;
   style: TextStyleKey;
   content: string;
   align: 'left' | 'center' | 'right' | 'justify';
@@ -80,6 +82,8 @@ export interface JournalTextBlock {
 export interface JournalImageBlock {
   id: string;
   kind: 'image';
+  /** Altura fixa em px definida pela alça inferior no canvas. Ausente = automática. */
+  height?: number;
   url: string;
   caption: string;
   span: BlockSpan;
@@ -100,6 +104,8 @@ export interface JournalAgendaItem {
 export interface JournalAgendaBlock {
   id: string;
   kind: 'agenda';
+  /** Altura fixa em px definida pela alça inferior no canvas. Ausente = automática. */
+  height?: number;
   items: JournalAgendaItem[];
   span: BlockSpan;
 }
@@ -107,6 +113,8 @@ export interface JournalAgendaBlock {
 export interface JournalStatBlock {
   id: string;
   kind: 'stat';
+  /** Altura fixa em px definida pela alça inferior no canvas. Ausente = automática. */
+  height?: number;
   value: string;
   label: string;
   span: BlockSpan;
