@@ -421,6 +421,9 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             block={selectedBlock}
             onChangeBlock={updateBlock}
             onRemoveBlock={removeBlock}
+            onMatchSibling={matchSibling}
+            frameMode={!!selectedBlockId && frameModeId === selectedBlockId}
+            onToggleFrameMode={setFrameModeId}
           />
         </aside>
       </div>
