@@ -72,8 +72,10 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   const [pages, setPages] = useState<JournalPage[]>(journal.pages?.length ? journal.pages : [createPage('capa')]);
   const [activePageId, setActivePageId] = useState<string>(pages[0].id);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [frameModeId, setFrameModeId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(0.7);
   const [exporting, setExporting] = useState(false);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const exportRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
 
