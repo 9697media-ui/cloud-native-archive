@@ -112,7 +112,7 @@ export function JournalBlockView({
   }
 
   return (
-    <div className={wrapper} onClick={handleClick}>
+    <div className={wrapper} data-block-id={block.id} onClick={handleClick}>
       <div
         className="border-t-2 pt-2"
         style={{ borderTopColor: block.color ? journalColor(block.color) : '#FACC00' }}
