@@ -95,38 +95,6 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Proporção</Label>
-            <Select
-              value={block.ratio}
-              onValueChange={(value) => onChangeBlock({ ratio: value } as Partial<JournalBlock>)}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="16/9">Horizontal (16:9)</SelectItem>
-                <SelectItem value="4/3">Paisagem (4:3)</SelectItem>
-                <SelectItem value="1/1">Quadrada</SelectItem>
-                <SelectItem value="3/4">Vertical (3:4)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Enquadramento</Label>
-            <Select
-              value={block.fit}
-              onValueChange={(value) => onChangeBlock({ fit: value } as Partial<JournalBlock>)}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cover">Preencher espaço</SelectItem>
-                <SelectItem value="contain">Imagem completa</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
             <Label className="text-xs">Legenda (opcional)</Label>
             <Input
               value={block.caption}
