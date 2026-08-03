@@ -64,7 +64,15 @@ const ALIGN_H = [
 
 const SPANS: BlockSpan[] = [1, 2, 3, 4, 5, 6];
 
-export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlock }: Props) {
+export function JournalPropertiesPanel({
+  page,
+  block,
+  onChangeBlock,
+  onRemoveBlock,
+  onMatchSibling,
+  frameMode,
+  onToggleFrameMode,
+}: Props) {
   if (!block) {
     return (
       <div className="space-y-3 text-sm">
