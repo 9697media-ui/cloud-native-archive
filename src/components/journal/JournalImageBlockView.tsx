@@ -192,7 +192,7 @@ export function JournalImageBlockView({
       setBox((prev) =>
         Math.abs(prev.width - width) < 0.5 && Math.abs(prev.height - height) < 0.5
           ? prev
-          : { width: width / scale, height: height / scale },
+          : { width, height },
       );
     });
     observer.observe(frame);
