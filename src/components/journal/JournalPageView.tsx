@@ -416,19 +416,23 @@ export function JournalPageView({
   onOverflow,
 }: JournalPageViewProps) {
   const gridRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
   const isLocked = page.locked ?? COVER_TEMPLATES.includes(page.template);
   const paperColor = paper === 'offwhite' ? PAPER_OFFWHITE : PAPER_WHITE;
+  const isCover = COVER_TEMPLATES.includes(page.template);
 
   // Detecta estouro de conteúdo em relação à área útil da página.
   const measureOverflow = () => {
-    if (!contentRef.current || !onOverflow) return;
+    if (!gridRef.current || !onOverflow) return;
     const headerFooter = 220; // cabeçalho + rodapé aproximados
     const usefulHeight = A4_H - headerFooter;
-    const renderedHeight = contentRef.current.scrollHeight;
+    const renderedHeight = gridRef.current.scrollHeight;
     onOverflow(Math.max(0, renderedHeight - usefulHeight));
   };
+
+  useEffect(() => {
+    measureOverflow();
+  }, [page.blocks, paper, onOverflow]);
 
   return (
     <div
