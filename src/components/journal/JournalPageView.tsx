@@ -9,12 +9,6 @@ import {
   type JournalPage,
 } from '@/lib/journal/types';
 
-/** Hex fixo (paridade preview = PDF no html2canvas). */
-export const PAPER_HEX: Record<'offwhite' | 'branco', string> = {
-  offwhite: '#F0EEE4',
-  branco: '#FFFFFF',
-};
-
 export const A4_W = 794;
 export const A4_H = 1123;
 
@@ -65,7 +59,7 @@ export function JournalBlockView({
   const wrapper = cn(
     'group/block relative',
     SPAN_CLASS[block.span] ?? 'col-span-6',
-    interactive && 'cursor-pointer rounded-sm transition-all duration-150 ease-out',
+    interactive && 'cursor-pointer rounded-sm transition-[box-shadow]',
     interactive && !selected && 'hover:shadow-[0_0_0_1.5px_hsl(var(--ring))]',
     selected && 'shadow-[0_0_0_2px_hsl(var(--primary))]',
     block.height ? 'overflow-hidden' : undefined,
@@ -259,7 +253,7 @@ export function JournalBlockView({
       <figure className={cn('m-0', hasFixedHeight && 'flex h-full flex-col')}>
         <div
           className={cn(
-            'w-full overflow-hidden rounded-lg bg-[#E4E0D2]',
+            'w-full overflow-hidden bg-[#E4E0D2]',
             hasFixedHeight ? 'min-h-0 flex-1' : RATIO_CLASS[block.ratio],
           )}
         >
@@ -365,12 +359,8 @@ export function JournalBlockView({
 }
 
 
-export type JournalPaperTone = 'offwhite' | 'branco';
-
 interface JournalPageViewProps {
   page: JournalPage;
-  /** Tom do papel — apenas visual, aplicado igualmente no canvas e no PDF. */
-  paperTone?: JournalPaperTone;
   index: number;
   total: number;
   edition: string;
@@ -402,15 +392,14 @@ export function JournalPageView({
   onResizeBlockSpan,
   onResizeBlockHeight,
   onReorderBlocks,
-  paperTone = 'offwhite',
   className,
 }: JournalPageViewProps) {
   const gridRef = useRef<HTMLDivElement>(null);
 
   return (
     <div
-      className={cn('relative flex flex-col overflow-hidden', className)}
-      style={{ width: A4_W, height: A4_H, backgroundColor: PAPER_HEX[paperTone] }}
+      className={cn('relative flex flex-col overflow-hidden bg-news-paper', className)}
+      style={{ width: A4_W, height: A4_H }}
       onClick={onSelectPageArea}
     >
       <div className="flex items-center justify-between px-12 pt-10">

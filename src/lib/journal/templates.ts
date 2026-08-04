@@ -49,51 +49,6 @@ export function createPage(template: JournalTemplate): JournalPage {
           textBlock('chamada', 'Chamada secundária desta edição.', 3),
           textBlock('chamada', 'Outra chamada desta edição.', 3),
         ];
-      case 'capa_imagem':
-        return [
-          imageBlock(6, '4/3'),
-          textBlock('subtitulo', 'Jornal Institucional', 6, 'center'),
-          textBlock('titulo_capa', 'Título da edição', 6, 'center'),
-          textBlock('chamada', 'Chamada principal desta edição.', 6, 'center'),
-        ];
-      case 'capa_chamadas':
-        return [
-          textBlock('subtitulo', 'Jornal Institucional', 6, 'center'),
-          textBlock('titulo_capa', 'Título da edição', 6, 'center'),
-          imageBlock(6, '16/9'),
-          textBlock('chamada', 'Primeira chamada desta edição.', 3),
-          textBlock('chamada', 'Segunda chamada desta edição.', 3),
-          textBlock('chamada', 'Terceira chamada desta edição.', 3),
-          textBlock('chamada', 'Quarta chamada desta edição.', 3),
-        ];
-      case 'capa_editorial':
-        return [
-          textBlock('subtitulo', 'Jornal Institucional', 6),
-          textBlock('titulo_capa', 'Título editorial da edição', 4),
-          imageBlock(2, '3/4'),
-          textBlock('destaque', 'Frase de abertura desta edição.', 6),
-          textBlock('chamada', 'Destaque 1', 2),
-          textBlock('chamada', 'Destaque 2', 2),
-          textBlock('chamada', 'Destaque 3', 2),
-        ];
-      case 'duas_materias':
-        return [
-          textBlock('titulo_materia', 'Primeira matéria', 3),
-          textBlock('titulo_materia', 'Segunda matéria', 3),
-          imageBlock(3, '4/3'),
-          imageBlock(3, '4/3'),
-          textBlock('corpo', 'Texto da primeira matéria.', 3),
-          textBlock('corpo', 'Texto da segunda matéria.', 3),
-        ];
-      case 'destaques':
-        return [
-          textBlock('titulo_materia', 'Destaques rápidos'),
-          textBlock('chamada', 'Destaque 1', 2),
-          textBlock('chamada', 'Destaque 2', 2),
-          textBlock('chamada', 'Destaque 3', 2),
-          imageBlock(6, '16/9'),
-          textBlock('corpo', 'Comentário sobre os destaques do período.'),
-        ];
       case 'materias':
         return [
           textBlock('titulo_materia', 'Matéria principal'),
@@ -151,28 +106,8 @@ export function createJournalPages(): JournalPage[] {
   return [createPage('capa'), createPage('materias'), createPage('galeria'), createPage('contracapa')];
 }
 
-/** Modelos de capa fixos oferecidos na criação do jornal. */
-export const COVER_TEMPLATES: JournalTemplate[] = ['capa_imagem', 'capa_chamadas', 'capa_editorial'];
-
-/** Layouts predefinidos de páginas internas (ordem de destaque no editor). */
-export const INNER_TEMPLATES: JournalTemplate[] = [
-  'materia',
-  'materias',
-  'duas_materias',
-  'galeria',
-  'agenda',
-  'destaques',
-  'numeros',
-  'contracapa',
-];
-
 export const TEMPLATE_OPTIONS: JournalTemplate[] = [
   'capa',
-  'capa_imagem',
-  'capa_chamadas',
-  'capa_editorial',
-  'duas_materias',
-  'destaques',
   'materias',
   'materia',
   'galeria',

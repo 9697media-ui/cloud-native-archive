@@ -14,7 +14,6 @@ import {
   Hash,
   CalendarDays,
   Check,
-  Maximize2,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -30,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { A4_H, A4_W, PAPER_HEX, JournalPageView, type JournalPaperTone } from './JournalPageView';
+import { A4_H, A4_W, JournalPageView } from './JournalPageView';
 import { JournalPropertiesPanel } from './JournalPropertiesPanel';
 import { JournalBlockList } from './JournalBlockList';
 
@@ -43,7 +42,7 @@ import {
   type JournalTemplate,
 } from '@/lib/journal/types';
 import {
-  INNER_TEMPLATES,
+  TEMPLATE_OPTIONS,
   agendaBlock,
   createPage,
   imageBlock,
@@ -77,9 +76,6 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   const [activePageId, setActivePageId] = useState<string>(pages[0].id);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(0.7);
-  const [autoFit, setAutoFit] = useState(true);
-  const [paperTone, setPaperTone] = useState<JournalPaperTone>('branco');
-  const canvasAreaRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
@@ -97,41 +93,6 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     }, 2000);
     return () => clearTimeout(timer);
   }, [name, pages, journal.id, onSave]);
-
-  /** Calcula o zoom que faz a folha caber na área visível do canvas. */
-  const computeFitZoom = useCallback(() => {
-    const el = canvasAreaRef.current;
-    if (!el) return null;
-    const padding = 48;
-    const width = el.clientWidth - padding;
-    const height = el.clientHeight - padding;
-    if (width <= 0 || height <= 0) return null;
-    const next = Math.min(width / A4_W, height / A4_H);
-    return Math.max(0.4, Math.min(1.5, Math.round(next * 100) / 100));
-  }, []);
-
-  const fitToScreen = useCallback(() => {
-    const next = computeFitZoom();
-    if (next) {
-      setZoom(next);
-      setAutoFit(true);
-    }
-  }, [computeFitZoom]);
-
-  // Auto-fit ao abrir e sempre que a área do canvas mudar de tamanho.
-  useEffect(() => {
-    const el = canvasAreaRef.current;
-    if (!el) return;
-    const apply = () => {
-      if (!autoFit) return;
-      const next = computeFitZoom();
-      if (next) setZoom(next);
-    };
-    apply();
-    const observer = new ResizeObserver(apply);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [autoFit, computeFitZoom]);
 
   const mutatePages = useCallback((updater: (prev: JournalPage[]) => JournalPage[]) => {
     dirtyRef.current = true;
@@ -308,7 +269,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         const canvas = await html2canvas(nodes[index], {
           scale,
           useCORS: true,
-          backgroundColor: PAPER_HEX[paperTone],
+          backgroundColor: '#F0EEE4',
           width: A4_W,
           height: A4_H,
           windowWidth: A4_W,
@@ -389,46 +350,23 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
           {pages.map((page, index) => (
             <div
               key={page.id}
-              role="button"
-              tabIndex={0}
-              aria-current={page.id === activePageId}
               className={cn(
-                'group cursor-pointer rounded-lg border-2 p-1.5 text-xs transition-all duration-150 ease-out',
-                'hover:border-primary/50 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                page.id === activePageId
-                  ? 'border-primary bg-accent shadow-sm'
-                  : 'border-border bg-background',
+                'group cursor-pointer rounded-md border p-1.5 text-xs',
+                page.id === activePageId ? 'border-primary bg-accent' : 'border-border',
               )}
               onClick={() => {
                 setActivePageId(page.id);
                 setSelectedBlockId(null);
               }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  setActivePageId(page.id);
-                  setSelectedBlockId(null);
-                }
-              }}
             >
-              <div className="mb-1 flex items-center gap-1.5">
-                <span
-                  className={cn(
-                    'inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold',
-                    page.id === activePageId
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground',
-                  )}
-                >
-                  {index + 1}
-                </span>
-                <span className="truncate font-medium text-foreground">
-                  {TEMPLATE_LABELS[page.template]}
+              <div className="mb-1 flex items-center justify-between">
+                <span className="font-medium text-foreground">
+                  {String(index + 1).padStart(2, '0')} · {TEMPLATE_LABELS[page.template]}
                 </span>
               </div>
-              <div className="pointer-events-none h-[198px] overflow-hidden rounded-md border border-border">
-                <div style={{ transform: `scale(${140 / A4_W})`, transformOrigin: 'top left' }}>
-                  <JournalPageView page={page} index={index} total={pages.length} edition={journal.reference_month || ''} unitName={unitName} paperTone={paperTone} />
+              <div className="h-24 overflow-hidden rounded-sm border border-border bg-news-paper">
+                <div style={{ transform: `scale(${150 / A4_W})`, transformOrigin: 'top left' }}>
+                  <JournalPageView page={page} index={index} total={pages.length} edition={journal.reference_month || ''} unitName={unitName} />
                 </div>
               </div>
               <div className="mt-1 flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
@@ -453,7 +391,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar página
             </SelectTrigger>
             <SelectContent>
-              {INNER_TEMPLATES.map((template) => (
+              {TEMPLATE_OPTIONS.map((template) => (
                 <SelectItem key={template} value={template}>
                   {TEMPLATE_LABELS[template]}
                 </SelectItem>
@@ -463,57 +401,18 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         </aside>
 
         {/* Canvas */}
-        <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-journal-workspace">
-          <div className="flex items-center gap-2 border-b border-border bg-card px-3 py-2 text-xs">
+        <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-muted/40">
+          <div className="flex items-center gap-2 border-b border-border px-3 py-2 text-xs">
             <span className="text-muted-foreground">
               Página {pages.findIndex((page) => page.id === activePage.id) + 1} de {pages.length}
             </span>
-            <div className="ml-3 inline-flex items-center gap-1 rounded-md border border-border p-0.5">
-              <span className="px-1 text-[11px] text-muted-foreground">Papel</span>
-              {(['branco', 'offwhite'] as JournalPaperTone[]).map((tone) => (
-                <button
-                  key={tone}
-                  type="button"
-                  onClick={() => setPaperTone(tone)}
-                  className={cn(
-                    'rounded px-2 py-0.5 text-[11px] font-medium transition-colors duration-150',
-                    paperTone === tone
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-accent',
-                  )}
-                >
-                  {tone === 'branco' ? 'Branco' : 'Off-white'}
-                </button>
-              ))}
-            </div>
             <div className="ml-auto flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={fitToScreen} title="Ajustar a folha à tela">
-                <Maximize2 className="mr-1 h-3.5 w-3.5" /> Ajustar à tela
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setAutoFit(false);
-                  setZoom((z) => Math.max(0.4, z - 0.1));
-                }}
-              >
-                −
-              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.max(0.4, z - 0.1))}>−</Button>
               <span className="w-10 text-center">{Math.round(zoom * 100)}%</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setAutoFit(false);
-                  setZoom((z) => Math.min(1.5, z + 0.1));
-                }}
-              >
-                +
-              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))}>+</Button>
             </div>
           </div>
-          <div ref={canvasAreaRef} className="flex-1 overflow-auto p-6">
+          <div className="flex-1 overflow-auto p-6">
             <div
               style={{
                 width: A4_W * zoom,
@@ -535,8 +434,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   onResizeBlockHeight={resizeBlockHeight}
                   onReorderBlocks={reorderBlocks}
                   onSelectPageArea={() => setSelectedBlockId(null)}
-                  paperTone={paperTone}
-                  className="border border-border/60 shadow-lg transition-shadow duration-200"
+                  className="shadow-lg"
                 />
               </div>
             </div>
@@ -594,7 +492,6 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               total={pages.length}
               edition={journal.reference_month || ''}
               unitName={unitName}
-              paperTone={paperTone}
             />
           </div>
         ))}

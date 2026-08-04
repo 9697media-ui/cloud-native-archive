@@ -80,7 +80,6 @@ export default {
         "status-pending": "hsl(var(--status-pending))",
         "status-cancelled": "hsl(var(--status-cancelled))",
         "news-paper": "hsl(var(--news-paper))",
-        "journal-workspace": "hsl(var(--journal-workspace))",
         "news-brand-1": "hsl(var(--news-brand-1))",
         "news-brand-2": "hsl(var(--news-brand-2))",
         "news-brand-3": "hsl(var(--news-brand-3))",
