@@ -276,7 +276,7 @@ export function JournalBlockView({
       <figure className={cn('m-0', hasFixedHeight && 'flex h-full flex-col')}>
         <div
           className={cn(
-            'w-full overflow-hidden bg-[#E4E0D2]',
+            'w-full overflow-hidden rounded-[6px] bg-[#E4E0D2]',
             hasFixedHeight ? 'min-h-0 flex-1' : RATIO_CLASS[block.ratio],
           )}
         >
