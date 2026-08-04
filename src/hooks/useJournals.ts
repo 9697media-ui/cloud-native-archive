@@ -10,6 +10,7 @@ export interface JournalDraft {
   referenceMonth: string | null;
   status: JournalRecord['status'];
   pages: JournalPage[];
+  paper?: 'branco' | 'offwhite';
 }
 
 /**
