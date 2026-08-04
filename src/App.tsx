@@ -21,7 +21,6 @@ import AuthConfirmPage from "./pages/AuthConfirmPage";
 import DesignManualPage from "./pages/DesignManualPage";
 import NewsGeneratorPage from "./pages/NewsGeneratorPage";
 import JournalPage from "./pages/JournalPage";
-
 import MarketingHubPage from "./pages/MarketingHubPage";
 import EventsHubPage from "./pages/EventsHubPage";
 import TransparencyPage from "./pages/TransparencyPage";
@@ -119,7 +118,6 @@ const App = () => (
                     <ProtectedRoute><MarketingHubPage /></ProtectedRoute>
                   } />
                   <Route path="/mercado-solidario" element={<MercadoSolidarioPage />} />
-
                   <Route path="/portal-transparencia" element={
                     <MarketingRoute><TransparencyPage /></MarketingRoute>
                   } />
