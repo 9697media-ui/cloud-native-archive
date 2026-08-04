@@ -194,7 +194,7 @@ export default function JournalPage() {
       profileUnit: form.unitId ? profileUnitForNewsUnit(form.unitId) : null,
       referenceMonth: form.referenceMonth || null,
       status: 'rascunho',
-      pages: buildPages(form.template, form.pageCount),
+      pages: buildPages(form.template, form.coverModel, form.pageCount),
     });
     setCreating(false);
     if (created) setEditingId(created.id);
