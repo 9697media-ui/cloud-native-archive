@@ -58,12 +58,13 @@ export function JournalBlockView({
   onResizeHeight,
   onReorder,
   paper,
+  isCover,
   onDragging,
 }: BlockViewProps) {
   const [dropSide, setDropSide] = useState<'before' | 'after' | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const canDrag = Boolean(interactive && onReorder && !locked);
-  const isCover = paper === 'offwhite';
+  const rounded = !isCover;
 
   const wrapper = cn(
     'group/block relative transition-[box-shadow,transform,opacity] duration-150 ease-out',
