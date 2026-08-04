@@ -401,19 +401,51 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         </aside>
 
         {/* Canvas */}
-        <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-muted/40">
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2 text-xs">
+        <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-journal-workspace">
+          <div className="flex items-center gap-2 border-b border-border bg-card px-3 py-2 text-xs">
             <span className="text-muted-foreground">
               Página {pages.findIndex((page) => page.id === activePage.id) + 1} de {pages.length}
             </span>
+            {activePage.locked && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[11px] text-accent-foreground">
+                Capa institucional
+              </span>
+            )}
             <div className="ml-auto flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.max(0.4, z - 0.1))}>−</Button>
+              <Button
+                variant={fitMode ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setFitMode((value) => !value)}
+                title="Ajustar automaticamente a folha à tela"
+              >
+                <Maximize2 className="mr-1 h-3.5 w-3.5" /> Ajustar
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFitMode(false);
+                  setZoom((z) => Math.max(0.4, z - 0.1));
+                }}
+              >
+                −
+              </Button>
               <span className="w-10 text-center">{Math.round(zoom * 100)}%</span>
-              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))}>+</Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFitMode(false);
+                  setZoom((z) => Math.min(1.5, z + 0.1));
+                }}
+              >
+                +
+              </Button>
             </div>
           </div>
-          <div className="flex-1 overflow-auto p-6">
+          <div ref={canvasAreaRef} className="flex-1 overflow-auto p-6">
             <div
+              className="transition-[width,height] duration-150 ease-out motion-reduce:transition-none"
               style={{
                 width: A4_W * zoom,
                 height: A4_H * zoom,
@@ -427,12 +459,14 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   total={pages.length}
                   edition={journal.reference_month || ''}
                   unitName={unitName}
+                  paper={paper}
                   interactive
                   selectedBlockId={selectedBlockId}
                   onSelectBlock={setSelectedBlockId}
                   onResizeBlockSpan={resizeBlockSpan}
                   onResizeBlockHeight={resizeBlockHeight}
                   onReorderBlocks={reorderBlocks}
+                  onOverflowChange={handleOverflowChange}
                   onSelectPageArea={() => setSelectedBlockId(null)}
                   className="shadow-lg"
                 />
@@ -440,6 +474,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             </div>
           </div>
         </section>
+
 
         {/* Conteúdo da página */}
         <aside className="flex flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-card p-3">
