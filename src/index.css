@@ -70,6 +70,10 @@
     --news-brand-3: 9 86% 67%;
     --news-brand-4: 168 63% 70%;
     --news-brand-5: 199 100% 50%;
+
+    /* Jornal Institucional — área de trabalho neutra ao redor da folha A4 */
+    --journal-workspace: 0 0% 93%;
+
   }
 
   .dark {
