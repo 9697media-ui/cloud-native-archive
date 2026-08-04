@@ -7,12 +7,17 @@
  */
 
 export type JournalTemplate =
-  | 'capa'
-  | 'materias'
-  | 'materia'
+  // Capas institucionais travadas (estutura fixa, campos editáveis)
+  | 'capa_c1'
+  | 'capa_c2'
+  | 'capa_c3'
+  // Layouts internos predefinidos
+  | 'materia_imagem'
+  | 'duas_materias'
   | 'galeria'
   | 'agenda'
-  | 'numeros'
+  | 'destaques_numeros'
+  | 'chamada_destaque'
   | 'contracapa'
   | 'branco';
 
