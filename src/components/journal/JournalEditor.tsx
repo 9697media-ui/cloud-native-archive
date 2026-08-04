@@ -628,15 +628,15 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
           {selectedBlock && !activePage.locked && !isMobile && (
             <div className="pointer-events-none absolute bottom-4 left-1/2 z-50 -translate-x-1/2">
               <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-border bg-background/90 px-2 py-1 shadow-lg backdrop-blur-sm">
-                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { /* noop: já está selecionado */ }}>
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { /* editar: já está selecionado; painel assume o foco */ }}>
                   <Type className="mr-1.5 h-3.5 w-3.5" /> Editar
                 </Button>
                 {selectedBlock.kind === 'image' && (
-                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => updateBlock({ fit: selectedBlock.fit === 'contain' ? 'cover' : 'contain' })}>
+                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { /* imagem: use o painel lateral */ }}>
                     <FileImage className="mr-1.5 h-3.5 w-3.5" /> Trocar imagem
                   </Button>
                 )}
-                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => duplicatePage(activePage)}>
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={duplicateBlock}>
                   <Copy className="mr-1.5 h-3.5 w-3.5" /> Duplicar
                 </Button>
                 <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={removeBlock}>
