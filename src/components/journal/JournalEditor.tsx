@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
+  AlertTriangle,
   Copy,
   Download,
   FileText,
   Loader2,
+  Maximize2,
   Plus,
   Trash2,
   ChevronUp,
@@ -34,13 +36,20 @@ import { JournalPropertiesPanel } from './JournalPropertiesPanel';
 import { JournalBlockList } from './JournalBlockList';
 
 import {
+  COVER_TEMPLATES,
+  JOURNAL_PAPER_HEX,
+  JOURNAL_PAPER_LABELS,
   TEMPLATE_LABELS,
+  isCoverTemplate,
   type BlockSpan,
   type JournalBlock,
   type JournalPage,
+  type JournalPaper,
   type JournalRecord,
   type JournalTemplate,
 } from '@/lib/journal/types';
+import { analyzePage, type JournalSuggestion } from '@/lib/journal/analysis';
+import { useUnitPaper } from '@/lib/journal/paper';
 import {
   TEMPLATE_OPTIONS,
   agendaBlock,
@@ -52,6 +61,7 @@ import {
 } from '@/lib/journal/templates';
 import { newsUnitName, profileUnitForNewsUnit } from '@/lib/news/units';
 import { UnitBadge } from './UnitBadge';
+
 
 interface Props {
   journal: JournalRecord;
@@ -72,17 +82,58 @@ interface Props {
 
 export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Props) {
   const [name, setName] = useState(journal.name);
-  const [pages, setPages] = useState<JournalPage[]>(journal.pages?.length ? journal.pages : [createPage('capa')]);
+  const [pages, setPages] = useState<JournalPage[]>(
+    journal.pages?.length ? journal.pages : [createPage('capa_c1')],
+  );
   const [activePageId, setActivePageId] = useState<string>(pages[0].id);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(0.7);
+  const [fitMode, setFitMode] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [overflowPages, setOverflowPages] = useState<Record<string, boolean>>({});
+  const [dismissed, setDismissed] = useState<string[]>([]);
   const exportRef = useRef<HTMLDivElement>(null);
+  const canvasAreaRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
+
+  const { paper, setPaper } = useUnitPaper(journal.unit_id);
 
   const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
   const selectedBlock = activePage?.blocks.find((block) => block.id === selectedBlockId);
   const unitName = useMemo(() => newsUnitName(journal.unit_id), [journal.unit_id]);
+  const overflowing = Boolean(overflowPages[activePage?.id ?? '']);
+
+  const suggestions = useMemo(
+    () => analyzePage(activePage).filter((item) => !dismissed.includes(item.id)),
+    [activePage, dismissed],
+  );
+
+  /** Auto-fit: a folha A4 se ajusta à área visível do canvas. */
+  useEffect(() => {
+    if (!fitMode) return;
+    const element = canvasAreaRef.current;
+    if (!element) return;
+
+    const recompute = () => {
+      const availableWidth = element.clientWidth - 48;
+      const availableHeight = element.clientHeight - 48;
+      if (availableWidth <= 0 || availableHeight <= 0) return;
+      const next = Math.min(availableWidth / A4_W, availableHeight / A4_H);
+      setZoom(Math.max(0.3, Math.min(1.5, Number(next.toFixed(2)))));
+    };
+
+    recompute();
+    const observer = new ResizeObserver(recompute);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [fitMode]);
+
+  const handleOverflowChange = useCallback((pageId: string, value: boolean) => {
+    setOverflowPages((prev) => (prev[pageId] === value ? prev : { ...prev, [pageId]: value }));
+  }, []);
+
+  const dismissSuggestion = (id: string) => setDismissed((prev) => [...prev, id]);
+
 
   // Autosave com 2s de inatividade.
   useEffect(() => {
@@ -216,7 +267,34 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   };
 
 
+  /** Aplica uma sugestão — sempre por confirmação explícita da usuária. */
+  const applySuggestion = (suggestion: JournalSuggestion) => {
+    mutatePages((prev) =>
+      prev.map((page) =>
+        page.id !== activePage.id
+          ? page
+          : {
+              ...page,
+              blocks: page.blocks.map((block) =>
+                block.id === suggestion.blockId ? ({ ...block, ...suggestion.patch } as JournalBlock) : block,
+              ),
+            },
+      ),
+    );
+    setDismissed((prev) => [...prev, suggestion.id]);
+  };
+
+  /** Troca o modelo de capa mantendo a estrutura travada do novo modelo. */
+  const changeCoverModel = (template: JournalTemplate) => {
+    const fresh = createPage(template);
+    mutatePages((prev) =>
+      prev.map((page) => (page.id === activePage.id ? { ...fresh, id: page.id } : page)),
+    );
+    setSelectedBlockId(null);
+  };
+
   const addPage = (template: JournalTemplate) => {
+
     const page = createPage(template);
     mutatePages((prev) => [...prev, page]);
     setActivePageId(page.id);
@@ -269,7 +347,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         const canvas = await html2canvas(nodes[index], {
           scale,
           useCORS: true,
-          backgroundColor: '#F0EEE4',
+          backgroundColor: JOURNAL_PAPER_HEX[paper],
           width: A4_W,
           height: A4_H,
           windowWidth: A4_W,
@@ -322,6 +400,21 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             )}
           </span>
           <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <Label className="text-[11px] text-muted-foreground">Papel</Label>
+              <Select value={paper} onValueChange={(value) => setPaper(value as JournalPaper)}>
+                <SelectTrigger className="h-9 w-32 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(JOURNAL_PAPER_LABELS) as JournalPaper[]).map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {JOURNAL_PAPER_LABELS[option]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Button variant="outline" size="sm" onClick={() => exportPdf('digital')} disabled={exporting}>
               {exporting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
               PDF digital
@@ -330,6 +423,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               <Download className="mr-1.5 h-4 w-4" /> PDF impressão
             </Button>
           </div>
+
         </div>
 
         <UnitBadge
@@ -364,11 +458,15 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   {String(index + 1).padStart(2, '0')} · {TEMPLATE_LABELS[page.template]}
                 </span>
               </div>
-              <div className="h-24 overflow-hidden rounded-sm border border-border bg-news-paper">
+              <div
+                className="h-24 overflow-hidden rounded-sm border border-border"
+                style={{ backgroundColor: JOURNAL_PAPER_HEX[paper] }}
+              >
                 <div style={{ transform: `scale(${150 / A4_W})`, transformOrigin: 'top left' }}>
-                  <JournalPageView page={page} index={index} total={pages.length} edition={journal.reference_month || ''} unitName={unitName} />
+                  <JournalPageView page={page} index={index} total={pages.length} edition={journal.reference_month || ''} unitName={unitName} paper={paper} />
                 </div>
               </div>
+
               <div className="mt-1 flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); movePage(page.id, -1); }}>
                   <ChevronUp className="h-3.5 w-3.5" />
@@ -401,19 +499,51 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         </aside>
 
         {/* Canvas */}
-        <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-muted/40">
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2 text-xs">
+        <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-journal-workspace">
+          <div className="flex items-center gap-2 border-b border-border bg-card px-3 py-2 text-xs">
             <span className="text-muted-foreground">
               Página {pages.findIndex((page) => page.id === activePage.id) + 1} de {pages.length}
             </span>
+            {activePage.locked && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[11px] text-accent-foreground">
+                Capa institucional
+              </span>
+            )}
             <div className="ml-auto flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.max(0.4, z - 0.1))}>−</Button>
+              <Button
+                variant={fitMode ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setFitMode((value) => !value)}
+                title="Ajustar automaticamente a folha à tela"
+              >
+                <Maximize2 className="mr-1 h-3.5 w-3.5" /> Ajustar
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFitMode(false);
+                  setZoom((z) => Math.max(0.4, z - 0.1));
+                }}
+              >
+                −
+              </Button>
               <span className="w-10 text-center">{Math.round(zoom * 100)}%</span>
-              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))}>+</Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFitMode(false);
+                  setZoom((z) => Math.min(1.5, z + 0.1));
+                }}
+              >
+                +
+              </Button>
             </div>
           </div>
-          <div className="flex-1 overflow-auto p-6">
+          <div ref={canvasAreaRef} className="flex-1 overflow-auto p-6">
             <div
+              className="transition-[width,height] duration-150 ease-out motion-reduce:transition-none"
               style={{
                 width: A4_W * zoom,
                 height: A4_H * zoom,
@@ -427,12 +557,14 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   total={pages.length}
                   edition={journal.reference_month || ''}
                   unitName={unitName}
+                  paper={paper}
                   interactive
                   selectedBlockId={selectedBlockId}
                   onSelectBlock={setSelectedBlockId}
                   onResizeBlockSpan={resizeBlockSpan}
                   onResizeBlockHeight={resizeBlockHeight}
                   onReorderBlocks={reorderBlocks}
+                  onOverflowChange={handleOverflowChange}
                   onSelectPageArea={() => setSelectedBlockId(null)}
                   className="shadow-lg"
                 />
@@ -440,6 +572,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             </div>
           </div>
         </section>
+
 
         {/* Conteúdo da página */}
         <aside className="flex flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-card p-3">
@@ -472,6 +605,68 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
           <div className="h-px bg-border" />
 
+          {isCoverTemplate(activePage.template) && (
+            <div className="rounded-md border border-border bg-muted/40 p-2">
+              <Label className="text-xs text-muted-foreground">Modelo de capa (estrutura fixa)</Label>
+              <Select
+                value={COVER_TEMPLATES.includes(activePage.template) ? activePage.template : 'capa_c1'}
+                onValueChange={(value) => changeCoverModel(value as JournalTemplate)}
+              >
+                <SelectTrigger className="mt-1.5 h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {COVER_TEMPLATES.map((template) => (
+                    <SelectItem key={template} value={template}>
+                      {TEMPLATE_LABELS[template]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                Na capa você edita textos e imagens; a estrutura permanece travada.
+              </p>
+            </div>
+          )}
+
+          {(overflowing || suggestions.length > 0) && (
+            <div className="rounded-md border border-warning/40 bg-warning/10 p-2">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                <AlertTriangle className="h-3.5 w-3.5" /> Sugestões desta página
+              </p>
+              {overflowing && (
+                <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                  O conteúdo ultrapassa a folha A4. Considere mover os últimos blocos para uma nova página.
+                </p>
+              )}
+              <ul className="mt-2 space-y-1.5">
+                {suggestions.map((suggestion) => (
+                  <li key={suggestion.id} className="rounded-sm bg-background/70 p-1.5">
+                    <p className="text-[11px] leading-snug text-foreground">{suggestion.message}</p>
+                    <div className="mt-1 flex gap-1.5">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => applySuggestion(suggestion)}
+                      >
+                        Aplicar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => dismissSuggestion(suggestion.id)}
+                      >
+                        Ignorar
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <JournalPropertiesPanel
             page={activePage}
             block={selectedBlock}
@@ -479,6 +674,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             onRemoveBlock={removeBlock}
             onClose={() => setSelectedBlockId(null)}
           />
+
         </aside>
       </div>
 
@@ -492,10 +688,12 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               total={pages.length}
               edition={journal.reference_month || ''}
               unitName={unitName}
+              paper={paper}
             />
           </div>
         ))}
       </div>
+
     </div>
   );
 }
