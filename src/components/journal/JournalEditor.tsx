@@ -254,10 +254,17 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
   const addPage = (template: JournalTemplate) => {
     const page = createPage(template);
-    mutatePages((prev) => [...prev, page]);
+    mutatePages((prev) => {
+      const at = prev.findIndex((p) => p.id === activePageId);
+      const next = [...prev];
+      next.splice(at + 1, 0, page);
+      return next;
+    });
     setActivePageId(page.id);
     setSelectedBlockId(null);
+    setTemplateGalleryOpen(false);
   };
+
 
   const duplicatePage = (page: JournalPage) => {
     const copy: JournalPage = {
