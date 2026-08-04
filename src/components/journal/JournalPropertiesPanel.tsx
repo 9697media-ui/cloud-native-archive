@@ -27,6 +27,8 @@ import type {
   JournalPage,
 } from '@/lib/journal/types';
 import { uid } from '@/lib/journal/templates';
+import { cn } from '@/lib/utils';
+
 
 interface Props {
   page: JournalPage | undefined;
