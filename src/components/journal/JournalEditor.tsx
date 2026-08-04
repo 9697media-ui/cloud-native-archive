@@ -269,7 +269,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         const canvas = await html2canvas(nodes[index], {
           scale,
           useCORS: true,
-          backgroundColor: '#F0EEE4',
+          backgroundColor: JOURNAL_PAPER_HEX[paper],
           width: A4_W,
           height: A4_H,
           windowWidth: A4_W,
