@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
+  AlertTriangle,
   Copy,
   Download,
   FileText,
   Loader2,
+  Maximize2,
   Plus,
   Trash2,
   ChevronUp,
@@ -34,13 +36,20 @@ import { JournalPropertiesPanel } from './JournalPropertiesPanel';
 import { JournalBlockList } from './JournalBlockList';
 
 import {
+  COVER_TEMPLATES,
+  JOURNAL_PAPER_HEX,
+  JOURNAL_PAPER_LABELS,
   TEMPLATE_LABELS,
+  isCoverTemplate,
   type BlockSpan,
   type JournalBlock,
   type JournalPage,
+  type JournalPaper,
   type JournalRecord,
   type JournalTemplate,
 } from '@/lib/journal/types';
+import { analyzePage, type JournalSuggestion } from '@/lib/journal/analysis';
+import { useUnitPaper } from '@/lib/journal/paper';
 import {
   TEMPLATE_OPTIONS,
   agendaBlock,
@@ -52,6 +61,7 @@ import {
 } from '@/lib/journal/templates';
 import { newsUnitName, profileUnitForNewsUnit } from '@/lib/news/units';
 import { UnitBadge } from './UnitBadge';
+
 
 interface Props {
   journal: JournalRecord;
