@@ -8,13 +8,37 @@
 
 export type JournalTemplate =
   | 'capa'
+  | 'capa_c1'
+  | 'capa_c2'
+  | 'capa_c3'
   | 'materias'
   | 'materia'
   | 'galeria'
   | 'agenda'
   | 'numeros'
+  | 'destaques'
   | 'contracapa'
   | 'branco';
+
+/** Papel da folha — preferência global da unidade. */
+export type JournalPaper = 'branco' | 'offwhite';
+
+export const JOURNAL_PAPER_HEX: Record<JournalPaper, string> = {
+  branco: '#FFFFFF',
+  offwhite: '#F0EEE4',
+};
+
+export const JOURNAL_PAPER_LABELS: Record<JournalPaper, string> = {
+  branco: 'Branco',
+  offwhite: 'Off-white',
+};
+
+/** Modelos de capa institucionais — estrutura fixa, apenas conteúdo é editável. */
+export const COVER_TEMPLATES: JournalTemplate[] = ['capa_c1', 'capa_c2', 'capa_c3'];
+
+export const isCoverTemplate = (template: JournalTemplate): boolean =>
+  template === 'capa' || COVER_TEMPLATES.includes(template);
+
 
 export type TextStyleKey =
   | 'titulo_capa'
