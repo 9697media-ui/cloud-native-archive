@@ -43,7 +43,6 @@ import {
   type JournalTemplate,
 } from '@/lib/journal/types';
 import {
-  COVER_TEMPLATES,
   INNER_TEMPLATES,
   agendaBlock,
   createPage,
