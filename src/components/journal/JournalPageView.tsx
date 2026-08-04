@@ -198,14 +198,21 @@ export function JournalBlockView({
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/journal-block', block.id);
         onSelect?.(block.id);
+        setDragging(true);
+        onInteractionChange?.(true);
+      }}
+      onDragEnd={() => {
+        setDragging(false);
+        onInteractionChange?.(false);
       }}
       onClick={(event) => event.stopPropagation()}
       title="Arraste para reordenar o bloco"
       className={cn(
         'absolute -left-2 top-0 bottom-0 z-30 flex w-4 cursor-grab items-center justify-center active:cursor-grabbing',
-        'opacity-0 transition-opacity group-hover/block:opacity-100',
+        'opacity-0 transition-opacity duration-100 group-hover/block:opacity-100',
         selected && 'opacity-100',
       )}
+
     >
       <div className="h-10 w-1.5 rounded-full bg-primary/40 shadow-sm transition-colors hover:bg-primary" />
     </div>
