@@ -347,9 +347,14 @@ export default function JournalPage() {
                   aria-label={`Abrir ${journal.name}`}
                 >
                   <div
-                    className="mx-auto overflow-hidden rounded-sm border border-border bg-news-paper"
-                    style={{ width: THUMB_W, height: A4_H * THUMB_SCALE }}
+                    className="mx-auto overflow-hidden rounded-sm border border-border"
+                    style={{
+                      width: THUMB_W,
+                      height: A4_H * THUMB_SCALE,
+                      backgroundColor: JOURNAL_PAPER_HEX[readPaper(journal.unit_id)],
+                    }}
                   >
+
                     {cover && (
                       <div style={{ transform: `scale(${THUMB_SCALE})`, transformOrigin: 'top left' }}>
                         <JournalPageView
