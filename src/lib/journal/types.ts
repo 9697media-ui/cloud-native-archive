@@ -205,12 +205,19 @@ export const STATUS_LABELS: Record<string, string> = {
 };
 
 export const TEMPLATE_LABELS: Record<JournalTemplate, string> = {
-  capa: 'Capa',
-  materias: 'Matérias',
-  materia: 'Matéria completa',
+  capa: 'Capa (legado)',
+  materias: 'Matérias (legado)',
+  materia: 'Matéria completa (legado)',
   galeria: 'Galeria',
   agenda: 'Agenda',
-  numeros: 'Resultados e números',
+  numeros: 'Resultados e números (legado)',
   contracapa: 'Contracapa',
   branco: 'Em branco',
+  capa_c1: 'C1 — Imagem dominante',
+  capa_c2: 'C2 — Imagem + chamadas',
+  capa_c3: 'C3 — Editorial',
+  materia_imagem: 'Matéria com imagem',
+  duas_materias: 'Duas matérias',
+  chamada_destaque: 'Chamada principal + destaques',
+  destaques_numeros: 'Destaques rápidos (números)',
 };
