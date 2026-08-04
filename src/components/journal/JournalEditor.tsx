@@ -322,6 +322,21 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             )}
           </span>
           <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <Label className="text-[11px] text-muted-foreground">Papel</Label>
+              <Select value={paper} onValueChange={(value) => setPaper(value as JournalPaper)}>
+                <SelectTrigger className="h-9 w-32 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(JOURNAL_PAPER_LABELS) as JournalPaper[]).map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {JOURNAL_PAPER_LABELS[option]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Button variant="outline" size="sm" onClick={() => exportPdf('digital')} disabled={exporting}>
               {exporting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
               PDF digital
@@ -330,6 +345,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               <Download className="mr-1.5 h-4 w-4" /> PDF impressão
             </Button>
           </div>
+
         </div>
 
         <UnitBadge
