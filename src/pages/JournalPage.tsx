@@ -484,6 +484,30 @@ export default function JournalPage() {
             </div>
 
             <div className="space-y-1.5">
+              <Label>Modelo de capa</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['capa_c1', 'capa_c2', 'capa_c3'] as CoverModel[]).map((model) => (
+                  <button
+                    key={model}
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, coverModel: model }))}
+                    className={cn(
+                      'flex flex-col items-center gap-1 rounded-md border px-2 py-2 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      form.coverModel === model
+                        ? 'border-primary bg-accent text-accent-foreground'
+                        : 'border-border bg-card text-muted-foreground hover:bg-accent/50',
+                    )}
+                  >
+                    <span className="text-xs font-medium">{COVER_MODEL_LABELS[model]}</span>
+                    <span className="text-[10px] uppercase tracking-wide opacity-80">
+                      {model === 'capa_c1' ? 'C1' : model === 'capa_c2' ? 'C2' : 'C3'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
               <Label>Páginas iniciais</Label>
               <div className="inline-flex items-center gap-2 rounded-md border border-border px-2 py-1">
                 <Button
