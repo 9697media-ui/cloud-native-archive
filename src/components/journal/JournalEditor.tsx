@@ -58,7 +58,6 @@ import {
   type JournalTemplate,
 } from '@/lib/journal/types';
 import {
-  TEMPLATE_OPTIONS,
   agendaBlock,
   createPage,
   imageBlock,
@@ -66,6 +65,7 @@ import {
   textBlock,
   uid,
 } from '@/lib/journal/templates';
+
 import { newsUnitName, profileUnitForNewsUnit } from '@/lib/news/units';
 import { UnitBadge } from './UnitBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
