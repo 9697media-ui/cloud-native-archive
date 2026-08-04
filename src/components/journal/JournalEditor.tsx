@@ -616,9 +616,11 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                 <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { /* noop: já está selecionado */ }}>
                   <Type className="mr-1.5 h-3.5 w-3.5" /> Editar
                 </Button>
-                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => updateBlock({ fit: selectedBlock.fit === 'contain' ? 'cover' : 'contain' })}>
-                  <FileImage className="mr-1.5 h-3.5 w-3.5" /> Trocar imagem
-                </Button>
+                {selectedBlock.kind === 'image' && (
+                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => updateBlock({ fit: selectedBlock.fit === 'contain' ? 'cover' : 'contain' })}>
+                    <FileImage className="mr-1.5 h-3.5 w-3.5" /> Trocar imagem
+                  </Button>
+                )}
                 <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => duplicatePage(activePage)}>
                   <Copy className="mr-1.5 h-3.5 w-3.5" /> Duplicar
                 </Button>
