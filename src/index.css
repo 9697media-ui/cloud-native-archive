@@ -70,6 +70,9 @@
     --news-brand-3: 9 86% 67%;
     --news-brand-4: 168 63% 70%;
     --news-brand-5: 199 100% 50%;
+
+    /* Jornal Institucional — mesa de trabalho neutra (#EEEEEE) */
+    --journal-workspace: 0 0% 93%;
   }
 
   .dark {
