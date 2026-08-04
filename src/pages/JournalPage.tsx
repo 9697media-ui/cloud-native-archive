@@ -373,7 +373,6 @@ export default function JournalPage() {
                           edition={journal.reference_month || ''}
                           unitName={newsUnitName(journal.unit_id)}
                           paper={journal.paper || 'branco'}
-                          readOnly
                         />
                       </div>
                     )}
