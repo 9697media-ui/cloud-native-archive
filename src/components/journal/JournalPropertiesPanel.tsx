@@ -302,7 +302,5 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { cn } from '@/lib/utils';
-
 export default JournalPropertiesPanel;
+
