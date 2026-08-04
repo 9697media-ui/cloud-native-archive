@@ -52,7 +52,7 @@ const COUNTER_LABELS: Record<JournalStatus, string> = {
 const THUMB_W = 260;
 const THUMB_SCALE = THUMB_W / A4_W;
 
-type StartingTemplate = 'padrao' | 'enxuto' | 'branco';
+type StartingTemplate = 'padrao' | 'enxuto' | 'editorial';
 
 /** Data relativa curta ("há 2 dias"), com fallback para data absoluta. */
 function relativeDate(iso: string): string {
