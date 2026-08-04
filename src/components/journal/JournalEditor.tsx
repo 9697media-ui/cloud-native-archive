@@ -364,11 +364,15 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   {String(index + 1).padStart(2, '0')} · {TEMPLATE_LABELS[page.template]}
                 </span>
               </div>
-              <div className="h-24 overflow-hidden rounded-sm border border-border bg-news-paper">
+              <div
+                className="h-24 overflow-hidden rounded-sm border border-border"
+                style={{ backgroundColor: JOURNAL_PAPER_HEX[paper] }}
+              >
                 <div style={{ transform: `scale(${150 / A4_W})`, transformOrigin: 'top left' }}>
-                  <JournalPageView page={page} index={index} total={pages.length} edition={journal.reference_month || ''} unitName={unitName} />
+                  <JournalPageView page={page} index={index} total={pages.length} edition={journal.reference_month || ''} unitName={unitName} paper={paper} />
                 </div>
               </div>
+
               <div className="mt-1 flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); movePage(page.id, -1); }}>
                   <ChevronUp className="h-3.5 w-3.5" />
