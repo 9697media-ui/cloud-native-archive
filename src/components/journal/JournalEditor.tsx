@@ -7,13 +7,20 @@ import {
   Loader2,
   Plus,
   Trash2,
-  ChevronUp,
-  ChevronDown,
+  MoreVertical,
   Image as ImageIcon,
   Type,
   Hash,
   CalendarDays,
   Check,
+  Maximize,
+  Eye,
+  LayoutTemplate,
+  AlertTriangle,
+  FileImage,
+  Lightbulb,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -28,6 +35,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { A4_H, A4_W, JournalPageView } from './JournalPageView';
 import { JournalPropertiesPanel } from './JournalPropertiesPanel';
@@ -52,6 +66,7 @@ import {
 } from '@/lib/journal/templates';
 import { newsUnitName, profileUnitForNewsUnit } from '@/lib/news/units';
 import { UnitBadge } from './UnitBadge';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Props {
   journal: JournalRecord;
@@ -66,33 +81,41 @@ interface Props {
       status?: JournalRecord['status'];
       unitId?: string | null;
       profileUnit?: string | null;
+      paper?: 'branco' | 'offwhite';
     },
   ) => Promise<boolean>;
 }
 
 export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Props) {
   const [name, setName] = useState(journal.name);
-  const [pages, setPages] = useState<JournalPage[]>(journal.pages?.length ? journal.pages : [createPage('capa')]);
+  const [pages, setPages] = useState<JournalPage[]>(journal.pages?.length ? journal.pages : [createPage('capa_c1')]);
   const [activePageId, setActivePageId] = useState<string>(pages[0].id);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(0.7);
+  const [autoFit, setAutoFit] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [paper, setPaper] = useState<'branco' | 'offwhite'>(journal.paper || 'branco');
+  const [overflowByPage, setOverflowByPage] = useState<Record<string, number>>({});
   const exportRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
+  const isMobile = useIsMobile();
 
   const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
   const selectedBlock = activePage?.blocks.find((block) => block.id === selectedBlockId);
   const unitName = useMemo(() => newsUnitName(journal.unit_id), [journal.unit_id]);
 
+  const paperHex = paper === 'offwhite' ? '#F0EEE4' : '#FFFFFF';
+
   // Autosave com 2s de inatividade.
   useEffect(() => {
     if (!dirtyRef.current) return;
     const timer = setTimeout(() => {
-      onSave(journal.id, { name, pages });
+      onSave(journal.id, { name, pages, paper });
       dirtyRef.current = false;
     }, 2000);
     return () => clearTimeout(timer);
-  }, [name, pages, journal.id, onSave]);
+  }, [name, pages, paper, journal.id, onSave]);
 
   const mutatePages = useCallback((updater: (prev: JournalPage[]) => JournalPage[]) => {
     dirtyRef.current = true;
@@ -115,7 +138,6 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     );
   };
 
-  /** Redimensionamento por arraste no canvas — altera apenas a largura em colunas. */
   const resizeBlockSpan = useCallback(
     (blockId: string, span: number) => {
       const clamped = Math.max(1, Math.min(6, Math.round(span))) as BlockSpan;
@@ -135,7 +157,6 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     [activePage.id, mutatePages],
   );
 
-  /** Alça inferior — altura fixa em px (undefined volta para automática). */
   const resizeBlockHeight = useCallback(
     (blockId: string, height: number | undefined) => {
       mutatePages((prev) =>
@@ -154,7 +175,6 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     [activePage.id, mutatePages],
   );
 
-  /** Reordenação por arraste — move o bloco arrastado para a posição do alvo. */
   const reorderBlocks = useCallback(
     (draggedId: string, targetId: string) => {
       if (draggedId === targetId) return;
@@ -186,7 +206,6 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     setSelectedBlockId(null);
   };
 
-  /** Move um bloco uma posição para cima/baixo na ordem da página. */
   const moveBlock = (blockId: string, direction: -1 | 1) => {
     mutatePages((prev) =>
       prev.map((page) => {
@@ -201,7 +220,6 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     );
   };
 
-  /** Insere logo após o bloco selecionado (ou no fim, se nada estiver selecionado). */
   const addBlock = (block: JournalBlock) => {
     mutatePages((prev) =>
       prev.map((page) => {
@@ -214,7 +232,6 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     );
     setSelectedBlockId(block.id);
   };
-
 
   const addPage = (template: JournalTemplate) => {
     const page = createPage(template);
@@ -257,6 +274,17 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     });
   };
 
+  const changePageTemplate = (template: JournalTemplate) => {
+    mutatePages((prev) =>
+      prev.map((page) =>
+        page.id === activePageId ? { ...createPage(template), id: page.id } : page,
+      ),
+    );
+    setSelectedBlockId(null);
+  };
+
+  const currentOverflow = overflowByPage[activePage.id] ?? 0;
+
   const exportPdf = async (quality: 'digital' | 'impressao') => {
     if (!exportRef.current) return;
     setExporting(true);
@@ -269,14 +297,13 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         const canvas = await html2canvas(nodes[index], {
           scale,
           useCORS: true,
-          backgroundColor: '#F0EEE4',
+          backgroundColor: paperHex,
           width: A4_W,
           height: A4_H,
           windowWidth: A4_W,
           windowHeight: A4_H,
           onclone: (doc) => {
-            // html2canvas colapsa parte do espaçamento vertical do grid; reforçamos
-            // o respiro acima das imagens para o PDF ficar igual ao preview.
+            doc.querySelectorAll<HTMLElement>('[data-pdf-helper="true"]').forEach((el) => el.remove());
             doc.querySelectorAll<HTMLElement>('[data-block-kind="image"]').forEach((el) => {
               el.style.paddingTop = '8px';
             });
@@ -295,8 +322,52 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     }
   };
 
+  const fitZoom = useCallback(() => {
+    if (!canvasRef.current) return;
+    const { width, height } = canvasRef.current.getBoundingClientRect();
+    const padding = 40;
+    const z = Math.min((width - padding) / A4_W, (height - padding) / A4_H);
+    setZoom(Math.max(0.4, Math.min(1, z)));
+  }, []);
+
+  // Auto-fit ao abrir e ao redimensionar.
+  useEffect(() => {
+    if (!autoFit) return;
+    fitZoom();
+    const onResize = () => fitZoom();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [autoFit, fitZoom]);
+
+  const manualZoom = (direction: number) => {
+    setZoom((z) => {
+      const next = Math.max(0.4, Math.min(1, z + direction));
+      return next;
+    });
+    setAutoFit(false);
+  };
+
+  const handleOverflow = (pageId: string) => (overflow: number) => {
+    setOverflowByPage((prev) => ({ ...prev, [pageId]: overflow }));
+  };
+
+  const moveOverflowToNewPage = () => {
+    mutatePages((prev) => {
+      const activeIndex = prev.findIndex((page) => page.id === activePageId);
+      if (activeIndex < 0) return prev;
+      const next = [...prev];
+      const newPage = createPage('branco');
+      next.splice(activeIndex + 1, 0, newPage);
+      return next;
+    });
+    toast.success('Nova página criada abaixo da página atual. Mova os blocos excedentes para lá.');
+  };
+
+  const activeIndex = pages.findIndex((page) => page.id === activePage.id);
+
   return (
     <div className="flex h-[calc(100vh-7rem)] flex-col gap-3">
+      {/* Barra superior */}
       <div className="flex flex-col gap-2 border-b border-border pb-3">
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="ghost" size="sm" onClick={onBack}>
@@ -321,14 +392,54 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               </>
             )}
           </span>
-          <div className="ml-auto flex items-center gap-2">
+
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <Select value={paper} onValueChange={(value: 'branco' | 'offwhite') => { setPaper(value); dirtyRef.current = true; }}>
+              <SelectTrigger className="h-8 w-40 text-xs">
+                <span className="mr-1">Papel:</span>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="branco">Branco (#FFFFFF)</SelectItem>
+                <SelectItem value="offwhite">Off-white (#F0EEE4)</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button variant="outline" size="sm" onClick={() => { setAutoFit(true); fitZoom(); }}>
+              <Maximize className="mr-1.5 h-4 w-4" /> Ajustar à tela
+            </Button>
             <Button variant="outline" size="sm" onClick={() => exportPdf('digital')} disabled={exporting}>
               {exporting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
               PDF digital
             </Button>
             <Button size="sm" onClick={() => exportPdf('impressao')} disabled={exporting}>
-              <Download className="mr-1.5 h-4 w-4" /> PDF impressão
+              <Download className="mr-1.5 h-4 w-4" /> Exportar PDF
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => exportPdf('impressao')} disabled={exporting}>
+                  <FileImage className="mr-2 h-4 w-4" /> PDF de impressão
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { duplicatePage(activePage); }}>
+                  <Copy className="mr-2 h-4 w-4" /> Duplicar página
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { duplicatePage({ ...activePage, id: activePage.id, blocks: activePage.blocks }); toast.success('Jornal duplicado na memória.'); }}>
+                  <Copy className="mr-2 h-4 w-4" /> Duplicar jornal
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => removePage(activePage.id)} disabled={pages.length === 1}>
+                  <Trash2 className="mr-2 h-4 w-4" /> Excluir página
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled>
+                  <Eye className="mr-2 h-4 w-4" /> Visualizar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -342,56 +453,94 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         />
       </div>
 
-
-
-      <div className="grid flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[180px_1fr_300px]">
+      <div className="grid flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[200px_1fr_300px]">
         {/* Miniaturas */}
         <aside className="hidden flex-col gap-2 overflow-y-auto rounded-lg border border-border bg-card p-2 lg:flex">
-          {pages.map((page, index) => (
-            <div
-              key={page.id}
-              className={cn(
-                'group cursor-pointer rounded-md border p-1.5 text-xs',
-                page.id === activePageId ? 'border-primary bg-accent' : 'border-border',
-              )}
-              onClick={() => {
-                setActivePageId(page.id);
-                setSelectedBlockId(null);
-              }}
-            >
-              <div className="mb-1 flex items-center justify-between">
-                <span className="font-medium text-foreground">
-                  {String(index + 1).padStart(2, '0')} · {TEMPLATE_LABELS[page.template]}
-                </span>
-              </div>
-              <div className="h-24 overflow-hidden rounded-sm border border-border bg-news-paper">
-                <div style={{ transform: `scale(${150 / A4_W})`, transformOrigin: 'top left' }}>
-                  <JournalPageView page={page} index={index} total={pages.length} edition={journal.reference_month || ''} unitName={unitName} />
+          {pages.map((page, index) => {
+            const isActive = page.id === activePageId;
+            return (
+              <div
+                key={page.id}
+                role="button"
+                tabIndex={0}
+                aria-current={isActive ? 'true' : undefined}
+                className={cn(
+                  'group relative flex cursor-pointer flex-col gap-1 rounded-lg border p-2 text-xs outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary',
+                  isActive ? 'border-2 border-primary bg-accent' : 'border-border hover:bg-accent/50',
+                )}
+                onClick={() => {
+                  setActivePageId(page.id);
+                  setSelectedBlockId(null);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    setActivePageId(page.id);
+                    setSelectedBlockId(null);
+                  }
+                }}
+              >
+                {isActive && (
+                  <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-primary" />
+                )}
+                <div className="mb-1 flex items-center justify-between pl-2">
+                  <span className="font-semibold text-foreground">
+                    {String(index + 1).padStart(2, '0')} · {TEMPLATE_LABELS[page.template]}
+                  </span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100" onClick={(e) => e.stopPropagation()}>
+                        <MoreVertical className="h-3.5 w-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); movePage(page.id, -1); }}>
+                        <ChevronUp className="mr-2 h-4 w-4" /> Subir
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); movePage(page.id, 1); }}>
+                        <ChevronDown className="mr-2 h-4 w-4" /> Descer
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); duplicatePage(page); }}>
+                        <Copy className="mr-2 h-4 w-4" /> Duplicar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); removePage(page.id); }} className="text-destructive focus:text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <div className="h-32 overflow-hidden rounded-sm border border-border bg-news-paper">
+                  <div style={{ transform: `scale(${150 / A4_W})`, transformOrigin: 'top left' }}>
+                    <JournalPageView
+                      page={page}
+                      index={index}
+                      total={pages.length}
+                      edition={journal.reference_month || ''}
+                      unitName={unitName}
+                      paper={paper}
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="mt-1 flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); movePage(page.id, -1); }}>
-                  <ChevronUp className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); movePage(page.id, 1); }}>
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); duplicatePage(page); }}>
-                  <Copy className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={(e) => { e.stopPropagation(); removePage(page.id); }}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
           <Select onValueChange={(value) => addPage(value as JournalTemplate)}>
-            <SelectTrigger className="h-9 text-xs">
+            <SelectTrigger className="h-10 text-xs font-medium">
               <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar página
             </SelectTrigger>
             <SelectContent>
-              {TEMPLATE_OPTIONS.map((template) => (
+              <SelectItem value="_header" disabled className="text-xs text-muted-foreground">
+                Capas
+              </SelectItem>
+              {TEMPLATE_OPTIONS.filter((t) => t.startsWith('capa')).map((template) => (
+                <SelectItem key={template} value={template}>
+                  {TEMPLATE_LABELS[template]}
+                </SelectItem>
+              ))}
+              <SelectItem value="_divider" disabled className="text-xs text-muted-foreground">
+                Layouts internos
+              </SelectItem>
+              {TEMPLATE_OPTIONS.filter((t) => !t.startsWith('capa')).map((template) => (
                 <SelectItem key={template} value={template}>
                   {TEMPLATE_LABELS[template]}
                 </SelectItem>
@@ -401,18 +550,36 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         </aside>
 
         {/* Canvas */}
-        <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-muted/40">
+        <section
+          ref={canvasRef}
+          className="relative flex flex-col overflow-hidden rounded-lg border border-border bg-[#EEEEEE] dark:bg-muted"
+        >
           <div className="flex items-center gap-2 border-b border-border px-3 py-2 text-xs">
             <span className="text-muted-foreground">
-              Página {pages.findIndex((page) => page.id === activePage.id) + 1} de {pages.length}
+              Página {activeIndex + 1} de {pages.length}
             </span>
             <div className="ml-auto flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.max(0.4, z - 0.1))}>−</Button>
-              <span className="w-10 text-center">{Math.round(zoom * 100)}%</span>
-              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))}>+</Button>
+              <Button variant="ghost" size="sm" onClick={() => manualZoom(-0.1)} disabled={zoom <= 0.4}>−</Button>
+              <span className="w-12 text-center font-medium">{Math.round(zoom * 100)}%</span>
+              <Button variant="ghost" size="sm" onClick={() => manualZoom(0.1)} disabled={zoom >= 1}>+</Button>
             </div>
           </div>
-          <div className="flex-1 overflow-auto p-6">
+
+          {currentOverflow > 0 && (
+            <div className="flex items-center justify-between gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs dark:bg-amber-950/30">
+              <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                <AlertTriangle className="h-4 w-4" />
+                Conteúdo excede a página em ~{Math.round(currentOverflow)}px
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={moveOverflowToNewPage}>
+                  Mover excedente para nova página
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-auto p-4">
             <div
               style={{
                 width: A4_W * zoom,
@@ -423,7 +590,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}>
                 <JournalPageView
                   page={activePage}
-                  index={pages.findIndex((page) => page.id === activePage.id)}
+                  index={activeIndex}
                   total={pages.length}
                   edition={journal.reference_month || ''}
                   unitName={unitName}
@@ -435,19 +602,47 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   onReorderBlocks={reorderBlocks}
                   onSelectPageArea={() => setSelectedBlockId(null)}
                   className="shadow-lg"
+                  paper={paper}
+                  onOverflow={handleOverflow(activePage.id)}
                 />
               </div>
             </div>
           </div>
+
+          {/* Mini-barra flutuante no canvas */}
+          {selectedBlock && !activePage.locked && !isMobile && (
+            <div className="pointer-events-none absolute bottom-4 left-1/2 z-50 -translate-x-1/2">
+              <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-border bg-background/90 px-2 py-1 shadow-lg backdrop-blur-sm">
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { /* noop: já está selecionado */ }}>
+                  <Type className="mr-1.5 h-3.5 w-3.5" /> Editar
+                </Button>
+                {selectedBlock.kind === 'image' && (
+                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => updateBlock({ fit: selectedBlock.fit === 'contain' ? 'cover' : 'contain' })}>
+                    <FileImage className="mr-1.5 h-3.5 w-3.5" /> Trocar imagem
+                  </Button>
+                )}
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => duplicatePage(activePage)}>
+                  <Copy className="mr-1.5 h-3.5 w-3.5" /> Duplicar
+                </Button>
+                <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={removeBlock}>
+                  <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Excluir
+                </Button>
+              </div>
+            </div>
+          )}
         </section>
 
-        {/* Conteúdo da página */}
+        {/* Painel lateral em 3 níveis */}
         <aside className="flex flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-card p-3">
+          {/* Nível 1: Conteúdo */}
           <div>
-            <Label className="text-xs text-muted-foreground">
-              {selectedBlock ? 'Adicionar abaixo do bloco selecionado' : 'Adicionar ao jornal'}
+            <Label className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+              <LayoutTemplate className="h-3.5 w-3.5" /> Adicionar conteúdo
             </Label>
-            <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+            <p className="mb-2 text-[10px] text-muted-foreground">
+              {selectedBlock ? 'Novo bloco será inserido abaixo do selecionado.' : 'Novo bloco vai ao final da página.'}
+            </p>
+            <div className="grid grid-cols-2 gap-1.5">
               <Button variant="outline" size="sm" onClick={() => addBlock(textBlock('corpo', 'Novo texto.'))}>
                 <Type className="mr-1.5 h-3.5 w-3.5" /> Texto
               </Button>
@@ -472,6 +667,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
           <div className="h-px bg-border" />
 
+          {/* Nível 2+3: Formatação e ajustes avançados */}
           <JournalPropertiesPanel
             page={activePage}
             block={selectedBlock}
@@ -479,6 +675,18 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             onRemoveBlock={removeBlock}
             onClose={() => setSelectedBlockId(null)}
           />
+
+          {/* Sugestão de diagramação */}
+          {selectedBlock && selectedBlock.kind === 'image' && !selectedBlock.height && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs dark:bg-amber-950/30">
+              <div className="mb-1 flex items-center gap-1.5 font-medium text-amber-800 dark:text-amber-200">
+                <Lightbulb className="h-3.5 w-3.5" /> Sugestão
+              </div>
+              <p className="text-[10px] text-amber-700 dark:text-amber-300">
+                Ajuste a altura com a alça inferior para preencher o espaço disponível.
+              </p>
+            </div>
+          )}
         </aside>
       </div>
 
@@ -492,6 +700,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               total={pages.length}
               edition={journal.reference_month || ''}
               unitName={unitName}
+              paper={paper}
             />
           </div>
         ))}

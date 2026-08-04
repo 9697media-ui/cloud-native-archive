@@ -7,6 +7,7 @@
  */
 
 export type JournalTemplate =
+  // Legacy templates (mantidos para compatibilidade com dados existentes)
   | 'capa'
   | 'materias'
   | 'materia'
@@ -14,7 +15,16 @@ export type JournalTemplate =
   | 'agenda'
   | 'numeros'
   | 'contracapa'
-  | 'branco';
+  | 'branco'
+  // Novos modelos de capa institucional
+  | 'capa_c1'
+  | 'capa_c2'
+  | 'capa_c3'
+  // Novos layouts internos predefinidos
+  | 'materia_imagem'
+  | 'duas_materias'
+  | 'chamada_destaque'
+  | 'destaques_numeros';
 
 export type TextStyleKey =
   | 'titulo_capa'
@@ -135,6 +145,8 @@ export interface JournalPage {
   id: string;
   template: JournalTemplate;
   blocks: JournalBlock[];
+  /** Se true, a página é uma capa travada: blocos não podem ser arrastados/redimensionados. */
+  locked?: boolean;
 }
 
 export interface JournalRecord {
@@ -146,6 +158,8 @@ export interface JournalRecord {
   status: 'rascunho' | 'finalizado' | 'arquivado';
   pages: JournalPage[];
   cover_url: string | null;
+  /** Papel da folha: 'branco' (#FFFFFF) ou 'offwhite' (#F0EEE4). Padrão: 'branco'. */
+  paper: 'branco' | 'offwhite';
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -191,12 +205,19 @@ export const STATUS_LABELS: Record<string, string> = {
 };
 
 export const TEMPLATE_LABELS: Record<JournalTemplate, string> = {
-  capa: 'Capa',
-  materias: 'Matérias',
-  materia: 'Matéria completa',
+  capa: 'Capa (legado)',
+  materias: 'Matérias (legado)',
+  materia: 'Matéria completa (legado)',
   galeria: 'Galeria',
   agenda: 'Agenda',
-  numeros: 'Resultados e números',
+  numeros: 'Resultados e números (legado)',
   contracapa: 'Contracapa',
   branco: 'Em branco',
+  capa_c1: 'C1 — Imagem dominante',
+  capa_c2: 'C2 — Imagem + chamadas',
+  capa_c3: 'C3 — Editorial',
+  materia_imagem: 'Matéria com imagem',
+  duas_materias: 'Duas matérias',
+  chamada_destaque: 'Chamada principal + destaques',
+  destaques_numeros: 'Destaques rápidos (números)',
 };
