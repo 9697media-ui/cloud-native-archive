@@ -18,7 +18,7 @@ interface Props {
   onSelect: (template: JournalTemplate) => void;
 }
 
-const TEMPLATE_META: Record<JournalTemplate, { label: string; icon: typeof LayoutTemplate }> = {
+const TEMPLATE_ICON: Record<JournalTemplate, React.ComponentType<{ className?: string }>> = {
   capa: LayoutTemplate,
   capa_c1: LayoutTemplate,
   capa_c2: LayoutTemplate,
@@ -63,7 +63,7 @@ export function PageTemplateGallery({ open, onClose, onSelect }: Props) {
         </DialogHeader>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
           {INTERNAL_TEMPLATES.map((template) => {
-            const Icon = TEMPLATE_META[template] ?? LayoutTemplate;
+            const Icon = TEMPLATE_ICON[template];
             return (
               <Button
                 key={template}
