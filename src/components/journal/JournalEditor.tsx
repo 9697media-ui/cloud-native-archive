@@ -98,6 +98,8 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   const [exporting, setExporting] = useState(false);
   const [paper, setPaper] = useState<'branco' | 'offwhite'>(journal.paper || 'branco');
   const [overflowByPage, setOverflowByPage] = useState<Record<string, number>>({});
+  const [templateGalleryOpen, setTemplateGalleryOpen] = useState(false);
+
   const exportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
