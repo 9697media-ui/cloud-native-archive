@@ -145,6 +145,8 @@ export interface JournalPage {
   id: string;
   template: JournalTemplate;
   blocks: JournalBlock[];
+  /** Se true, a página é uma capa travada: blocos não podem ser arrastados/redimensionados. */
+  locked?: boolean;
 }
 
 export interface JournalRecord {
@@ -156,6 +158,8 @@ export interface JournalRecord {
   status: 'rascunho' | 'finalizado' | 'arquivado';
   pages: JournalPage[];
   cover_url: string | null;
+  /** Papel da folha: 'branco' (#FFFFFF) ou 'offwhite' (#F0EEE4). Padrão: 'branco'. */
+  paper: 'branco' | 'offwhite';
   created_by: string | null;
   created_at: string;
   updated_at: string;
