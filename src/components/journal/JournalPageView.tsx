@@ -281,7 +281,7 @@ export function JournalBlockView({
               className={cn(
                 'h-full w-full',
                 block.fit === 'contain' ? 'object-contain' : 'object-cover',
-                isCover ? 'rounded-none' : 'rounded-sm',
+                rounded ? 'rounded-sm' : 'rounded-none',
               )}
               crossOrigin="anonymous"
             />
