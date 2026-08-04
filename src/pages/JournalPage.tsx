@@ -53,6 +53,20 @@ const THUMB_W = 260;
 const THUMB_SCALE = THUMB_W / A4_W;
 
 type StartingTemplate = 'padrao' | 'enxuto' | 'branco';
+type CoverModel = 'capa_c1' | 'capa_c2' | 'capa_c3';
+
+const COVER_MODEL_LABELS: Record<CoverModel, string> = {
+  capa_c1: 'Imagem dominante',
+  capa_c2: 'Imagem + chamadas',
+  capa_c3: 'Editorial',
+};
+
+/** Mês/ano atual no formato "Agosto/2026". */
+function currentMonthYear(): string {
+  const now = new Date();
+  const month = now.toLocaleString('pt-BR', { month: 'long' });
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)}/${now.getFullYear()}`;
+}
 
 /** Data relativa curta ("há 2 dias"), com fallback para data absoluta. */
 function relativeDate(iso: string): string {
