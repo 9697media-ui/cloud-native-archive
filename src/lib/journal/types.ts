@@ -7,19 +7,24 @@
  */
 
 export type JournalTemplate =
-  // Capas institucionais travadas (estutura fixa, campos editáveis)
+  // Legacy templates (mantidos para compatibilidade com dados existentes)
+  | 'capa'
+  | 'materias'
+  | 'materia'
+  | 'galeria'
+  | 'agenda'
+  | 'numeros'
+  | 'contracapa'
+  | 'branco'
+  // Novos modelos de capa institucional
   | 'capa_c1'
   | 'capa_c2'
   | 'capa_c3'
-  // Layouts internos predefinidos
+  // Novos layouts internos predefinidos
   | 'materia_imagem'
   | 'duas_materias'
-  | 'galeria'
-  | 'agenda'
-  | 'destaques_numeros'
   | 'chamada_destaque'
-  | 'contracapa'
-  | 'branco';
+  | 'destaques_numeros';
 
 export type TextStyleKey =
   | 'titulo_capa'
