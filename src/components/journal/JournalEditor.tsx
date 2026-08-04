@@ -492,10 +492,12 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               total={pages.length}
               edition={journal.reference_month || ''}
               unitName={unitName}
+              paper={paper}
             />
           </div>
         ))}
       </div>
+
     </div>
   );
 }
