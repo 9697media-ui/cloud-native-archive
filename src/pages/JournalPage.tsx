@@ -460,7 +460,7 @@ export default function JournalPage() {
                   <SelectContent>
                     <SelectItem value="padrao">Padrão (capa + matérias)</SelectItem>
                     <SelectItem value="enxuto">Enxuto (capa + matéria)</SelectItem>
-                    <SelectItem value="branco">Em branco</SelectItem>
+                    <SelectItem value="editorial">Editorial (capa editorial + matérias)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
