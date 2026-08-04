@@ -158,17 +158,20 @@ export default function JournalPage() {
 
   const buildPages = (template: StartingTemplate, count: number) => {
     if (template === 'padrao') {
-      const base = createJournalPages();
+      const base = createJournalPages('capa_c1');
       while (base.length < count) base.push(createPage('materia'));
       return base.slice(0, Math.max(1, count));
     }
     if (template === 'enxuto') {
-      const base = [createPage('capa'), createPage('materia')];
+      const base = [createPage('capa_c2'), createPage('materia')];
       while (base.length < count) base.push(createPage('materia'));
       return base.slice(0, Math.max(1, count));
     }
-    return Array.from({ length: Math.max(1, count) }, () => createPage('branco'));
+    const base = [createPage('capa_c3'), createPage('materia')];
+    while (base.length < count) base.push(createPage('materia'));
+    return base.slice(0, Math.max(1, count));
   };
+
 
   const handleCreate = async () => {
     const created = await create({
