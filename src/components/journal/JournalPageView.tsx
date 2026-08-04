@@ -43,6 +43,7 @@ interface BlockViewProps {
   onResizeHeight?: (id: string, height: number | undefined) => void;
   onReorder?: (draggedId: string, targetId: string) => void;
   paper: 'branco' | 'offwhite';
+  isCover?: boolean;
   onDragging?: (dragging: boolean) => void;
 }
 
