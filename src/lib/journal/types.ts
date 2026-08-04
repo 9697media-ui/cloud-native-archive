@@ -8,6 +8,11 @@
 
 export type JournalTemplate =
   | 'capa'
+  | 'capa_imagem'
+  | 'capa_chamadas'
+  | 'capa_editorial'
+  | 'duas_materias'
+  | 'destaques'
   | 'materias'
   | 'materia'
   | 'galeria'
@@ -191,7 +196,12 @@ export const STATUS_LABELS: Record<string, string> = {
 };
 
 export const TEMPLATE_LABELS: Record<JournalTemplate, string> = {
-  capa: 'Capa',
+  capa: 'Capa (livre)',
+  capa_imagem: 'Capa · Imagem cheia',
+  capa_chamadas: 'Capa · Imagem + chamadas',
+  capa_editorial: 'Capa · Editorial',
+  duas_materias: 'Duas matérias',
+  destaques: 'Destaques rápidos',
   materias: 'Matérias',
   materia: 'Matéria completa',
   galeria: 'Galeria',
