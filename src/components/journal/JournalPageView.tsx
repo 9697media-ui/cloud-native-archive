@@ -481,24 +481,23 @@ export function JournalPageView({
           className="relative z-10 grid h-full grid-cols-6 content-start gap-x-4 gap-y-3 overflow-hidden px-12 py-6"
           onClick={(event) => event.stopPropagation()}
         >
-          <div ref={contentRef} className="contents">
-            {page.blocks.map((block) => (
-              <JournalBlockView
-                key={block.id}
-                block={block}
-                interactive={interactive}
-                locked={isLocked}
-                selected={selectedBlockId === block.id}
-                onSelect={onSelectBlock}
-                gridRef={gridRef}
-                onResizeSpan={onResizeBlockSpan}
-                onResizeHeight={onResizeBlockHeight}
-                onReorder={onReorderBlocks}
-                paper={paper}
-                onDragging={setDragging}
-              />
-            ))}
-          </div>
+          {page.blocks.map((block) => (
+            <JournalBlockView
+              key={block.id}
+              block={block}
+              interactive={interactive}
+              locked={isLocked}
+              selected={selectedBlockId === block.id}
+              onSelect={onSelectBlock}
+              gridRef={gridRef}
+              onResizeSpan={onResizeBlockSpan}
+              onResizeHeight={onResizeBlockHeight}
+              onReorder={onReorderBlocks}
+              paper={paper}
+              isCover={isCover}
+              onDragging={setDragging}
+            />
+          ))}
         </div>
       </div>
 
