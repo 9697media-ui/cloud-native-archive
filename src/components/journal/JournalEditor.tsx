@@ -257,7 +257,34 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   };
 
 
+  /** Aplica uma sugestão — sempre por confirmação explícita da usuária. */
+  const applySuggestion = (suggestion: JournalSuggestion) => {
+    mutatePages((prev) =>
+      prev.map((page) =>
+        page.id !== activePage.id
+          ? page
+          : {
+              ...page,
+              blocks: page.blocks.map((block) =>
+                block.id === suggestion.blockId ? ({ ...block, ...suggestion.patch } as JournalBlock) : block,
+              ),
+            },
+      ),
+    );
+    setDismissed((prev) => [...prev, suggestion.id]);
+  };
+
+  /** Troca o modelo de capa mantendo a estrutura travada do novo modelo. */
+  const changeCoverModel = (template: JournalTemplate) => {
+    const fresh = createPage(template);
+    mutatePages((prev) =>
+      prev.map((page) => (page.id === activePage.id ? { ...fresh, id: page.id } : page)),
+    );
+    setSelectedBlockId(null);
+  };
+
   const addPage = (template: JournalTemplate) => {
+
     const page = createPage(template);
     mutatePages((prev) => [...prev, page]);
     setActivePageId(page.id);
