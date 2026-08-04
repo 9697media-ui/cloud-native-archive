@@ -104,7 +104,14 @@ export default function JournalPage() {
     template: StartingTemplate;
     cover: JournalTemplate;
     pageCount: number;
-  }>({ name: '', unitId: null, referenceMonth: '', template: 'padrao', pageCount: 4 });
+  }>({
+    name: '',
+    unitId: null,
+    referenceMonth: '',
+    template: 'padrao',
+    cover: 'capa_imagem',
+    pageCount: 4,
+  });
 
   const editing = useMemo(
     () => journals.find((journal) => journal.id === editingId) ?? null,
