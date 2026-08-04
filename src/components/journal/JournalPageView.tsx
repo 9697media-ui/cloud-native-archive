@@ -1,4 +1,4 @@
-import { useRef, useState, type RefObject } from 'react';
+import { useRef, useState, useEffect, type RefObject } from 'react';
 import { cn } from '@/lib/utils';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import anaLogo from '@/assets/ana-brasil-logo.svg';
@@ -43,6 +43,7 @@ interface BlockViewProps {
   onResizeHeight?: (id: string, height: number | undefined) => void;
   onReorder?: (draggedId: string, targetId: string) => void;
   paper: 'branco' | 'offwhite';
+  isCover?: boolean;
   onDragging?: (dragging: boolean) => void;
 }
 
@@ -57,12 +58,13 @@ export function JournalBlockView({
   onResizeHeight,
   onReorder,
   paper,
+  isCover,
   onDragging,
 }: BlockViewProps) {
   const [dropSide, setDropSide] = useState<'before' | 'after' | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const canDrag = Boolean(interactive && onReorder && !locked);
-  const isCover = paper === 'offwhite';
+  const rounded = !isCover;
 
   const wrapper = cn(
     'group/block relative transition-[box-shadow,transform,opacity] duration-150 ease-out',
@@ -279,7 +281,7 @@ export function JournalBlockView({
               className={cn(
                 'h-full w-full',
                 block.fit === 'contain' ? 'object-contain' : 'object-cover',
-                isCover ? 'rounded-none' : 'rounded-sm',
+                rounded ? 'rounded-sm' : 'rounded-none',
               )}
               crossOrigin="anonymous"
             />
@@ -414,19 +416,23 @@ export function JournalPageView({
   onOverflow,
 }: JournalPageViewProps) {
   const gridRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
   const isLocked = page.locked ?? COVER_TEMPLATES.includes(page.template);
   const paperColor = paper === 'offwhite' ? PAPER_OFFWHITE : PAPER_WHITE;
+  const isCover = COVER_TEMPLATES.includes(page.template);
 
   // Detecta estouro de conteúdo em relação à área útil da página.
   const measureOverflow = () => {
-    if (!contentRef.current || !onOverflow) return;
+    if (!gridRef.current || !onOverflow) return;
     const headerFooter = 220; // cabeçalho + rodapé aproximados
     const usefulHeight = A4_H - headerFooter;
-    const renderedHeight = contentRef.current.scrollHeight;
+    const renderedHeight = gridRef.current.scrollHeight;
     onOverflow(Math.max(0, renderedHeight - usefulHeight));
   };
+
+  useEffect(() => {
+    measureOverflow();
+  }, [page.blocks, paper, onOverflow]);
 
   return (
     <div
@@ -475,24 +481,23 @@ export function JournalPageView({
           className="relative z-10 grid h-full grid-cols-6 content-start gap-x-4 gap-y-3 overflow-hidden px-12 py-6"
           onClick={(event) => event.stopPropagation()}
         >
-          <div ref={contentRef} className="contents">
-            {page.blocks.map((block) => (
-              <JournalBlockView
-                key={block.id}
-                block={block}
-                interactive={interactive}
-                locked={isLocked}
-                selected={selectedBlockId === block.id}
-                onSelect={onSelectBlock}
-                gridRef={gridRef}
-                onResizeSpan={onResizeBlockSpan}
-                onResizeHeight={onResizeBlockHeight}
-                onReorder={onReorderBlocks}
-                paper={paper}
-                onDragging={setDragging}
-              />
-            ))}
-          </div>
+          {page.blocks.map((block) => (
+            <JournalBlockView
+              key={block.id}
+              block={block}
+              interactive={interactive}
+              locked={isLocked}
+              selected={selectedBlockId === block.id}
+              onSelect={onSelectBlock}
+              gridRef={gridRef}
+              onResizeSpan={onResizeBlockSpan}
+              onResizeHeight={onResizeBlockHeight}
+              onReorder={onReorderBlocks}
+              paper={paper}
+              isCover={isCover}
+              onDragging={setDragging}
+            />
+          ))}
         </div>
       </div>
 

@@ -46,6 +46,8 @@ import { cn } from '@/lib/utils';
 import { A4_H, A4_W, JournalPageView } from './JournalPageView';
 import { JournalPropertiesPanel } from './JournalPropertiesPanel';
 import { JournalBlockList } from './JournalBlockList';
+import { PageTemplateGallery } from './PageTemplateGallery';
+
 
 import {
   TEMPLATE_LABELS,
@@ -56,7 +58,6 @@ import {
   type JournalTemplate,
 } from '@/lib/journal/types';
 import {
-  TEMPLATE_OPTIONS,
   agendaBlock,
   createPage,
   imageBlock,
@@ -64,6 +65,7 @@ import {
   textBlock,
   uid,
 } from '@/lib/journal/templates';
+
 import { newsUnitName, profileUnitForNewsUnit } from '@/lib/news/units';
 import { UnitBadge } from './UnitBadge';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -96,6 +98,8 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   const [exporting, setExporting] = useState(false);
   const [paper, setPaper] = useState<'branco' | 'offwhite'>(journal.paper || 'branco');
   const [overflowByPage, setOverflowByPage] = useState<Record<string, number>>({});
+  const [templateGalleryOpen, setTemplateGalleryOpen] = useState(false);
+
   const exportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
@@ -233,12 +237,34 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     setSelectedBlockId(block.id);
   };
 
+  const duplicateBlock = () => {
+    if (!selectedBlock) return;
+    const copy: JournalBlock = { ...selectedBlock, id: uid() };
+    mutatePages((prev) =>
+      prev.map((page) => {
+        if (page.id !== activePage.id) return page;
+        const at = page.blocks.findIndex((entry) => entry.id === selectedBlockId);
+        const blocks = [...page.blocks];
+        blocks.splice(at + 1, 0, copy);
+        return { ...page, blocks };
+      }),
+    );
+    setSelectedBlockId(copy.id);
+  };
+
   const addPage = (template: JournalTemplate) => {
     const page = createPage(template);
-    mutatePages((prev) => [...prev, page]);
+    mutatePages((prev) => {
+      const at = prev.findIndex((p) => p.id === activePageId);
+      const next = [...prev];
+      next.splice(at + 1, 0, page);
+      return next;
+    });
     setActivePageId(page.id);
     setSelectedBlockId(null);
+    setTemplateGalleryOpen(false);
   };
+
 
   const duplicatePage = (page: JournalPage) => {
     const copy: JournalPage = {
@@ -524,30 +550,21 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             );
           })}
 
-          <Select onValueChange={(value) => addPage(value as JournalTemplate)}>
-            <SelectTrigger className="h-10 text-xs font-medium">
-              <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar página
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_header" disabled className="text-xs text-muted-foreground">
-                Capas
-              </SelectItem>
-              {TEMPLATE_OPTIONS.filter((t) => t.startsWith('capa')).map((template) => (
-                <SelectItem key={template} value={template}>
-                  {TEMPLATE_LABELS[template]}
-                </SelectItem>
-              ))}
-              <SelectItem value="_divider" disabled className="text-xs text-muted-foreground">
-                Layouts internos
-              </SelectItem>
-              {TEMPLATE_OPTIONS.filter((t) => !t.startsWith('capa')).map((template) => (
-                <SelectItem key={template} value={template}>
-                  {TEMPLATE_LABELS[template]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Button
+            variant="default"
+            size="sm"
+            className="h-10 w-full text-xs font-medium"
+            onClick={() => setTemplateGalleryOpen(true)}
+          >
+            <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar página
+          </Button>
         </aside>
+
+        <PageTemplateGallery
+          open={templateGalleryOpen}
+          onClose={() => setTemplateGalleryOpen(false)}
+          onSelect={addPage}
+        />
 
         {/* Canvas */}
         <section
@@ -613,15 +630,15 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
           {selectedBlock && !activePage.locked && !isMobile && (
             <div className="pointer-events-none absolute bottom-4 left-1/2 z-50 -translate-x-1/2">
               <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-border bg-background/90 px-2 py-1 shadow-lg backdrop-blur-sm">
-                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { /* noop: já está selecionado */ }}>
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { /* editar: já está selecionado; painel assume o foco */ }}>
                   <Type className="mr-1.5 h-3.5 w-3.5" /> Editar
                 </Button>
                 {selectedBlock.kind === 'image' && (
-                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => updateBlock({ fit: selectedBlock.fit === 'contain' ? 'cover' : 'contain' })}>
+                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { /* imagem: use o painel lateral */ }}>
                     <FileImage className="mr-1.5 h-3.5 w-3.5" /> Trocar imagem
                   </Button>
                 )}
-                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => duplicatePage(activePage)}>
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={duplicateBlock}>
                   <Copy className="mr-1.5 h-3.5 w-3.5" /> Duplicar
                 </Button>
                 <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={removeBlock}>

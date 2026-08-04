@@ -53,6 +53,20 @@ const THUMB_W = 260;
 const THUMB_SCALE = THUMB_W / A4_W;
 
 type StartingTemplate = 'padrao' | 'enxuto' | 'branco';
+type CoverModel = 'capa_c1' | 'capa_c2' | 'capa_c3';
+
+const COVER_MODEL_LABELS: Record<CoverModel, string> = {
+  capa_c1: 'Imagem dominante',
+  capa_c2: 'Imagem + chamadas',
+  capa_c3: 'Editorial',
+};
+
+/** Mês/ano atual no formato "Agosto/2026". */
+function currentMonthYear(): string {
+  const now = new Date();
+  const month = now.toLocaleString('pt-BR', { month: 'long' });
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)}/${now.getFullYear()}`;
+}
 
 /** Data relativa curta ("há 2 dias"), com fallback para data absoluta. */
 function relativeDate(iso: string): string {
@@ -90,8 +104,9 @@ export default function JournalPage() {
     unitId: string | null;
     referenceMonth: string;
     template: StartingTemplate;
+    coverModel: CoverModel;
     pageCount: number;
-  }>({ name: '', unitId: null, referenceMonth: '', template: 'padrao', pageCount: 4 });
+  }>({ name: '', unitId: null, referenceMonth: '', template: 'padrao', coverModel: 'capa_c1', pageCount: 4 });
 
   const editing = useMemo(
     () => journals.find((journal) => journal.id === editingId) ?? null,
@@ -146,24 +161,26 @@ export default function JournalPage() {
   }
 
   const openCreate = () => {
+    const month = currentMonthYear();
     setForm({
-      name: suggestName(activeUnitId, ''),
+      name: suggestName(activeUnitId, month),
       unitId: activeUnitId,
-      referenceMonth: '',
+      referenceMonth: month,
       template: 'padrao',
+      coverModel: 'capa_c1',
       pageCount: 4,
     });
     setCreating(true);
   };
 
-  const buildPages = (template: StartingTemplate, count: number) => {
+  const buildPages = (template: StartingTemplate, coverModel: CoverModel, count: number) => {
     if (template === 'padrao') {
-      const base = createJournalPages();
+      const base = [createPage(coverModel), createPage('materia'), createPage('galeria'), createPage('contracapa')];
       while (base.length < count) base.push(createPage('materia'));
       return base.slice(0, Math.max(1, count));
     }
     if (template === 'enxuto') {
-      const base = [createPage('capa'), createPage('materia')];
+      const base = [createPage(coverModel), createPage('materia')];
       while (base.length < count) base.push(createPage('materia'));
       return base.slice(0, Math.max(1, count));
     }
@@ -177,7 +194,7 @@ export default function JournalPage() {
       profileUnit: form.unitId ? profileUnitForNewsUnit(form.unitId) : null,
       referenceMonth: form.referenceMonth || null,
       status: 'rascunho',
-      pages: buildPages(form.template, form.pageCount),
+      pages: buildPages(form.template, form.coverModel, form.pageCount),
     });
     setCreating(false);
     if (created) setEditingId(created.id);
@@ -355,6 +372,7 @@ export default function JournalPage() {
                           total={journal.pages?.length ?? 1}
                           edition={journal.reference_month || ''}
                           unitName={newsUnitName(journal.unit_id)}
+                          paper={journal.paper || 'branco'}
                         />
                       </div>
                     )}
@@ -463,6 +481,30 @@ export default function JournalPage() {
                     <SelectItem value="branco">Em branco</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Modelo de capa</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['capa_c1', 'capa_c2', 'capa_c3'] as CoverModel[]).map((model) => (
+                  <button
+                    key={model}
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, coverModel: model }))}
+                    className={cn(
+                      'flex flex-col items-center gap-1 rounded-md border px-2 py-2 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      form.coverModel === model
+                        ? 'border-primary bg-accent text-accent-foreground'
+                        : 'border-border bg-card text-muted-foreground hover:bg-accent/50',
+                    )}
+                  >
+                    <span className="text-xs font-medium">{COVER_MODEL_LABELS[model]}</span>
+                    <span className="text-[10px] uppercase tracking-wide opacity-80">
+                      {model === 'capa_c1' ? 'C1' : model === 'capa_c2' ? 'C2' : 'C3'}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
 
