@@ -159,7 +159,7 @@ export interface JournalRecord {
   pages: JournalPage[];
   cover_url: string | null;
   /** Papel da folha: 'branco' (#FFFFFF) ou 'offwhite' (#F0EEE4). Padrão: 'branco'. */
-  paper: 'branco' | 'offwhite';
+  paper: 'branco' | 'offwhite' | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
