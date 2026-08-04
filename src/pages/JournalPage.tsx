@@ -32,7 +32,9 @@ import {
   findNewsUnit,
 } from '@/lib/news/units';
 import { createJournalPages, createPage } from '@/lib/journal/templates';
-import { STATUS_LABELS, type JournalRecord } from '@/lib/journal/types';
+import { JOURNAL_PAPER_HEX, STATUS_LABELS, type JournalRecord } from '@/lib/journal/types';
+import { readPaper } from '@/lib/journal/paper';
+
 
 type JournalStatus = JournalRecord['status'];
 
