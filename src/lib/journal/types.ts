@@ -159,7 +159,10 @@ export interface JournalPage {
   id: string;
   template: JournalTemplate;
   blocks: JournalBlock[];
+  /** Capas institucionais são travadas: sem arraste, redimensionamento ou exclusão. */
+  locked?: boolean;
 }
+
 
 export interface JournalRecord {
   id: string;
