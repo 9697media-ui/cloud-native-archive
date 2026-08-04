@@ -472,6 +472,68 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
           <div className="h-px bg-border" />
 
+          {isCoverTemplate(activePage.template) && (
+            <div className="rounded-md border border-border bg-muted/40 p-2">
+              <Label className="text-xs text-muted-foreground">Modelo de capa (estrutura fixa)</Label>
+              <Select
+                value={COVER_TEMPLATES.includes(activePage.template) ? activePage.template : 'capa_c1'}
+                onValueChange={(value) => changeCoverModel(value as JournalTemplate)}
+              >
+                <SelectTrigger className="mt-1.5 h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {COVER_TEMPLATES.map((template) => (
+                    <SelectItem key={template} value={template}>
+                      {TEMPLATE_LABELS[template]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                Na capa você edita textos e imagens; a estrutura permanece travada.
+              </p>
+            </div>
+          )}
+
+          {(overflowing || suggestions.length > 0) && (
+            <div className="rounded-md border border-warning/40 bg-warning/10 p-2">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                <AlertTriangle className="h-3.5 w-3.5" /> Sugestões desta página
+              </p>
+              {overflowing && (
+                <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                  O conteúdo ultrapassa a folha A4. Considere mover os últimos blocos para uma nova página.
+                </p>
+              )}
+              <ul className="mt-2 space-y-1.5">
+                {suggestions.map((suggestion) => (
+                  <li key={suggestion.id} className="rounded-sm bg-background/70 p-1.5">
+                    <p className="text-[11px] leading-snug text-foreground">{suggestion.message}</p>
+                    <div className="mt-1 flex gap-1.5">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => applySuggestion(suggestion)}
+                      >
+                        Aplicar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => dismissSuggestion(suggestion.id)}
+                      >
+                        Ignorar
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <JournalPropertiesPanel
             page={activePage}
             block={selectedBlock}
@@ -479,6 +541,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             onRemoveBlock={removeBlock}
             onClose={() => setSelectedBlockId(null)}
           />
+
         </aside>
       </div>
 
