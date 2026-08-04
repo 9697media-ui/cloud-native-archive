@@ -31,8 +31,20 @@ import {
   profileUnitForNewsUnit,
   findNewsUnit,
 } from '@/lib/news/units';
-import { createJournalPages, createPage } from '@/lib/journal/templates';
-import { STATUS_LABELS, type JournalRecord } from '@/lib/journal/types';
+import { createPage } from '@/lib/journal/templates';
+import {
+  STATUS_LABELS,
+  TEMPLATE_LABELS,
+  type JournalRecord,
+  type JournalTemplate,
+} from '@/lib/journal/types';
+
+/** Modelos fixos de capa oferecidos na criação — evitam capas fora do padrão. */
+const COVER_CHOICES: { id: JournalTemplate; title: string; hint: string }[] = [
+  { id: 'capa_imagem', title: 'Imagem cheia', hint: 'Foto de destaque grande com título abaixo' },
+  { id: 'capa_chamadas', title: 'Imagem + chamadas', hint: 'Foto no topo e quatro chamadas curtas' },
+  { id: 'capa_editorial', title: 'Editorial', hint: 'Título dominante, foto lateral e destaques' },
+];
 
 type JournalStatus = JournalRecord['status'];
 
@@ -90,6 +102,7 @@ export default function JournalPage() {
     unitId: string | null;
     referenceMonth: string;
     template: StartingTemplate;
+    cover: JournalTemplate;
     pageCount: number;
   }>({ name: '', unitId: null, referenceMonth: '', template: 'padrao', pageCount: 4 });
 
@@ -151,23 +164,23 @@ export default function JournalPage() {
       unitId: activeUnitId,
       referenceMonth: '',
       template: 'padrao',
+      cover: 'capa_imagem',
       pageCount: 4,
     });
     setCreating(true);
   };
 
-  const buildPages = (template: StartingTemplate, count: number) => {
+  /** A primeira página é sempre um dos três modelos de capa aprovados. */
+  const buildPages = (template: StartingTemplate, count: number, cover: JournalTemplate) => {
+    const total = Math.max(1, count);
+    const base = [createPage(cover)];
     if (template === 'padrao') {
-      const base = createJournalPages();
-      while (base.length < count) base.push(createPage('materia'));
-      return base.slice(0, Math.max(1, count));
+      base.push(createPage('materias'), createPage('galeria'), createPage('contracapa'));
+    } else if (template === 'enxuto') {
+      base.push(createPage('materia'));
     }
-    if (template === 'enxuto') {
-      const base = [createPage('capa'), createPage('materia')];
-      while (base.length < count) base.push(createPage('materia'));
-      return base.slice(0, Math.max(1, count));
-    }
-    return Array.from({ length: Math.max(1, count) }, () => createPage('branco'));
+    while (base.length < total) base.push(createPage(template === 'branco' ? 'branco' : 'materia'));
+    return base.slice(0, total);
   };
 
   const handleCreate = async () => {
@@ -177,7 +190,7 @@ export default function JournalPage() {
       profileUnit: form.unitId ? profileUnitForNewsUnit(form.unitId) : null,
       referenceMonth: form.referenceMonth || null,
       status: 'rascunho',
-      pages: buildPages(form.template, form.pageCount),
+      pages: buildPages(form.template, form.pageCount, form.cover),
     });
     setCreating(false);
     if (created) setEditingId(created.id);
@@ -431,6 +444,32 @@ export default function JournalPage() {
               />
             </div>
 
+            <div className="space-y-1.5">
+              <Label>Modelo de capa</Label>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {COVER_CHOICES.map((choice) => (
+                  <button
+                    key={choice.id}
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, cover: choice.id }))}
+                    className={cn(
+                      'rounded-lg border-2 p-2 text-left transition-all duration-150 ease-out',
+                      'hover:border-primary/50 hover:shadow-sm',
+                      form.cover === choice.id
+                        ? 'border-primary bg-accent shadow-sm'
+                        : 'border-border bg-background',
+                    )}
+                  >
+                    <span className="block text-xs font-semibold text-foreground">{choice.title}</span>
+                    <span className="mt-0.5 block text-[11px] leading-snug text-muted-foreground">
+                      {choice.hint}
+                    </span>
+                    <span className="sr-only">{TEMPLATE_LABELS[choice.id]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label>Mês/Ano de referência</Label>
@@ -458,9 +497,9 @@ export default function JournalPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="padrao">Padrão (capa + matérias)</SelectItem>
+                    <SelectItem value="padrao">Completo (capa + matérias + galeria)</SelectItem>
                     <SelectItem value="enxuto">Enxuto (capa + matéria)</SelectItem>
-                    <SelectItem value="branco">Em branco</SelectItem>
+                    <SelectItem value="branco">Só a capa</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
