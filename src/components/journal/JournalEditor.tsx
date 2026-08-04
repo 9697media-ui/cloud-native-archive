@@ -72,17 +72,58 @@ interface Props {
 
 export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Props) {
   const [name, setName] = useState(journal.name);
-  const [pages, setPages] = useState<JournalPage[]>(journal.pages?.length ? journal.pages : [createPage('capa')]);
+  const [pages, setPages] = useState<JournalPage[]>(
+    journal.pages?.length ? journal.pages : [createPage('capa_c1')],
+  );
   const [activePageId, setActivePageId] = useState<string>(pages[0].id);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(0.7);
+  const [fitMode, setFitMode] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [overflowPages, setOverflowPages] = useState<Record<string, boolean>>({});
+  const [dismissed, setDismissed] = useState<string[]>([]);
   const exportRef = useRef<HTMLDivElement>(null);
+  const canvasAreaRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
+
+  const { paper, setPaper } = useUnitPaper(journal.unit_id);
 
   const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
   const selectedBlock = activePage?.blocks.find((block) => block.id === selectedBlockId);
   const unitName = useMemo(() => newsUnitName(journal.unit_id), [journal.unit_id]);
+  const overflowing = Boolean(overflowPages[activePage?.id ?? '']);
+
+  const suggestions = useMemo(
+    () => analyzePage(activePage).filter((item) => !dismissed.includes(item.id)),
+    [activePage, dismissed],
+  );
+
+  /** Auto-fit: a folha A4 se ajusta à área visível do canvas. */
+  useEffect(() => {
+    if (!fitMode) return;
+    const element = canvasAreaRef.current;
+    if (!element) return;
+
+    const recompute = () => {
+      const availableWidth = element.clientWidth - 48;
+      const availableHeight = element.clientHeight - 48;
+      if (availableWidth <= 0 || availableHeight <= 0) return;
+      const next = Math.min(availableWidth / A4_W, availableHeight / A4_H);
+      setZoom(Math.max(0.3, Math.min(1.5, Number(next.toFixed(2)))));
+    };
+
+    recompute();
+    const observer = new ResizeObserver(recompute);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [fitMode]);
+
+  const handleOverflowChange = useCallback((pageId: string, value: boolean) => {
+    setOverflowPages((prev) => (prev[pageId] === value ? prev : { ...prev, [pageId]: value }));
+  }, []);
+
+  const dismissSuggestion = (id: string) => setDismissed((prev) => [...prev, id]);
+
 
   // Autosave com 2s de inatividade.
   useEffect(() => {
