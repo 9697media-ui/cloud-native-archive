@@ -233,6 +233,21 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     setSelectedBlockId(block.id);
   };
 
+  const duplicateBlock = () => {
+    if (!selectedBlock) return;
+    const copy: JournalBlock = { ...selectedBlock, id: uid() };
+    mutatePages((prev) =>
+      prev.map((page) => {
+        if (page.id !== activePage.id) return page;
+        const at = page.blocks.findIndex((entry) => entry.id === selectedBlockId);
+        const blocks = [...page.blocks];
+        blocks.splice(at + 1, 0, copy);
+        return { ...page, blocks };
+      }),
+    );
+    setSelectedBlockId(copy.id);
+  };
+
   const addPage = (template: JournalTemplate) => {
     const page = createPage(template);
     mutatePages((prev) => [...prev, page]);
