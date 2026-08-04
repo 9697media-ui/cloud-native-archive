@@ -10,7 +10,6 @@ export interface JournalDraft {
   referenceMonth: string | null;
   status: JournalRecord['status'];
   pages: JournalPage[];
-  paper?: 'branco' | 'offwhite';
 }
 
 /**
@@ -52,7 +51,6 @@ export function useJournals() {
           reference_month: draft.referenceMonth,
           status: draft.status,
           pages: draft.pages as any,
-          paper: draft.paper || 'branco',
           created_by: user.id,
         })
         .select()

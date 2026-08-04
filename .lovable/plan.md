@@ -297,9 +297,9 @@ Painéis viram gavetas laterais; canvas mantém prioridade.
 
 ## 20. Decisões pendentes
 
-1. Papel padrão para novos jornais: branco ou off-white? **Ambos — o usuário escolhe no ato da criação (branco é o default).**
-2. A alternância de papel vale por jornal ou é uma preferência global da unidade? **Por jornal, persistida no campo `paper`.**
-3. Capas travadas devem permitir "Destravar" ou ficarem 100% fixas? **Ficam 100% fixas (sem opção de destravar).**
-4. Manter o modelo "Página em branco" para usuárias avançadas? **Sim, mantido como opção avançada na galeria de layouts internos.**
-5. As sugestões de diagramação devem ser aplicadas automaticamente ou sempre exigir confirmação? **Sempre exigir confirmação (banner informativo + botão "Aplicar").**
-6. O excedente de conteúdo deve gerar nova página automaticamente ou apenas alertar? **Apenas alertar (banner âmbar com ação manual).**
+1. Papel padrão para novos jornais: branco ou off-white?
+2. A alternância de papel vale por jornal ou é uma preferência global da unidade?
+3. Capas travadas devem permitir "Destravar" ou ficarem 100% fixas?
+4. Manter o modelo "Página em branco" para usuárias avançadas?
+5. As sugestões de diagramação devem ser aplicadas automaticamente ou sempre exigir confirmação?
+6. O excedente de conteúdo deve gerar nova página automaticamente ou apenas alertar?

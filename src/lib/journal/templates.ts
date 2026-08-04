@@ -37,12 +37,11 @@ export function statBlock(value = '0', label = 'Indicador', span: BlockSpan = 2)
   return { id: uid(), kind: 'stat', value, label, span };
 }
 
-/** Cria uma página a partir de um modelo. Suporta templates legacy e novos. */
+/** Composição inicial de cada modelo de página (v1). */
 export function createPage(template: JournalTemplate): JournalPage {
   const blocks: JournalBlock[] = (() => {
     switch (template) {
       case 'capa':
-      case 'capa_c1':
         return [
           textBlock('subtitulo', 'Jornal Institucional', 6, 'center'),
           textBlock('titulo_capa', 'Título da chamada principal', 6, 'center'),
@@ -50,37 +49,17 @@ export function createPage(template: JournalTemplate): JournalPage {
           textBlock('chamada', 'Chamada secundária desta edição.', 3),
           textBlock('chamada', 'Outra chamada desta edição.', 3),
         ];
-      case 'capa_c2':
-        return [
-          textBlock('subtitulo', 'Jornal Institucional', 6, 'center'),
-          textBlock('titulo_capa', 'Título da edição', 6, 'center'),
-          imageBlock(6, '4/3'),
-          textBlock('chamada', 'Primeira chamada', 2),
-          textBlock('chamada', 'Segunda chamada', 2),
-          textBlock('chamada', 'Terceira chamada', 2),
-        ];
-      case 'capa_c3':
-        return [
-          textBlock('subtitulo', 'Jornal Institucional', 6, 'center'),
-          textBlock('titulo_capa', 'Título editorial', 4, 'left'),
-          textBlock('chamada', 'Destaque 1', 2),
-          textBlock('chamada', 'Destaque 2', 2),
-          textBlock('subtitulo', 'Subtítulo de abertura', 4, 'left'),
-          imageBlock(4, '4/3'),
-          textBlock('corpo', 'Texto de abertura da edição.', 4),
-        ];
       case 'materias':
-      case 'duas_materias':
         return [
           textBlock('titulo_materia', 'Matéria principal'),
-          textBlock('subtitulo', 'Subtítulo de apoio'),
-          textBlock('corpo', 'Escreva aqui o texto da primeira matéria.', 3),
-          textBlock('corpo', 'Escreva aqui o texto da segunda matéria.', 3),
+          imageBlock(6, '16/9'),
+          textBlock('corpo', 'Escreva aqui o texto da matéria principal.'),
           imageBlock(3, '4/3'),
           imageBlock(3, '4/3'),
+          textBlock('chamada', 'Chamada da primeira imagem.', 3),
+          textBlock('chamada', 'Chamada da segunda imagem.', 3),
         ];
       case 'materia':
-      case 'materia_imagem':
         return [
           textBlock('titulo_materia', 'Título da matéria'),
           textBlock('subtitulo', 'Subtítulo de apoio'),
@@ -102,22 +81,12 @@ export function createPage(template: JournalTemplate): JournalPage {
       case 'agenda':
         return [textBlock('titulo_materia', 'Agenda'), agendaBlock()];
       case 'numeros':
-      case 'destaques_numeros':
         return [
           textBlock('titulo_materia', 'Resultados e números'),
           statBlock('1.200', 'Atendimentos'),
           statBlock('35', 'Ações realizadas'),
           statBlock('18', 'Parcerias ativas'),
           textBlock('corpo', 'Comentário sobre os indicadores do período.'),
-        ];
-      case 'chamada_destaque':
-        return [
-          textBlock('titulo_capa', 'Chamada principal', 6, 'center'),
-          imageBlock(6, '16/9'),
-          textBlock('chamada', 'Destaque 1', 2),
-          textBlock('chamada', 'Destaque 2', 2),
-          textBlock('chamada', 'Destaque 3', 2),
-          textBlock('corpo', 'Texto de apoio.', 6),
         ];
       case 'contracapa':
         return [
@@ -130,46 +99,20 @@ export function createPage(template: JournalTemplate): JournalPage {
     }
   })();
 
-  const locked = template.startsWith('capa');
-  return { id: uid(), template, blocks, locked };
+  return { id: uid(), template, blocks };
 }
 
-/** Páginas iniciais de um jornal padrão (estrutura sugerida: capa + matéria + galeria + contracapa). */
 export function createJournalPages(): JournalPage[] {
-  return [
-    createPage('capa_c1'),
-    createPage('materia_imagem'),
-    createPage('galeria'),
-    createPage('contracapa'),
-  ];
+  return [createPage('capa'), createPage('materias'), createPage('galeria'), createPage('contracapa')];
 }
 
-/** Templates de criação: capas e layouts internos. */
 export const TEMPLATE_OPTIONS: JournalTemplate[] = [
-  'capa_c1',
-  'capa_c2',
-  'capa_c3',
-  'materia_imagem',
-  'duas_materias',
+  'capa',
+  'materias',
+  'materia',
   'galeria',
   'agenda',
-  'destaques_numeros',
-  'chamada_destaque',
-  'contracapa',
-  'branco',
-];
-
-/** Templates de capa (travados). */
-export const COVER_TEMPLATES: JournalTemplate[] = ['capa_c1', 'capa_c2', 'capa_c3', 'capa'];
-
-/** Templates de página interna (livres). */
-export const INTERNAL_TEMPLATES: JournalTemplate[] = [
-  'materia_imagem',
-  'duas_materias',
-  'galeria',
-  'agenda',
-  'destaques_numeros',
-  'chamada_destaque',
+  'numeros',
   'contracapa',
   'branco',
 ];

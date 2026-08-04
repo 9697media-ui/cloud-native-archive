@@ -1,1 +1,0 @@
-ALTER TABLE public.journals ADD COLUMN IF NOT EXISTS paper TEXT DEFAULT 'branco';

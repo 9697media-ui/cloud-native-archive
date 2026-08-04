@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, type RefObject } from 'react';
+import { useRef, useState, type RefObject } from 'react';
 import { cn } from '@/lib/utils';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import anaLogo from '@/assets/ana-brasil-logo.svg';
@@ -7,14 +7,10 @@ import {
   journalColor,
   type JournalBlock,
   type JournalPage,
-  type JournalTemplate,
 } from '@/lib/journal/types';
-import { COVER_TEMPLATES } from '@/lib/journal/templates';
 
 export const A4_W = 794;
 export const A4_H = 1123;
-export const PAPER_WHITE = '#FFFFFF';
-export const PAPER_OFFWHITE = '#F0EEE4';
 
 const SPAN_CLASS: Record<number, string> = {
   1: 'col-span-1',
@@ -36,53 +32,44 @@ interface BlockViewProps {
   block: JournalBlock;
   selected?: boolean;
   interactive?: boolean;
-  locked?: boolean;
   onSelect?: (id: string) => void;
+  /** Grade da página — usada para converter arraste em colunas. */
   gridRef?: RefObject<HTMLDivElement>;
+  /** Redimensionamento direto no canvas (colunas de 1 a 6). */
   onResizeSpan?: (id: string, span: number) => void;
+  /** Altura fixa em px (ou undefined para automática). */
   onResizeHeight?: (id: string, height: number | undefined) => void;
+  /** Reordenação por arraste: move o bloco arrastado para a posição do alvo. */
   onReorder?: (draggedId: string, targetId: string) => void;
-  paper: 'branco' | 'offwhite';
-  isCover?: boolean;
-  onDragging?: (dragging: boolean) => void;
 }
 
 export function JournalBlockView({
   block,
   selected,
   interactive,
-  locked,
   onSelect,
   gridRef,
   onResizeSpan,
   onResizeHeight,
   onReorder,
-  paper,
-  isCover,
-  onDragging,
 }: BlockViewProps) {
   const [dropSide, setDropSide] = useState<'before' | 'after' | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const canDrag = Boolean(interactive && onReorder && !locked);
-  const rounded = !isCover;
+  const canDrag = Boolean(interactive && onReorder);
 
   const wrapper = cn(
-    'group/block relative transition-[box-shadow,transform,opacity] duration-150 ease-out',
+    'group/block relative',
     SPAN_CLASS[block.span] ?? 'col-span-6',
-    interactive && !locked && 'cursor-pointer',
-    interactive && !locked && !selected && 'hover:shadow-[0_0_0_1.5px_hsl(var(--ring))]',
-    selected && !locked && 'ring-2 ring-primary transition-shadow duration-150',
-    selected && locked && 'ring-2 ring-primary/60 transition-shadow duration-150',
+    interactive && 'cursor-pointer rounded-sm transition-[box-shadow]',
+    interactive && !selected && 'hover:shadow-[0_0_0_1.5px_hsl(var(--ring))]',
+    selected && 'shadow-[0_0_0_2px_hsl(var(--primary))]',
     block.height ? 'overflow-hidden' : undefined,
-    isDragging && 'opacity-60 scale-[0.98]',
   );
 
-  const handleClick = interactive && !locked ? () => onSelect?.(block.id) : undefined;
+  const handleClick = interactive ? () => onSelect?.(block.id) : undefined;
 
   const startResize = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    if (locked) return;
     const grid = gridRef?.current;
     const blockEl = (event.currentTarget as HTMLElement).parentElement;
     if (!grid || !blockEl || !onResizeSpan) return;
@@ -90,10 +77,10 @@ export function JournalBlockView({
     onSelect?.(block.id);
     const startX = event.clientX;
     const startSpan = block.span;
+    // Largura da coluna medida no próprio bloco (já considera zoom e gaps).
     const colWidth = blockEl.getBoundingClientRect().width / startSpan;
     if (colWidth <= 0) return;
 
-    onDragging?.(true);
     let lastSpan: number = startSpan;
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientX - startX;
@@ -107,17 +94,16 @@ export function JournalBlockView({
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'default';
-      onDragging?.(false);
     };
     document.body.style.cursor = 'col-resize';
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
 
+  /** Alça inferior — define altura fixa do bloco em px do canvas (compensa o zoom). */
   const startResizeHeight = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    if (locked) return;
     const blockEl = (event.currentTarget as HTMLElement).parentElement;
     if (!blockEl || !onResizeHeight) return;
 
@@ -125,9 +111,9 @@ export function JournalBlockView({
     const rect = blockEl.getBoundingClientRect();
     const startY = event.clientY;
     const startHeight = block.height ?? rect.height;
+    // Escala aplicada ao canvas (zoom) — converte px de tela em px do documento.
     const scale = rect.height > 0 ? rect.height / blockEl.offsetHeight : 1;
 
-    onDragging?.(true);
     let lastHeight = startHeight;
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = (moveEvent.clientY - startY) / (scale || 1);
@@ -141,7 +127,6 @@ export function JournalBlockView({
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'default';
-      onDragging?.(false);
     };
     document.body.style.cursor = 'row-resize';
     document.addEventListener('mousemove', onMouseMove);
@@ -149,7 +134,7 @@ export function JournalBlockView({
   };
 
   const resizeHandle =
-    interactive && onResizeSpan && !locked ? (
+    interactive && onResizeSpan ? (
       <div
         role="presentation"
         data-pdf-helper="true"
@@ -157,7 +142,7 @@ export function JournalBlockView({
         onClick={(event) => event.stopPropagation()}
         className={cn(
           'absolute -right-2 top-0 bottom-0 z-30 flex w-4 cursor-col-resize items-center justify-center',
-          'opacity-0 transition-opacity duration-100 group-hover/block:opacity-100',
+          'opacity-0 transition-opacity group-hover/block:opacity-100',
           selected && 'opacity-100',
         )}
       >
@@ -166,7 +151,7 @@ export function JournalBlockView({
     ) : null;
 
   const heightHandle =
-    interactive && onResizeHeight && !locked ? (
+    interactive && onResizeHeight ? (
       <div
         role="presentation"
         data-pdf-helper="true"
@@ -179,7 +164,7 @@ export function JournalBlockView({
         title="Arraste para ajustar a altura · clique duplo para altura automática"
         className={cn(
           'absolute -bottom-2 left-0 right-0 z-30 flex h-4 cursor-row-resize items-center justify-center',
-          'opacity-0 transition-opacity duration-100 group-hover/block:opacity-100',
+          'opacity-0 transition-opacity group-hover/block:opacity-100',
           selected && 'opacity-100',
         )}
       >
@@ -197,18 +182,12 @@ export function JournalBlockView({
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/journal-block', block.id);
         onSelect?.(block.id);
-        setIsDragging(true);
-        onDragging?.(true);
-      }}
-      onDragEnd={() => {
-        setIsDragging(false);
-        onDragging?.(false);
       }}
       onClick={(event) => event.stopPropagation()}
       title="Arraste para reordenar o bloco"
       className={cn(
         'absolute -left-2 top-0 bottom-0 z-30 flex w-4 cursor-grab items-center justify-center active:cursor-grabbing',
-        'opacity-0 transition-opacity duration-100 group-hover/block:opacity-100',
+        'opacity-0 transition-opacity group-hover/block:opacity-100',
         selected && 'opacity-100',
       )}
     >
@@ -217,18 +196,19 @@ export function JournalBlockView({
   ) : null;
 
   const spanBadge =
-    interactive && onResizeSpan && !locked ? (
+    interactive && onResizeSpan ? (
       <span
         data-pdf-helper="true"
         className={cn(
           'pointer-events-none absolute -top-2 right-1 z-30 rounded bg-primary px-1 text-[9px] font-bold text-primary-foreground',
-          'opacity-0 transition-opacity duration-100 group-hover/block:opacity-100',
+          'opacity-0 transition-opacity group-hover/block:opacity-100',
           selected && 'opacity-100',
         )}
       >
         {block.span}/6
       </span>
     ) : null;
+
 
   let content: React.ReactNode = null;
 
@@ -253,6 +233,7 @@ export function JournalBlockView({
     };
     const lines = block.content.split('\n').filter((line) => line.trim().length > 0);
 
+
     content = block.list ? (
       <ul className={cn(textClasses, 'list-disc pl-4')} style={textStyle}>
         {(lines.length ? lines : [' ']).map((line, index) => (
@@ -265,6 +246,8 @@ export function JournalBlockView({
       </p>
     );
   } else if (block.kind === 'image') {
+    // Com altura definida pela alça inferior, a imagem preenche todo o espaço
+    // disponível; sem altura, mantém a proporção padrão do bloco.
     const hasFixedHeight = Boolean(block.height);
     content = (
       <figure className={cn('m-0', hasFixedHeight && 'flex h-full flex-col')}>
@@ -278,11 +261,7 @@ export function JournalBlockView({
             <img
               src={block.url}
               alt={block.caption || 'Imagem do jornal'}
-              className={cn(
-                'h-full w-full',
-                block.fit === 'contain' ? 'object-contain' : 'object-cover',
-                rounded ? 'rounded-sm' : 'rounded-none',
-              )}
+              className={cn('h-full w-full', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
               crossOrigin="anonymous"
             />
           ) : (
@@ -293,7 +272,7 @@ export function JournalBlockView({
         </div>
         {block.caption && (
           <figcaption
-            className={cn(TEXT_STYLE_CLASSES.legenda, 'mt-1 px-0')}
+            className={cn(TEXT_STYLE_CLASSES.legenda, 'mt-1')}
             style={{ color: block.color ? journalColor(block.color) : '#5C5A50' }}
           >
             {block.caption}
@@ -366,7 +345,7 @@ export function JournalBlockView({
           data-pdf-helper="true"
           aria-hidden="true"
           className={cn(
-            'pointer-events-none absolute top-0 bottom-0 z-40 w-1 rounded bg-primary transition-all duration-150',
+            'pointer-events-none absolute top-0 bottom-0 z-40 w-1 rounded bg-primary',
             dropSide === 'before' ? '-left-1' : '-right-1',
           )}
         />
@@ -379,6 +358,7 @@ export function JournalBlockView({
   );
 }
 
+
 interface JournalPageViewProps {
   page: JournalPage;
   index: number;
@@ -389,12 +369,13 @@ interface JournalPageViewProps {
   interactive?: boolean;
   onSelectBlock?: (id: string) => void;
   onSelectPageArea?: () => void;
+  /** Redimensionamento por arraste direto no canvas. */
   onResizeBlockSpan?: (id: string, span: number) => void;
+  /** Altura fixa por arraste na alça inferior. */
   onResizeBlockHeight?: (id: string, height: number | undefined) => void;
+  /** Reordenação de blocos por arraste. */
   onReorderBlocks?: (draggedId: string, targetId: string) => void;
   className?: string;
-  paper?: 'branco' | 'offwhite';
-  onOverflow?: (overflow: number) => void;
 }
 
 /** Página A4 completa — o mesmo componente é usado no canvas, no preview e no PDF. */
@@ -412,34 +393,14 @@ export function JournalPageView({
   onResizeBlockHeight,
   onReorderBlocks,
   className,
-  paper = 'branco',
-  onOverflow,
 }: JournalPageViewProps) {
   const gridRef = useRef<HTMLDivElement>(null);
-  const [dragging, setDragging] = useState(false);
-  const isLocked = page.locked ?? COVER_TEMPLATES.includes(page.template);
-  const paperColor = paper === 'offwhite' ? PAPER_OFFWHITE : PAPER_WHITE;
-  const isCover = COVER_TEMPLATES.includes(page.template);
-
-  // Detecta estouro de conteúdo em relação à área útil da página.
-  const measureOverflow = () => {
-    if (!gridRef.current || !onOverflow) return;
-    const headerFooter = 220; // cabeçalho + rodapé aproximados
-    const usefulHeight = A4_H - headerFooter;
-    const renderedHeight = gridRef.current.scrollHeight;
-    onOverflow(Math.max(0, renderedHeight - usefulHeight));
-  };
-
-  useEffect(() => {
-    measureOverflow();
-  }, [page.blocks, paper, onOverflow]);
 
   return (
     <div
-      className={cn('relative flex flex-col overflow-hidden', className)}
-      style={{ width: A4_W, height: A4_H, backgroundColor: paperColor, boxShadow: '0 8px 28px -12px rgba(0,0,0,0.25)' }}
+      className={cn('relative flex flex-col overflow-hidden bg-news-paper', className)}
+      style={{ width: A4_W, height: A4_H }}
       onClick={onSelectPageArea}
-      data-journal-page={page.id}
     >
       <div className="flex items-center justify-between px-12 pt-10">
         <img src={anaLogo} alt="ANA Brasil" className="h-9 w-auto object-contain" draggable={false} />
@@ -455,22 +416,16 @@ export function JournalPageView({
       <div className="mx-12 mt-3 h-px bg-[#D9D4C4]" />
 
       <div className="relative flex-1">
-        {interactive && !isLocked && (
+        {interactive && (
           <div
             data-pdf-helper="true"
             aria-hidden="true"
-            className={cn(
-              'pointer-events-none absolute inset-0 z-0 grid grid-cols-6 gap-x-4 px-12 py-6 transition-opacity duration-200',
-              dragging ? 'opacity-100' : 'opacity-0',
-            )}
+            className="pointer-events-none absolute inset-0 z-0 grid grid-cols-6 gap-x-4 px-12 py-6"
           >
             {Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={index}
-                className={cn(
-                  'h-full rounded-[2px] border border-dashed border-primary/30 bg-primary/[0.04]',
-                  dragging && 'bg-primary/[0.08]',
-                )}
+                className="h-full rounded-[2px] border border-dashed border-primary/25 bg-primary/[0.03]"
               />
             ))}
           </div>
@@ -486,20 +441,18 @@ export function JournalPageView({
               key={block.id}
               block={block}
               interactive={interactive}
-              locked={isLocked}
               selected={selectedBlockId === block.id}
               onSelect={onSelectBlock}
               gridRef={gridRef}
               onResizeSpan={onResizeBlockSpan}
               onResizeHeight={onResizeBlockHeight}
               onReorder={onReorderBlocks}
-              paper={paper}
-              isCover={isCover}
-              onDragging={setDragging}
             />
           ))}
         </div>
       </div>
+
+
 
       <div className="px-12 pb-1 text-right text-[9px] text-[#5C5A50]">
         {index + 1} / {total}
