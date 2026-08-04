@@ -1,16 +1,19 @@
-import { useRef, useState, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { cn } from '@/lib/utils';
 import { InstitutionalFooterBar } from '@/components/news/InstitutionalFooterBar';
 import anaLogo from '@/assets/ana-brasil-logo.svg';
 import {
+  JOURNAL_PAPER_HEX,
   TEXT_STYLE_CLASSES,
   journalColor,
   type JournalBlock,
   type JournalPage,
+  type JournalPaper,
 } from '@/lib/journal/types';
 
 export const A4_W = 794;
 export const A4_H = 1123;
+
 
 const SPAN_CLASS: Record<number, string> = {
   1: 'col-span-1',
