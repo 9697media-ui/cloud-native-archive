@@ -44,6 +44,8 @@ interface BlockViewProps {
   onResizeHeight?: (id: string, height: number | undefined) => void;
   /** Reordenação por arraste: move o bloco arrastado para a posição do alvo. */
   onReorder?: (draggedId: string, targetId: string) => void;
+  /** Notifica a página quando há arraste/redimensionamento em curso (réguas). */
+  onInteractionChange?: (active: boolean) => void;
 }
 
 export function JournalBlockView({
@@ -55,18 +57,23 @@ export function JournalBlockView({
   onResizeSpan,
   onResizeHeight,
   onReorder,
+  onInteractionChange,
 }: BlockViewProps) {
   const [dropSide, setDropSide] = useState<'before' | 'after' | null>(null);
+  const [dragging, setDragging] = useState(false);
   const canDrag = Boolean(interactive && onReorder);
 
   const wrapper = cn(
     'group/block relative',
     SPAN_CLASS[block.span] ?? 'col-span-6',
-    interactive && 'cursor-pointer rounded-sm transition-[box-shadow]',
+    'transition-[box-shadow,opacity,transform] duration-150 ease-out motion-reduce:transition-none',
+    interactive && 'cursor-pointer rounded-sm',
     interactive && !selected && 'hover:shadow-[0_0_0_1.5px_hsl(var(--ring))]',
     selected && 'shadow-[0_0_0_2px_hsl(var(--primary))]',
+    dragging && 'scale-[.98] opacity-60',
     block.height ? 'overflow-hidden' : undefined,
   );
+
 
   const handleClick = interactive ? () => onSelect?.(block.id) : undefined;
 
