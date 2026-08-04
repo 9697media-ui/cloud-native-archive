@@ -161,24 +161,26 @@ export default function JournalPage() {
   }
 
   const openCreate = () => {
+    const month = currentMonthYear();
     setForm({
-      name: suggestName(activeUnitId, ''),
+      name: suggestName(activeUnitId, month),
       unitId: activeUnitId,
-      referenceMonth: '',
+      referenceMonth: month,
       template: 'padrao',
+      coverModel: 'capa_c1',
       pageCount: 4,
     });
     setCreating(true);
   };
 
-  const buildPages = (template: StartingTemplate, count: number) => {
+  const buildPages = (template: StartingTemplate, coverModel: CoverModel, count: number) => {
     if (template === 'padrao') {
-      const base = createJournalPages();
+      const base = [createPage(coverModel), createPage('materia'), createPage('galeria'), createPage('contracapa')];
       while (base.length < count) base.push(createPage('materia'));
       return base.slice(0, Math.max(1, count));
     }
     if (template === 'enxuto') {
-      const base = [createPage('capa'), createPage('materia')];
+      const base = [createPage(coverModel), createPage('materia')];
       while (base.length < count) base.push(createPage('materia'));
       return base.slice(0, Math.max(1, count));
     }
