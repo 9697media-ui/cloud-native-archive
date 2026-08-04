@@ -140,11 +140,14 @@ export function JournalBlockView({
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'default';
+      onInteractionChange?.(false);
     };
     document.body.style.cursor = 'row-resize';
+    onInteractionChange?.(true);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
+
 
   const resizeHandle =
     interactive && onResizeSpan ? (
