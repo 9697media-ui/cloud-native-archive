@@ -550,30 +550,21 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             );
           })}
 
-          <Select onValueChange={(value) => addPage(value as JournalTemplate)}>
-            <SelectTrigger className="h-10 text-xs font-medium">
-              <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar página
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_header" disabled className="text-xs text-muted-foreground">
-                Capas
-              </SelectItem>
-              {TEMPLATE_OPTIONS.filter((t) => t.startsWith('capa')).map((template) => (
-                <SelectItem key={template} value={template}>
-                  {TEMPLATE_LABELS[template]}
-                </SelectItem>
-              ))}
-              <SelectItem value="_divider" disabled className="text-xs text-muted-foreground">
-                Layouts internos
-              </SelectItem>
-              {TEMPLATE_OPTIONS.filter((t) => !t.startsWith('capa')).map((template) => (
-                <SelectItem key={template} value={template}>
-                  {TEMPLATE_LABELS[template]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Button
+            variant="default"
+            size="sm"
+            className="h-10 w-full text-xs font-medium"
+            onClick={() => setTemplateGalleryOpen(true)}
+          >
+            <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar página
+          </Button>
         </aside>
+
+        <PageTemplateGallery
+          open={templateGalleryOpen}
+          onClose={() => setTemplateGalleryOpen(false)}
+          onSelect={addPage}
+        />
 
         {/* Canvas */}
         <section
