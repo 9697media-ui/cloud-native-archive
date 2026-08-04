@@ -113,7 +113,7 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
           </SelectContent>
         </Select>
         <p className="text-[10px] text-muted-foreground">
-          Fonte e cor são aplicadas automaticamente. O tamanho pode ser ajustado abaixo.
+          Fonte e tamanho seguem o padrão institucional. Ajuste fino em “Ajustes avançados”.
         </p>
       </section>
 
