@@ -1,237 +1,150 @@
-## 1. Resumo executivo
+# Jornal Institucional — Refinamento de Interface e Experiência
 
-A página Jornal Institucional já entrega o essencial (listagem, editor multipágina, miniaturas, canvas, propriedades, exportação). Falta contexto: nada na tela diz "esta é a sua unidade". A proposta é uma evolução — não redesign — que injeta a identidade da unidade em cinco pontos: cabeçalho da listagem, cards, estado vazio, modal de criação e topo do editor.
+## 1. Resumo executivo
+Refinar (não recriar) a página existente do Jornal Institucional: fundo mais legível, edição mais fluida, modelos fixos de capa e de páginas internas, menos controles expostos, navegação lateral totalmente clicável, auto-fit da folha e autopreenchimento institucional. Base, identidade e lógica editor + canvas + painel permanecem.
 
 ## 2. Análise da página atual
+- `JournalPage.tsx`: lista de jornais por unidade, `UnitBadge`, criação livre.
+- `JournalEditor.tsx`: topo (nome, salvar, exportar PDF), coluna esquerda com páginas, canvas central com zoom fixo inicial 70%, painel direito com abas de conteúdo/propriedades.
+- `JournalPageView.tsx`: página A4 794x1123, grade de 6 colunas, alças de largura, altura e arraste de reordenação.
+- `TextBlockPanel` / `JournalPropertiesPanel`: todos os controles visíveis (estilo, tamanho de fonte, cor, alinhamento, formatação, espaçamento).
 
-Funciona bem: listagem em cards, badges de status, busca por nome, ações rápidas (Editar/Duplicar/Excluir), editor em 3 colunas, autosave 2s, exportação PDF dupla.
+## 3. Principais problemas encontrados
+1. Fundo off-white do papel + fundo da área de trabalho com contraste baixo — cansaço visual.
+2. Zoom inicial fixo (70%) ignora o tamanho da tela: sobra ou falta espaço.
+3. Miniaturas de página: clique útil restrito ao título/linha; estado ativo discreto.
+4. Arraste/redimensionamento sem transição, sem indicador de encaixe — sensação de "travado".
+5. Excesso de controles simultâneos no painel — risco de sair do padrão institucional.
+6. Páginas 100% livres: cada diretora monta uma capa diferente.
+7. Imagens com cantos retos, destoando dos cards do sistema.
+8. Nenhum autopreenchimento (unidade, mês/ano, nome da edição).
 
-Genérico demais:
-- Cabeçalho "Jornal Institucional / Crie edições A4 multipágina e exporte em PDF" é linguagem de ferramenta, não de usuária.
-- Seletor de unidade no modal aparece como campo livre com placeholder "Institucional geral" — sugere escolha manual e permite erro.
-- Unidade aparece só como texto pequeno cinza dentro do card, misturada com mês de referência.
-- Estado vazio diz apenas "Nenhum jornal criado ainda" — sem unidade, sem convite.
-- Editor: barra superior tem Voltar, nome editável, status de salvamento e exportação. Nenhuma menção à unidade.
-- Sem indicadores de quantidade por status, sem filtro por status/mês.
-- Tela de acesso restrito fala em "setor de Marketing e Administração Geral" — texto administrativo, não fala com a diretora.
+## 4. Direção geral do refinamento
+"Menos escolhas, mais modelos." Guiar por template, expor apenas o essencial, deixar o avançado recolhido, e tornar cada interação visualmente suave e previsível.
 
-## 3. Principais problemas de percepção para diretoras
+## 5. Fundo e legibilidade
+- Área de trabalho passa para cinza neutro `#EEEEEE` (token `--journal-workspace`), papel branco puro por padrão.
+- Alternância no topo do canvas: `Papel: Branco | Off-white (#F0EEE4)` — decisão apenas visual/estética, aplicada também ao PDF.
+- Sombra suave e borda de 1px no papel para separá-lo do fundo.
 
-1. Ambiguidade de escopo: não fica claro se a lista mostra tudo ou só a unidade dela.
-2. Falsa escolha: o campo Unidade parece opcional/editável.
-3. Vinculação invisível: nada afirma "o jornal criado será desta unidade".
-4. Nenhuma âncora de contexto no editor — a diretora pode perder a referência do que está editando.
-5. Tom técnico ("A4 multipágina", "template", "bloco", "propriedades").
+## 6. Fluidez e microinterações
+- Transições de 120–160ms em seleção, hover, foco de bloco e abertura de painel.
+- Arraste com bloco "fantasma" translúcido e indicador de destino em linha contínua.
+- Snapping às 6 colunas com feedback de coluna destacada durante o resize.
+- Soltura com pequeno easing (spring curto) no bloco reposicionado.
+- Cursor e halo de seleção consistentes; sem repintura completa do canvas ao mover.
 
-## 4. Objetivos da melhoria
+## 7. Modelos de capa (3 fixos)
+- **Capa Imagem Cheia** — imagem de destaque grande, título sobreposto, mês/ano e unidade no rodapé.
+- **Capa Imagem + Chamadas** — imagem 4/6 no topo, título, duas chamadas secundárias.
+- **Capa Editorial** — título tipográfico dominante, imagem menor lateral, três destaques curtos.
+Campos editáveis restritos a: título, subtítulo/chamada, imagem, chamadas secundárias, mês/ano, unidade, pequenos destaques. Estrutura e proporções bloqueadas.
 
-Unidade sempre visível; troca possível, porém consciente (confirmada em popup); listagem lida como "minha área"; criação sem decisão de unidade; editor com âncora institucional permanente; zero complexidade nova.
+## 8. Simplificação das ferramentas
+- Barra essencial sempre visível: adicionar página, modelo, texto, imagem, mover, duplicar, excluir, visualizar, exportar.
+- Painel de texto reduzido a: função tipográfica, alinhamento, negrito/itálico, cor institucional.
+- Recolhidos em "Ajustes avançados": tamanho de fonte manual, entrelinha, altura fixa, largura em colunas.
+- Remoção de controles redundantes com as alças do canvas.
 
-## 5. Proposta de experiência centrada na unidade
+## 9. Reconhecimento automático de diagramação (conceito)
+- Cada template declara "slots" (área, proporção, span sugerido).
+- Ao inserir imagem: recorte e span sugeridos pelo slot; aviso se a resolução for baixa.
+- Detecção de estouro do A4: badge "Conteúdo excede a página" + ação "Mover para nova página".
+- Alerta suave quando um bloco sai do padrão do template (não bloqueia, sinaliza).
 
-Um componente único e reutilizável, o **Selo de Unidade**, com três tamanhos:
-- **Banner** (listagem): faixa em `bg-card` com borda, ícone de prédio, rótulo "Minha unidade", nome oficial em destaque e botão discreto "Trocar unidade ▾".
-- **Linha** (modal e editor): ícone + nome + seletor "Trocar unidade".
-- **Chip** (cards e mobile): nome curto da unidade com ícone.
+## 10. Navegação entre páginas
+- Card de miniatura inteiro clicável (área ~140x198), com render real reduzido da página.
+- Estado ativo: borda primária de 2px + fundo destacado + número em pílula.
+- Ações rápidas no hover do card: duplicar, excluir, mover.
 
-Regra de exibição: todos os perfis veem o selo com a unidade atual e podem abrir o seletor. Ao escolher outra unidade, abre um **popup de confirmação** ("Deseja realmente trocar a unidade?") explicando que o contexto da tela (jornais listados / vínculo do novo jornal) passará a ser da unidade escolhida. Confirmar aplica; cancelar mantém a unidade anterior. Nenhum cadeado é exibido em nenhuma tela.
+## 11. Refinamento visual das imagens
+- Raio de 8px em imagens de conteúdo, mantido no PDF; capa de imagem cheia permanece reta.
+- Mesmo raio dos cards do sistema para coerência; legenda alinhada sem borda.
 
-## 6. Nova estrutura da página inicial
+## 12. Auto-fit da folha
+- Ao abrir e ao trocar de página: zoom calculado pelo espaço disponível (min 40%, max 100%).
+- Botão "Ajustar à tela" + atalho; recalcula ao redimensionar a janela.
 
+## 13. Destaque das funções básicas
+Hierarquia: primárias em botões sólidos com rótulo, secundárias em ícone/menu "…". Exportar e Visualizar fixos no topo direito.
+
+## 14. Layouts predefinidos de páginas internas
+Matéria com imagem e texto · Galeria · Agenda · Destaques rápidos · Duas matérias · Chamada principal + destaques. Aplicados na criação da página, com conteúdo editável e ajustes simples.
+
+## 15. Automação e autopreenchimento
+- Novo jornal: nome sugerido "Informativo {Unidade} — {Mês/Ano}", unidade e data preenchidas.
+- Capa criada já com modelo escolhido e campos institucionais preenchidos.
+- Nova página nasce com layout selecionado, nunca em branco.
+- Cabeçalho/rodapé institucional automáticos em todas as páginas.
+
+## 16. Impactos previstos
+- Alterações concentradas em `JournalEditor.tsx`, `JournalPageView.tsx`, painéis, `templates.ts` e tokens do `index.css`.
+- Novos campos opcionais no JSON de página (`templateId`, `paperTone`) — retrocompatíveis, sem migration obrigatória.
+- Jornais existentes continuam abrindo como estão (modo livre legado).
+
+## 17. Critérios de aceite
+Base preservada · leitura confortável · fundo tratado · miniaturas 100% clicáveis · arraste fluido · 3 capas definidas · menos controles · funções básicas evidentes · automações presentes · layouts internos definidos.
+
+## 18. PROPOSTA VISUAL — SEM IMPLEMENTAÇÃO
+
+## 19. Mockups
+
+Editor refinado (fundo #EEEEEE, auto-fit, imagens arredondadas):
 ```text
-┌───────────────────────────────────────────────────────────────┐
-│ Olá, Diretora                       [ + Criar jornal da       │
-│ Aqui ficam os jornais da sua unidade.   unidade ]             │
-├───────────────────────────────────────────────────────────────┤
-│ ▣ MINHA UNIDADE                        [ Trocar unidade ▾ ]   │
-│   CEI Bem Querer Professor Pierre Weil                        │
-│   Todos os jornais desta página pertencem a esta unidade.     │
-├───────────────────────────────────────────────────────────────┤
-│  [ 3 Rascunhos ]  [ 5 Finalizados ]  [ 1 Arquivado ]          │
-├───────────────────────────────────────────────────────────────┤
-│  🔎 Buscar edição        Status ▾        Mês/Ano ▾            │
-├───────────────────────────────────────────────────────────────┤
-│  SEUS JORNAIS                                                 │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐           │
-│  │ [miniatura   │ │ [miniatura]  │ │ [miniatura]  │           │
-│  │  da capa]    │ │              │ │              │           │
-│  │ Julho/2026   │ │ Junho/2026   │ │ Maio/2026    │           │
-│  │ 🏢 Pierre W. │ │ 🏢 Pierre W. │ │ 🏢 Pierre W. │           │
-│  │ ● Rascunho   │ │ ● Finalizado │ │ ● Arquivado  │           │
-│  │ 8 páginas ·  │ │ 12 páginas · │ │ 6 páginas ·  │           │
-│  │ há 2 dias    │ │ 12/06        │ │ 03/05        │           │
-│  │ [Abrir][⧉][🗑]│ │ ...          │ │ ...          │           │
-│  └──────────────┘ └──────────────┘ └──────────────┘           │
-└───────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│ ← Jornais  Informativo NAVE DIC — Ago/2026   ● salvo   [Visualizar] [Exportar PDF] │
+├───────────┬──────────────────────────────────────────┬───────────────┤
+│ PÁGINAS   │  Papel: (Branco) Off-white   − 86% +  [Ajustar à tela]   │
+│ ┌───────┐ │        ┌───────────────────────────┐    │ CONTEÚDO      │
+│ │ ▓▓▓▓▓ │ │        │  ANA BRASIL   Ago/2026    │    │ [Texto][Img]  │
+│ │ ▓▓ 1  │◀│        │  ╭─────────────────────╮  │    │ [Galeria]     │
+│ └───────┘ │        │  │  imagem  (raio 8px) │  │    │               │
+│ ┌───────┐ │        │  ╰─────────────────────╯  │    │ Blocos        │
+│ │ ░░ 2  │ │        │  Título da matéria        │    │ 1 Título      │
+│ └───────┘ │        │  texto ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁    │    │ 2 Imagem  ↑↓  │
+│ [+ Página]│        └───────────────────────────┘    │ 3 Texto       │
+└───────────┴──────────────────────────────────────────┴───────────────┘
+   card inteiro clicável            folha centralizada com auto-fit
 ```
 
-Mudanças: saudação contextual; selo de unidade; três contadores clicáveis que filtram por status; busca + filtros de status e mês; cards com miniatura real da primeira página (reaproveita `JournalPageView` já usado nas thumbnails), chip de unidade, contagem de páginas e data relativa. Filtro por responsável fica de fora nesta etapa (uma diretora por unidade, ruído desnecessário).
-
-## 7. Nova estrutura do estado vazio
-
+Criação guiada — escolha de capa:
 ```text
-        ┌──────────────────────────────────────────┐
-        │              [ ícone jornal ]            │
-        │  Nenhum jornal criado para esta unidade  │
-        │                                          │
-        │  Comece o primeiro jornal de             │
-        │  CEI Bem Querer Professor Pierre Weil    │
-        │                                          │
-        │     [ + Criar jornal da unidade ]        │
-        │  A unidade já está definida — é só dar   │
-        │  um nome à edição.                       │
-        └──────────────────────────────────────────┘
+┌───────────── Novo jornal institucional ─────────────┐
+│ Nome  [Informativo NAVE DIC — Agosto/2026        ]  │
+│ Unidade [NAVE DIC]        Edição [08/2026]          │
+│ Modelo de capa:                                     │
+│ ┌────────┐  ┌────────┐  ┌────────┐                  │
+│ │▓▓▓▓▓▓▓▓│  │▓▓▓▓▓▓▓▓│  │TÍTULO  │                  │
+│ │▓TÍTULO▓│  │ título │  │ ▁▁▁ ▓▓ │                  │
+│ │▓▓▓▓▓▓▓▓│  │ ▁▁  ▁▁ │  │ ▁▁▁ ▓▓ │                  │
+│ └────────┘  └────────┘  └────────┘                  │
+│  Imagem      Imagem +     Editorial                 │
+│  cheia       chamadas                               │
+│                        [Cancelar]  [Criar jornal]   │
+└─────────────────────────────────────────────────────┘
 ```
 
-Variante secundária para busca sem resultado: "Nenhuma edição encontrada com esse nome" + botão "Limpar busca" (não confundir com unidade sem jornais).
-
-## 8. Nova estrutura do fluxo de criação
-
+Antes × depois (painel de texto):
 ```text
-┌── Criar jornal da unidade ─────────────────────────┐
-│ Sua edição já nasce vinculada à sua unidade.       │
-│                                                    │
-│ ▣ Unidade                  [ Trocar unidade ▾ ]    │
-│   CEI Bem Querer Professor Pierre Weil             │
-│   preenchida automaticamente                       │
-│                                                    │
-│ Nome da edição                                     │
-│ [ Jornal Pierre Weil — Julho/2026 ]                │
-│                                                    │
-│ Mês/Ano de referência    Modelo inicial            │
-│ [ Julho/2026 ]           [ Padrão (capa+matérias)▾]│
-│                                                    │
-│ Páginas iniciais   [ − ] 4 [ + ]                   │
-│                                                    │
-│           [ Cancelar ]  [ Criar jornal ]           │
-└────────────────────────────────────────────────────┘
+ATUAL                            REFINADO
+[estilo][tam][cor][A A A A]      [Função tipográfica ▾]
+[B][I][lista][entrelinha ——]     [≡ ≡ ≡ ≡]  [B][I]  [●●●●●●]
+[largura 1..6][altura px]        ▸ Ajustes avançados
 ```
 
-**Popup de confirmação de troca de unidade**
-
+Estado vazio e diagramação automática:
 ```text
-        ┌────────────────────────────────────────────┐
-        │  Trocar a unidade deste jornal?            │
-        │                                            │
-        │  De:  CEI Bem Querer Pierre Weil           │
-        │  Para: CEI Social DIC                      │
-        │                                            │
-        │  O jornal passará a pertencer à unidade    │
-        │  escolhida e a listagem mostrará os        │
-        │  jornais dessa unidade.                    │
-        │                                            │
-        │      [ Cancelar ]   [ Sim, trocar ]        │
-        └────────────────────────────────────────────┘
+┌───────────── Nenhum jornal ainda ─────────────┐   ┌ Imagem selecionada ┐
+│        📰  Comece pelo modelo de capa         │   │ ⚠ Conteúdo excede  │
+│  [Imagem cheia] [Imagem+chamadas] [Editorial] │   │   a página          │
+│        Unidade e mês já preenchidos           │   │ [Ajustar ao slot]   │
+└───────────────────────────────────────────────┘   └────────────────────┘
 ```
 
-A unidade vem preenchida automaticamente, mas continua trocável: o seletor abre a lista de unidades e, ao escolher uma diferente da atual, dispara o popup acima. "Cancelar" reverte a seleção; "Sim, trocar" aplica. Nome sugerido automaticamente a partir de unidade + mês (re-sugerido após a troca). Modelo inicial com 3 opções (Padrão, Enxuto, Em branco). Páginas iniciais com stepper.
+Tela menor (< 1280px): painel direito vira gaveta lateral, miniaturas viram faixa horizontal no topo, canvas ocupa a área central com auto-fit.
 
-## 9. Nova estrutura do editor
-
-```text
-┌────────────────────────────────────────────────────────────────┐
-│ ← Voltar │ [Jornal Pierre Weil — Julho/2026]   ✓ Salvo 14:32   │
-│           🏢 Jornal da unidade CEI Bem Querer Pierre Weil ▾    │
-│                                   [PDF digital] [PDF impressão]│
-├──────────┬─────────────────────────────────┬───────────────────┤
-│ PÁGINAS  │  Página 1 de 8      − 70% +     │ CONTEÚDO DA PÁGINA│
-│ [01 capa]│  ┌───────────────────────┐      │ + Texto  + Imagem │
-│ [02 mat.]│  │      A4 canvas        │      │ + Número + Agenda │
-│ [03 gal.]│  │                       │      │ ─────────────────  │
-│ ...      │  └───────────────────────┘      │ Ajustes do bloco  │
-│ + página │                                 │ selecionado       │
-└──────────┴─────────────────────────────────┴───────────────────┘
-```
-
-Refinamentos: segunda linha fixa na barra superior com o selo da unidade + seletor "Trocar unidade" (com popup de confirmação antes de aplicar); hierarquia clara entre nome do jornal (input grande), unidade (subtítulo) e salvamento (chip com ícone de check); renomear "Propriedades" → "Conteúdo da página"; "Adicionar bloco" → "Adicionar ao jornal"; miniaturas com rótulo humano ("Capa", "Matéria", "Galeria") em vez de nomes de template.
-
-## 10. Melhorias de usabilidade e linguagem
-
-| Atual | Proposto |
-|---|---|
-| "Crie edições A4 multipágina e exporte em PDF" | "Monte e exporte o jornal da sua unidade" |
-| "Criar novo jornal" | "Criar jornal da unidade" |
-| "Adicionar página" (lista de templates) | "Adicionar página" com nomes amigáveis |
-| "Propriedades" | "Conteúdo da página" |
-| "Alterações salvas automaticamente" | "✓ Tudo salvo · 14:32" |
-| "Acesso restrito / setor de Marketing" | "Esta área é da equipe de comunicação da sua unidade" |
-
-Mais: botão primário único e destacado por tela; ações destrutivas com confirmação; contadores como filtros; hover states nas miniaturas de card.
-
-## 11. Preservação da identidade visual
-
-Mantidos integralmente: tokens semânticos atuais (`bg-card`, `text-muted-foreground`, `bg-primary`), badges de status já definidos, cantos arredondados, tipografia, `PageHeader`, grid de 3 colunas do editor, `JournalPageView` como renderizador único. Nenhuma cor nova; o selo de unidade usa `bg-accent`/`border-border`.
-
-## 12. Impactos previstos para futura implementação
-
-- Novo componente `UnitBadge` (3 variantes) — arquivo isolado.
-- `JournalPage.tsx`: cabeçalho, contadores, filtros, cards com miniatura, estado vazio.
-- `JournalEditor.tsx`: segunda linha da barra superior + renomeações.
-- Modal de criação: unidade travada quando o perfil tem unidade definida.
-- Sem migration, sem mudança de RLS, sem novas rotas. A tabela `journals` já tem `unit_id` e a política já isola por vínculo.
-
-## 13. Critérios de aceite
-
-Unidade visível em listagem, estado vazio, modal e editor; troca de unidade sempre passa por popup de confirmação; contadores refletem os status reais; cards mostram miniatura, status, páginas e data; identidade visual inalterada; nenhuma funcionalidade nova além de filtros e contadores.
-
-## 14. PROPOSTA VISUAL — SEM IMPLEMENTAÇÃO
-
-Os diagramas das seções 6 a 9 são os mockups 1 a 7. Abaixo, os mockups mobile e o comparativo.
-
-## 15. Mockups (mobile e comparativo)
-
-**8 — Página inicial mobile**
-```text
-┌──────────────────┐
-│ Jornal da unidade│
-│ ▣ Pierre Weil ▾  │
-│ [3][5][1] status │
-│ 🔎 Buscar        │
-│ ┌──────────────┐ │
-│ │ [miniatura]  │ │
-│ │ Julho/2026   │ │
-│ │ ●Rascunho 8p │ │
-│ │ [Abrir]  ⋯   │ │
-│ └──────────────┘ │
-│ ┌──────────────┐ │
-│ │ Junho/2026   │ │
-│ └──────────────┘ │
-│ [ + Criar ] fixo │
-└──────────────────┘
-```
-
-**9 — Editor mobile (somente leitura/preview + ações)**
-```text
-┌──────────────────┐
-│ ← Julho/2026     │
-│ 🏢 Pierre Weil ▾ │
-│ ◀ Página 2/8 ▶   │
-│ ┌──────────────┐ │
-│ │   A4 preview │ │
-│ └──────────────┘ │
-│ [Exportar PDF]   │
-│ Edição completa  │
-│ disponível no    │
-│ computador.      │
-└──────────────────┘
-```
-
-**10 — Comparativo dos refinamentos**
-
-| Área | Hoje | Proposto |
-|---|---|---|
-| Cabeçalho | Título de ferramenta | Saudação + selo de unidade |
-| Unidade | Texto cinza no card | Banner com nome + chip + "Trocar unidade" |
-| Estado vazio | "Nenhum jornal criado ainda" | Convite nominal à unidade |
-| Criação | Select de unidade aberto | Unidade pré-preenchida + popup de confirmação ao trocar |
-| Editor | Sem unidade | Faixa "Jornal da unidade X" |
-| Filtros | Só busca | Busca + status + mês + contadores |
-| Cards | Texto puro | Miniatura da capa + metadados |
-
-## 16. Pontos pendentes para validação
-
-1. Miniatura da capa nos cards: renderizar `JournalPageView` em escala (mais pesado) ou manter cards textuais?
-2. Filtro por mês/ano: campo hoje é texto livre ("Julho/2026") — vale padronizar em seletor?
-3. Editor mobile: preview + exportação apenas, ou permitir edição de texto?
-4. O popup de confirmação deve aparecer também ao trocar a unidade na listagem, ou só no modal de criação/editor?
-5. "Modelo inicial" e "páginas iniciais" no modal: incluir agora ou manter criação padrão?
+## 20. Decisões pendentes
+1. Papel padrão: branco fixo ou lembrar a última escolha por jornal?
+2. Jornais antigos migram para modelos ou permanecem em modo livre?
+3. "Ajustes avançados" ficam visíveis para todas as diretoras ou só para marketing?
+4. Bordas arredondadas também na capa de imagem cheia?
