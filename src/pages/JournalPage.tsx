@@ -32,9 +32,7 @@ import {
   findNewsUnit,
 } from '@/lib/news/units';
 import { createJournalPages, createPage } from '@/lib/journal/templates';
-import { JOURNAL_PAPER_HEX, STATUS_LABELS, type JournalRecord } from '@/lib/journal/types';
-import { readPaper } from '@/lib/journal/paper';
-
+import { STATUS_LABELS, type JournalRecord } from '@/lib/journal/types';
 
 type JournalStatus = JournalRecord['status'];
 
@@ -54,7 +52,7 @@ const COUNTER_LABELS: Record<JournalStatus, string> = {
 const THUMB_W = 260;
 const THUMB_SCALE = THUMB_W / A4_W;
 
-type StartingTemplate = 'padrao' | 'enxuto' | 'editorial';
+type StartingTemplate = 'padrao' | 'enxuto' | 'branco';
 
 /** Data relativa curta ("há 2 dias"), com fallback para data absoluta. */
 function relativeDate(iso: string): string {
@@ -160,20 +158,17 @@ export default function JournalPage() {
 
   const buildPages = (template: StartingTemplate, count: number) => {
     if (template === 'padrao') {
-      const base = createJournalPages('capa_c1');
+      const base = createJournalPages();
       while (base.length < count) base.push(createPage('materia'));
       return base.slice(0, Math.max(1, count));
     }
     if (template === 'enxuto') {
-      const base = [createPage('capa_c2'), createPage('materia')];
+      const base = [createPage('capa'), createPage('materia')];
       while (base.length < count) base.push(createPage('materia'));
       return base.slice(0, Math.max(1, count));
     }
-    const base = [createPage('capa_c3'), createPage('materia')];
-    while (base.length < count) base.push(createPage('materia'));
-    return base.slice(0, Math.max(1, count));
+    return Array.from({ length: Math.max(1, count) }, () => createPage('branco'));
   };
-
 
   const handleCreate = async () => {
     const created = await create({
@@ -349,14 +344,9 @@ export default function JournalPage() {
                   aria-label={`Abrir ${journal.name}`}
                 >
                   <div
-                    className="mx-auto overflow-hidden rounded-sm border border-border"
-                    style={{
-                      width: THUMB_W,
-                      height: A4_H * THUMB_SCALE,
-                      backgroundColor: JOURNAL_PAPER_HEX[readPaper(journal.unit_id)],
-                    }}
+                    className="mx-auto overflow-hidden rounded-sm border border-border bg-news-paper"
+                    style={{ width: THUMB_W, height: A4_H * THUMB_SCALE }}
                   >
-
                     {cover && (
                       <div style={{ transform: `scale(${THUMB_SCALE})`, transformOrigin: 'top left' }}>
                         <JournalPageView
@@ -365,8 +355,6 @@ export default function JournalPage() {
                           total={journal.pages?.length ?? 1}
                           edition={journal.reference_month || ''}
                           unitName={newsUnitName(journal.unit_id)}
-                          paper={readPaper(journal.unit_id)}
-
                         />
                       </div>
                     )}
@@ -472,7 +460,7 @@ export default function JournalPage() {
                   <SelectContent>
                     <SelectItem value="padrao">Padrão (capa + matérias)</SelectItem>
                     <SelectItem value="enxuto">Enxuto (capa + matéria)</SelectItem>
-                    <SelectItem value="editorial">Editorial (capa editorial + matérias)</SelectItem>
+                    <SelectItem value="branco">Em branco</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

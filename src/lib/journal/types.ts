@@ -8,37 +8,13 @@
 
 export type JournalTemplate =
   | 'capa'
-  | 'capa_c1'
-  | 'capa_c2'
-  | 'capa_c3'
   | 'materias'
   | 'materia'
   | 'galeria'
   | 'agenda'
   | 'numeros'
-  | 'destaques'
   | 'contracapa'
   | 'branco';
-
-/** Papel da folha — preferência global da unidade. */
-export type JournalPaper = 'branco' | 'offwhite';
-
-export const JOURNAL_PAPER_HEX: Record<JournalPaper, string> = {
-  branco: '#FFFFFF',
-  offwhite: '#F0EEE4',
-};
-
-export const JOURNAL_PAPER_LABELS: Record<JournalPaper, string> = {
-  branco: 'Branco',
-  offwhite: 'Off-white',
-};
-
-/** Modelos de capa institucionais — estrutura fixa, apenas conteúdo é editável. */
-export const COVER_TEMPLATES: JournalTemplate[] = ['capa_c1', 'capa_c2', 'capa_c3'];
-
-export const isCoverTemplate = (template: JournalTemplate): boolean =>
-  template === 'capa' || COVER_TEMPLATES.includes(template);
-
 
 export type TextStyleKey =
   | 'titulo_capa'
@@ -159,10 +135,7 @@ export interface JournalPage {
   id: string;
   template: JournalTemplate;
   blocks: JournalBlock[];
-  /** Capas institucionais são travadas: sem arraste, redimensionamento ou exclusão. */
-  locked?: boolean;
 }
-
 
 export interface JournalRecord {
   id: string;
@@ -219,16 +192,11 @@ export const STATUS_LABELS: Record<string, string> = {
 
 export const TEMPLATE_LABELS: Record<JournalTemplate, string> = {
   capa: 'Capa',
-  capa_c1: 'Capa · Imagem dominante',
-  capa_c2: 'Capa · Imagem + chamadas',
-  capa_c3: 'Capa · Editorial',
-  materias: 'Duas matérias',
-  materia: 'Matéria com imagem',
-  galeria: 'Galeria (4 fotos)',
+  materias: 'Matérias',
+  materia: 'Matéria completa',
+  galeria: 'Galeria',
   agenda: 'Agenda',
-  numeros: 'Destaques rápidos (números)',
-  destaques: 'Chamada principal + destaques',
+  numeros: 'Resultados e números',
   contracapa: 'Contracapa',
   branco: 'Em branco',
 };
-

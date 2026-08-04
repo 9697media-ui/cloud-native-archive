@@ -281,7 +281,6 @@ export type Database = {
           id: string
           name: string
           pages: Json
-          paper: string | null
           profile_unit: string | null
           reference_month: string | null
           status: string
@@ -296,7 +295,6 @@ export type Database = {
           id?: string
           name?: string
           pages?: Json
-          paper?: string | null
           profile_unit?: string | null
           reference_month?: string | null
           status?: string
@@ -311,7 +309,6 @@ export type Database = {
           id?: string
           name?: string
           pages?: Json
-          paper?: string | null
           profile_unit?: string | null
           reference_month?: string | null
           status?: string

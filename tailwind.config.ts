@@ -85,8 +85,6 @@ export default {
         "news-brand-3": "hsl(var(--news-brand-3))",
         "news-brand-4": "hsl(var(--news-brand-4))",
         "news-brand-5": "hsl(var(--news-brand-5))",
-        "journal-workspace": "hsl(var(--journal-workspace))",
-
       },
       borderRadius: {
         lg: "var(--radius)",
