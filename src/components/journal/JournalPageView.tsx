@@ -104,11 +104,14 @@ export function JournalBlockView({
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'default';
+      onInteractionChange?.(false);
     };
     document.body.style.cursor = 'col-resize';
+    onInteractionChange?.(true);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
+
 
   /** Alça inferior — define altura fixa do bloco em px do canvas (compensa o zoom). */
   const startResizeHeight = (event: React.MouseEvent) => {
