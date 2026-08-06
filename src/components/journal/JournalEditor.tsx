@@ -527,9 +527,10 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   interactive
                   selectedBlockId={selectedBlockId}
                   onSelectBlock={setSelectedBlockId}
-                  onResizeBlockSpan={resizeBlockSpan}
-                  onResizeBlockHeight={resizeBlockHeight}
-                  onReorderBlocks={reorderBlocks}
+                  showGrid={!layoutLocked}
+                  onResizeBlockSpan={layoutLocked ? undefined : resizeBlockSpan}
+                  onResizeBlockHeight={layoutLocked ? undefined : resizeBlockHeight}
+                  onReorderBlocks={layoutLocked ? undefined : reorderBlocks}
                   onSelectPageArea={() => setSelectedBlockId(null)}
                   className="border border-border shadow-[0_8px_28px_-12px_rgba(0,0,0,0.45)]"
                 />
