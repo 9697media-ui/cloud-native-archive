@@ -259,10 +259,13 @@ export function JournalBlockView({
         >
 
           {block.url ? (
+            // Enquadramento automático: a foto sempre preenche o quadro do modelo
+            // preservando a proporção original (cover + center), recortando o excedente.
             <img
               src={block.url}
               alt={block.caption || 'Imagem do jornal'}
-              className={cn('h-full w-full rounded-[15px]', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
+              className="h-full w-full rounded-[15px] object-cover object-center"
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
               crossOrigin="anonymous"
             />
           ) : (

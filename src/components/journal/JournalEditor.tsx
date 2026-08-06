@@ -376,6 +376,25 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             doc.querySelectorAll<HTMLElement>('[data-block-kind="image"]').forEach((el) => {
               el.style.paddingTop = '8px';
             });
+            // html2canvas não suporta `object-fit`: ele estica a foto até o box,
+            // deformando-a. Trocamos cada <img> por um bloco com background-size
+            // cover/center, que reproduz exatamente o enquadramento do preview.
+            doc.querySelectorAll<HTMLImageElement>('[data-block-kind="image"] img').forEach((img) => {
+              const src = img.currentSrc || img.src;
+              if (!src) return;
+              const rect = img.getBoundingClientRect();
+              const replacement = doc.createElement('div');
+              replacement.className = img.className;
+              replacement.style.cssText = img.style.cssText;
+              replacement.style.width = '100%';
+              replacement.style.height = rect.height > 0 ? `${rect.height}px` : '100%';
+              replacement.style.backgroundImage = `url("${src}")`;
+              replacement.style.backgroundSize = 'cover';
+              replacement.style.backgroundPosition = 'center';
+              replacement.style.backgroundRepeat = 'no-repeat';
+              replacement.style.borderRadius = '15px';
+              img.replaceWith(replacement);
+            });
           },
         });
         if (index > 0) pdf.addPage();
