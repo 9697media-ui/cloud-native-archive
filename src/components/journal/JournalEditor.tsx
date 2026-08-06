@@ -470,6 +470,26 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             </span>
             <div className="ml-auto flex items-center gap-1">
               <Button
+                variant={layoutLocked ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setLayoutLocked((value) => !value)}
+                title={
+                  layoutLocked
+                    ? 'Layout travado pelo modelo — clique para liberar tamanho e posição'
+                    : 'Layout livre — clique para travar tamanho e posição'
+                }
+              >
+                {layoutLocked ? (
+                  <>
+                    <Lock className="mr-1.5 h-3.5 w-3.5" /> Layout travado
+                  </>
+                ) : (
+                  <>
+                    <Unlock className="mr-1.5 h-3.5 w-3.5" /> Layout livre
+                  </>
+                )}
+              </Button>
+              <Button
                 variant={autoFit ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setAutoFit(true)}
