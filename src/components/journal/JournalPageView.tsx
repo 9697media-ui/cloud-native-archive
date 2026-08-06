@@ -375,6 +375,8 @@ interface JournalPageViewProps {
   onResizeBlockHeight?: (id: string, height: number | undefined) => void;
   /** Reordenação de blocos por arraste. */
   onReorderBlocks?: (draggedId: string, targetId: string) => void;
+  /** Exibe a grade de 6 colunas (somente quando o layout está destravado). */
+  showGrid?: boolean;
   className?: string;
 }
 
