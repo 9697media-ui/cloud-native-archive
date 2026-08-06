@@ -70,19 +70,48 @@ interface Props {
   ) => Promise<boolean>;
 }
 
+/** Estado de preenchimento da página — usado nos selos das miniaturas. */
+function pageStatus(page: JournalPage): 'completa' | 'pendente' {
+  const pending = page.blocks.some((block) => {
+    if (block.kind === 'text') return block.content.trim().length === 0;
+    if (block.kind === 'image') return !block.url;
+    return false;
+  });
+  return pending ? 'pendente' : 'completa';
+}
+
 export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Props) {
   const [name, setName] = useState(journal.name);
   const [pages, setPages] = useState<JournalPage[]>(journal.pages?.length ? journal.pages : [createPage('capa')]);
   const [activePageId, setActivePageId] = useState<string>(pages[0].id);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(0.7);
+  const [autoFit, setAutoFit] = useState(true);
   const [exporting, setExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
 
   const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
   const selectedBlock = activePage?.blocks.find((block) => block.id === selectedBlockId);
   const unitName = useMemo(() => newsUnitName(journal.unit_id), [journal.unit_id]);
+
+  /** Ajuste automático da folha à área central (recalcula ao redimensionar). */
+  useEffect(() => {
+    if (!autoFit) return;
+    const element = canvasRef.current;
+    if (!element) return;
+    const recompute = () => {
+      const { width, height } = element.getBoundingClientRect();
+      if (width <= 0 || height <= 0) return;
+      const next = Math.min((width - 48) / A4_W, (height - 48) / A4_H);
+      setZoom(Math.max(0.3, Math.min(1.5, Number(next.toFixed(3)))));
+    };
+    recompute();
+    const observer = new ResizeObserver(recompute);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [autoFit]);
 
   // Autosave com 2s de inatividade.
   useEffect(() => {
@@ -94,10 +123,16 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
     return () => clearTimeout(timer);
   }, [name, pages, journal.id, onSave]);
 
+  const setManualZoom = useCallback((updater: (current: number) => number) => {
+    setAutoFit(false);
+    setZoom((current) => Math.max(0.3, Math.min(1.5, updater(current))));
+  }, []);
+
   const mutatePages = useCallback((updater: (prev: JournalPage[]) => JournalPage[]) => {
     dirtyRef.current = true;
     setPages(updater);
   }, []);
+
 
   const updateBlock = (patch: Partial<JournalBlock>) => {
     if (!selectedBlockId) return;
