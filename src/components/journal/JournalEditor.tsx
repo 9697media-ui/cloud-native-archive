@@ -91,6 +91,8 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   /** Layout do modelo travado: só o conteúdo é editável (padrão). */
   const [layoutLocked, setLayoutLocked] = useState(true);
   const [autoFit, setAutoFit] = useState(true);
+  /** Fundo da folha: cinza institucional (#EEEEEE) ou branco. */
+  const [paperColor, setPaperColor] = useState<'#EEEEEE' | '#FFFFFF'>('#EEEEEE');
   const [exporting, setExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -489,6 +491,24 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   </>
                 )}
               </Button>
+              <div className="flex items-center gap-1 rounded-md border border-border p-0.5">
+                <Button
+                  variant={paperColor === '#EEEEEE' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setPaperColor('#EEEEEE')}
+                  title="Fundo cinza (#EEEEEE)"
+                >
+                  Fundo #EEE
+                </Button>
+                <Button
+                  variant={paperColor === '#FFFFFF' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setPaperColor('#FFFFFF')}
+                  title="Fundo branco"
+                >
+                  Branco
+                </Button>
+              </div>
               <Button
                 variant={autoFit ? 'secondary' : 'ghost'}
                 size="sm"
@@ -528,6 +548,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   selectedBlockId={selectedBlockId}
                   onSelectBlock={setSelectedBlockId}
                   showGrid={!layoutLocked}
+                  paperColor={paperColor}
                   onResizeBlockSpan={layoutLocked ? undefined : resizeBlockSpan}
                   onResizeBlockHeight={layoutLocked ? undefined : resizeBlockHeight}
                   onReorderBlocks={layoutLocked ? undefined : reorderBlocks}
@@ -600,6 +621,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               total={pages.length}
               edition={journal.reference_month || ''}
               unitName={unitName}
+              paperColor={paperColor}
             />
           </div>
         ))}
