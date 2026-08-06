@@ -153,24 +153,9 @@ export default function JournalPage() {
       name: suggestName(activeUnitId, ''),
       unitId: activeUnitId,
       referenceMonth: '',
-      template: 'padrao',
-      pageCount: 4,
+      model: 'padrao',
     });
     setCreating(true);
-  };
-
-  const buildPages = (template: StartingTemplate, count: number) => {
-    if (template === 'padrao') {
-      const base = createJournalPages();
-      while (base.length < count) base.push(createPage('materia'));
-      return base.slice(0, Math.max(1, count));
-    }
-    if (template === 'enxuto') {
-      const base = [createPage('capa'), createPage('materia')];
-      while (base.length < count) base.push(createPage('materia'));
-      return base.slice(0, Math.max(1, count));
-    }
-    return Array.from({ length: Math.max(1, count) }, () => createPage('branco'));
   };
 
   const handleCreate = async () => {
@@ -180,7 +165,8 @@ export default function JournalPage() {
       profileUnit: form.unitId ? profileUnitForNewsUnit(form.unitId) : null,
       referenceMonth: form.referenceMonth || null,
       status: 'rascunho',
-      pages: buildPages(form.template, form.pageCount),
+      pages: findJournalModel(form.model).build(),
+
     });
     setCreating(false);
     if (created) setEditingId(created.id);
