@@ -31,7 +31,11 @@ import {
   profileUnitForNewsUnit,
   findNewsUnit,
 } from '@/lib/news/units';
-import { createJournalPages, createPage } from '@/lib/journal/templates';
+import {
+  JOURNAL_MODELS,
+  findJournalModel,
+  type JournalModelKey,
+} from '@/lib/journal/templates';
 import { STATUS_LABELS, type JournalRecord } from '@/lib/journal/types';
 
 type JournalStatus = JournalRecord['status'];
@@ -52,7 +56,6 @@ const COUNTER_LABELS: Record<JournalStatus, string> = {
 const THUMB_W = 260;
 const THUMB_SCALE = THUMB_W / A4_W;
 
-type StartingTemplate = 'padrao' | 'enxuto' | 'branco';
 
 /** Data relativa curta ("há 2 dias"), com fallback para data absoluta. */
 function relativeDate(iso: string): string {
