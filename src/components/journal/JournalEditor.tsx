@@ -379,47 +379,70 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
 
 
-      <div className="grid flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[180px_1fr_300px]">
+      <div className="grid flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[210px_1fr_300px]">
         {/* Miniaturas */}
         <aside className="hidden flex-col gap-2 overflow-y-auto rounded-lg border border-border bg-card p-2 lg:flex">
-          {pages.map((page, index) => (
-            <div
-              key={page.id}
-              className={cn(
-                'group cursor-pointer rounded-md border p-1.5 text-xs',
-                page.id === activePageId ? 'border-primary bg-accent' : 'border-border',
-              )}
-              onClick={() => {
-                setActivePageId(page.id);
-                setSelectedBlockId(null);
-              }}
-            >
-              <div className="mb-1 flex items-center justify-between">
-                <span className="font-medium text-foreground">
-                  {String(index + 1).padStart(2, '0')} · {TEMPLATE_LABELS[page.template]}
-                </span>
-              </div>
-              <div className="h-24 overflow-hidden rounded-sm border border-border bg-news-paper">
-                <div style={{ transform: `scale(${150 / A4_W})`, transformOrigin: 'top left' }}>
-                  <JournalPageView page={page} index={index} total={pages.length} edition={journal.reference_month || ''} unitName={unitName} />
+          {pages.map((page, index) => {
+            const status = pageStatus(page);
+            const active = page.id === activePageId;
+            return (
+              <div key={page.id} className="group relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActivePageId(page.id);
+                    setSelectedBlockId(null);
+                  }}
+                  aria-current={active}
+                  className={cn(
+                    'block w-full rounded-md border p-1.5 text-left text-xs transition-all duration-200',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    active
+                      ? 'border-primary bg-accent shadow-sm'
+                      : 'border-border hover:border-primary/50 hover:bg-accent/40',
+                  )}
+                >
+                  <div className="h-32 overflow-hidden rounded-sm border border-border bg-news-paper">
+                    <div style={{ transform: `scale(${180 / A4_W})`, transformOrigin: 'top left' }}>
+                      <JournalPageView
+                        page={page}
+                        index={index}
+                        total={pages.length}
+                        edition={journal.reference_month || ''}
+                        unitName={unitName}
+                      />
+                    </div>
+                  </div>
+                  <p className="mt-1.5 truncate font-medium text-foreground">
+                    Página {String(index + 1).padStart(2, '0')} · {TEMPLATE_LABELS[page.template]}
+                  </p>
+                  <span
+                    className={cn(
+                      'mt-0.5 inline-flex items-center gap-1 text-[10px]',
+                      status === 'completa' ? 'text-primary' : 'text-muted-foreground',
+                    )}
+                  >
+                    {status === 'completa' ? '✓ Completa' : '● Pendente'}
+                  </span>
+                </button>
+
+                <div className="absolute right-1 top-1 flex items-center gap-0.5 rounded-md bg-card/90 p-0.5 opacity-0 shadow-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+                  <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Mover para cima" onClick={() => movePage(page.id, -1)}>
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Mover para baixo" onClick={() => movePage(page.id, 1)}>
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Duplicar página" onClick={() => duplicatePage(page)}>
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" aria-label="Excluir página" onClick={() => removePage(page.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
               </div>
-              <div className="mt-1 flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); movePage(page.id, -1); }}>
-                  <ChevronUp className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); movePage(page.id, 1); }}>
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); duplicatePage(page); }}>
-                  <Copy className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={(e) => { e.stopPropagation(); removePage(page.id); }}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
           <Select onValueChange={(value) => addPage(value as JournalTemplate)}>
             <SelectTrigger className="h-9 text-xs">
@@ -436,18 +459,33 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
         </aside>
 
         {/* Canvas */}
-        <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-muted/40">
+        <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-card">
           <div className="flex items-center gap-2 border-b border-border px-3 py-2 text-xs">
             <span className="text-muted-foreground">
               Página {pages.findIndex((page) => page.id === activePage.id) + 1} de {pages.length}
             </span>
             <div className="ml-auto flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.max(0.4, z - 0.1))}>−</Button>
+              <Button
+                variant={autoFit ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setAutoFit(true)}
+                title="Ajustar a folha à tela"
+              >
+                Ajustar à tela
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setManualZoom((z) => z - 0.1)} aria-label="Diminuir zoom">
+                −
+              </Button>
               <span className="w-10 text-center">{Math.round(zoom * 100)}%</span>
-              <Button variant="ghost" size="sm" onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))}>+</Button>
+              <Button variant="ghost" size="sm" onClick={() => setManualZoom((z) => z + 0.1)} aria-label="Aumentar zoom">
+                +
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setManualZoom(() => 1)} title="Restaurar 100%">
+                100%
+              </Button>
             </div>
           </div>
-          <div className="flex-1 overflow-auto p-6">
+          <div ref={canvasRef} className="flex-1 overflow-auto bg-journal-workspace p-6">
             <div
               style={{
                 width: A4_W * zoom,
@@ -469,12 +507,13 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   onResizeBlockHeight={resizeBlockHeight}
                   onReorderBlocks={reorderBlocks}
                   onSelectPageArea={() => setSelectedBlockId(null)}
-                  className="shadow-lg"
+                  className="border border-border shadow-[0_8px_28px_-12px_rgba(0,0,0,0.45)]"
                 />
               </div>
             </div>
           </div>
         </section>
+
 
         {/* Conteúdo da página */}
         <aside className="flex flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-card p-3">
