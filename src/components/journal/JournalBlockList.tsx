@@ -63,26 +63,30 @@ export function JournalBlockList({ blocks, selectedBlockId, onSelect, onMove, lo
               <BlockIcon block={block} />
               <span className="truncate text-foreground">{blockLabel(block)}</span>
             </button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              aria-label="Mover para cima"
-              disabled={index === 0}
-              onClick={() => onMove(block.id, -1)}
-            >
-              <ChevronUp className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              aria-label="Mover para baixo"
-              disabled={index === blocks.length - 1}
-              onClick={() => onMove(block.id, 1)}
-            >
-              <ChevronDown className="h-3.5 w-3.5" />
-            </Button>
+            {!locked && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  aria-label="Mover para cima"
+                  disabled={index === 0}
+                  onClick={() => onMove(block.id, -1)}
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  aria-label="Mover para baixo"
+                  disabled={index === blocks.length - 1}
+                  onClick={() => onMove(block.id, 1)}
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
           </li>
         ))}
       </ul>
