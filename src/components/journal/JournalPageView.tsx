@@ -415,10 +415,10 @@ export function JournalPageView({
       <div className="flex items-center justify-between px-12 pt-10">
         <img src={anaLogo} alt="ANA Brasil" className="h-9 w-auto object-contain" draggable={false} />
         <div className="text-right">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#1F211F]">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#1F211F]">
             Jornal Institucional
           </p>
-          <p className="text-[9px] uppercase tracking-[0.14em] text-[#5C5A50]">
+          <p className="text-[12px] uppercase tracking-[0.14em] text-[#5C5A50]">
             {[unitName, edition].filter(Boolean).join(' · ')}
           </p>
         </div>
