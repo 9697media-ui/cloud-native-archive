@@ -72,25 +72,28 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      {/* Conteúdo */}
       <section className="space-y-1.5">
-        <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Conteúdo
-        </Label>
+        <div className="flex items-baseline justify-between">
+          <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Conteúdo
+          </Label>
+          <span className="text-[10px] text-muted-foreground">{block.content.length} caracteres</span>
+        </div>
         <Textarea
           value={block.content}
-          rows={7}
+          rows={6}
           placeholder={PLACEHOLDERS[block.style]}
+          className="resize-y text-sm"
           onChange={(event) => onChange({ content: event.target.value } as Partial<JournalBlock>)}
         />
-        <p className="text-right text-[10px] text-muted-foreground">
-          {block.content.length} caracteres
-        </p>
       </section>
 
-      <section className="space-y-1.5 border-t border-border pt-3">
+      {/* Estilo: função + tamanho */}
+      <section className="space-y-2 rounded-lg border border-border bg-muted/30 p-2.5">
         <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Função do texto
+          Estilo
         </Label>
         <Select
           value={block.style}
@@ -100,7 +103,7 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
             onChange({ style: nextStyle, fontSize: undefined } as Partial<JournalBlock>);
           }}
         >
-          <SelectTrigger className="h-9">
+          <SelectTrigger className="h-9 bg-background">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -111,31 +114,14 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
             ))}
           </SelectContent>
         </Select>
-        <p className="text-[10px] text-muted-foreground">
-          Fonte e cor são aplicadas automaticamente. O tamanho pode ser ajustado abaixo.
-        </p>
-      </section>
 
-      <section className="space-y-2 border-t border-border pt-3">
-        <div className="flex items-center justify-between">
-          <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Tamanho da fonte
-          </Label>
-          <span className="text-xs font-semibold tabular-nums text-foreground">
-            {currentSize}px
-            {block.fontSize !== undefined && block.fontSize !== defaultSize && (
-              <span className="ml-1 text-[10px] font-normal text-muted-foreground">
-                (padrão {defaultSize}px)
-              </span>
-            )}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <span className="w-14 shrink-0 text-[11px] text-muted-foreground">Tamanho</span>
           <Button
             type="button"
             variant="outline"
             size="icon"
-            className="h-8 w-8 shrink-0"
+            className="h-8 w-8 shrink-0 bg-background"
             onClick={() => setFontSize(currentSize - 1)}
             aria-label="Diminuir tamanho da fonte"
           >
@@ -147,14 +133,14 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
             max={72}
             value={currentSize}
             onChange={(event) => setFontSize(Number(event.target.value))}
-            className="h-8 text-center tabular-nums"
+            className="h-8 bg-background text-center tabular-nums"
             aria-label="Tamanho da fonte em pixels"
           />
           <Button
             type="button"
             variant="outline"
             size="icon"
-            className="h-8 w-8 shrink-0"
+            className="h-8 w-8 shrink-0 bg-background"
             onClick={() => setFontSize(currentSize + 1)}
             aria-label="Aumentar tamanho da fonte"
           >
@@ -165,26 +151,22 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
             variant="ghost"
             size="icon"
             className="h-8 w-8 shrink-0"
-            title="Voltar ao tamanho padrão da função"
+            title={`Voltar ao padrão da função (${defaultSize}px)`}
             onClick={() => setFontSize(undefined)}
             aria-label="Voltar ao tamanho padrão"
           >
             <RotateCcw className="h-3.5 w-3.5" />
           </Button>
         </div>
-        <div className="flex justify-between text-[10px] text-muted-foreground">
-          <span>Mínimo 8px</span>
-          <span>Máximo 72px</span>
-        </div>
       </section>
 
-
-      <section className="space-y-3 border-t border-border pt-3">
-        <div className="space-y-1.5">
-          <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Alinhamento
-          </Label>
-          <div className="grid grid-cols-4 gap-1.5">
+      {/* Alinhamento e formatação, em uma única barra visual */}
+      <section className="space-y-2 rounded-lg border border-border bg-muted/30 p-2.5">
+        <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Alinhamento e formatação
+        </Label>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex items-center gap-0.5 rounded-md border border-border bg-background p-0.5">
             {ALIGNMENTS.map(({ value, label, Icon }) => (
               <button
                 key={value}
@@ -194,25 +176,18 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
                 aria-pressed={block.align === value}
                 onClick={() => onChange({ align: value } as Partial<JournalBlock>)}
                 className={cn(
-                  'flex h-14 flex-col items-center justify-center gap-1 rounded-md border border-border transition-colors',
+                  'grid h-8 w-8 place-items-center rounded transition-colors',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   block.align === value
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'bg-background hover:bg-accent',
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
                 )}
               >
                 <Icon className="h-4 w-4" />
-                <span className="text-[9px] leading-none">{label}</span>
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Formatação
-          </Label>
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="flex items-center gap-0.5 rounded-md border border-border bg-background p-0.5">
             {([
               { key: 'bold', label: 'Negrito', Icon: Bold },
               { key: 'italic', label: 'Itálico', Icon: Italic },
@@ -226,54 +201,43 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
                 aria-pressed={Boolean(block[key])}
                 onClick={() => onChange({ [key]: !block[key] } as Partial<JournalBlock>)}
                 className={cn(
-                  'flex h-14 flex-col items-center justify-center gap-1 rounded-md border border-border transition-colors',
+                  'grid h-8 w-8 place-items-center rounded transition-colors',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   block[key]
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'bg-background hover:bg-accent',
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
                 )}
               >
                 <Icon className="h-4 w-4" />
-                <span className="text-[9px] leading-none">{label}</span>
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="space-y-2 border-t border-border pt-3">
-        <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Cor do texto
-        </Label>
+      {/* Cor e espaçamento */}
+      <section className="space-y-3 rounded-lg border border-border bg-muted/30 p-2.5">
         <ColorSwatchPicker
-          label="Escolha a cor"
+          label="Cor do texto"
           value={block.color}
           onChange={(color) => onChange({ color } as Partial<JournalBlock>)}
         />
-      </section>
-
-      <section className="space-y-2 border-t border-border pt-3">
-        <div className="flex items-baseline justify-between">
-          <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Espaçamento entre linhas
-          </Label>
-          <span className="text-xs font-semibold tabular-nums text-foreground">
-            {lineHeight.toFixed(1).replace('.', ',')}
-          </span>
-        </div>
-        <Slider
-          value={[lineHeight]}
-          min={1}
-          max={2}
-          step={0.1}
-          onValueChange={([value]) => onChange({ lineHeight: value } as Partial<JournalBlock>)}
-        />
-        <div className="flex justify-between text-[10px] text-muted-foreground">
-          <span>Compacto</span>
-          <span>Espaçado</span>
+        <div className="space-y-1.5">
+          <div className="flex items-baseline justify-between">
+            <Label className="text-[11px] text-muted-foreground">Espaçamento entre linhas</Label>
+            <span className="text-xs font-semibold tabular-nums text-foreground">
+              {lineHeight.toFixed(1).replace('.', ',')}
+            </span>
+          </div>
+          <Slider
+            value={[lineHeight]}
+            min={1}
+            max={2}
+            step={0.1}
+            onValueChange={([value]) => onChange({ lineHeight: value } as Partial<JournalBlock>)}
+          />
         </div>
       </section>
-
     </div>
   );
 }
