@@ -420,71 +420,63 @@ export default function JournalPage() {
               />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label>Mês/Ano de referência</Label>
-                <Input
-                  value={form.referenceMonth}
-                  placeholder="Julho/2026"
-                  onChange={(event) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      referenceMonth: event.target.value,
-                      name: suggestName(prev.unitId, event.target.value),
-                    }))
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Modelo inicial</Label>
-                <Select
-                  value={form.template}
-                  onValueChange={(value) =>
-                    setForm((prev) => ({ ...prev, template: value as StartingTemplate }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="padrao">Padrão (capa + matérias)</SelectItem>
-                    <SelectItem value="enxuto">Enxuto (capa + matéria)</SelectItem>
-                    <SelectItem value="branco">Em branco</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-1.5">
+              <Label>Mês/Ano de referência</Label>
+              <Input
+                value={form.referenceMonth}
+                placeholder="Julho/2026"
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    referenceMonth: event.target.value,
+                    name: suggestName(prev.unitId, event.target.value),
+                  }))
+                }
+              />
             </div>
 
             <div className="space-y-1.5">
-              <Label>Páginas iniciais</Label>
-              <div className="inline-flex items-center gap-2 rounded-md border border-border px-2 py-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  aria-label="Menos uma página"
-                  onClick={() =>
-                    setForm((prev) => ({ ...prev, pageCount: Math.max(1, prev.pageCount - 1) }))
-                  }
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </Button>
-                <span className="w-6 text-center text-sm font-semibold">{form.pageCount}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  aria-label="Mais uma página"
-                  onClick={() =>
-                    setForm((prev) => ({ ...prev, pageCount: Math.min(24, prev.pageCount + 1) }))
-                  }
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </Button>
+              <Label>Modelo do jornal</Label>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {JOURNAL_MODELS.map((model) => {
+                  const active = form.model === model.key;
+                  return (
+                    <button
+                      key={model.key}
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, model: model.key }))}
+                      aria-pressed={active}
+                      className={cn(
+                        'rounded-lg border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                        active
+                          ? 'border-primary bg-accent'
+                          : 'border-border bg-card hover:bg-accent/40',
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-semibold text-foreground">{model.name}</span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {model.pageLabels.length}{' '}
+                          {model.pageLabels.length === 1 ? 'página' : 'páginas'}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">{model.description}</p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {model.pageLabels.map((label, index) => (
+                          <span
+                            key={`${model.key}-${index}`}
+                            className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                          >
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
+
           </div>
 
           <DialogFooter>
