@@ -60,16 +60,7 @@ const PLACEHOLDERS: Record<TextStyleKey, string> = {
 export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
   const lineHeight = block.lineHeight ?? 1.5;
   const defaultSize = TEXT_STYLE_DEFAULT_SIZES[block.style];
-  const currentSize = block.fontSize ?? defaultSize;
 
-  const setFontSize = (next: number | undefined) => {
-    if (next === undefined || next === defaultSize) {
-      onChange({ fontSize: undefined } as Partial<JournalBlock>);
-      return;
-    }
-    const clamped = Math.max(8, Math.min(72, Math.round(next)));
-    onChange({ fontSize: clamped } as Partial<JournalBlock>);
-  };
 
   return (
     <div className="space-y-3">
