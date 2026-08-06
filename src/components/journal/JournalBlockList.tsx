@@ -9,6 +9,8 @@ interface Props {
   selectedBlockId: string | null;
   onSelect: (id: string) => void;
   onMove: (id: string, direction: -1 | 1) => void;
+  /** Layout travado pelo modelo — esconde os controles de ordenação. */
+  locked?: boolean;
 }
 
 /** Rótulo curto e legível de cada bloco para a lista de ordenação. */
@@ -35,7 +37,7 @@ function BlockIcon({ block }: { block: JournalBlock }) {
   return <Type className={className} />;
 }
 
-export function JournalBlockList({ blocks, selectedBlockId, onSelect, onMove }: Props) {
+export function JournalBlockList({ blocks, selectedBlockId, onSelect, onMove, locked }: Props) {
   if (!blocks.length) {
     return <p className="text-xs text-muted-foreground">Nenhum bloco nesta página ainda.</p>;
   }
@@ -61,26 +63,30 @@ export function JournalBlockList({ blocks, selectedBlockId, onSelect, onMove }: 
               <BlockIcon block={block} />
               <span className="truncate text-foreground">{blockLabel(block)}</span>
             </button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              aria-label="Mover para cima"
-              disabled={index === 0}
-              onClick={() => onMove(block.id, -1)}
-            >
-              <ChevronUp className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              aria-label="Mover para baixo"
-              disabled={index === blocks.length - 1}
-              onClick={() => onMove(block.id, 1)}
-            >
-              <ChevronDown className="h-3.5 w-3.5" />
-            </Button>
+            {!locked && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  aria-label="Mover para cima"
+                  disabled={index === 0}
+                  onClick={() => onMove(block.id, -1)}
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  aria-label="Mover para baixo"
+                  disabled={index === blocks.length - 1}
+                  onClick={() => onMove(block.id, 1)}
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
           </li>
         ))}
       </ul>

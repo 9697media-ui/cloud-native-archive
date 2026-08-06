@@ -30,11 +30,11 @@ interface Props {
   onChangeBlock: (patch: Partial<JournalBlock>) => void;
   onRemoveBlock: () => void;
   onClose?: () => void;
+  /** Layout travado pelo modelo: só o conteúdo pode ser editado. */
+  locked?: boolean;
 }
 
-
-
-export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlock, onClose }: Props) {
+export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlock, onClose, locked }: Props) {
   if (!block) {
     return (
       <div className="space-y-3 text-sm">
@@ -71,14 +71,21 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
         )}
       </div>
 
-      <p className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px] text-muted-foreground">
-        Largura: <strong className="text-foreground">{block.span} de 6 colunas</strong> · Altura:{' '}
-        <strong className="text-foreground">
-          {block.height ? `${block.height}px` : 'automática'}
-        </strong>
-        . No canvas: arraste a alça direita para largura, a alça inferior para altura (clique duplo
-        volta ao automático) e a alça esquerda para reordenar os blocos.
-      </p>
+      {locked ? (
+        <p className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px] text-muted-foreground">
+          Layout travado pelo modelo: tamanho e posição são fixos. Edite apenas o conteúdo (textos e
+          imagens). Para alterar a estrutura, destrave o layout na barra do canvas.
+        </p>
+      ) : (
+        <p className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px] text-muted-foreground">
+          Largura: <strong className="text-foreground">{block.span} de 6 colunas</strong> · Altura:{' '}
+          <strong className="text-foreground">
+            {block.height ? `${block.height}px` : 'automática'}
+          </strong>
+          . No canvas: arraste a alça direita para largura, a alça inferior para altura (clique duplo
+          volta ao automático) e a alça esquerda para reordenar os blocos.
+        </p>
+      )}
 
 
 
@@ -212,16 +219,18 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
         </div>
       )}
 
-      <div className="border-t border-border pt-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onRemoveBlock}
-          className="w-full justify-start px-1 text-destructive hover:text-destructive"
-        >
-          <Trash2 className="mr-1.5 h-4 w-4" /> Remover bloco
-        </Button>
-      </div>
+      {!locked && (
+        <div className="border-t border-border pt-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRemoveBlock}
+            className="w-full justify-start px-1 text-destructive hover:text-destructive"
+          >
+            <Trash2 className="mr-1.5 h-4 w-4" /> Remover bloco
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

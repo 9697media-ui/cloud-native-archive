@@ -375,6 +375,8 @@ interface JournalPageViewProps {
   onResizeBlockHeight?: (id: string, height: number | undefined) => void;
   /** Reordenação de blocos por arraste. */
   onReorderBlocks?: (draggedId: string, targetId: string) => void;
+  /** Exibe a grade de 6 colunas (somente quando o layout está destravado). */
+  showGrid?: boolean;
   className?: string;
 }
 
@@ -392,6 +394,7 @@ export function JournalPageView({
   onResizeBlockSpan,
   onResizeBlockHeight,
   onReorderBlocks,
+  showGrid = true,
   className,
 }: JournalPageViewProps) {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -416,7 +419,7 @@ export function JournalPageView({
       <div className="mx-12 mt-3 h-px bg-[#D9D4C4]" />
 
       <div className="relative flex-1">
-        {interactive && (
+        {interactive && showGrid && (
           <div
             data-pdf-helper="true"
             aria-hidden="true"

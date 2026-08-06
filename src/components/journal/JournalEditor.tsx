@@ -14,6 +14,8 @@ import {
   Hash,
   CalendarDays,
   Check,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -86,6 +88,8 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   const [activePageId, setActivePageId] = useState<string>(pages[0].id);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(0.7);
+  /** Layout do modelo travado: só o conteúdo é editável (padrão). */
+  const [layoutLocked, setLayoutLocked] = useState(true);
   const [autoFit, setAutoFit] = useState(true);
   const [exporting, setExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
@@ -466,6 +470,26 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             </span>
             <div className="ml-auto flex items-center gap-1">
               <Button
+                variant={layoutLocked ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setLayoutLocked((value) => !value)}
+                title={
+                  layoutLocked
+                    ? 'Layout travado pelo modelo — clique para liberar tamanho e posição'
+                    : 'Layout livre — clique para travar tamanho e posição'
+                }
+              >
+                {layoutLocked ? (
+                  <>
+                    <Lock className="mr-1.5 h-3.5 w-3.5" /> Layout travado
+                  </>
+                ) : (
+                  <>
+                    <Unlock className="mr-1.5 h-3.5 w-3.5" /> Layout livre
+                  </>
+                )}
+              </Button>
+              <Button
                 variant={autoFit ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setAutoFit(true)}
@@ -503,9 +527,10 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                   interactive
                   selectedBlockId={selectedBlockId}
                   onSelectBlock={setSelectedBlockId}
-                  onResizeBlockSpan={resizeBlockSpan}
-                  onResizeBlockHeight={resizeBlockHeight}
-                  onReorderBlocks={reorderBlocks}
+                  showGrid={!layoutLocked}
+                  onResizeBlockSpan={layoutLocked ? undefined : resizeBlockSpan}
+                  onResizeBlockHeight={layoutLocked ? undefined : resizeBlockHeight}
+                  onReorderBlocks={layoutLocked ? undefined : reorderBlocks}
                   onSelectPageArea={() => setSelectedBlockId(null)}
                   className="border border-border shadow-[0_8px_28px_-12px_rgba(0,0,0,0.45)]"
                 />
@@ -517,31 +542,39 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
         {/* Conteúdo da página */}
         <aside className="flex flex-col gap-3 overflow-y-auto rounded-lg border border-border bg-card p-3">
-          <div>
-            <Label className="text-xs text-muted-foreground">
-              {selectedBlock ? 'Adicionar abaixo do bloco selecionado' : 'Adicionar ao jornal'}
-            </Label>
-            <div className="mt-1.5 grid grid-cols-2 gap-1.5">
-              <Button variant="outline" size="sm" onClick={() => addBlock(textBlock('corpo', 'Novo texto.'))}>
-                <Type className="mr-1.5 h-3.5 w-3.5" /> Texto
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => addBlock(imageBlock(6, '16/9'))}>
-                <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Imagem
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => addBlock(statBlock())}>
-                <Hash className="mr-1.5 h-3.5 w-3.5" /> Número
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => addBlock(agendaBlock())}>
-                <CalendarDays className="mr-1.5 h-3.5 w-3.5" /> Agenda
-              </Button>
+          {layoutLocked ? (
+            <p className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px] text-muted-foreground">
+              Layout do modelo travado: clique em um bloco para trocar o texto ou enviar a imagem.
+              Para incluir/remover blocos ou mudar tamanhos, use “Layout livre” na barra do canvas.
+            </p>
+          ) : (
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                {selectedBlock ? 'Adicionar abaixo do bloco selecionado' : 'Adicionar ao jornal'}
+              </Label>
+              <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+                <Button variant="outline" size="sm" onClick={() => addBlock(textBlock('corpo', 'Novo texto.'))}>
+                  <Type className="mr-1.5 h-3.5 w-3.5" /> Texto
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => addBlock(imageBlock(6, '16/9'))}>
+                  <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Imagem
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => addBlock(statBlock())}>
+                  <Hash className="mr-1.5 h-3.5 w-3.5" /> Número
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => addBlock(agendaBlock())}>
+                  <CalendarDays className="mr-1.5 h-3.5 w-3.5" /> Agenda
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
 
           <JournalBlockList
             blocks={activePage?.blocks ?? []}
             selectedBlockId={selectedBlockId}
             onSelect={setSelectedBlockId}
             onMove={moveBlock}
+            locked={layoutLocked}
           />
 
           <div className="h-px bg-border" />
@@ -552,6 +585,7 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
             onChangeBlock={updateBlock}
             onRemoveBlock={removeBlock}
             onClose={() => setSelectedBlockId(null)}
+            locked={layoutLocked}
           />
         </aside>
       </div>
