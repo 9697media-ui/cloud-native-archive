@@ -394,6 +394,7 @@ export function JournalPageView({
   onResizeBlockSpan,
   onResizeBlockHeight,
   onReorderBlocks,
+  showGrid = true,
   className,
 }: JournalPageViewProps) {
   const gridRef = useRef<HTMLDivElement>(null);
