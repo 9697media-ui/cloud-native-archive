@@ -88,6 +88,8 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   const [activePageId, setActivePageId] = useState<string>(pages[0].id);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(0.7);
+  /** Layout do modelo travado: só o conteúdo é editável (padrão). */
+  const [layoutLocked, setLayoutLocked] = useState(true);
   const [autoFit, setAutoFit] = useState(true);
   const [exporting, setExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
