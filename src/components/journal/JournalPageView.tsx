@@ -225,7 +225,7 @@ export function JournalBlockView({
     );
     const textStyle = {
       color: journalColor(block.color),
-      ...(block.fontSize ? { fontSize: `${block.fontSize}px` } : {}),
+      
       ...(block.lineHeight ? { lineHeight: block.lineHeight } : {}),
       ...(block.style === 'destaque'
         ? { borderLeftColor: block.color ? journalColor(block.color) : '#F5705B' }

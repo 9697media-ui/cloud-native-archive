@@ -6,15 +6,10 @@ import {
   Bold,
   Italic,
   List,
-  Minus,
-  Plus,
-  RotateCcw,
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -60,16 +55,7 @@ const PLACEHOLDERS: Record<TextStyleKey, string> = {
 export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
   const lineHeight = block.lineHeight ?? 1.5;
   const defaultSize = TEXT_STYLE_DEFAULT_SIZES[block.style];
-  const currentSize = block.fontSize ?? defaultSize;
 
-  const setFontSize = (next: number | undefined) => {
-    if (next === undefined || next === defaultSize) {
-      onChange({ fontSize: undefined } as Partial<JournalBlock>);
-      return;
-    }
-    const clamped = Math.max(8, Math.min(72, Math.round(next)));
-    onChange({ fontSize: clamped } as Partial<JournalBlock>);
-  };
 
   return (
     <div className="space-y-3">
@@ -115,49 +101,10 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
           </SelectContent>
         </Select>
 
-        <div className="flex items-center gap-1.5">
-          <span className="w-14 shrink-0 text-[11px] text-muted-foreground">Tamanho</span>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 shrink-0 bg-background"
-            onClick={() => setFontSize(currentSize - 1)}
-            aria-label="Diminuir tamanho da fonte"
-          >
-            <Minus className="h-3.5 w-3.5" />
-          </Button>
-          <Input
-            type="number"
-            min={8}
-            max={72}
-            value={currentSize}
-            onChange={(event) => setFontSize(Number(event.target.value))}
-            className="h-8 bg-background text-center tabular-nums"
-            aria-label="Tamanho da fonte em pixels"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 shrink-0 bg-background"
-            onClick={() => setFontSize(currentSize + 1)}
-            aria-label="Aumentar tamanho da fonte"
-          >
-            <Plus className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0"
-            title={`Voltar ao padrão da função (${defaultSize}px)`}
-            onClick={() => setFontSize(undefined)}
-            aria-label="Voltar ao tamanho padrão"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-          </Button>
-        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Tamanho fixo pela identidade: <span className="font-semibold text-foreground tabular-nums">{defaultSize}px</span>
+        </p>
+
       </section>
 
       {/* Alinhamento e formatação, em uma única barra visual */}
