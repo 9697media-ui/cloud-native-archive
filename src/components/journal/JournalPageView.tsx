@@ -419,7 +419,7 @@ export function JournalPageView({
       <div className="mx-12 mt-3 h-px bg-[#D9D4C4]" />
 
       <div className="relative flex-1">
-        {interactive && (
+        {interactive && showGrid && (
           <div
             data-pdf-helper="true"
             aria-hidden="true"
