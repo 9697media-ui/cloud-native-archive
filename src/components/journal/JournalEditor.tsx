@@ -14,6 +14,8 @@ import {
   Hash,
   CalendarDays,
   Check,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';

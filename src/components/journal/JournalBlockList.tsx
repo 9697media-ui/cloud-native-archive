@@ -9,6 +9,8 @@ interface Props {
   selectedBlockId: string | null;
   onSelect: (id: string) => void;
   onMove: (id: string, direction: -1 | 1) => void;
+  /** Layout travado pelo modelo — esconde os controles de ordenação. */
+  locked?: boolean;
 }
 
 /** Rótulo curto e legível de cada bloco para a lista de ordenação. */
@@ -35,7 +37,7 @@ function BlockIcon({ block }: { block: JournalBlock }) {
   return <Type className={className} />;
 }
 
-export function JournalBlockList({ blocks, selectedBlockId, onSelect, onMove }: Props) {
+export function JournalBlockList({ blocks, selectedBlockId, onSelect, onMove, locked }: Props) {
   if (!blocks.length) {
     return <p className="text-xs text-muted-foreground">Nenhum bloco nesta página ainda.</p>;
   }
