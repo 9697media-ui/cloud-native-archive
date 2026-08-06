@@ -92,9 +92,9 @@ export default function JournalPage() {
     name: string;
     unitId: string | null;
     referenceMonth: string;
-    template: StartingTemplate;
-    pageCount: number;
-  }>({ name: '', unitId: null, referenceMonth: '', template: 'padrao', pageCount: 4 });
+    model: JournalModelKey;
+  }>({ name: '', unitId: null, referenceMonth: '', model: 'padrao' });
+
 
   const editing = useMemo(
     () => journals.find((journal) => journal.id === editingId) ?? null,
