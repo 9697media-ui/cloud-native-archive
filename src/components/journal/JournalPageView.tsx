@@ -253,15 +253,16 @@ export function JournalBlockView({
       <figure className={cn('m-0', hasFixedHeight && 'flex h-full flex-col')}>
         <div
           className={cn(
-            'w-full overflow-hidden bg-[#E4E0D2]',
+            'w-full overflow-hidden rounded-[15px] bg-[#E4E0D2]',
             hasFixedHeight ? 'min-h-0 flex-1' : RATIO_CLASS[block.ratio],
           )}
         >
+
           {block.url ? (
             <img
               src={block.url}
               alt={block.caption || 'Imagem do jornal'}
-              className={cn('h-full w-full', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
+              className={cn('h-full w-full rounded-[15px]', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
               crossOrigin="anonymous"
             />
           ) : (
