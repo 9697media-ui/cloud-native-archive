@@ -6,15 +6,10 @@ import {
   Bold,
   Italic,
   List,
-  Minus,
-  Plus,
-  RotateCcw,
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
