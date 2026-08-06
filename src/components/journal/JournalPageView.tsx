@@ -262,7 +262,7 @@ export function JournalBlockView({
             <img
               src={block.url}
               alt={block.caption || 'Imagem do jornal'}
-              className={cn('h-full w-full', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
+              className={cn('h-full w-full rounded-[15px]', block.fit === 'contain' ? 'object-contain' : 'object-cover')}
               crossOrigin="anonymous"
             />
           ) : (
