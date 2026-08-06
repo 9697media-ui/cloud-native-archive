@@ -289,10 +289,10 @@ export function JournalBlockView({
       <ul className="divide-y divide-[#D9D4C4]">
         {block.items.map((item) => (
           <li key={item.id} className="flex gap-3 py-1.5">
-            <span className="w-14 shrink-0 text-[11px] font-bold text-news-brand-1">{item.date}</span>
-            <span className="flex-1 text-[11px] font-semibold text-[#1F211F]">{item.title}</span>
-            <span className="w-12 text-right text-[10px] text-[#5C5A50]">{item.time}</span>
-            <span className="w-32 text-right text-[10px] text-[#5C5A50]">{item.place}</span>
+            <span className="w-14 shrink-0 text-[14px] font-bold text-news-brand-1">{item.date}</span>
+            <span className="flex-1 text-[14px] font-semibold text-[#1F211F]">{item.title}</span>
+            <span className="w-12 text-right text-[14px] text-[#5C5A50]">{item.time}</span>
+            <span className="w-32 text-right text-[14px] text-[#5C5A50]">{item.place}</span>
           </li>
         ))}
       </ul>
@@ -309,7 +309,7 @@ export function JournalBlockView({
         >
           {block.value}
         </p>
-        <p className="mt-1 text-[9px] uppercase tracking-[0.14em] text-[#5C5A50]">{block.label}</p>
+        <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-[#5C5A50]">{block.label}</p>
       </div>
     );
   }
