@@ -30,11 +30,11 @@ interface Props {
   onChangeBlock: (patch: Partial<JournalBlock>) => void;
   onRemoveBlock: () => void;
   onClose?: () => void;
+  /** Layout travado pelo modelo: só o conteúdo pode ser editado. */
+  locked?: boolean;
 }
 
-
-
-export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlock, onClose }: Props) {
+export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlock, onClose, locked }: Props) {
   if (!block) {
     return (
       <div className="space-y-3 text-sm">
