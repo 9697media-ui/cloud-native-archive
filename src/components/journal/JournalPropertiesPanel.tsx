@@ -93,59 +93,105 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
 
 
       {block.kind === 'image' && (
-        <>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Imagem</Label>
+        <div className="space-y-3">
+          <section className="space-y-1.5">
+            <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Imagem
+            </Label>
             <ImageBlockField
               value={block.url}
               onChange={(url) => onChangeBlock({ url } as Partial<JournalBlock>)}
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Legenda (opcional)</Label>
-            <Input
-              value={block.caption}
-              onChange={(event) => onChangeBlock({ caption: event.target.value } as Partial<JournalBlock>)}
+          </section>
+
+          <section className="space-y-3 rounded-lg border border-border bg-muted/30 p-2.5">
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Legenda (opcional)
+              </Label>
+              <Input
+                className="h-9 bg-background"
+                placeholder="Descreva a imagem…"
+                value={block.caption}
+                onChange={(event) => onChangeBlock({ caption: event.target.value } as Partial<JournalBlock>)}
+              />
+            </div>
+            <ColorSwatchPicker
+              label="Cor da legenda"
+              value={block.color}
+              onChange={(color: JournalColorKey) => onChangeBlock({ color } as Partial<JournalBlock>)}
             />
-          </div>
-          <ColorSwatchPicker
-            label="Cor da legenda"
-            value={block.color}
-            onChange={(color: JournalColorKey) => onChangeBlock({ color } as Partial<JournalBlock>)}
-          />
-        </>
+          </section>
+        </div>
       )}
 
       {block.kind === 'stat' && (
-        <>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Número</Label>
-            <Input
-              value={block.value}
-              onChange={(event) => onChangeBlock({ value: event.target.value } as Partial<JournalBlock>)}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Descrição</Label>
-            <Input
-              value={block.label}
-              onChange={(event) => onChangeBlock({ label: event.target.value } as Partial<JournalBlock>)}
-            />
-          </div>
-          <div className="space-y-1.5">
+        <div className="space-y-3">
+          <section className="space-y-2 rounded-lg border border-border bg-muted/30 p-2.5">
+            <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Conteúdo
+            </Label>
+            <div className="space-y-1.5">
+              <span className="text-[11px] text-muted-foreground">Número</span>
+              <Input
+                className="h-9 bg-background"
+                placeholder="Ex.: 120"
+                value={block.value}
+                onChange={(event) => onChangeBlock({ value: event.target.value } as Partial<JournalBlock>)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <span className="text-[11px] text-muted-foreground">Descrição</span>
+              <Input
+                className="h-9 bg-background"
+                placeholder="Ex.: crianças atendidas"
+                value={block.label}
+                onChange={(event) => onChangeBlock({ label: event.target.value } as Partial<JournalBlock>)}
+              />
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-border bg-muted/30 p-2.5">
             <ColorSwatchPicker
               label="Cor do número"
               value={block.color}
               onChange={(color: JournalColorKey) => onChangeBlock({ color } as Partial<JournalBlock>)}
             />
-          </div>
-        </>
+          </section>
+        </div>
       )}
 
       {block.kind === 'agenda' && (
-        <div className="space-y-3">
+        <section className="space-y-2 rounded-lg border border-border bg-muted/30 p-2.5">
+          <div className="flex items-baseline justify-between">
+            <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Agenda
+            </Label>
+            <span className="text-[10px] text-muted-foreground">
+              {block.items.length} {block.items.length === 1 ? 'linha' : 'linhas'}
+            </span>
+          </div>
+
           {block.items.map((item, index) => (
-            <div key={item.id} className="space-y-1.5 rounded-md border border-border p-2">
+            <div key={item.id} className="space-y-1.5 rounded-md border border-border bg-background p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Item {index + 1}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-destructive hover:text-destructive"
+                  aria-label={`Remover item ${index + 1}`}
+                  onClick={() =>
+                    onChangeBlock({
+                      items: block.items.filter((entry) => entry.id !== item.id),
+                    } as Partial<JournalBlock>)
+                  }
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
               <div className="flex gap-1.5">
                 <Input
                   className="h-8"
@@ -178,36 +224,23 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
                   onChangeBlock({ items } as Partial<JournalBlock>);
                 }}
               />
-              <div className="flex gap-1.5">
-                <Input
-                  className="h-8"
-                  placeholder="Local"
-                  value={item.place}
-                  onChange={(event) => {
-                    const items = [...block.items];
-                    items[index] = { ...item, place: event.target.value };
-                    onChangeBlock({ items } as Partial<JournalBlock>);
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive"
-                  onClick={() =>
-                    onChangeBlock({
-                      items: block.items.filter((entry) => entry.id !== item.id),
-                    } as Partial<JournalBlock>)
-                  }
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
+              <Input
+                className="h-8"
+                placeholder="Local"
+                value={item.place}
+                onChange={(event) => {
+                  const items = [...block.items];
+                  items[index] = { ...item, place: event.target.value };
+                  onChangeBlock({ items } as Partial<JournalBlock>);
+                }}
+              />
             </div>
           ))}
+
           <Button
             variant="outline"
             size="sm"
-            className="w-full"
+            className="w-full bg-background"
             onClick={() =>
               onChangeBlock({
                 items: [...block.items, { id: uid(), date: '', title: '', time: '', place: '' }],
@@ -216,8 +249,9 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
           >
             <Plus className="mr-1.5 h-4 w-4" /> Adicionar linha
           </Button>
-        </div>
+        </section>
       )}
+
 
       {!locked && (
         <div className="border-t border-border pt-2">
