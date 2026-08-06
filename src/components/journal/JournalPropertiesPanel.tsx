@@ -231,5 +231,8 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
           </Button>
         </div>
       )}
+    </div>
+  );
+}
 
 export default JournalPropertiesPanel;
