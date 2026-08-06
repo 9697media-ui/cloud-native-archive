@@ -377,6 +377,8 @@ interface JournalPageViewProps {
   onReorderBlocks?: (draggedId: string, targetId: string) => void;
   /** Exibe a grade de 6 colunas (somente quando o layout está destravado). */
   showGrid?: boolean;
+  /** Cor de fundo da folha A4 (#F0EEE4 padrão institucional). */
+  paperColor?: string;
   className?: string;
 }
 
@@ -395,6 +397,7 @@ export function JournalPageView({
   onResizeBlockHeight,
   onReorderBlocks,
   showGrid = true,
+  paperColor,
   className,
 }: JournalPageViewProps) {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -402,7 +405,7 @@ export function JournalPageView({
   return (
     <div
       className={cn('relative flex flex-col overflow-hidden bg-news-paper', className)}
-      style={{ width: A4_W, height: A4_H }}
+      style={{ width: A4_W, height: A4_H, ...(paperColor ? { backgroundColor: paperColor } : {}) }}
       onClick={onSelectPageArea}
     >
       <div className="flex items-center justify-between px-12 pt-10">
