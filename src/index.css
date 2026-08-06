@@ -70,7 +70,11 @@
     --news-brand-3: 9 86% 67%;
     --news-brand-4: 168 63% 70%;
     --news-brand-5: 199 100% 50%;
+
+    /* Área de trabalho do editor do Jornal (contraste com a folha A4) */
+    --journal-workspace: 0 0% 93%;
   }
+
 
   .dark {
     --background: 150 4% 10%;
@@ -100,6 +104,8 @@
     --sidebar-accent-foreground: 40 27% 92%;
     --sidebar-border: 150 4% 20%;
     --sidebar-ring: 166 62% 69%;
+    --journal-workspace: 150 4% 7%;
+
   }
 }
 

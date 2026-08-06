@@ -116,3 +116,152 @@ export const TEMPLATE_OPTIONS: JournalTemplate[] = [
   'contracapa',
   'branco',
 ];
+
+/* ------------------------------------------------------------------ *
+ * Modelos completos de jornal (capa + internas, 6 páginas)
+ * ------------------------------------------------------------------ */
+
+export type JournalModelKey = 'padrao' | 'pedagogico' | 'eventos' | 'branco';
+
+export interface JournalModel {
+  key: JournalModelKey;
+  name: string;
+  description: string;
+  /** Rótulos curtos das páginas — usados na prévia do seletor. */
+  pageLabels: string[];
+  build: () => JournalPage[];
+}
+
+/** Página montada a partir de um template base com blocos substituídos. */
+function page(template: JournalTemplate, blocks: JournalBlock[]): JournalPage {
+  return { id: uid(), template, blocks };
+}
+
+const coverPage = (titulo: string, chamada: string): JournalPage =>
+  page('capa', [
+    textBlock('subtitulo', 'Jornal Institucional', 6, 'center'),
+    textBlock('titulo_capa', titulo, 6, 'center'),
+    imageBlock(6, '16/9'),
+    textBlock('chamada', chamada, 6, 'center'),
+  ]);
+
+const closingPage = (texto: string): JournalPage =>
+  page('contracapa', [
+    textBlock('titulo_materia', 'Mensagem institucional', 6, 'center'),
+    textBlock('corpo', texto, 6),
+    textBlock('chamada', 'contato@anabrasil.org · @anabrasil', 6, 'center'),
+  ]);
+
+const galleryPage = (titulo: string): JournalPage =>
+  page('galeria', [
+    textBlock('titulo_materia', titulo),
+    imageBlock(3, '4/3'),
+    imageBlock(3, '4/3'),
+    imageBlock(3, '4/3'),
+    imageBlock(3, '4/3'),
+  ]);
+
+export const JOURNAL_MODELS: JournalModel[] = [
+  {
+    key: 'padrao',
+    name: 'Padrão',
+    description: 'Capa, matéria principal, notícias, galeria, agenda e encerramento.',
+    pageLabels: ['Capa', 'Matéria', 'Notícias', 'Galeria', 'Agenda', 'Fim'],
+    build: () => [
+      coverPage('Título da chamada principal', 'Chamada secundária desta edição.'),
+      page('materia', [
+        textBlock('titulo_materia', 'Matéria principal'),
+        textBlock('subtitulo', 'Subtítulo de apoio'),
+        imageBlock(6, '16/9'),
+        textBlock('corpo', 'Escreva aqui o texto da matéria principal.'),
+        textBlock('destaque', 'Frase de destaque da matéria.'),
+      ]),
+      page('materias', [
+        textBlock('titulo_materia', 'Primeira notícia', 3),
+        textBlock('titulo_materia', 'Segunda notícia', 3),
+        imageBlock(3, '4/3'),
+        imageBlock(3, '4/3'),
+        textBlock('corpo', 'Texto da primeira notícia.', 3),
+        textBlock('corpo', 'Texto da segunda notícia.', 3),
+      ]),
+      galleryPage('Galeria de registros'),
+      page('agenda', [textBlock('titulo_materia', 'Agenda e avisos'), agendaBlock()]),
+      closingPage('Texto de encerramento desta edição.'),
+    ],
+  },
+  {
+    key: 'pedagogico',
+    name: 'Pedagógico',
+    description: 'Capa, relato, objetivos, registros, falas das crianças e encerramento.',
+    pageLabels: ['Capa', 'Relato', 'Objetivos', 'Registros', 'Falas', 'Fim'],
+    build: () => [
+      coverPage('Nome do projeto pedagógico', 'Turma · Período da atividade'),
+      page('materia', [
+        textBlock('titulo_materia', 'Relato da experiência'),
+        imageBlock(6, '16/9'),
+        textBlock('corpo', 'Conte como a atividade aconteceu.'),
+      ]),
+      page('materias', [
+        textBlock('titulo_materia', 'Objetivos e aprendizados'),
+        textBlock('subtitulo', 'Objetivos', 2),
+        textBlock('subtitulo', 'Desenvolvimento', 2),
+        textBlock('subtitulo', 'Aprendizados', 2),
+        textBlock('corpo', 'O que se pretendia alcançar.', 2),
+        textBlock('corpo', 'Como o trabalho foi conduzido.', 2),
+        textBlock('corpo', 'O que as crianças aprenderam.', 2),
+      ]),
+      galleryPage('Registros fotográficos'),
+      page('materias', [
+        textBlock('titulo_materia', 'Falas e produções'),
+        textBlock('destaque', '“Fala da criança.” — Nome, 5 anos', 3),
+        textBlock('destaque', '“Outra fala da criança.” — Nome, 6 anos', 3),
+        imageBlock(3, '4/3'),
+        imageBlock(3, '4/3'),
+      ]),
+      closingPage('Mensagem de encerramento da equipe pedagógica.'),
+    ],
+  },
+  {
+    key: 'eventos',
+    name: 'Eventos',
+    description: 'Capa, contexto, principais momentos, galeria, resultados e próximos eventos.',
+    pageLabels: ['Capa', 'Contexto', 'Momentos', 'Galeria', 'Resultados', 'Agenda'],
+    build: () => [
+      coverPage('Nome do evento', 'Data · Local do evento'),
+      page('materia', [
+        textBlock('titulo_materia', 'Apresentação do evento'),
+        imageBlock(6, '16/9'),
+        textBlock('corpo', 'Contexto e objetivo da ação realizada.'),
+      ]),
+      page('materias', [
+        textBlock('titulo_materia', 'Principais momentos'),
+        imageBlock(2, '4/3'),
+        imageBlock(2, '4/3'),
+        imageBlock(2, '4/3'),
+        textBlock('corpo', 'Momento 1.', 2),
+        textBlock('corpo', 'Momento 2.', 2),
+        textBlock('corpo', 'Momento 3.', 2),
+      ]),
+      galleryPage('Galeria do evento'),
+      page('numeros', [
+        textBlock('titulo_materia', 'Resultados e números'),
+        statBlock('1.200', 'Participantes'),
+        statBlock('35', 'Ações realizadas'),
+        statBlock('18', 'Parcerias'),
+        textBlock('corpo', 'Comentário sobre os resultados alcançados.'),
+      ]),
+      page('agenda', [textBlock('titulo_materia', 'Próximos eventos'), agendaBlock()]),
+    ],
+  },
+  {
+    key: 'branco',
+    name: 'Em branco',
+    description: 'Comece do zero com uma página livre.',
+    pageLabels: ['Livre'],
+    build: () => [createPage('branco')],
+  },
+];
+
+export const findJournalModel = (key: JournalModelKey): JournalModel =>
+  JOURNAL_MODELS.find((model) => model.key === key) ?? JOURNAL_MODELS[0];
+
