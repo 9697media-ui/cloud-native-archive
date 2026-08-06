@@ -289,10 +289,10 @@ export function JournalBlockView({
       <ul className="divide-y divide-[#D9D4C4]">
         {block.items.map((item) => (
           <li key={item.id} className="flex gap-3 py-1.5">
-            <span className="w-14 shrink-0 text-[11px] font-bold text-news-brand-1">{item.date}</span>
-            <span className="flex-1 text-[11px] font-semibold text-[#1F211F]">{item.title}</span>
-            <span className="w-12 text-right text-[10px] text-[#5C5A50]">{item.time}</span>
-            <span className="w-32 text-right text-[10px] text-[#5C5A50]">{item.place}</span>
+            <span className="w-14 shrink-0 text-[14px] font-bold text-news-brand-1">{item.date}</span>
+            <span className="flex-1 text-[14px] font-semibold text-[#1F211F]">{item.title}</span>
+            <span className="w-12 text-right text-[14px] text-[#5C5A50]">{item.time}</span>
+            <span className="w-32 text-right text-[14px] text-[#5C5A50]">{item.place}</span>
           </li>
         ))}
       </ul>
@@ -309,7 +309,7 @@ export function JournalBlockView({
         >
           {block.value}
         </p>
-        <p className="mt-1 text-[9px] uppercase tracking-[0.14em] text-[#5C5A50]">{block.label}</p>
+        <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-[#5C5A50]">{block.label}</p>
       </div>
     );
   }
@@ -415,10 +415,10 @@ export function JournalPageView({
       <div className="flex items-center justify-between px-12 pt-10">
         <img src={anaLogo} alt="ANA Brasil" className="h-9 w-auto object-contain" draggable={false} />
         <div className="text-right">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#1F211F]">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#1F211F]">
             Jornal Institucional
           </p>
-          <p className="text-[9px] uppercase tracking-[0.14em] text-[#5C5A50]">
+          <p className="text-[12px] uppercase tracking-[0.14em] text-[#5C5A50]">
             {[unitName, edition].filter(Boolean).join(' · ')}
           </p>
         </div>

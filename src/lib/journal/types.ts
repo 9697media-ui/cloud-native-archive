@@ -164,23 +164,23 @@ export const TEXT_STYLE_LABELS: Record<TextStyleKey, string> = {
 /** Classes tipográficas travadas — usadas no canvas, no preview e no PDF. */
 export const TEXT_STYLE_CLASSES: Record<TextStyleKey, string> = {
   titulo_capa: 'text-[35px] font-extrabold uppercase leading-[1.05] tracking-tight',
-  titulo_materia: 'text-[25px] font-bold leading-[1.15]',
+  titulo_materia: 'text-[23px] font-bold leading-[1.15]',
   subtitulo: 'text-[15px] font-semibold uppercase tracking-[0.14em]',
-  corpo: 'text-[13px] leading-[1.65] text-justify',
-  destaque: 'text-[14px] font-semibold italic leading-[1.4] border-l-4 pl-3',
+  corpo: 'text-[18px] leading-[1.65] text-justify',
+  destaque: 'text-[15px] font-semibold italic leading-[1.4] border-l-4 pl-3',
   chamada: 'text-[12px] font-medium leading-[1.4]',
-  legenda: 'text-[11px] italic leading-[1.3]',
+  legenda: 'text-[12px] italic leading-[1.3]',
 };
 
 /** Tamanho padrão (px) de cada função tipográfica — usado no controle de fonte. */
 export const TEXT_STYLE_DEFAULT_SIZES: Record<TextStyleKey, number> = {
   titulo_capa: 35,
-  titulo_materia: 25,
+  titulo_materia: 23,
   subtitulo: 15,
-  corpo: 13,
-  destaque: 14,
+  corpo: 18,
+  destaque: 15,
   chamada: 12,
-  legenda: 11,
+  legenda: 12,
 };
 
 
