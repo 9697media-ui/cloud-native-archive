@@ -16,6 +16,8 @@ import {
   Check,
   Lock,
   Unlock,
+  Undo2,
+  Redo2,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -97,6 +99,15 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   const exportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
+  /** Histórico de desfazer/refazer das páginas (limite de 50 passos). */
+  const pagesRef = useRef<JournalPage[]>(pages);
+  const undoStack = useRef<JournalPage[][]>([]);
+  const redoStack = useRef<JournalPage[][]>([]);
+  const [historyTick, setHistoryTick] = useState(0);
+
+  useEffect(() => {
+    pagesRef.current = pages;
+  }, [pages]);
 
   const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
   const selectedBlock = activePage?.blocks.find((block) => block.id === selectedBlockId);
@@ -136,8 +147,52 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
   const mutatePages = useCallback((updater: (prev: JournalPage[]) => JournalPage[]) => {
     dirtyRef.current = true;
+    undoStack.current = [...undoStack.current.slice(-49), pagesRef.current];
+    redoStack.current = [];
+    setHistoryTick((t) => t + 1);
     setPages(updater);
   }, []);
+
+  const undo = useCallback(() => {
+    const previous = undoStack.current.pop();
+    if (!previous) return;
+    redoStack.current = [...redoStack.current.slice(-49), pagesRef.current];
+    dirtyRef.current = true;
+    setPages(previous);
+    setSelectedBlockId(null);
+    setHistoryTick((t) => t + 1);
+  }, []);
+
+  const redo = useCallback(() => {
+    const next = redoStack.current.pop();
+    if (!next) return;
+    undoStack.current = [...undoStack.current.slice(-49), pagesRef.current];
+    dirtyRef.current = true;
+    setPages(next);
+    setSelectedBlockId(null);
+    setHistoryTick((t) => t + 1);
+  }, []);
+
+  // Atalhos de teclado: Ctrl/Cmd+Z desfaz, Ctrl/Cmd+Shift+Z (ou Ctrl+Y) refaz.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      const key = event.key.toLowerCase();
+      if (key === 'z') {
+        event.preventDefault();
+        if (event.shiftKey) redo();
+        else undo();
+      } else if (key === 'y') {
+        event.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [undo, redo]);
+
+  const canUndo = historyTick >= 0 && undoStack.current.length > 0;
+  const canRedo = historyTick >= 0 && redoStack.current.length > 0;
 
 
   const updateBlock = (patch: Partial<JournalBlock>) => {
@@ -490,6 +545,26 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                     <Unlock className="mr-1.5 h-3.5 w-3.5" /> Layout livre
                   </>
                 )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={undo}
+                disabled={!canUndo}
+                title="Desfazer (Ctrl+Z)"
+                aria-label="Desfazer"
+              >
+                <Undo2 className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={redo}
+                disabled={!canRedo}
+                title="Refazer (Ctrl+Shift+Z)"
+                aria-label="Refazer"
+              >
+                <Redo2 className="h-3.5 w-3.5" />
               </Button>
               <div className="flex items-center gap-1 rounded-md border border-border p-0.5">
                 <Button
