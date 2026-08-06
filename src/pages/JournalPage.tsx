@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Copy, Trash2, Pencil, Lock, Loader2, Newspaper, Search, Minus } from 'lucide-react';
+import { Plus, Copy, Trash2, Pencil, Lock, Loader2, Newspaper, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
