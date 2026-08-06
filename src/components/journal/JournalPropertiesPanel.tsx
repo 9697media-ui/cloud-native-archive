@@ -71,14 +71,21 @@ export function JournalPropertiesPanel({ page, block, onChangeBlock, onRemoveBlo
         )}
       </div>
 
-      <p className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px] text-muted-foreground">
-        Largura: <strong className="text-foreground">{block.span} de 6 colunas</strong> · Altura:{' '}
-        <strong className="text-foreground">
-          {block.height ? `${block.height}px` : 'automática'}
-        </strong>
-        . No canvas: arraste a alça direita para largura, a alça inferior para altura (clique duplo
-        volta ao automático) e a alça esquerda para reordenar os blocos.
-      </p>
+      {locked ? (
+        <p className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px] text-muted-foreground">
+          Layout travado pelo modelo: tamanho e posição são fixos. Edite apenas o conteúdo (textos e
+          imagens). Para alterar a estrutura, destrave o layout na barra do canvas.
+        </p>
+      ) : (
+        <p className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px] text-muted-foreground">
+          Largura: <strong className="text-foreground">{block.span} de 6 colunas</strong> · Altura:{' '}
+          <strong className="text-foreground">
+            {block.height ? `${block.height}px` : 'automática'}
+          </strong>
+          . No canvas: arraste a alça direita para largura, a alça inferior para altura (clique duplo
+          volta ao automático) e a alça esquerda para reordenar os blocos.
+        </p>
+      )}
 
 
 
