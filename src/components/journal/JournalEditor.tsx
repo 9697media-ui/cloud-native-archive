@@ -116,20 +116,23 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
   /** Ajuste automático da folha à área central (recalcula ao redimensionar). */
   useEffect(() => {
-    if (!autoFit) return;
+    if (!fitMode) return;
     const element = canvasRef.current;
     if (!element) return;
     const recompute = () => {
       const { width, height } = element.getBoundingClientRect();
       if (width <= 0 || height <= 0) return;
-      const next = Math.min((width - 48) / A4_W, (height - 48) / A4_H);
+      const byWidth = (width - 48) / A4_W;
+      const byHeight = (height - 48) / A4_H;
+      const next =
+        fitMode === 'width' ? byWidth : fitMode === 'height' ? byHeight : Math.min(byWidth, byHeight);
       setZoom(Math.max(0.3, Math.min(1.5, Number(next.toFixed(3)))));
     };
     recompute();
     const observer = new ResizeObserver(recompute);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [autoFit]);
+  }, [fitMode]);
 
   // Autosave com 2s de inatividade.
   useEffect(() => {
@@ -142,9 +145,10 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   }, [name, pages, journal.id, onSave]);
 
   const setManualZoom = useCallback((updater: (current: number) => number) => {
-    setAutoFit(false);
+    setFitMode(null);
     setZoom((current) => Math.max(0.3, Math.min(1.5, updater(current))));
   }, []);
+
 
   const mutatePages = useCallback((updater: (prev: JournalPage[]) => JournalPage[]) => {
     dirtyRef.current = true;
