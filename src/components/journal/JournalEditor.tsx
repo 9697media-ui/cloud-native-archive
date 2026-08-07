@@ -18,6 +18,8 @@ import {
   Unlock,
   Undo2,
   Redo2,
+  Maximize2,
+  Settings2,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -32,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { A4_H, A4_W, JournalPageView } from './JournalPageView';
 import { JournalPropertiesPanel } from './JournalPropertiesPanel';
@@ -92,7 +95,8 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   const [zoom, setZoom] = useState(0.7);
   /** Layout do modelo travado: só o conteúdo é editável (padrão). */
   const [layoutLocked, setLayoutLocked] = useState(true);
-  const [autoFit, setAutoFit] = useState(true);
+  /** Modo de ajuste da folha: tela, largura, altura ou zoom manual (null). */
+  const [fitMode, setFitMode] = useState<'screen' | 'width' | 'height' | null>('screen');
   /** Fundo da folha: cinza institucional (#EEEEEE) ou branco. */
   const [paperColor, setPaperColor] = useState<'#EEEEEE' | '#FFFFFF'>('#EEEEEE');
   const [exporting, setExporting] = useState(false);
@@ -115,20 +119,23 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
   /** Ajuste automático da folha à área central (recalcula ao redimensionar). */
   useEffect(() => {
-    if (!autoFit) return;
+    if (!fitMode) return;
     const element = canvasRef.current;
     if (!element) return;
     const recompute = () => {
       const { width, height } = element.getBoundingClientRect();
       if (width <= 0 || height <= 0) return;
-      const next = Math.min((width - 48) / A4_W, (height - 48) / A4_H);
+      const byWidth = (width - 48) / A4_W;
+      const byHeight = (height - 48) / A4_H;
+      const next =
+        fitMode === 'width' ? byWidth : fitMode === 'height' ? byHeight : Math.min(byWidth, byHeight);
       setZoom(Math.max(0.3, Math.min(1.5, Number(next.toFixed(3)))));
     };
     recompute();
     const observer = new ResizeObserver(recompute);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [autoFit]);
+  }, [fitMode]);
 
   // Autosave com 2s de inatividade.
   useEffect(() => {
@@ -141,9 +148,10 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   }, [name, pages, journal.id, onSave]);
 
   const setManualZoom = useCallback((updater: (current: number) => number) => {
-    setAutoFit(false);
+    setFitMode(null);
     setZoom((current) => Math.max(0.3, Math.min(1.5, updater(current))));
   }, []);
+
 
   const mutatePages = useCallback((updater: (prev: JournalPage[]) => JournalPage[]) => {
     dirtyRef.current = true;
@@ -436,15 +444,47 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               </>
             )}
           </span>
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => exportPdf('digital')} disabled={exporting}>
-              {exporting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
-              PDF digital
-            </Button>
+          <div className="ml-auto flex items-center gap-1.5">
             <Button size="sm" onClick={() => exportPdf('impressao')} disabled={exporting}>
-              <Download className="mr-1.5 h-4 w-4" /> PDF impressão
+              {exporting ? (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-1.5 h-4 w-4" />
+              )}
+              Baixar PDF
             </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" aria-label="Mais opções de exportação">
+                  ⋯
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-56 space-y-1.5">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Exportar
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => exportPdf('impressao')}
+                  disabled={exporting}
+                >
+                  <Download className="mr-1.5 h-4 w-4" /> PDF impressão (alta)
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => exportPdf('digital')}
+                  disabled={exporting}
+                >
+                  <FileText className="mr-1.5 h-4 w-4" /> PDF digital (leve)
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
+
         </div>
 
         <UnitBadge
@@ -540,89 +580,187 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
 
         {/* Canvas */}
         <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-card">
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2 text-xs">
-            <span className="text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 border-b border-border px-3 py-2 text-xs">
+            <span className="font-medium text-muted-foreground">
               Página {pages.findIndex((page) => page.id === activePage.id) + 1} de {pages.length}
             </span>
-            <div className="ml-auto flex items-center gap-1">
-              <Button
-                variant={layoutLocked ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setLayoutLocked((value) => !value)}
-                title={
-                  layoutLocked
-                    ? 'Layout travado pelo modelo — clique para liberar tamanho e posição'
-                    : 'Layout livre — clique para travar tamanho e posição'
-                }
-              >
-                {layoutLocked ? (
-                  <>
-                    <Lock className="mr-1.5 h-3.5 w-3.5" /> Layout travado
-                  </>
-                ) : (
-                  <>
-                    <Unlock className="mr-1.5 h-3.5 w-3.5" /> Layout livre
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={undo}
-                disabled={!canUndo}
-                title="Desfazer (Ctrl+Z)"
-                aria-label="Desfazer"
-              >
-                <Undo2 className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={redo}
-                disabled={!canRedo}
-                title="Refazer (Ctrl+Shift+Z)"
-                aria-label="Refazer"
-              >
-                <Redo2 className="h-3.5 w-3.5" />
-              </Button>
-              <div className="flex items-center gap-1 rounded-md border border-border p-0.5">
+
+            <div className="ml-auto flex flex-wrap items-center gap-2">
+              {/* Grupo 1 — histórico */}
+              <div className="flex items-center rounded-md border border-border p-0.5">
                 <Button
-                  variant={paperColor === '#EEEEEE' ? 'secondary' : 'ghost'}
-                  size="sm"
-                  onClick={() => setPaperColor('#EEEEEE')}
-                  title="Fundo cinza (#EEEEEE)"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={undo}
+                  disabled={!canUndo}
+                  title="Desfazer (Ctrl+Z)"
+                  aria-label="Desfazer"
                 >
-                  Fundo #EEE
+                  <Undo2 className="h-3.5 w-3.5" />
                 </Button>
                 <Button
-                  variant={paperColor === '#FFFFFF' ? 'secondary' : 'ghost'}
-                  size="sm"
-                  onClick={() => setPaperColor('#FFFFFF')}
-                  title="Fundo branco"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={redo}
+                  disabled={!canRedo}
+                  title="Refazer (Ctrl+Shift+Z)"
+                  aria-label="Refazer"
                 >
-                  Branco
+                  <Redo2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
-              <Button
-                variant={autoFit ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setAutoFit(true)}
-                title="Ajustar a folha à tela"
-              >
-                Ajustar à tela
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => setManualZoom((z) => z - 0.1)} aria-label="Diminuir zoom">
-                −
-              </Button>
-              <span className="w-10 text-center">{Math.round(zoom * 100)}%</span>
-              <Button variant="ghost" size="sm" onClick={() => setManualZoom((z) => z + 0.1)} aria-label="Aumentar zoom">
-                +
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => setManualZoom(() => 1)} title="Restaurar 100%">
-                100%
-              </Button>
+
+              {/* Grupo 2 — zoom / ajuste */}
+              <div className="flex items-center rounded-md border border-border p-0.5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setManualZoom((z) => z - 0.1)}
+                  aria-label="Diminuir zoom"
+                >
+                  −
+                </Button>
+                <span className="w-11 text-center tabular-nums text-muted-foreground">
+                  {Math.round(zoom * 100)}%
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setManualZoom((z) => z + 0.1)}
+                  aria-label="Aumentar zoom"
+                >
+                  +
+                </Button>
+                <Button
+                  variant={fitMode === 'screen' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-7"
+                  onClick={() => setFitMode('screen')}
+                  title="Ajustar a folha à tela"
+                >
+                  <Maximize2 className="mr-1.5 h-3.5 w-3.5" /> Ajustar
+                </Button>
+              </div>
+
+              {/* Grupo 3 — opções da folha */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8">
+                    <Settings2 className="mr-1.5 h-3.5 w-3.5" /> Opções da folha
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-64 space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Fundo do jornal
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(
+                        [
+                          { value: '#EEEEEE' as const, label: 'Cinza institucional' },
+                          { value: '#FFFFFF' as const, label: 'Branco' },
+                        ]
+                      ).map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setPaperColor(option.value)}
+                          aria-pressed={paperColor === option.value}
+                          className={cn(
+                            'rounded-md border p-2 text-left text-[11px] transition-colors',
+                            paperColor === option.value
+                              ? 'border-primary bg-accent'
+                              : 'border-border hover:bg-accent/40',
+                          )}
+                        >
+                          <span
+                            className="mb-1.5 block h-8 w-full rounded-sm border border-border"
+                            style={{ backgroundColor: option.value }}
+                          />
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Aplica-se a todas as páginas, no preview e no PDF.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 border-t border-border pt-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Ajuste da visualização
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <Button
+                        variant={fitMode === 'width' ? 'secondary' : 'outline'}
+                        size="sm"
+                        className="h-7 text-[11px]"
+                        onClick={() => setFitMode('width')}
+                      >
+                        À largura
+                      </Button>
+                      <Button
+                        variant={fitMode === 'height' ? 'secondary' : 'outline'}
+                        size="sm"
+                        className="h-7 text-[11px]"
+                        onClick={() => setFitMode('height')}
+                      >
+                        À altura
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="col-span-2 h-7 text-[11px]"
+                        onClick={() => setManualZoom(() => 1)}
+                      >
+                        Restaurar 100%
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 border-t border-border pt-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Layout
+                    </p>
+                    <Button
+                      variant={layoutLocked ? 'secondary' : 'outline'}
+                      size="sm"
+                      className="h-8 w-full justify-start text-[11px]"
+                      onClick={() => setLayoutLocked((value) => !value)}
+                    >
+                      {layoutLocked ? (
+                        <>
+                          <Lock className="mr-1.5 h-3.5 w-3.5" /> Layout travado pelo modelo
+                        </>
+                      ) : (
+                        <>
+                          <Unlock className="mr-1.5 h-3.5 w-3.5" /> Layout livre
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground">
+                      Travado: só conteúdo. Livre: tamanho, ordem e posição dos blocos.
+                    </p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {layoutLocked ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-[10px] text-muted-foreground">
+                  <Lock className="h-3 w-3" /> Layout travado
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-1 text-[10px] text-accent-foreground">
+                  <Unlock className="h-3 w-3" /> Layout livre
+                </span>
+              )}
             </div>
           </div>
+
           <div ref={canvasRef} className="flex-1 overflow-auto bg-journal-workspace p-6">
             <div
               style={{
