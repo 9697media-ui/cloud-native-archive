@@ -93,9 +93,12 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {Object.entries(TEXT_STYLE_LABELS).map(([value, label]) => (
+            {(SELECTABLE_TEXT_STYLES.includes(block.style)
+              ? SELECTABLE_TEXT_STYLES
+              : [...SELECTABLE_TEXT_STYLES, block.style]
+            ).map((value) => (
               <SelectItem key={value} value={value}>
-                {label}
+                {TEXT_STYLE_LABELS[value]}
               </SelectItem>
             ))}
           </SelectContent>
