@@ -92,7 +92,8 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
   const [zoom, setZoom] = useState(0.7);
   /** Layout do modelo travado: só o conteúdo é editável (padrão). */
   const [layoutLocked, setLayoutLocked] = useState(true);
-  const [autoFit, setAutoFit] = useState(true);
+  /** Modo de ajuste da folha: tela, largura, altura ou zoom manual (null). */
+  const [fitMode, setFitMode] = useState<'screen' | 'width' | 'height' | null>('screen');
   /** Fundo da folha: cinza institucional (#EEEEEE) ou branco. */
   const [paperColor, setPaperColor] = useState<'#EEEEEE' | '#FFFFFF'>('#EEEEEE');
   const [exporting, setExporting] = useState(false);
