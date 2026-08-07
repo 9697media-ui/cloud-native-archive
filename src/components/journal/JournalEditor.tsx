@@ -444,15 +444,47 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
               </>
             )}
           </span>
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => exportPdf('digital')} disabled={exporting}>
-              {exporting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
-              PDF digital
-            </Button>
+          <div className="ml-auto flex items-center gap-1.5">
             <Button size="sm" onClick={() => exportPdf('impressao')} disabled={exporting}>
-              <Download className="mr-1.5 h-4 w-4" /> PDF impressão
+              {exporting ? (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-1.5 h-4 w-4" />
+              )}
+              Baixar PDF
             </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" aria-label="Mais opções de exportação">
+                  ⋯
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-56 space-y-1.5">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Exportar
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => exportPdf('impressao')}
+                  disabled={exporting}
+                >
+                  <Download className="mr-1.5 h-4 w-4" /> PDF impressão (alta)
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => exportPdf('digital')}
+                  disabled={exporting}
+                >
+                  <FileText className="mr-1.5 h-4 w-4" /> PDF digital (leve)
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
+
         </div>
 
         <UnitBadge
