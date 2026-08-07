@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { ColorSwatchPicker } from '@/components/journal/ColorSwatchPicker';
 import { cn } from '@/lib/utils';
-import { TEXT_STYLE_LABELS, TEXT_STYLE_DEFAULT_SIZES } from '@/lib/journal/types';
+import { TEXT_STYLE_LABELS, TEXT_STYLE_DEFAULT_SIZES, SELECTABLE_TEXT_STYLES } from '@/lib/journal/types';
 import type {
   JournalBlock,
   JournalTextBlock,
@@ -93,9 +93,12 @@ export function TextBlockPanel({ block, onChange }: TextBlockPanelProps) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {Object.entries(TEXT_STYLE_LABELS).map(([value, label]) => (
+            {(SELECTABLE_TEXT_STYLES.includes(block.style)
+              ? SELECTABLE_TEXT_STYLES
+              : [...SELECTABLE_TEXT_STYLES, block.style]
+            ).map((value) => (
               <SelectItem key={value} value={value}>
-                {label}
+                {TEXT_STYLE_LABELS[value]}
               </SelectItem>
             ))}
           </SelectContent>
