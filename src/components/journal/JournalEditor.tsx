@@ -12,7 +12,6 @@ import {
   Image as ImageIcon,
   Type,
   Hash,
-  CalendarDays,
   Check,
   Lock,
   Unlock,
@@ -50,7 +49,6 @@ import {
 } from '@/lib/journal/types';
 import {
   TEMPLATE_OPTIONS,
-  agendaBlock,
   createPage,
   imageBlock,
   statBlock,
