@@ -812,11 +812,13 @@ export function JournalEditor({ journal, saving, savedAt, onBack, onSave }: Prop
                 <Button variant="outline" size="sm" onClick={() => addBlock(imageBlock(6, '16/9'))}>
                   <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Imagem
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => addBlock(statBlock())}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="col-span-2"
+                  onClick={() => addBlock(statBlock())}
+                >
                   <Hash className="mr-1.5 h-3.5 w-3.5" /> Número
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => addBlock(agendaBlock())}>
-                  <CalendarDays className="mr-1.5 h-3.5 w-3.5" /> Agenda
                 </Button>
               </div>
             </div>
