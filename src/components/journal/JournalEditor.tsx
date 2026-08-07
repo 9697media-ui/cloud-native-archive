@@ -18,6 +18,8 @@ import {
   Unlock,
   Undo2,
   Redo2,
+  Maximize2,
+  Settings2,
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
