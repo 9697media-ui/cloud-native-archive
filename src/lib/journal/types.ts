@@ -155,11 +155,20 @@ export const TEXT_STYLE_LABELS: Record<TextStyleKey, string> = {
   titulo_capa: 'Título de capa',
   titulo_materia: 'Título de matéria',
   subtitulo: 'Subtítulo',
-  corpo: 'Texto corrido',
+  corpo: 'Corpo do texto',
   destaque: 'Frase de destaque',
   chamada: 'Chamada curta',
   legenda: 'Legenda',
 };
+
+/** Funções de texto oferecidas no editor (as demais existem só para conteúdo legado). */
+export const SELECTABLE_TEXT_STYLES: TextStyleKey[] = [
+  'titulo_capa',
+  'titulo_materia',
+  'subtitulo',
+  'corpo',
+  'destaque',
+];
 
 /** Classes tipográficas travadas — usadas no canvas, no preview e no PDF. */
 export const TEXT_STYLE_CLASSES: Record<TextStyleKey, string> = {
