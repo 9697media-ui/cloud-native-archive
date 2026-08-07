@@ -78,8 +78,6 @@ export function createPage(template: JournalTemplate): JournalPage {
           imageBlock(3, '4/3'),
           imageBlock(3, '4/3'),
         ];
-      case 'agenda':
-        return [textBlock('titulo_materia', 'Agenda'), agendaBlock()];
       case 'numeros':
         return [
           textBlock('titulo_materia', 'Resultados e números'),
@@ -111,7 +109,6 @@ export const TEMPLATE_OPTIONS: JournalTemplate[] = [
   'materias',
   'materia',
   'galeria',
-  'agenda',
   'numeros',
   'contracapa',
   'branco',
@@ -165,8 +162,8 @@ export const JOURNAL_MODELS: JournalModel[] = [
   {
     key: 'padrao',
     name: 'Padrão',
-    description: 'Capa, matéria principal, notícias, galeria, agenda e encerramento.',
-    pageLabels: ['Capa', 'Matéria', 'Notícias', 'Galeria', 'Agenda', 'Fim'],
+    description: 'Capa, matéria principal, notícias, galeria, resultados e encerramento.',
+    pageLabels: ['Capa', 'Matéria', 'Notícias', 'Galeria', 'Resultados', 'Fim'],
     build: () => [
       coverPage('Título da chamada principal', 'Chamada secundária desta edição.'),
       page('materia', [
@@ -230,8 +227,8 @@ export const JOURNAL_MODELS: JournalModel[] = [
   {
     key: 'eventos',
     name: 'Eventos',
-    description: 'Capa, contexto, principais momentos, galeria, resultados e próximos eventos.',
-    pageLabels: ['Capa', 'Contexto', 'Momentos', 'Galeria', 'Resultados', 'Agenda'],
+    description: 'Capa, contexto, principais momentos, galeria, resultados e encerramento.',
+    pageLabels: ['Capa', 'Contexto', 'Momentos', 'Galeria', 'Resultados', 'Fim'],
     build: () => [
       coverPage('Nome do evento', 'Data · Local do evento'),
       page('materia', [
@@ -256,7 +253,7 @@ export const JOURNAL_MODELS: JournalModel[] = [
         statBlock('18', 'Parcerias'),
         textBlock('corpo', 'Comentário sobre os resultados alcançados.'),
       ]),
-      page('agenda', [textBlock('titulo_materia', 'Próximos eventos'), agendaBlock()]),
+      closingPage('Agradecemos a todos que participaram deste evento.'),
     ],
   },
   {
